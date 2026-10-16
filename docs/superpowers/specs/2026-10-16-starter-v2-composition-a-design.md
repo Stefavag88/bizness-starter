@@ -1,7 +1,7 @@
 # Business Starter v2 — Composition A: Native authoring design
 
 Date: 2026-10-16
-Status: Draft for user review. No product implementation is authorized by this document alone.
+Status: Approved by the user on 2026-10-16. The Composition A implementation plan is written separately and awaits review before product changes.
 
 Authority: This is a focused addendum to the approved [v2 architecture](2026-10-16-business-starter-v2-design.md). It proposes an explicit revision to the Foundation localized-copy and navigation-label persistence encoding. The accepted Foundation remains available at commit ac3102c on codex/starter-v2-foundation. Both reference repositories remain read-only.
 
