@@ -30,6 +30,24 @@ export function createCmsSources(paths: string[], backupRoot = '.generated/cms-r
       2,
     ),
   );
+  const revoke = (path: string, current: string | undefined, failure?: unknown) => {
+    const expected = owned.get(path) ?? originals.get(path);
+    const previouslyRejected = rejected.has(path);
+    // Revoke before optional diagnostic writes; their failure must not retain a claim.
+    owned.delete(path);
+    rejected.add(path);
+    if (previouslyRejected) return;
+    writeFileSync(
+      join(backup, backupName(path) + '.expected.json'),
+      expected ?? JSON.stringify({ exists: false }),
+    );
+    writeFileSync(
+      join(backup, backupName(path) + '.unclaimed.json'),
+      current ?? JSON.stringify(failure
+        ? { unreadable: true, error: String(failure) }
+        : { exists: false }),
+    );
+  };
   const reject = (path: string, current: string, expected: unknown, message: string): never => {
     owned.delete(path);
     rejected.add(path);
@@ -68,9 +86,21 @@ export function createCmsSources(paths: string[], backupRoot = '.generated/cms-r
     originalState: (path:string) => {const bytes=originals.get(sourcePath(path));return bytes===undefined?{exists:false}:{exists:true,bytes};},
     owns: (path: string) => owned.has(sourcePath(path)),
     assertUnchanged() {
-      for (const [path, original] of originals)
-        if (rejected.has(path) || (existsSync(path)?readFileSync(path, 'utf8'):undefined) !== (owned.get(path) ?? original))
-          throw Error('Source changed outside this test before save: ' + path);
+      for (const [path, original] of originals) {
+        try {
+          const current = existsSync(path) ? readFileSync(path, 'utf8') : undefined;
+          if (!rejected.has(path) && current === (owned.get(path) ?? original)) continue;
+          revoke(path, current);
+        } catch (error) {
+          try {
+            revoke(path, undefined, error);
+          } catch {
+            // Claim is already revoked, even if evidence storage failed.
+          }
+          throw Error('Source changed outside this test before save: ' + path, { cause: error });
+        }
+        throw Error('Source changed outside this test before save: ' + path);
+      }
     },
     capture,
     async captureNative(path: string, mutation: Omit<Mutation,'operation'> & {operation?:Mutation['operation']}, schema: Schema, predicate: Predicate) {
@@ -91,17 +121,27 @@ export function createCmsSources(paths: string[], backupRoot = '.generated/cms-r
     async restore(cleanup: () => void | Promise<void> = () => {}) {
       const conflicts = new Set(rejected);
       for (const [path, original] of originals) {
+        if (rejected.has(path)) continue;
+        let current: string | undefined;
         try {
-          const current = existsSync(path)?readFileSync(path, 'utf8'):undefined;
-          if (owned.has(path) && current === owned.get(path) && !rejected.has(path))
-            {if(original===undefined)unlinkSync(path);else writeFileSync(path, original);}
-          else if (current !== original) {
+          current = existsSync(path) ? readFileSync(path, 'utf8') : undefined;
+          if (owned.has(path) && current === owned.get(path)) {
+            if (original === undefined) {
+              unlinkSync(path);
+            } else {
+              writeFileSync(path, original);
+            }
+          } else if (current !== original) {
             conflicts.add(path);
-            writeFileSync(join(backup,backupName(path)+'.unclaimed.json'),current??JSON.stringify({exists:false}));
-            if(owned.has(path))writeFileSync(join(backup,backupName(path)+'.expected.json'),owned.get(path)!);
+            revoke(path, current);
           }
-        } catch {
+        } catch (error) {
           conflicts.add(path);
+          try {
+            revoke(path, current, error);
+          } catch {
+            // Preserve revocation on evidence storage failure.
+          }
         }
       }
       // Close browser resources and refresh safe restored design sources even on conflict.

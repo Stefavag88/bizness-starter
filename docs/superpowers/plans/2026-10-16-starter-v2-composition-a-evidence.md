@@ -22,3 +22,11 @@ Final gates:
 - Both read-only references retained clean status and original HEADs: bizness-starter `7473c0839dca8fadb7d7a8f9cc459cab79aba94f`; financial-consulting-example `0e1e5988dcdcba508300099ccab2643daedf1aad`.
 
 Known output notices: existing experimental SQLite warning; installed Tina CLI Node DEP0190 shell-option deprecation; Playwright NO_COLOR/FORCE_COLOR notice. No main-stack public/Worker/profile result is claimed for this isolated task. The detailed local implementer report is `.superpowers/sdd/2026-10-16-starter-v2-composition-a/task-1-report.md`; independent task review remains a separate gate.
+
+### Task 1 independent review fix round 1
+
+Addressed I1/I2. Conflicts detected by assertUnchanged/restore now permanently revoke ownership before evidence writes, including restore read/write failures. Repeated restore after a created file returns to its former owned bytes preserves the file and rejects again. Three new ownership regressions first observed stale owns=true, then passed after the fix.
+
+The probe retains PID and bounded stdout/stderr live through backward-compatible owned-command callbacks. Command/teardown errors are recorded separately, runner.json is attempted after failed closed-port validation, and the original command error is preserved. Real failure regressions cover exit 7, bounded streams and an actual occupied teardown port with stopped=false. Existing timeout/tree-cleanup coverage verifies the start PID. Touched safety flow is formatted into ordinary blocks.
+
+Final focused pass: 41 tests. Required pnpm check passed with zero diagnostics; pnpm test passed 243 tests with one existing optional skip plus two footer tests. One actual success probe rerun passed, 19.6-second UI / 20.9-second total. New proof: `.generated/composition-probe/run-G9v0HA/evidence/`; CLI PID 37740 exited, port/PID checks passed, error=null, teardownErrors=[], stopped=true, and the new file returned to original absence. Product schema/content and pinned dependencies remain unchanged. Known SQLite/DEP0190/color notices remain documented. No broad product suites were run.

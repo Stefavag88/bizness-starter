@@ -1,5 +1,5 @@
 import { afterEach, expect, it } from 'vitest';
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, rmSync, mkdirSync, rmdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, sep, basename } from 'node:path';
 import { createCmsSources } from '../e2e/helpers/cms-source-ownership';
@@ -268,4 +268,14 @@ it('revokes prior ownership when native expectation derivation fails and preserv
  await expect(sources.captureNative(path,{operation:'update',collection:'page',relativePath:'about.json',params:{page:{unknown:'unexpected'}}},{collections:[{name:'page',path:roots.at(-1)!,fields:[{name:'body',type:'string'}]}]},()=>true)).rejects.toThrow('Unknown native mutation field');
  expect(sources.owns(path)).toBe(false);await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');expect(readFileSync(path,'utf8')).toBe(current);
  expect(JSON.parse(readFileSync(sources.backupFor(path)+'.expected.json','utf8')).unprovenMutation.params.page).toEqual({unknown:'unexpected'});
+});
+it.each(['assertUnchanged','restore'] as const)('permanently revokes creation ownership after %s finds an external edit',async detection=>{
+ fixture();const root=roots.at(-1)!;const path=join(root,'created.json');const sources=createCmsSources([path],join(root,'persistent-backups'),{allowCreate:true});const owned='{"body":"Owned"}';writeFileSync(path,owned);sources.capture(path,{body:'Owned'},()=>true);writeFileSync(path,'{"body":"External"}');
+ if(detection==='assertUnchanged')expect(()=>sources.assertUnchanged()).toThrow('Source changed outside this test');else await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');
+ expect(sources.owns(path)).toBe(false);expect(JSON.parse(readFileSync(sources.backupFor(path)+'.expected.json','utf8'))).toEqual({body:'Owned'});
+ writeFileSync(path,owned);await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');expect(readFileSync(path,'utf8')).toBe(owned);expect(sources.owns(path)).toBe(false);
+});
+it('revokes a claim when restore cannot read its current source',async()=>{
+ const {path,expected,sources}=fixture();writeFileSync(path,JSON.stringify(expected));sources.capture(path,expected,()=>true);rmSync(path);mkdirSync(path);
+ await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');expect(sources.owns(path)).toBe(false);rmdirSync(path);writeFileSync(path,JSON.stringify(expected));await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');expect(readFileSync(path,'utf8')).toBe(JSON.stringify(expected));
 });
