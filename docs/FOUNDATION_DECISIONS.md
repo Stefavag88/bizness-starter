@@ -21,3 +21,11 @@ These decisions resolve details left open by the approved Foundation plan. They 
 | Keep the new local repository and branch without merge, push or tag. | This is the explicitly approved separate-project delivery boundary. | Integration can be chosen later; no shared state changed. |
 
 The six initial section renderers are intentionally neutral. JSON-LD, photographic media, social controls, motion, visitor preferences and business presets are not added by implication. Their owners and the remaining stages are documented in the approved design and Foundation evidence.
+
+## Final-review authoring and release decisions
+
+| Decision | Reason | Cost if revisited |
+| --- | --- | --- |
+| Disable native Delete for Offerings, People and Articles during Foundation. | Native deletion bypasses the save hook and scalar canonical IDs are relationship targets; the existing catalog guard cannot prevent this mutation. | Stage 2 must provide relationship-aware authoring/deletion before exposing Delete; retain stable IDs and dangling-reference validation. |
+| Explicitly disable both native folder controls across every collection and reject nested native save paths. Active collection subfolders fail public loading with actionable instructions. | Foundation has flat collection documents; silently ignoring native nested documents can hide published content or break relationships. Dormant article/campaign folders retain their unread profile gates. | Deliberate recursive discovery and authoring/ownership contracts would be required to add folders; no folder feature is implied. |
+| Require explicit redirects for changed published editorial slugs before hosted release. | Previously published URLs must remain supported under the approved architecture. | Stage 2 authoring and the release gate must enforce this requirement; the redirects subsystem is outside Foundation. |

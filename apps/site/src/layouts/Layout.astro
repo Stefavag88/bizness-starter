@@ -4,6 +4,7 @@ import '../styles/themes.generated.css';
 import '../styles/global.css';
 import '@fontsource/noto-sans/400.css';
 import '@fontsource/noto-sans/600.css';
+import RichText from '../components/ui/RichText.astro';
 import {project} from '../lib/content';
 import type {LocalizedContent,Alternate} from '../../../../packages/content/types';
 interface Props {content:LocalizedContent;title:string;description:string;path:string;alternates:Alternate[];noindex?:boolean}
@@ -12,5 +13,5 @@ const {content,title,description,path,alternates,noindex=false}=Astro.props;cons
 <!doctype html><html lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>{title} | {settings.brand.name}</title><meta name="description" content={description}/><link rel="canonical" href={project.siteUrl+path}/>{noindex&&<meta name="robots" content="noindex"/>}{alternates.map(a=><link rel="alternate" hreflang={a.locale} href={project.siteUrl+a.path}/>)}{content.feedPath&&<link rel="alternate" type="application/rss+xml" title={settings.brand.name} href={content.feedPath}/>}</head><body>
 <a class="skip" href="#main">{el?'Μετάβαση στο περιεχόμενο':'Skip to content'}</a>
 <header class="wrap"><a class="brand" href={content.pages.find(p=>p._template==='home')?.path}>{settings.brand.name}</a><nav aria-label={el?'Κύρια πλοήγηση':'Main navigation'}>{settings.navigation.map(n=><a href={content.pages.find(p=>p.contentId===n.pageId)!.path} aria-current={content.pages.find(p=>p.contentId===n.pageId)?.path===path?'page':undefined}>{n.label}</a>)}</nav><nav aria-label={el?'Γλώσσα':'Language'}>{alternates.map(a=><a href={a.path} lang={a.locale} hreflang={a.locale} aria-current={a.locale===locale?'true':undefined}>{project.languages.find(l=>l.code===a.locale)?.label}</a>)}</nav></header>
-<main id="main"><slot/></main><footer class="wrap"><p>{settings.brand.tagline}</p><p>{settings.legal.businessName} · {settings.legal.notice}</p><a href={content.pages.find(p=>p.contentId==='privacy')?.path}>{el?'Απόρρητο':'Privacy'}</a> · <a href={'mailto:'+settings.contact.email}>{settings.contact.email}</a></footer>
+<main id="main"><slot/></main><footer class="wrap"><p>{settings.brand.tagline}</p><p>{settings.legal.businessName}</p><RichText body={settings.legal.notice} locale={locale}/><a href={content.pages.find(p=>p.contentId==='privacy')?.path}>{el?'Απόρρητο':'Privacy'}</a> · <a href={'mailto:'+settings.contact.email}>{settings.contact.email}</a></footer>
 </body></html>

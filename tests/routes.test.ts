@@ -1,3 +1,4 @@
+import { validateCatalog } from '../packages/content/catalog.mjs';
 import { expect,it } from 'vitest';
 import { readContent } from '../packages/content/read.mjs';
 import { localizeContent } from '../packages/content/localize.mjs';
@@ -12,7 +13,7 @@ it('builds stable explicit routes and reciprocal published alternates',()=>{
 it.each(['home','contact','privacy','services','insights'])('requires protected %s page',async id=>{
  const f=fixture();const {unlinkSync}=await import('node:fs');unlinkSync(f.root+'/content/pages/'+id+'.json');expect(()=>readContent(f.root,project)).toThrow();
 });
-it.each(['api','cms','admin','design-system','newsletter','el','en'])('rejects reserved/prefix slug %s',slug=>{const f=fixture();f.write('pages/extra.json',page('extra','standard',slug));expect(()=>readContent(f.root,project)).toThrow(/slug|route/i);});
+it.each(['404','api','cms','admin','design-system','newsletter','el','en'])('rejects reserved/prefix slug %s',slug=>{const f=fixture();f.write('pages/extra.json',page('extra','standard',slug));expect(()=>readContent(f.root,project)).toThrow(/slug|route/i);});
 it('rejects duplicate home, misplaced home, and duplicate active slugs',()=>{
  const f=fixture();f.write('pages/extra.json',page('extra','home',''));expect(()=>readContent(f.root,project)).toThrow();
  f.write('pages/extra.json',page('extra','standard','about'));expect(()=>readContent(f.root,project)).toThrow(/slug|route/i);
@@ -28,4 +29,9 @@ it('includes person detail routes and detects page/detail URL collisions',()=>{
  const routes=publicRoutes(localizeContent(content,'en',project));
  expect(routes.find(r=>r.kind==='person')).toEqual({kind:'person',contentId:'person',locale:'en',path:'/en/people/person',alternates:[{locale:'en',path:'/en/people/person'},{locale:'el',path:'/el/people/person'}]});
  f.write('pages/extra.json',page('extra','standard','services/sample'));expect(()=>readContent(f.root,project)).toThrow(/route/i);
+});
+
+it('rejects an existing About candidate at the system 404 route in the shared catalog',()=>{
+ const f=fixture();const source=readContent(f.root,project);source.pages.find(p=>p.contentId==='about')!.slug='404';
+ expect(()=>validateCatalog(source,project)).toThrow(/reserved slug 404/);
 });

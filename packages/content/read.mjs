@@ -8,6 +8,12 @@ function json(file,schema,project) {
  try {return schema.parse(normalizeNativeLocales(JSON.parse(readFileSync(file,'utf8').replace(/^\uFEFF/,'')),project));}
  catch(error){throw new Error(file+': '+error.message,{cause:error});}
 }
+function flatFiles(folder) {
+ const entries=readdirSync(folder,{withFileTypes:true});
+ const nested=entries.find(entry=>entry.isDirectory());
+ if(nested)throw Error('Nested content is unsupported in Foundation: '+join(folder,nested.name)+'. Move JSON documents directly into the collection folder (flat files).');
+ return entries.filter(entry=>entry.isFile()&&entry.name.endsWith('.json')).map(entry=>entry.name).sort();
+}
 export function readContent(root,project,options={}) {
  const directory=resolve(root,'content');
  const now=options.now??new Date();
@@ -15,10 +21,11 @@ export function readContent(root,project,options={}) {
  const readFolder=(name,schema)=>{
   const folder=join(directory,name);
   if(!existsSync(folder))return [];
-  return readdirSync(folder).filter(name=>name.endsWith('.json')).sort()
+  return flatFiles(folder)
    .filter(file=>!(name==='pages'&&!project.articles&&file==='insights.json'))
    .map(file=>json(join(folder,file),schema,project));
  };
+ flatFiles(join(directory,'settings'));
  const source={
   settings:json(join(directory,'settings/site.json'),settingsSchema,project),
   pages:readFolder('pages',pageSchema).filter(p=>project.articles||p._template!=='insights'),

@@ -10,7 +10,8 @@
   "scripts": {
     "configure": "node scripts/configure.mjs",
     "check": "pnpm configure && tsc --noEmit && pnpm --filter @starter/site check",
-    "test": "pnpm configure && vitest run",
+    "test": "pnpm configure && vitest run && pnpm test:footer",
+    "test:footer": "vitest run --config apps/site/vitest.config.ts",
     "build": "pnpm configure && pnpm --filter @starter/site build",
     "dev": "node scripts/dev.mjs",
     "dev:cms": "node scripts/dev.mjs --cms",

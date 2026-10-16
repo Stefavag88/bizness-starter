@@ -55,3 +55,13 @@ Stage 2 owns the larger section library, add/reorder, page creation and Rooms ex
 ## Local native build note
 
 The pinned CLI 4.0.1 intermittently stalled at `Indexing local files` during repeated isolated local builds. Canonical configuration validation and generated schema/type output had completed. A datalayer startup/client connection race is an inference from installed CLI code, not a proven upstream diagnosis. The approved local workaround passes the supported `--skip-indexing` only in `--cms-build` mode. This still validates canonical content and builds the native schema/client/editor bundle; it has no local query consumer. `dev:cms` retains full indexing, proven native queries and real UI saves. No dependency upgrade, reconnect patch, hosted build change or production claim is included. Tina advertises its query endpoint as `http://localhost:4010/graphql`; use that host for CMS_QUERY_URL (the OS may bind IPv6). E2E_CMS_URL instead points to the public site origin serving /cms.
+
+## Foundation authoring safeguards
+
+All native collections explicitly disable Create folder and Create nested folder. Store JSON documents directly in each collection folder; nested native save paths are rejected before validation queries or persistence. The public loader fails with the offending active subfolder and a move-to-collection instruction, rather than silently omitting nested documents. Disabled article folders and campaign folders outside newsletter/nurture remain unread.
+
+Native Delete is disabled for Offerings, People and Articles because their stable scalar IDs are relationship targets. Native deletion does not run the save catalog guard. Foundation preserves those IDs and its dangling-relationship validation; stage 2 must add relationship-aware authoring/deletion before exposing deletion. Settings and seeded Pages retain their existing creation/deletion protections.
+
+Changing a published editorial slug requires an explicit redirect from its previous public URL before hosted release. Stage 2 authoring and the release gate must enforce that obligation; Foundation does not implement a redirects subsystem. The localized system `404` path is reserved and cannot be assigned to content.
+
+The ordinary `pnpm test` command runs the boundary/unit suite and then the site-root Astro Layout render suite. Use `pnpm test:footer` for only the bilingual rich-footer component regression; it renders detached fixture content without editing canonical source files.

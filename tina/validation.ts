@@ -47,6 +47,7 @@ export function validateNativeSave(values:Record<string,unknown>,kind:string,pro
 export function beforeSubmit(values:Record<string,unknown>,kind:string,project:ProjectConfig){validateNativeSave(values,kind,project);return values;}
 // Read the current data layer, including all pagination, to reject cross-document conflicts before saving.
 export async function validateCurrentSave(values:Record<string,unknown>,kind:string,project:ProjectConfig,cms:any,relativePath:string) {
+ if(!relativePath||relativePath.includes('/')||relativePath.includes('\\')||!relativePath.endsWith('.json'))throw Error('Foundation uses flat collection files; save documents directly in their collection folder.');
  validateNativeSave(values,kind,project);
  const source:any={pages:[],offerings:[],people:[],articles:[],campaigns:[],now:new Date().toISOString()};
  for(const collection of ['settings','page','offering','person',...(project.articles?['article']:[]),...(project.profile==='enquiries'?[]:['campaign'])]) {

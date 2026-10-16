@@ -1,7 +1,7 @@
 import { localizeContent } from './localize.mjs';
 import { activeRecords } from './publication.mjs';
 import { publicRoutes } from './routes.mjs';
-const reserved=new Set(['api','cms','admin','design-system','newsletter']);
+const reserved=new Set(['404','api','cms','admin','design-system','newsletter']);
 export function validateCatalog(source,project) {
  for(const campaign of source.campaigns??[]) {
   if(!project.interests.some(interest=>interest.id===campaign.interest))throw Error('Campaign references missing interest '+campaign.interest);
