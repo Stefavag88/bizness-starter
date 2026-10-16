@@ -19,3 +19,19 @@ it('loads and guards campaign copy against CRLF, unsafe IDs, missing interests a
  f.write('articles/article.json',{...editorial('article','article'),status:'draft'});f.write('campaigns/note.json',{...campaign,articleId:'article'});expect(()=>readContent(f.root,enabled)).toThrow();
  expect(()=>validateNativeSave({...campaign,articleId:null},'campaign',enabled)).not.toThrow();
 });
+import { campaignSchema } from '../packages/content/schemas.mjs';
+import { beforeSubmit } from '../tina/validation';
+it.each(['\rA note','\nA note','\r\nA note','A note\r','A note\n','A note\r\n','A\rnote','A\nnote'])('rejects raw campaign subject CR/LF at persisted and native boundaries: %j',subject=>{
+ const values={...campaign,subject};const f=fixture();f.write('campaigns/note.json',values);
+ expect(()=>campaignSchema.parse(values)).toThrow();
+ expect(()=>readContent(f.root,enabled)).toThrow();
+ expect(()=>beforeSubmit(values,'campaign',enabled)).toThrow();
+ expect(values.subject).toBe(subject);
+});
+it('normalizes ordinary subject whitespace only on parsed projections and preserves native values',()=>{
+ const values={...campaign,subject:' \tA note\t '};const f=fixture();f.write('campaigns/note.json',values);
+ expect(campaignSchema.parse(values).subject).toBe('A note');
+ expect(readContent(f.root,enabled).campaigns[0].subject).toBe('A note');
+ expect(beforeSubmit(values,'campaign',enabled)).toBe(values);
+ expect(values.subject).toBe(' \tA note\t ');
+});

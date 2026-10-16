@@ -91,4 +91,4 @@ export const settingsSchema=z.strictObject({...settingsCopy,translations:transla
 });
 
 // Draft copy only. Delivery and campaign lifecycle live in the backend.
-export const campaignSchema=z.strictObject({contentId:identifier,subject:z.string().trim().min(1).max(150).regex(/^[^\r\n]*$/),intro:z.string().max(2000),articleId:optionalId,interest:z.string().min(1).max(40)});
+export const campaignSchema=z.strictObject({contentId:identifier,subject:z.string().refine(value=>!/[\r\n]/.test(value),'Subject cannot contain CR/LF').trim().min(1).max(150),intro:z.string().max(2000),articleId:optionalId,interest:z.string().min(1).max(40)});
