@@ -3,7 +3,7 @@
 Date: 2026-10-16
 Status: Draft for user review. No product implementation is authorized by this document alone.
 
-Authority: This is a focused addendum to the approved [v2 architecture](2026-10-16-business-starter-v2-design.md). It proposes one explicit revision to the Foundation persistence encoding. The accepted Foundation remains available at commit ac3102c on codex/starter-v2-foundation. Both reference repositories remain read-only.
+Authority: This is a focused addendum to the approved [v2 architecture](2026-10-16-business-starter-v2-design.md). It proposes an explicit revision to the Foundation localized-copy and navigation-label persistence encoding. The accepted Foundation remains available at commit ac3102c on codex/starter-v2-foundation. Both reference repositories remain read-only.
 
 ## Intent and success
 
@@ -17,7 +17,7 @@ This is architectural work because native field structure, persistence validatio
 
 | Increment | Deliverable | Explicit boundary |
 | --- | --- | --- |
-| Composition A — this design | Native typed copy storage, composition controls for the existing six types, Standard page creation, stable translation ownership and protected identities | No new media pipeline, business presets, domain collection or full section library |
+| Composition A — this design | Native typed copy storage, composition controls for the existing six types, Standard page creation, explicit navigation editing, stable translation ownership and protected identities | No new media pipeline, business presets, domain collection or full section library |
 | Composition B — separate plan | FAQ, process steps, media-and-text, gallery and approved variants, extending the same registry | Shared media/alt ownership is designed with its minimal asset contract; derivative image generation remains stage 3 |
 | Composition C — separate plan | Collection/route extension registration and an optional Rooms exercise without core-loader or unrelated-template changes | No availability, reservations, payments or customer accounts |
 
@@ -39,7 +39,7 @@ Read-only inspection of the installed packages found supported native typed obje
 
 ## Persistence and normalized content
 
-Advance project.schemaVersion from 1 to 2. starterVersion remains 2.0.0-dev. Rewrite only the new starter's neutral Page seeds and test fixtures directly into the new representation. Do not alter either reference project, add a migration CLI or accept both persisted Page formats.
+Advance project.schemaVersion from 1 to 2. starterVersion remains 2.0.0-dev. Rewrite only the new starter's neutral Page/Settings seeds and test fixtures directly into the new representation. Do not alter either reference project, add a migration CLI or accept both persisted Page formats.
 
 The shared structure stays an ordered reference list. Persisted default and translated copy become typed lists:
 
@@ -82,12 +82,21 @@ Validation rejects duplicate IDs, stale entries, missing default copy, mismatche
 
 Declare native typed list templates once from the section registry. For a canonical type such as rich-text, use a GraphQL-safe native template name rich_text and the installed supported nameOverride: rich-text. Persist the canonical discriminator. Normalize native alias values only on detached validation projections; return the original native values object and rich-text ASTs from beforeSubmit.
 
-Remove content-derived section field generation and its global same-ID/type restriction. Keep a small byte-stable descriptor only for project metadata and immutable existing page identity, where required. Copy-only saves and new section IDs must not alter the native schema descriptor.
+Remove content-derived section field generation and its global same-ID/type restriction. Keep a small byte-stable descriptor only for project metadata and immutable existing page identity, where required. Navigation label fields must also stop depending on content-derived IDs. Copy-only saves and new section IDs must not alter the native schema descriptor.
 
 Use a small custom structure component and a fixed copy-list component inside native Tina forms. The installed field API exposes Final Form and FieldsBuilder. Shared operations batch form changes to sections, default copy and affected locale copy, retaining existing rich-text node objects. The copy component renders registered native child fields but provides no independent structural add/remove/reorder controls, especially inside translations.
 
 Native tests must prove the actual alias roundtrip and complete-record ownership using the installed serializer/generated schema. No test sends a raw write mutation to bypass the UI. No custom backend content-write endpoint is introduced.
 
+## Explicit navigation editing
+
+The same static-field issue affects translated navigation today: shared items are a list, but translated labels are map fields generated from existing page IDs. Adding a new link cannot save consistently until its undeclared translated label field exists. Standard page creation must not leave the editor with that dead end.
+
+Retain shared navigation as [{ pageId, label }]. Store each translation's labels as the same native object-list shape, rather than a map. A detached SettingsDocument-to-Settings projection resolves the list to the current internal label map, so public navigation consumers remain unchanged. This is part of schemaVersion 2, not support for both disk formats.
+
+Expose one explicit navigation control in Settings after the new page has been saved. Shared add/remove/reorder operations batch the structure and translated label entries; localized controls edit labels only. Do not invent translated text: required labels must be supplied before the settings save succeeds. Validate unique IDs, exact membership, known destination records and configured locales. Translation list position never changes shared order. Publication continues to filter unavailable page destinations independently per locale.
+
+Creating or publishing a page does not automatically insert it in navigation. Test the separate native settings edit that adds its link, reloads the editor and shows the correct localized labels/destinations publicly. Removing the navigation item must prune all its label entries without deleting the page. Folder/deletion restrictions remain unchanged.
 ## Composition operations
 
 The six existing types remain hero, rich-text, offering-list, people-list, article-list and cta. A focused registry supplies canonical type, native alias, copy fields/schema, allowed variants and default-copy factory. Astro uses static renderer imports. Disabling articles removes article-list from the add chooser and public output while preserving dormant section data safely.
@@ -117,10 +126,10 @@ Before broad implementation, prove the native representation with an isolated ne
 Then cover:
 
 - Strict document validation and normalization without mutation; old persisted maps rejected under schemaVersion 2.
-- Repeated section types and the same ID with different types on separate pages; add/reorder requires no schema rebuild.
+- Repeated section types and the same ID with different types on separate pages; section/nav additions require no schema rebuild.
 - Atomic removal across every translation, optional missing translation omission, draft/future publication and disabled articles.
 - Native rejected second hero, hidden/removed required hero, removed privacy_details, changed existing identity, nested paths, duplicate/reserved slugs and creation of special page templates.
-- Native Standard creation with a flat filename, editor reload, public output after explicit publication and no automatic navigation insertion.
+- Native Standard creation with a flat filename, editor reload, public output after explicit publication and no automatic navigation insertion. A subsequent explicit native Settings edit adds/removes its EN/EL navigation link and restores exact owned bytes.
 - Public EN/EL representative pages at 375/768/1440, one H1, keyboard actions/focus, safe prose, correct language alternatives and no overflow.
 - Existing contact, newsletter/profile and published-manifest behavior remains valid. Run focused regressions first, then required check/unit/static/native/Worker and bounded browser gates.
 - Both source repositories retain their original revisions and clean working trees. New-project tests restore only demonstrably owned files/configuration and stop only owned process trees.
@@ -135,4 +144,4 @@ Later plans extend this same registry with the full section library and domain c
 
 ## Self-review
 
-The design preserves shared section ownership, stable IDs, rich-text safety and existing public consumer interfaces while explicitly revising only the persisted copy encoding. Every proposed authoring operation has an independent validation boundary and a native test owner. Creation-only template restrictions are described as a real native limitation rather than an unsupported API. Required structure, URL immutability, dormant modules and source ownership remain explicit. No unresolved placeholder or unbounded feature subsystem is included in this increment.
+The design preserves shared section ownership, stable IDs, rich-text safety and existing public consumer interfaces while explicitly revising the persisted localized-copy and navigation-label encoding. Every proposed authoring operation has an independent validation boundary and a native test owner. Creation-only template restrictions are described as a real native limitation rather than an unsupported API. Required structure, URL immutability, dormant modules and source ownership remain explicit. No unresolved placeholder or unbounded feature subsystem is included in this increment.
