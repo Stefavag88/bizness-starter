@@ -8,6 +8,6 @@ it('rejects unsafe or unsupported persisted Markdown at the same validation boun
 });
 it('projects section copy with an ID named body without treating its map entry as an AST',()=>{
  const ast={type:'root',children:[{type:'p',children:[{text:'Safe prose'}]}]};
- const value={copy:{sections:{body:{title:'Section',body:ast}}}};
- expect(nativeProjection(value,project).copy.sections.body.body).toEqual(expect.any(String));expect(value.copy.sections.body.body).toBe(ast);
+ const value={copy:{sections:[{id:'body',_template:'rich_text',title:'Section',body:ast}]}};
+ expect(nativeProjection(value,project).copy.sections[0].body).toEqual(expect.any(String));expect(value.copy.sections[0].body).toBe(ast);
 });

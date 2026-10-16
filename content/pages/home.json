@@ -37,16 +37,22 @@
     }
   ],
   "copy": {
-    "sections": {
-      "intro": {
+    "sections": [
+      {
+        "id": "intro",
+        "_template": "hero",
         "title": "Make room for your next idea",
         "description": "Explore our work and tell us what you would like to do next."
       },
-      "services_preview": {
+      {
+        "id": "services_preview",
+        "_template": "offering-list",
         "title": "Ways to work together",
         "description": "Start with a conversation about your priorities."
       },
-      "next_step": {
+      {
+        "id": "next_step",
+        "_template": "cta",
         "title": "Share your starting point",
         "description": "A few details help us prepare for a useful first conversation.",
         "link": {
@@ -54,7 +60,7 @@
           "href": "/en/contact"
         }
       }
-    }
+    ]
   },
   "translations": {
     "el": {
@@ -64,16 +70,22 @@
         "seoDescription": ""
       },
       "copy": {
-        "sections": {
-          "intro": {
+        "sections": [
+          {
+            "id": "intro",
+            "_template": "hero",
             "title": "Δώστε χώρο στην επόμενη ιδέα σας",
             "description": "Γνωρίστε τη δουλειά μας και πείτε μας τι θέλετε να κάνετε στη συνέχεια."
           },
-          "services_preview": {
+          {
+            "id": "services_preview",
+            "_template": "offering-list",
             "title": "Τρόποι συνεργασίας",
             "description": "Ξεκινήστε με μια συζήτηση για τις προτεραιότητές σας."
           },
-          "next_step": {
+          {
+            "id": "next_step",
+            "_template": "cta",
             "title": "Μοιραστείτε το σημείο εκκίνησής σας",
             "description": "Λίγες πληροφορίες μάς βοηθούν να προετοιμάσουμε μια χρήσιμη πρώτη συζήτηση.",
             "link": {
@@ -81,7 +93,7 @@
               "href": "/el/contact"
             }
           }
-        }
+        ]
       }
     }
   }

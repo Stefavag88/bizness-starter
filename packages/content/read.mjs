@@ -1,11 +1,12 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
-import { settingsSchema,pageSchema,offeringSchema,personSchema,articleSchema,campaignSchema } from './schemas.mjs';
+import { offeringSchema,personSchema,articleSchema,campaignSchema } from './schemas.mjs';
+import { normalizePageDocument, normalizeSettingsDocument } from './documents.mjs';
 import { normalizeNativeLocales } from './native-locales.mjs';
 import { validateCatalog } from './catalog.mjs';
 
 function json(file,schema,project) {
- try {return schema.parse(normalizeNativeLocales(JSON.parse(readFileSync(file,'utf8').replace(/^\uFEFF/,'')),project));}
+ try {return (typeof schema==='function'?schema:value=>schema.parse(value))(normalizeNativeLocales(JSON.parse(readFileSync(file,'utf8').replace(/^\uFEFF/,'')),project));}
  catch(error){throw new Error(file+': '+error.message,{cause:error});}
 }
 function flatFiles(folder) {
@@ -27,8 +28,8 @@ export function readContent(root,project,options={}) {
  };
  flatFiles(join(directory,'settings'));
  const source={
-  settings:json(join(directory,'settings/site.json'),settingsSchema,project),
-  pages:readFolder('pages',pageSchema).filter(p=>project.articles||p._template!=='insights'),
+  settings:json(join(directory,'settings/site.json'),normalizeSettingsDocument,project),
+  pages:readFolder('pages',normalizePageDocument).filter(p=>project.articles||p._template!=='insights'),
   offerings:readFolder('offerings',offeringSchema),people:readFolder('people',personSchema),
   campaigns:project.profile==='enquiries'?[]:readFolder('campaigns',campaignSchema),
   articles:project.articles?readFolder('articles',articleSchema):[],now:now.toISOString(),

@@ -28,16 +28,20 @@
     }
   ],
   "copy": {
-    "sections": {
-      "intro": {
+    "sections": [
+      {
+        "id": "intro",
+        "_template": "hero",
         "title": "Articles",
         "description": "Notes and questions from everyday work."
       },
-      "articles_list": {
+      {
+        "id": "articles_list",
+        "_template": "article-list",
         "title": "Recent reading",
         "description": "Browse our latest notes."
       }
-    }
+    ]
   },
   "translations": {
     "el": {
@@ -47,16 +51,20 @@
         "seoDescription": ""
       },
       "copy": {
-        "sections": {
-          "intro": {
+        "sections": [
+          {
+            "id": "intro",
+            "_template": "hero",
             "title": "Άρθρα",
             "description": "Σημειώσεις και ερωτήματα από την καθημερινή εργασία."
           },
-          "articles_list": {
+          {
+            "id": "articles_list",
+            "_template": "article-list",
             "title": "Πρόσφατα άρθρα",
             "description": "Διαβάστε τις τελευταίες σημειώσεις μας."
           }
-        }
+        ]
       }
     }
   }

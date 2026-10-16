@@ -4,7 +4,8 @@ import { settingsSchema,pageSchema,offeringSchema,personSchema,articleSchema,cam
 import { isSafeLink } from '../packages/content/rich-text.mjs';
 import { normalizeNativeLocales } from '../packages/content/native-locales.mjs';
 import { validateCatalog } from '../packages/content/catalog.mjs';
-import descriptor from '../.generated/cms.json';
+import { normalizePageDocument, normalizeSettingsDocument } from '../packages/content/documents.mjs';
+import { sectionDefinitions } from '../packages/content/section-registry.mjs';
 const schemas={settings:settingsSchema,page:pageSchema,offering:offeringSchema,person:personSchema,article:articleSchema,campaign:campaignSchema};
 function markdown(value:unknown,inline:boolean):string {
  if(typeof value==='string')return value;
@@ -23,7 +24,7 @@ function markdown(value:unknown,inline:boolean):string {
  if(typeof result!=='string')throw Error('Rich text could not be serialized');return result;
 }
 export function nativeProjection(values:Record<string,unknown>,project:ProjectConfig):Record<string,any> {
- const copy=normalizeNativeLocales(values,project);
+ const copy:any=normalizeNativeLocales(values,project);
  if(copy._collection!=='page'&&copy._template===copy._collection)delete copy._template;
  delete copy._collection;
  function prose(record:any):void {
@@ -32,32 +33,87 @@ export function nativeProjection(values:Record<string,unknown>,project:ProjectCo
   if(record.legal&&Object.hasOwn(record.legal,'notice'))record.legal.notice=markdown(record.legal.notice,false);
   if(record.copy?.sections)for(const section of Object.values(record.copy.sections))prose(section);
  }
- prose(copy);for(const translation of Object.values(copy.translations||{}))prose(translation);return copy;
-}
-export function validateNativeSave(values:Record<string,unknown>,kind:string,project:ProjectConfig):void {
- if(kind==='campaign'&&project.profile==='enquiries')throw Error('Campaign copy is disabled');
- const schema=schemas[kind as keyof typeof schemas];if(!schema)throw Error('Unknown collection');
- const parsed=schema.parse(nativeProjection(values,project));
- if(kind==='page') {
-  const p=parsed as any;const original=descriptor.pages.find(page=>page.contentId===p.contentId);
-  if(!original||p.slug!==original.slug||p._template!==original._template||p.sections.length!==original.sections.length)throw Error('Foundation page identity/structure is protected');
-  p.sections.forEach((section:any,i:number)=>{const old=original.sections[i];if(section.id!==old.id||section._template!==old._template||section.variant!==old.variant||(old._template==='hero'&&!section.enabled))throw Error('Foundation section structure is protected');});
- }
-}
-export function beforeSubmit(values:Record<string,unknown>,kind:string,project:ProjectConfig){validateNativeSave(values,kind,project);return values;}
-// Read the current data layer, including all pagination, to reject cross-document conflicts before saving.
-export async function validateCurrentSave(values:Record<string,unknown>,kind:string,project:ProjectConfig,cms:any,relativePath:string) {
- if(!relativePath||relativePath.includes('/')||relativePath.includes('\\')||!relativePath.endsWith('.json'))throw Error('Foundation uses flat collection files; save documents directly in their collection folder.');
- validateNativeSave(values,kind,project);
- const source:any={pages:[],offerings:[],people:[],articles:[],campaigns:[],now:new Date().toISOString()};
- for(const collection of ['settings','page','offering','person',...(project.articles?['article']:[]),...(project.profile==='enquiries'?[]:['campaign'])]) {
-  let after:string|null=null;let more=true;let replaced=false;
-  while(more){const response:any=await cms.api.tina.request(`query Catalog($after:String){${collection}Connection(first:100,after:$after){edges{node{... on Document{_values _sys{relativePath}}}}pageInfo{hasNextPage endCursor}}}`,{variables:{after}});
-   const result=response[collection+'Connection'];
-   for(const edge of result.edges){const matches=collection===kind&&edge.node._sys.relativePath===relativePath;if(matches)replaced=true;const raw=matches?values:edge.node._values;const record=schemas[collection as keyof typeof schemas].parse(nativeProjection(raw,project));if(collection==='settings')source.settings=record;else source[collection==='page'?'pages':collection==='person'?'people':collection+'s'].push(record);}
-   more=result.pageInfo.hasNextPage;after=result.pageInfo.endCursor;
+ const sectionLists=[copy.sections,copy.copy?.sections,
+  ...Object.values(copy.translations||{}).map((translation:any)=>translation.copy?.sections)];
+ for(const list of sectionLists) {
+  if(!Array.isArray(list))continue;
+  for(const section of list) {
+   const definition=sectionDefinitions.find(definition=>definition.nativeName===section._template);
+   if(definition)section._template=definition.type;
   }
-  if(collection===kind&&!replaced&&kind!=='settings'){source[collection==='page'?'pages':collection==='person'?'people':collection+'s'].push(schemas[collection as keyof typeof schemas].parse(nativeProjection(values,project)));}
  }
- validateCatalog(source,project);return values;
+ prose(copy);
+ for(const translation of Object.values(copy.translations||{}))prose(translation);
+ return copy;
+}
+
+// Only this internal helper performs format validation without existing-record protection.
+function parseNative(values:Record<string,unknown>,kind:string,project:ProjectConfig):any {
+ if(kind==='campaign'&&project.profile==='enquiries')throw Error('Campaign copy is disabled');
+ const schema=schemas[kind as keyof typeof schemas];
+ if(!schema)throw Error('Unknown collection');
+ const projected=nativeProjection(values,project);
+ if(kind==='page')return normalizePageDocument(projected);
+ if(kind==='settings')return normalizeSettingsDocument(projected);
+ return schema.parse(projected);
+}
+
+export function validateNativeSave(values:Record<string,unknown>,kind:string,project:ProjectConfig,currentPage?:unknown):void {
+ const parsed=parseNative(values,kind,project);
+ if(kind!=='page')return;
+ if(!currentPage)throw Error('Current native page record is required to protect Foundation page identity/structure');
+ const original=parseNative(currentPage as Record<string,unknown>,'page',project);
+ if(parsed.contentId!==original.contentId||parsed.slug!==original.slug||parsed._template!==original._template||parsed.sections.length!==original.sections.length) {
+  throw Error('Foundation page identity/structure is protected');
+ }
+ parsed.sections.forEach((section:any,index:number)=>{
+  const old=original.sections[index];
+  if(section.id!==old.id||section._template!==old._template||section.variant!==old.variant||(old._template==='hero'&&!section.enabled)) {
+   throw Error('Foundation section structure is protected');
+  }
+ });
+}
+
+export function beforeSubmit(values:Record<string,unknown>,kind:string,project:ProjectConfig,currentPage?:unknown) {
+ validateNativeSave(values,kind,project,currentPage);
+ return values;
+}
+
+// Read the complete current data layer before validating the candidate catalog.
+export async function validateCurrentSave(values:Record<string,unknown>,kind:string,project:ProjectConfig,cms:any,relativePath:string) {
+ if(!relativePath||relativePath.includes('/')||relativePath.includes('\\')||!relativePath.endsWith('.json')) {
+  throw Error('Foundation uses flat collection files; save documents directly in their collection folder.');
+ }
+ parseNative(values,kind,project);
+ const source:any={pages:[],offerings:[],people:[],articles:[],campaigns:[],now:new Date().toISOString()};
+ const target=(collection:string)=>collection==='page'?'pages':collection==='person'?'people':collection+'s';
+ const collections=['settings','page','offering','person',...(project.articles?['article']:[]),...(project.profile==='enquiries'?[]:['campaign'])];
+ for(const collection of collections) {
+  let after:string|null=null;
+  let more=true;
+  let replaced=false;
+  while(more) {
+   const response:any=await cms.api.tina.request(`query Catalog($after:String){${collection}Connection(first:100,after:$after){edges{node{... on Document{_values _sys{relativePath}}}}pageInfo{hasNextPage endCursor}}}`,{variables:{after}});
+   const result=response[collection+'Connection'];
+   for(const edge of result.edges) {
+    const matches=collection===kind&&edge.node._sys.relativePath===relativePath;
+    if(matches) {
+     replaced=true;
+     // Match the persisted filename, never the candidate's editable identity or an old descriptor.
+     validateNativeSave(values,kind,project,edge.node._values);
+    }
+    const record=parseNative(matches?values:edge.node._values,collection,project);
+    if(collection==='settings')source.settings=record;
+    else source[target(collection)].push(record);
+   }
+   more=result.pageInfo.hasNextPage;
+   after=result.pageInfo.endCursor;
+  }
+  if(collection===kind&&!replaced&&kind==='page') {
+   throw Error('Foundation existing page identity is protected; current native record was not found');
+  }
+  if(collection===kind&&!replaced&&kind!=='settings')source[target(collection)].push(parseNative(values,collection,project));
+ }
+ validateCatalog(source,project);
+ return values;
 }

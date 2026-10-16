@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { parseProject } from '../packages/config/project.mjs';
 
-const valid = () => ({ name: 'neutral-example', starterVersion: '2.0.0-dev', schemaVersion: 1, profile: 'enquiries', articles: true, locale: 'en', languages: [{code:'en',label:'English'}, {code:'el',label:'Ελληνικά'}], siteUrl: 'https://example.com', environment:'local', design:{theme:'neutral',density:'comfortable'}, infrastructure:{}, legalReviewed:false, contentReviewed:false, interests:[{id:'updates',label:'Useful updates'}] });
+const valid = () => ({ name: 'neutral-example', starterVersion: '2.0.0-dev', schemaVersion: 2, profile: 'enquiries', articles: true, locale: 'en', languages: [{code:'en',label:'English'}, {code:'el',label:'Ελληνικά'}], siteUrl: 'https://example.com', environment:'local', design:{theme:'neutral',density:'comfortable'}, infrastructure:{}, legalReviewed:false, contentReviewed:false, interests:[{id:'updates',label:'Useful updates'}] });
 describe('project configuration boundary', () => {
   it('accepts configured locales and preserves disabled sending defaults', () => { const p = parseProject(valid()); expect(p.languages.map(l => l.code)).toEqual(['en','el']); expect(p.infrastructure.sendingEnabled).toBe(false); expect(p.infrastructure.marketingEnabled).toBe(false); });
   it.each([
     ['duplicate languages', { languages:[{code:'en',label:'English'},{code:'en',label:'Duplicate'}] }],
     ['missing default language', {locale:'fr'}], ['unknown profile', {profile:'sales'}],
-    ['unsupported schema version', {schemaVersion:2}], ['unknown configuration key', {secret:'not-allowed'}],
+    ['unsupported schema version', {schemaVersion:1}], ['unknown configuration key', {secret:'not-allowed'}],
     ['unknown nested configuration key', {infrastructure:{secret:'not-allowed'}}],
     ['insecure URL', {siteUrl:'http://example.com'}], ['URL path', {siteUrl:'https://example.com/path'}],
     ['URL query', {siteUrl:'https://example.com/?a=1'}], ['URL fragment', {siteUrl:'https://example.com/#a'}],

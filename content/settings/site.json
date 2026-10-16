@@ -46,13 +46,28 @@
       "contact": {
         "address": ""
       },
-      "navigation": {
-        "home": "Αρχική",
-        "services": "Υπηρεσίες",
-        "about": "Σχετικά",
-        "insights": "Άρθρα",
-        "contact": "Επικοινωνία"
-      }
+      "navigation": [
+        {
+          "pageId": "home",
+          "label": "Αρχική"
+        },
+        {
+          "pageId": "services",
+          "label": "Υπηρεσίες"
+        },
+        {
+          "pageId": "about",
+          "label": "Σχετικά"
+        },
+        {
+          "pageId": "insights",
+          "label": "Άρθρα"
+        },
+        {
+          "pageId": "contact",
+          "label": "Επικοινωνία"
+        }
+      ]
     }
   }
 }

@@ -1,10 +1,6 @@
 import { createElement as h } from 'react';
 import type { TinaField } from 'tinacms';
-import { text,object,link } from '../fields/common';
-import { rich } from '../fields/rich-text';
-export function sectionCopy(type:string):TinaField[] {
- return [text('title'),type==='rich-text'?rich('body'):rich('description',true),...(['hero','cta'].includes(type)?[link]:[])];
-}
+import { text,object } from '../fields/common';
 export const references:TinaField={name:'sections',label:'Section visibility and appearance',type:'object',list:true,ui:{component:SectionControls},fields:[text('id',true),text('_template',true),{name:'variant',type:'string',options:['default']},{name:'enabled',type:'boolean'},object('appearance',[{name:'surface',type:'string',options:['default','muted','accent']}])]};
 
 // A fixed list of controls: no list add/remove/reorder affordances in Foundation.

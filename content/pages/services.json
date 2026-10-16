@@ -28,16 +28,20 @@
     }
   ],
   "copy": {
-    "sections": {
-      "intro": {
+    "sections": [
+      {
+        "id": "intro",
+        "_template": "hero",
         "title": "Services",
         "description": "Explore a starting point for working together."
       },
-      "services_list": {
+      {
+        "id": "services_list",
+        "_template": "offering-list",
         "title": "Available services",
         "description": "Each service can begin with a discussion of your needs."
       }
-    }
+    ]
   },
   "translations": {
     "el": {
@@ -47,16 +51,20 @@
         "seoDescription": ""
       },
       "copy": {
-        "sections": {
-          "intro": {
+        "sections": [
+          {
+            "id": "intro",
+            "_template": "hero",
             "title": "Υπηρεσίες",
             "description": "Εξερευνήστε ένα σημείο εκκίνησης για τη συνεργασία μας."
           },
-          "services_list": {
+          {
+            "id": "services_list",
+            "_template": "offering-list",
             "title": "Διαθέσιμες υπηρεσίες",
             "description": "Κάθε υπηρεσία μπορεί να ξεκινήσει με μια συζήτηση για τις ανάγκες σας."
           }
-        }
+        ]
       }
     }
   }

@@ -28,16 +28,20 @@
     }
   ],
   "copy": {
-    "sections": {
-      "intro": {
+    "sections": [
+      {
+        "id": "intro",
+        "_template": "hero",
         "title": "Start a conversation",
         "description": "Tell us a little about your question or project."
       },
-      "before_writing": {
+      {
+        "id": "before_writing",
+        "_template": "rich-text",
         "title": "What to include",
         "body": "Share your goal, any relevant timing, and the best way to reach you. Please leave out sensitive personal information."
       }
-    }
+    ]
   },
   "translations": {
     "el": {
@@ -47,16 +51,20 @@
         "seoDescription": ""
       },
       "copy": {
-        "sections": {
-          "intro": {
+        "sections": [
+          {
+            "id": "intro",
+            "_template": "hero",
             "title": "Ξεκινήστε μια συζήτηση",
             "description": "Πείτε μας λίγα λόγια για την ερώτηση ή το έργο σας."
           },
-          "before_writing": {
+          {
+            "id": "before_writing",
+            "_template": "rich-text",
             "title": "Τι να συμπεριλάβετε",
             "body": "Αναφέρετε τον στόχο σας, το σχετικό χρονοδιάγραμμα και τον καλύτερο τρόπο επικοινωνίας. Παρακαλούμε μην συμπεριλαμβάνετε ευαίσθητα προσωπικά στοιχεία."
           }
-        }
+        ]
       }
     }
   }

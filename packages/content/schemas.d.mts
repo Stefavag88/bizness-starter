@@ -16,3 +16,5 @@ export const articleSchema:ZodType<Article>;
 export const settingsSchema:ZodType<Settings>;
 
 export const campaignSchema:ZodType<Campaign>;
+
+export { sectionDefinitions } from './section-registry.mjs';

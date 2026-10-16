@@ -1,6 +1,6 @@
 import type { ZodType } from 'zod';
 export interface ProjectConfig {
-  name:string; starterVersion:'2.0.0-dev'; schemaVersion:1; profile:'enquiries'|'newsletter'|'nurture'; articles:boolean;
+  name:string; starterVersion:'2.0.0-dev'; schemaVersion:2; profile:'enquiries'|'newsletter'|'nurture'; articles:boolean;
   locale:string; languages:{code:string;label:string}[]; siteUrl:string; environment:'local'|'staging'|'production';
   design:{theme:string;density:'comfortable'|'compact'}; legalReviewed:boolean; contentReviewed:boolean;
   interests:{id:string;label:string}[];

@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { readContent } from '../packages/content/read.mjs';
 import { localizeContent } from '../packages/content/localize.mjs';
-import { fixture,project,editorial,page } from './fixtures/content/factory';
+import { fixture,project,editorial,pageDocument as page } from './fixtures/content/factory';
 it('omits drafts/future records and filters relationships separately per locale',()=>{
  const f=fixture();f.write('offerings/sample.json',{...editorial(),translations:{el:{...editorial().translations.el,status:'draft'}}});
  f.write('articles/article.json',{...editorial('article','article'),offeringId:'sample'});

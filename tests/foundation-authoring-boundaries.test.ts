@@ -42,6 +42,7 @@ it('rejects nested paths through the actual generated collection save hook witho
 });
 it('rejects an About native save candidate with slug 404 before persistence',async()=>{
  const p=parseProject(JSON.parse(readFileSync('project.json','utf8')));const values=JSON.parse(readFileSync('content/pages/about.json','utf8'));values.slug='404';const original=structuredClone(values);
- await expect(validateCurrentSave(values,'page',p,{get api(){throw Error('Unexpected data-layer access');}},'about.json')).rejects.toThrow(/protected|reserved/);
+ const request=async(query:string)=>query.includes('settingsConnection')?{settingsConnection:{edges:[{node:{_values:JSON.parse(readFileSync('content/settings/site.json','utf8')),_sys:{relativePath:'site.json'}}}],pageInfo:{hasNextPage:false}}}:{pageConnection:{edges:[{node:{_values:JSON.parse(readFileSync('content/pages/about.json','utf8')),_sys:{relativePath:'about.json'}}}],pageInfo:{hasNextPage:false}}};
+ await expect(validateCurrentSave(values,'page',p,{api:{tina:{request}}},'about.json')).rejects.toThrow(/protected|reserved/);
  expect(values).toEqual(original);
 });

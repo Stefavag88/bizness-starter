@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { readContent } from '../packages/content/read.mjs';
 import { localizeContent } from '../packages/content/localize.mjs';
-import { fixture,project,page,editorial,settings } from './fixtures/content/factory';
+import { fixture,project,pageDocument as page,editorial,settingsDocument as settings } from './fixtures/content/factory';
 it('resolves stable IDs after reorder and never mutates sources or other projections',()=>{
  const f=fixture();const p=page();p.sections.reverse();f.write('pages/home.json',p);
  const source=readContent(f.root,project);const before=structuredClone(source);
@@ -9,7 +9,7 @@ it('resolves stable IDs after reorder and never mutates sources or other project
  el.pages[0].sections[0].copy.title='Changed';localizeContent(source,'en',project);expect(source).toEqual(before);
 });
 it('omits optional sections with no translated copy and never falls back editorial translations',()=>{
- const f=fixture();const p=page();delete (p.translations.el.copy.sections as any).details;f.write('pages/home.json',p);
+ const f=fixture();const p=page();p.translations.el.copy.sections=p.translations.el.copy.sections.filter((s:any)=>s.id!=='details');f.write('pages/home.json',p);
  f.write('offerings/sample.json',{...editorial(),translations:{}});
  const source=readContent(f.root,project);expect(localizeContent(source,'el',project).pages.find(p=>p.contentId==='home')!.sections.map(s=>s.id)).toEqual(['intro']);
  expect(localizeContent(source,'el',project).offerings).toEqual([]);
@@ -30,7 +30,7 @@ it.each([['brand','name'],['legal','businessName'],['legal','privacyVersion'],['
  const f=fixture();const raw=settings();(raw.translations.el as any)[group][key]='Override';f.write('settings/site.json',raw);expect(()=>readContent(f.root,project)).toThrow();
 });
 it('rejects translated navigation structure and stale label IDs',()=>{
- const f=fixture();const raw=settings();(raw.translations.el.navigation as any).unknown='Stale';f.write('settings/site.json',raw);expect(()=>readContent(f.root,project)).toThrow();
+ const f=fixture();const raw=settings();raw.translations.el.navigation.push({pageId:'unknown',label:'Stale'});f.write('settings/site.json',raw);expect(()=>readContent(f.root,project)).toThrow();
 });
 
 it('can project frozen snapshots in either locale without sharing mutable output references',()=>{

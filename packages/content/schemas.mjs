@@ -1,29 +1,20 @@
 import { z } from 'zod';
-import { isSafeLink,isSafeMarkdown } from './rich-text.mjs';
-export const LIMITS = Object.freeze({title:200,seoDescription:300,description:10000,body:100000});
+import { isSafeMarkdown } from './rich-text.mjs';
+import { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas } from './section-registry.mjs';
+export { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas, sectionDefinitions } from './section-registry.mjs';
 export const PAGE_TEMPLATES = Object.freeze(['home','about','contact','standard','offerings','insights']);
-export const SECTION_TYPES = Object.freeze(['hero','rich-text','offering-list','people-list','article-list','cta']);
 export const SURFACES = Object.freeze(['default','muted','accent']);
 const title = z.string().trim().min(1).max(LIMITS.title);
 const richSummary = z.string().max(LIMITS.description).refine(value=>isSafeMarkdown(value,true),'Description allows safe inline emphasis and links only');
 const richBody = z.string().max(LIMITS.body).refine(value=>isSafeMarkdown(value),'Body allows safe Markdown with H2/H3 only');
 const identifier = z.string().regex(/^[a-z][a-z0-9-]{0,79}$/);
-// These IDs become native Tina object/GraphQL field names, without a name codec.
+// Stable page-local IDs; kept GraphQL-safe for native authoring controls.
 const fieldId = z.string().regex(/^[a-z][a-z0-9_]{0,79}$/);
 const slug = z.string().regex(/^(?:[a-z0-9]+(?:-[a-z0-9]+)*)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$|^$/);
 const seo = z.preprocess(value => value == null ? '' : value, z.string().trim().max(LIMITS.seoDescription));
 const publication = {status:z.enum(['draft','published']),publishAt:z.iso.datetime({offset:true}).optional()};
 const translations = schema => z.record(z.string().regex(/^[a-z]{2}(?:-[A-Z]{2})?$/),schema).default({});
-export const linkSchema = z.strictObject({label:title,href:z.string().refine(isSafeLink,'Link must use a safe supported URL')});
 export const metaSchema = z.strictObject({title,seoDescription:seo});
-export const sectionCopySchemas = Object.freeze({
- hero:z.strictObject({title,description:richSummary,link:linkSchema.optional()}),
- 'rich-text':z.strictObject({title,body:richBody}),
- 'offering-list':z.strictObject({title,description:richSummary}),
- 'people-list':z.strictObject({title,description:richSummary}),
- 'article-list':z.strictObject({title,description:richSummary}),
- cta:z.strictObject({title,description:richSummary,link:linkSchema}),
-});
 export const sectionSchema = z.strictObject({
  id:fieldId,_template:z.enum(SECTION_TYPES),variant:z.literal('default'),enabled:z.boolean().default(true),
  appearance:z.strictObject({surface:z.enum(SURFACES)}),

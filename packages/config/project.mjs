@@ -15,7 +15,7 @@ const infrastructure = z.strictObject({
   sendingEnabled: z.boolean().default(false), marketingEnabled: z.boolean().default(false), sendIntervalMs: z.number().int().min(1000).default(1000),
 });
 export const projectSchema = z.strictObject({
-  name: z.string().regex(/^[a-z0-9-]{1,40}$/), starterVersion: z.literal('2.0.0-dev'), schemaVersion: z.literal(1),
+  name: z.string().regex(/^[a-z0-9-]{1,40}$/), starterVersion: z.literal('2.0.0-dev'), schemaVersion: z.literal(2),
   profile: z.enum(['enquiries','newsletter','nurture']).default('enquiries'), articles: z.boolean().default(true),
   locale: code, languages: z.array(z.strictObject({code, label:text})).min(1), siteUrl: origin,
   environment: z.enum(['local','staging','production']).default('local'),

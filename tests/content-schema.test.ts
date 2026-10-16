@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { pageSchema, offeringSchema, personSchema, articleSchema } from '../packages/content/schemas.mjs';
-import { page, editorial } from './fixtures/content/factory';
+import { normalizedPage as page, editorial } from './fixtures/content/factory';
 describe('strict canonical records',()=>{
  it('accepts rich strings and normalizes native optional SEO',()=>{
   for(const value of [null,'  ',undefined]) expect(offeringSchema.parse({...editorial(),seoDescription:value}).seoDescription).toBe('');

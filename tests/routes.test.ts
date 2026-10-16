@@ -3,7 +3,7 @@ import { expect,it } from 'vitest';
 import { readContent } from '../packages/content/read.mjs';
 import { localizeContent } from '../packages/content/localize.mjs';
 import { publicRoutes } from '../packages/content/routes.mjs';
-import { fixture,project,page,editorial } from './fixtures/content/factory';
+import { fixture,project,pageDocument as page,editorial } from './fixtures/content/factory';
 it('builds stable explicit routes and reciprocal published alternates',()=>{
  const f=fixture();f.write('offerings/sample.json',{...editorial(),translations:{}});
  const en=publicRoutes(localizeContent(readContent(f.root,project),'en',project));

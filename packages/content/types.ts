@@ -39,3 +39,10 @@ export type LocalizedPerson = Omit<Person,'translations'> & RouteFields;
 export type LocalizedArticle = Omit<Article,'translations'> & RouteFields;
 export interface LocalizedContent {locale:string;settings:SettingsCopy;pages:LocalizedPage[];offerings:LocalizedOffering[];people:LocalizedPerson[];articles:LocalizedArticle[];feedPath:string|null}
 export interface Route {kind:'page'|'offering'|'person'|'article';contentId:string;locale:string;path:string;alternates:Alternate[]}
+
+export type PersistedCopyEntry<K extends SectionType = SectionType> = K extends SectionType ? {id:string;_template:K} & SectionCopyMap[K] : never;
+export interface PageDocumentCopy {sections:PersistedCopyEntry[]}
+export interface PageDocumentTranslation extends Omit<PageTranslation,'copy'> {copy:PageDocumentCopy}
+export interface PageDocument extends Omit<Page,'copy'|'translations'> {copy:PageDocumentCopy;translations:Record<string,PageDocumentTranslation>}
+export interface SettingsDocumentTranslation extends Omit<SettingsTranslation,'navigation'> {navigation:NavigationItem[]}
+export interface SettingsDocument extends Omit<Settings,'translations'> {translations:Record<string,SettingsDocumentTranslation>}
