@@ -19,7 +19,9 @@
     "db:local": "pnpm configure && node scripts/wrangler.mjs d1 migrations apply DB --local --config wrangler.generated.json",
     "doctor": "node scripts/doctor.mjs",
     "deploy:check": "node scripts/doctor.mjs --production",
-    "smoke:local": "node scripts/smoke-local.mjs"
+    "smoke:local": "node scripts/smoke-local.mjs",
+    "test:e2e": "playwright test",
+    "test:profiles": "node scripts/verify-profiles.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.2.8",
@@ -29,7 +31,9 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@cloudflare/workers-types": "5.20261007.1",
+    "@playwright/test": "1.63.0",
     "@tinacms/cli": "4.0.1",
     "@tinacms/mdx": "2.3.0",
     "@types/node": "24.0.0",

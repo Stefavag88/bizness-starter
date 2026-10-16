@@ -1,7 +1,7 @@
 # Business Website Starter v2 — Architecture Design
 
 Date: 2026-10-16
-Status: Revised for the separate-project direction approved in chat on 2026-10-16. Revised written documents await review before implementation.
+Status: Separate-project design and Foundation plan reviewed and approved for execution on 2026-10-16. Foundation is implemented and locally verified; Task 5 evidence is recorded in the plan/evidence, with final whole-branch review still the controller gate. Later stages remain deferred.
 
 Authority: This revision supersedes the in-place-upgrade spec and Foundation plan committed in the original starter. Those historical documents remain unchanged. Planning copies live in the conversation workspace until the new repository is created.
 
@@ -136,9 +136,11 @@ Version the starter and maintain a change log. New client projects copy a tagged
 
 All Markdown is English. Provide quickstart, architecture/ownership map, CMS editing guide, theme/token guide, section/collection extension recipes, preset authoring guide, fresh-project initialization guide, deployment checklist and limitations. Link to verified source implementations instead of copying AXIA decisions into generic guidance. Provider pricing and production search choices must be reverified against official documentation when that deployment work is scheduled.
 
-## Approval boundary
+## Approval and delivery boundary
 
-This is the architecture spec, not a detailed implementation plan or permission to modify runtime code. The revised Foundation plan accompanies this specification for review, with concrete files, contracts, acceptance tests and review gates. Product implementation starts only after review of these revised documents. Preserve the previously requested subagent implementation and independent review per step when execution is authorized. Later stages receive their own plans based on the verified preceding stage.
+The revised architecture spec and Foundation plan were reviewed and approved for execution on 2026-10-16. Tasks 1–4 have independent task reviews; the controller owns independent Task 5 and final whole-branch review. Both original source repositories and their historical planning documents remain unchanged. Later stages require separate approved plans.
+
+Current delivery is Foundation: canonical rich content, seeded Pages, six section types, native bilingual authoring, publication/locale contracts, neutral public routes and profile-safe local backend. Full staged acceptance above includes future work; it does not claim page creation/reorder, the full section library, Rooms, media/social/motion/visitor controls, hosted-provider verification, presets, destination initialization or release tagging. Current run/edit/verification instructions live in [QUICKSTART](../../QUICKSTART.md), [CONTENT_MODEL](../../CONTENT_MODEL.md), [ARCHITECTURE](../../ARCHITECTURE.md) and [SOURCE_INVENTORY](../../SOURCE_INVENTORY.md).
 
 ## Foundation contract carried into later stages
 

@@ -1,0 +1,4 @@
+import {it,expect} from 'vitest';
+import {runOwnedCommand} from '../scripts/owned-command.mjs';
+it('returns successful command output and rejects a failed exit',async()=>{expect((await runOwnedCommand(process.execPath,['-e','console.log("command proof")'],{timeoutMs:2000})).stdout.trim()).toBe('command proof');await expect(runOwnedCommand(process.execPath,['-e','process.exit(7)'],{timeoutMs:2000})).rejects.toThrow(/exit 7/);});
+it('times out and removes only the command tree it created',async()=>{let output='';await expect(runOwnedCommand(process.execPath,['-e',`const {spawn}=require('node:child_process');const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});console.log(JSON.stringify([process.pid,child.pid]));setInterval(()=>{},1000);`],{timeoutMs:700,onOutput:(text:string)=>output+=text})).rejects.toThrow(/timed out/);const pids=JSON.parse(output.trim());for(const pid of pids)expect(()=>process.kill(pid,0)).toThrow();});

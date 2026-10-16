@@ -22,13 +22,13 @@ Only tracked tooling and guidance were read. No source environment files or secr
 | Both AGENTS.md files | Reference only | Source-specific guidance inspected; no source UI or brand assets transferred |
 | Financial client content, assets and styles | Example only; excluded | None copied |
 
-The approved plan and spec were copied by exact path from the conversation workspace, preserving filenames. Runtime code was written for the new contracts. No recursive source copies were used. MarkdownIt is intentionally deferred until the shared renderer exists in Task 2.
+The approved plan and spec were copied by exact path from the conversation workspace, preserving filenames. Runtime code was written for the new contracts. No recursive source copies were used. Task 1 omitted MarkdownIt; Task 2 added it with the shared renderer.
 
 ## Installation and editor compatibility
 
-A normal pnpm installation generated a new lockfile. `pnpm install --frozen-lockfile` then passed. CLI 4.0.1 declares tinacms ^3.14.3; a root override pins 3.14.3. `pnpm why tinacms` and the .pnpm directory inventory show exactly one editor version, shared by the root, CLI and @tinacms/app 2.5.15.
+A normal pnpm installation generated a new lockfile. `pnpm install --frozen-lockfile` then passed. CLI 4.0.1 declares tinacms ^3.14.3; a root override pins 3.14.3. `pnpm why tinacms` and the .pnpm directory inventory show exactly one editor version, shared by the root and CLI. The initial app 2.5.15 selection was corrected to app 2.5.14 in Task 3 after actual runtime verification.
 
-Known installation notes: transitive TypeDoc 0.26.11 declares a TypeScript peer range through 5.6 while the existing toolchain uses 5.9.3. This affects the upstream documentation utility; checks/build pass. pnpm suppresses better-sqlite3 and core-js build scripts. Native CMS runtime validation is deferred to Task 3, where collections and their local editor become available. The editor is not claimed operational here.
+Known installation notes: transitive TypeDoc 0.26.11 declares a TypeScript peer range through 5.6 while the existing toolchain uses 5.9.3. This affects the upstream documentation utility; checks/build pass. pnpm suppresses better-sqlite3 and core-js build scripts. Task 3 subsequently verified native build/start with app 2.5.14; Task 5 verifies native UI saves and public roundtrips. These initial installation observations are retained as provenance.
 
 No inherited lockfile, node_modules, .git, secrets, databases, subscriber records, generated outputs, photographic assets or client IDs were copied.
 
@@ -55,3 +55,12 @@ Adapters replace old settings aliases with canonical brand.name/legal.businessNa
 Noto Sans 5.2.8, aws4fetch 1.0.20 and jose 6.2.12 were installed normally in this new checkout. The font package declares Greek/Greek-ext/Latin support and imports its unicode-range-aware 400/600 CSS, with locally bundled WOFF/WOFF2 files and font-display swap. No remote font request or source asset was copied. The original neutral theme's validated semantic tokens remain; all four font roles now use the same Greek-capable neutral family. Its unused art tokens do not activate image/UI features.
 
 No environment/secrets, database/subscriber data, generated outputs, dependency folders, financial client content/assets, Git history or remote were transferred. The smoke creates dummy enquiry/capture records only in ignored new-project-local D1; subscription tests use empty in-memory fixtures.
+
+## Task 5 provenance
+
+Individually selected financial-consulting-example/e2e/helpers/cms-source-ownership.ts and tests/cms-source-ownership.test.ts supplied the guarded native full-record backup/serialization/restoration approach and behavioral conflict fixtures. The new helper additionally implements installed backend datetime-to-ISO semantics and timezone tests. Native UI tests, public matrix, serial profile verifier and handoff documents were authored for this new content shape; source cms-controls.spec.ts and verify-profiles.mjs were read as references only. Source package.json supplied exact Playwright 1.63.0 and axe-core/playwright 4.13.0 versions, installed normally into the new repository. A project-local browser download is ignored under .generated/browsers. No source installation, state, media, financial styling, credentials or history was copied.
+## Task 5 local toolchain note
+
+The existing Playwright/axe versions are pinned exactly. Native app 2.5.14/editor 3.14.3/CLI 4.0.1 remain unchanged. Repeated isolated local native builds intermittently stalled at indexing after schema/type generation. The controller approved the CLI-supported --skip-indexing flag only for isolated --cms-build; dev:cms retains full indexing and passed actual native query/UI save proof. A datalayer connection startup race is inferred from installed CLI code, not asserted as an established upstream cause. No dependency upgrade or reconnect patch was made. Experimental Node SQLite and upstream TypeDoc peer-range warnings remain documented.
+
+The source UI_UX_BASELINE.md and ui-ux-pro-max skill were read for validation/focus guidance. The contact regression changes only already-reported field feedback: correcting an invalid field clears its message before blur can move the next pointer target. New fields still validate on blur/submit. No source visual theme or client composition was transferred.

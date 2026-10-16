@@ -1,0 +1,1 @@
+export function runOwnedCommand(executable:string,args:string[],options?:{timeoutMs?:number;cwd?:string;env?:NodeJS.ProcessEnv;onOutput?:(text:string)=>void}):Promise<{stdout:string;stderr:string;pid:number}>;

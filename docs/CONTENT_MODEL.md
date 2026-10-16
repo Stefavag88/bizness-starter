@@ -33,7 +33,7 @@ Localized pages remove translations and the separate copy container. Their secti
 
 Offerings and people own { contentId, slug, status, publishAt?, title, description, body, seoDescription, translations }. People additionally own localized role. Article authorId and offeringId are shared optional IDs. Native null/blank relationship values normalize to absent; supplied IDs must resolve even on drafts. A related unpublished or missing-locale person/offering prevents article publication in that locale.
 
-Articles require publishAt in the base and every supplied translation. It is both the publication schedule and human-visible/feed publication timestamp. updatedAt is optional per locale and cannot precede that locale's publishAt. ISO timestamps accept offsets and are compared as instants with Date.parse. Task 4 must format these explicit timestamps rather than infer dates from build time.
+Articles require publishAt in the base and every supplied translation. It is both the publication schedule and human-visible/feed publication timestamp. updatedAt is optional per locale and cannot precede that locale's publishAt. ISO timestamps accept offsets and are compared as instants with Date.parse. Public article dates and feeds use these explicit timestamps rather than build time.
 
 Settings own shared identity, contact destinations and navigation structure:
 
@@ -56,7 +56,7 @@ isSafeLink is shared with native link validation. HTTP(S), mailto, tel, internal
 
 Runtime schemas: pageSchema, offeringSchema, personSchema, articleSchema, settingsSchema, sectionSchema, sectionCopySchemas, metaSchema, linkSchema, plus PAGE_TEMPLATES, SECTION_TYPES, SURFACES, LIMITS. Rendering: isSafeLink, renderRichText, renderInlineRichText, plainText. Projection/routes: localizeContent, publicRoutes. Filesystem-only: readContent.
 
-Shared declarations live in packages/content/types.ts, re-exported through schemas/barrel declarations. The small supporting publication.mjs isolates pure publication/URL helpers from the filesystem boundary; it is not a public collection registry. The modular CMS uses these pure contracts; filesystem loading remains outside its browser bundle. Frontend/backend integration belongs to Task 4.
+Shared declarations live in packages/content/types.ts, re-exported through schemas/barrel declarations. The small supporting publication.mjs isolates pure publication/URL helpers from the filesystem boundary; it is not a public collection registry. The modular CMS uses these pure contracts; filesystem loading remains outside its browser bundle. The public site and backend manifest consume these contracts; see ARCHITECTURE.md.
 
 
 ## Draft campaign copy
@@ -64,3 +64,9 @@ Shared declarations live in packages/content/types.ts, re-exported through schem
 ContentSnapshot additionally contains campaigns: Campaign[], loaded from the optional content/campaigns folder only for newsletter/nurture; enquiries ignores that folder and returns an empty array. Campaign is { contentId, subject, intro, articleId?, interest }. Subject is nonempty, at most 150 characters and cannot contain CR/LF; intro is plain text at most 2,000 characters; articleId blank/null normalizes to absent. Supplied articleId must identify a currently published default-locale article and interest must match project.interests. IDs are globally unique with other content records. Campaigns have no public route, translation/fallback, publication lifecycle or send operation. LocalizedContent does not expose them.
 
 Schemas additionally export campaignSchema. catalog.mjs holds the browser-safe cross-record validator shared by readContent and CMS save validation. The canonical rich fields additionally reject raw HTML, images, unsupported Markdown nodes, unsafe link destinations and headings other than H2/H3 at validation; descriptions allow inline emphasis/links without headings. The renderer remains defensive when called directly with unvalidated strings.
+
+## Native authoring and Foundation boundary
+
+Native UI roundtrips verify bilingual offering description/body Markdown, cleared optional SEO, editor reload and public output. A Pages save verifies optional visibility and protected hero controls. Native JSON serializes rich text through the installed CLI serializer; datetime mutation values follow the installed backend Date/ISO behavior. The test ownership helper uses the active generated schema and request inputs, never newly saved disk bytes as its expected model. Exact original bytes are restored only after complete-record ownership validation. See QUICKSTART.md for opt-in commands and conflicts.
+
+Foundation includes six section types: hero, rich-text, offering-list, people-list, article-list and CTA. Only seeded Pages and current order/identity are supported. Stage 2 adds page creation, section add/reorder, more sections and Rooms; stage 3 adds media/social/motion/visitor controls and hosted-provider verification; stage 4 adds presets, safe initialization and releases. No such later-stage capability is claimed by these contracts.

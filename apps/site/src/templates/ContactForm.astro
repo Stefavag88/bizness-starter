@@ -42,7 +42,11 @@ if(form){
   const title=document.createElement('p');title.textContent=el?'Ελέγξτε τα παρακάτω πεδία:':'Please check these fields:';summary.append(title);
   const list=document.createElement('ul');for(const error of errors){const item=document.createElement('li');const link=document.createElement('a');link.href='#'+error.name;link.textContent=error.message;item.append(link);list.append(item);}summary.append(list);summary.focus();
  }
- for(const control of controls)control.addEventListener('blur',()=>showError(control,errorFor(control)));
+ for(const control of controls){
+  control.addEventListener('blur',()=>showError(control,errorFor(control)));
+  // Clear an already reported error while editing, before the next pointer target can move on blur.
+  control.addEventListener('input',()=>{if(control.hasAttribute('aria-invalid'))showError(control,errorFor(control));});
+ }
  form.addEventListener('submit',async event=>{
   event.preventDefault();const button=form.querySelector('button')!;const status=form.querySelector<HTMLElement>('#form-status')!;
   const invalid=controls.map(field=>({field,message:errorFor(field)}));for(const {field,message}of invalid)showError(field,message);

@@ -56,7 +56,7 @@ const cmsBuild=process.argv.includes('--cms-build');
     process.stdin.on('data', data => { if (data.includes(3)) void stop(); });
     process.stdin.resume();
     if(!cmsBuild)start('content', [resolve('scripts/watch-content.mjs')], process.cwd());
-    if(cms||cmsBuild)start('tina',[resolve('node_modules/@tinacms/cli/bin/tinacms'),cmsBuild?'build':'dev',...(cmsBuild?['--local','--skip-cloud-checks']:[]),'--port',String(ports.tina),'--datalayer-port',String(ports.datalayer),'--noTelemetry'],process.cwd());
+    if(cms||cmsBuild)start('tina',[resolve('node_modules/@tinacms/cli/bin/tinacms'),cmsBuild?'build':'dev',...(cmsBuild?['--local','--skip-cloud-checks','--skip-indexing']:[]),'--port',String(ports.tina),'--datalayer-port',String(ports.datalayer),'--noTelemetry'],process.cwd());
     if(!cmsBuild)start('worker', [resolve('node_modules/wrangler/bin/wrangler.js'), 'dev', '--local', '--ip', '127.0.0.1', '--port', String(ports.worker), '--inspector-port', '0', '--config', resolve('wrangler.generated.json')], process.cwd());
     if(!cmsBuild)start('site', [resolve('apps/site/node_modules/astro/bin/astro.mjs'), 'dev', '--host', '127.0.0.1', '--port', String(ports.site)], resolve('apps/site'));
   } catch (error) {
