@@ -3,9 +3,15 @@ import { readContent } from '../packages/content/read.mjs';
 import { localizeContent } from '../packages/content/localize.mjs';
 import { fixture,project,pageDocument as page,editorial,settingsDocument as settings } from './fixtures/content/factory';
 it('resolves stable IDs after reorder and never mutates sources or other projections',()=>{
- const f=fixture();const p=page();p.sections.reverse();f.write('pages/home.json',p);
+ const f=fixture();const p=page();p.sections.push({...p.sections[1],id:'extra'});
+ p.copy.sections.push({id:'extra',_template:'rich-text',title:'Extra',body:'More prose.'});
+ p.translations.el.copy.sections.push({id:'extra',_template:'rich-text',title:'Άλλο',body:'Άλλη παράγραφος.'});
+ [p.sections[1],p.sections[2]]=[p.sections[2],p.sections[1]];f.write('pages/home.json',p);
  const source=readContent(f.root,project);const before=structuredClone(source);
- const el=localizeContent(source,'el',project);expect(el.pages.find(p=>p.contentId==='home')!.sections[0].copy).toEqual({title:'Περισσότερα',body:'Μια παράγραφος.'});
+ const el=localizeContent(source,'el',project);const sections=el.pages.find(p=>p.contentId==='home')!.sections;
+ expect(sections.map(section=>section.id)).toEqual(['intro','extra','details']);
+ expect(sections[1].copy).toEqual({title:'Άλλο',body:'Άλλη παράγραφος.'});
+ expect(sections[2].copy).toEqual({title:'Περισσότερα',body:'Μια παράγραφος.'});
  el.pages[0].sections[0].copy.title='Changed';localizeContent(source,'en',project);expect(source).toEqual(before);
 });
 it('omits optional sections with no translated copy and never falls back editorial translations',()=>{

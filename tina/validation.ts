@@ -6,6 +6,7 @@ import { normalizeNativeLocales } from '../packages/content/native-locales.mjs';
 import { validateCatalog } from '../packages/content/catalog.mjs';
 import { normalizePageDocument, normalizeSettingsDocument } from '../packages/content/documents.mjs';
 import { sectionDefinitions } from '../packages/content/section-registry.mjs';
+import { assertExistingPageIdentity } from '../packages/content/composition.mjs';
 const schemas={settings:settingsSchema,page:pageSchema,offering:offeringSchema,person:personSchema,article:articleSchema,campaign:campaignSchema};
 function markdown(value:unknown,inline:boolean):string {
  if(typeof value==='string')return value;
@@ -61,19 +62,10 @@ function parseNative(values:Record<string,unknown>,kind:string,project:ProjectCo
 export function validateNativeSave(values:Record<string,unknown>,kind:string,project:ProjectConfig,currentPage?:unknown):void {
  const parsed=parseNative(values,kind,project);
  if(kind!=='page')return;
- if(!currentPage)throw Error('Current native page record is required to protect Foundation page identity/structure');
+ if(!currentPage)throw Error('Current native page record is required to protect existing page identity');
  const original=parseNative(currentPage as Record<string,unknown>,'page',project);
- if(parsed.contentId!==original.contentId||parsed.slug!==original.slug||parsed._template!==original._template||parsed.sections.length!==original.sections.length) {
-  throw Error('Foundation page identity/structure is protected');
- }
- parsed.sections.forEach((section:any,index:number)=>{
-  const old=original.sections[index];
-  if(section.id!==old.id||section._template!==old._template||section.variant!==old.variant||(old._template==='hero'&&!section.enabled)) {
-   throw Error('Foundation section structure is protected');
-  }
- });
+ assertExistingPageIdentity(parsed,original);
 }
-
 export function beforeSubmit(values:Record<string,unknown>,kind:string,project:ProjectConfig,currentPage?:unknown) {
  validateNativeSave(values,kind,project,currentPage);
  return values;

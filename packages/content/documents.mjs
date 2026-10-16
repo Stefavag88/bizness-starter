@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { pageSchema, settingsSchema } from './schemas.mjs';
 import { sectionDefinitions } from './section-registry.mjs';
+import { assertPageCapabilities } from './composition.mjs';
 
 const id = z.string().regex(/^[a-z][a-z0-9_]{0,79}$/);
 const locale = z.string().regex(/^[a-z]{2}(?:-[A-Z]{2})?$/);
@@ -55,6 +56,9 @@ export const pageDocumentSchema = z.strictObject({
         ctx.addIssue({ code: 'custom', path: [...path, index, '_template'], message: 'Copy template must match shared section type' });
       }
     }
+  }
+  try { assertPageCapabilities(document); } catch (error) {
+    ctx.addIssue({ code: 'custom', path: ['sections'], message: error.message });
   }
   // Domain validation remains authoritative for required copy, safe prose and shared membership.
   domainIssues(pageSchema, pageProjection, document, ctx);

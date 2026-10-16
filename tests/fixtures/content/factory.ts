@@ -7,9 +7,9 @@ export const project = parseProject({name:'test',starterVersion:'2.0.0-dev',sche
 export const hero = () => ({id:'intro',_template:'hero',variant:'default',appearance:{surface:'default'}});
 export const normalizedPage = (id='home',template='home',slug='') => ({
  contentId:id,_template:template,slug,status:'published',
- meta:{title:id,seoDescription:''},sections:[hero(),{id:'details',_template:'rich-text',variant:'default',enabled:true,appearance:{surface:'muted'}}],
- copy:{sections:{intro:{title:'Hello',description:'A **clear** introduction.'},details:{title:'More',body:'A useful paragraph.'}}},
- translations:{el:{status:'published',meta:{title:'Σελίδα'},copy:{sections:{intro:{title:'Γεια',description:'Μια εισαγωγή.'},details:{title:'Περισσότερα',body:'Μια παράγραφος.'}}}}}
+ meta:{title:id,seoDescription:''},sections:[hero(),{id:id==='privacy'?'privacy_details':'details',_template:'rich-text',variant:'default',enabled:true,appearance:{surface:'muted'}}],
+ copy:{sections:{intro:{title:'Hello',description:'A **clear** introduction.'},[id==='privacy'?'privacy_details':'details']:{title:'More',body:'A useful paragraph.'}}},
+ translations:{el:{status:'published',meta:{title:'Σελίδα'},copy:{sections:{intro:{title:'Γεια',description:'Μια εισαγωγή.'},[id==='privacy'?'privacy_details':'details']:{title:'Περισσότερα',body:'Μια παράγραφος.'}}}}}
 });
 export const editorial = (kind='offering',id='sample') => ({
  contentId:id,slug:id,status:'published',title:'A sample',description:'A **useful** summary.',body:'## Details\n\nUseful information.',
