@@ -1,5 +1,5 @@
 import type { ZodType } from 'zod';
-import type { Page,Offering,Person,Article,Settings,Meta,Link,SectionReference,SectionCopyMap,PageTemplate,SectionType,Surface } from './types';
+import type { Campaign,Page,Offering,Person,Article,Settings,Meta,Link,SectionReference,SectionCopyMap,PageTemplate,SectionType,Surface } from './types';
 export type * from './types';
 export const LIMITS:Readonly<{title:200;seoDescription:300;description:10000;body:100000}>;
 export const PAGE_TEMPLATES:readonly PageTemplate[];
@@ -14,3 +14,5 @@ export const offeringSchema:ZodType<Offering>;
 export const personSchema:ZodType<Person>;
 export const articleSchema:ZodType<Article>;
 export const settingsSchema:ZodType<Settings>;
+
+export const campaignSchema:ZodType<Campaign>;

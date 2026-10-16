@@ -37,3 +37,11 @@ No inherited lockfile, node_modules, .git, secrets, databases, subscriber record
 Only the two source package manifests were read for Task 2. financial-consulting-example/package.json supplied the existing exact MarkdownIt version, 14.3.2; it was installed normally in the new repository and the fresh lockfile was updated. No renderer or content files were copied. Canonical schemas, rich rendering, fixtures and EN/EL content were authored directly for the new representation.
 
 The read-only source revisions remain 7473c0839dca8fadb7d7a8f9cc459cab79aba94f and 0e1e5988dcdcba508300099ccab2643daedf1aad; both git status --porcelain=v1 outputs remained empty after Task 2. No source installation, generated output, content, configuration or Git history was changed.
+
+## Task 3 provenance and native compatibility
+
+The modular editor, structural descriptor, detached native validation and campaign draft-copy contract were authored directly against the reviewed canonical contracts. No client content, source CMS files, assets, generated output or dependency folders were copied. Source repositories were only queried for their unchanged revision/working-tree state; installed dependency declarations/source inside the new repository supplied the native API details. The coordinator supplied read-only evidence of financial source app 2.5.14 during compatibility investigation.
+
+The first real native build exposed app 2.5.15 importing showErrorModal absent from pinned tinacms 3.14.3; package metadata requires ^3.14.4. A targeted app override to 2.5.14 (declared runtime ^3.14.0) preserves a single editor 3.14.3 with CLI 4.0.1 and passes local build/start. Native serializer @tinacms/mdx 2.3.0 and React types 18.3.1 are explicit direct development dependencies. No unrelated upgrade was performed. Ignored better-sqlite3/core-js scripts required no activation; the TypeDoc peer warning remains upstream documentation tooling noise.
+
+Both source revisions remain the recorded 7473c0839dca8fadb7d7a8f9cc459cab79aba94f and 0e1e5988dcdcba508300099ccab2643daedf1aad, with empty status outputs after Task 3. Generated metadata, native Tina lock/output, CMS bundles and local state are ignored. Real infrastructure values are excluded from the public editor descriptor/config import.

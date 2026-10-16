@@ -10,7 +10,7 @@
   "scripts": {
     "configure": "node scripts/configure.mjs",
     "check": "pnpm configure && tsc --noEmit && pnpm --filter @starter/site check",
-    "test": "vitest run",
+    "test": "pnpm configure && vitest run",
     "build": "pnpm configure && pnpm --filter @starter/site build",
     "dev": "node scripts/dev.mjs",
     "dev:cms": "node scripts/dev.mjs --cms",
@@ -24,7 +24,9 @@
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261007.1",
     "@tinacms/cli": "4.0.1",
+    "@tinacms/mdx": "2.3.0",
     "@types/node": "24.0.0",
+    "@types/react": "18.3.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "tinacms": "3.14.3",
@@ -34,7 +36,8 @@
   },
   "pnpm": {
     "overrides": {
-      "tinacms": "3.14.3"
+      "tinacms": "3.14.3",
+      "@tinacms/app": "2.5.14"
     },
     "onlyBuiltDependencies": [
       "esbuild",

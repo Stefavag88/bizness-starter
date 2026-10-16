@@ -28,7 +28,8 @@ export interface NavigationItem {label:string;pageId:string}
 export interface SettingsCopy {brand:{name:string;tagline:string};legal:{businessName:string;privacyVersion:string;notice:string};contact:{email:string;phone:string;address:string};navigation:NavigationItem[]}
 export interface SettingsTranslation {brand:{tagline:string};legal:{notice:string};contact:{address:string};navigation:Record<string,string>}
 export interface Settings extends SettingsCopy {translations:Record<string,SettingsTranslation>}
-export interface ContentSnapshot {settings:Settings;pages:Page[];offerings:Offering[];people:Person[];articles:Article[];now:string}
+export interface Campaign {contentId:string;subject:string;intro:string;articleId?:string;interest:string}
+export interface ContentSnapshot {settings:Settings;pages:Page[];offerings:Offering[];people:Person[];articles:Article[];campaigns:Campaign[];now:string}
 export interface Alternate {locale:string;path:string}
 export interface RouteFields {path:string;alternates:Alternate[]}
 export type LocalizedSection = {[K in SectionType]:Omit<SectionReference,'_template'> & {_template:K;copy:SectionCopyMap[K]}}[SectionType];

@@ -54,3 +54,13 @@ export function plainText(body, limit) {
   if (!Number.isInteger(limit) || limit < 0) throw new RangeError('Plain text limit must be a nonnegative integer');
   return Array.from(text).slice(0,limit).join('');
 }
+
+// Parse all destinations for validation, including schemes the safe renderer suppresses.
+const validationMarkdown=new MarkdownIt({html:true,linkify:false});
+validationMarkdown.validateLink=()=>true;
+export function isSafeMarkdown(value,inline=false) {
+ if(typeof value!=='string')return false;
+ const allowed=new Set(['paragraph_open','paragraph_close','inline','text','softbreak','hardbreak','strong_open','strong_close','em_open','em_close','link_open','link_close',...(inline?[]:['heading_open','heading_close','bullet_list_open','bullet_list_close','ordered_list_open','ordered_list_close','list_item_open','list_item_close','blockquote_open','blockquote_close'])]);
+ const walk=tokens=>tokens.every(token=>allowed.has(token.type)&&(!token.type.startsWith('heading_')||['h2','h3'].includes(token.tag))&&(token.type!=='link_open'||isSafeLink(token.attrGet('href')))&&(!token.children||walk(token.children)));
+ return walk(validationMarkdown.parse(value,{}));
+}

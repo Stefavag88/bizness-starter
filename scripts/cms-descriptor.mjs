@@ -1,0 +1,10 @@
+import { readFileSync,writeFileSync,mkdirSync,readdirSync } from 'node:fs';
+import { readContent } from '../packages/content/read.mjs';
+import { parseProject } from '../packages/config/project.mjs';
+const project=parseProject(JSON.parse(readFileSync('project.json','utf8')));
+const {name,starterVersion,schemaVersion,profile,articles,locale,languages,siteUrl,interests}=project;
+const editorProject={name,starterVersion,schemaVersion,profile,articles,locale,languages,siteUrl,interests};
+const source=readContent(process.cwd(),project);
+const articlePageFiles=readdirSync('content/pages').filter(file=>file.endsWith('.json')).filter(file=>{try{return JSON.parse(readFileSync('content/pages/'+file,'utf8').replace(/^\uFEFF/, ''))._template==='insights';}catch{return true;}}).map(file=>file.slice(0,-5));
+mkdirSync('.generated',{recursive:true});
+writeFileSync('.generated/cms.json',JSON.stringify({project:editorProject,articlePageFiles,pages:source.pages.map(p=>({contentId:p.contentId,slug:p.slug,_template:p._template,sections:p.sections})),navigation:source.settings.navigation.map(n=>n.pageId)}));

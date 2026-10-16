@@ -1,13 +1,12 @@
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 import { resolvePorts, assertPortsFree } from './ports.mjs';
-if (process.argv.includes('--cms') || process.argv.includes('--cms-build')) {
-  console.error('Tina collections arrive in Task 3. The editor is not available yet.');
-  process.exitCode = 1;
-} else {
+const cms=process.argv.includes('--cms');
+const cmsBuild=process.argv.includes('--cms-build');
+{
   try {
     const ports = resolvePorts();
-    await assertPortsFree({site: ports.site, worker: ports.worker});
+    await assertPortsFree(cmsBuild?{tina:ports.tina,datalayer:ports.datalayer}:cms?ports:{site: ports.site, worker: ports.worker});
     await import('./configure.mjs');
     const children = [];
     let stopping = false;
@@ -48,8 +47,9 @@ if (process.argv.includes('--cms') || process.argv.includes('--cms-build')) {
     if (process.stdin.isTTY) process.stdin.setRawMode(true);
     process.stdin.on('data', data => { if (data.includes(3)) void stop(); });
     process.stdin.resume();
-    start('worker', [resolve('node_modules/wrangler/bin/wrangler.js'), 'dev', '--local', '--ip', '127.0.0.1', '--port', String(ports.worker), '--inspector-port', '0', '--config', resolve('wrangler.generated.json')], process.cwd());
-    start('site', [resolve('apps/site/node_modules/astro/bin/astro.mjs'), 'dev', '--host', '127.0.0.1', '--port', String(ports.site)], resolve('apps/site'));
+    if(cms||cmsBuild)start('tina',[resolve('node_modules/@tinacms/cli/bin/tinacms'),cmsBuild?'build':'dev',...(cmsBuild?['--local','--skip-cloud-checks']:[]),'--port',String(ports.tina),'--datalayer-port',String(ports.datalayer),'--noTelemetry'],process.cwd());
+    if(!cmsBuild)start('worker', [resolve('node_modules/wrangler/bin/wrangler.js'), 'dev', '--local', '--ip', '127.0.0.1', '--port', String(ports.worker), '--inspector-port', '0', '--config', resolve('wrangler.generated.json')], process.cwd());
+    if(!cmsBuild)start('site', [resolve('apps/site/node_modules/astro/bin/astro.mjs'), 'dev', '--host', '127.0.0.1', '--port', String(ports.site)], resolve('apps/site'));
   } catch (error) {
     console.error(error.message);
     process.exitCode = 1;

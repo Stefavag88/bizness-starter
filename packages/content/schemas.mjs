@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { isSafeLink } from './rich-text.mjs';
+import { isSafeLink,isSafeMarkdown } from './rich-text.mjs';
 export const LIMITS = Object.freeze({title:200,seoDescription:300,description:10000,body:100000});
 export const PAGE_TEMPLATES = Object.freeze(['home','about','contact','standard','offerings','insights']);
 export const SECTION_TYPES = Object.freeze(['hero','rich-text','offering-list','people-list','article-list','cta']);
 export const SURFACES = Object.freeze(['default','muted','accent']);
 const title = z.string().trim().min(1).max(LIMITS.title);
-const richSummary = z.string().max(LIMITS.description);
-const richBody = z.string().max(LIMITS.body);
+const richSummary = z.string().max(LIMITS.description).refine(value=>isSafeMarkdown(value,true),'Description allows safe inline emphasis and links only');
+const richBody = z.string().max(LIMITS.body).refine(value=>isSafeMarkdown(value),'Body allows safe Markdown with H2/H3 only');
 const identifier = z.string().regex(/^[a-z][a-z0-9-]{0,79}$/);
 // These IDs become native Tina object/GraphQL field names, without a name codec.
 const fieldId = z.string().regex(/^[a-z][a-z0-9_]{0,79}$/);
@@ -89,3 +89,6 @@ export const settingsSchema=z.strictObject({...settingsCopy,translations:transla
   for(const id of Object.keys(translation.navigation))if(!ids.includes(id))ctx.addIssue({code:'custom',path:['translations',locale,'navigation',id],message:'Stale translated navigation page ID'});
  }
 });
+
+// Draft copy only. Delivery and campaign lifecycle live in the backend.
+export const campaignSchema=z.strictObject({contentId:identifier,subject:z.string().trim().min(1).max(150).regex(/^[^\r\n]*$/),intro:z.string().max(2000),articleId:optionalId,interest:z.string().min(1).max(40)});
