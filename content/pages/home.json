@@ -18,7 +18,7 @@
       }
     },
     {
-      "id": "services-preview",
+      "id": "services_preview",
       "_template": "offering-list",
       "variant": "default",
       "enabled": true,
@@ -27,7 +27,7 @@
       }
     },
     {
-      "id": "next-step",
+      "id": "next_step",
       "_template": "cta",
       "variant": "default",
       "enabled": true,
@@ -42,11 +42,11 @@
         "title": "Make room for your next idea",
         "description": "Explore our work and tell us what you would like to do next."
       },
-      "services-preview": {
+      "services_preview": {
         "title": "Ways to work together",
         "description": "Start with a conversation about your priorities."
       },
-      "next-step": {
+      "next_step": {
         "title": "Share your starting point",
         "description": "A few details help us prepare for a useful first conversation.",
         "link": {
@@ -69,11 +69,11 @@
             "title": "Δώστε χώρο στην επόμενη ιδέα σας",
             "description": "Γνωρίστε τη δουλειά μας και πείτε μας τι θέλετε να κάνετε στη συνέχεια."
           },
-          "services-preview": {
+          "services_preview": {
             "title": "Τρόποι συνεργασίας",
             "description": "Ξεκινήστε με μια συζήτηση για τις προτεραιότητές σας."
           },
-          "next-step": {
+          "next_step": {
             "title": "Μοιραστείτε το σημείο εκκίνησής σας",
             "description": "Λίγες πληροφορίες μάς βοηθούν να προετοιμάσουμε μια χρήσιμη πρώτη συζήτηση.",
             "link": {

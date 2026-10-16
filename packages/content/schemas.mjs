@@ -8,6 +8,8 @@ const title = z.string().trim().min(1).max(LIMITS.title);
 const richSummary = z.string().max(LIMITS.description);
 const richBody = z.string().max(LIMITS.body);
 const identifier = z.string().regex(/^[a-z][a-z0-9-]{0,79}$/);
+// These IDs become native Tina object/GraphQL field names, without a name codec.
+const fieldId = z.string().regex(/^[a-z][a-z0-9_]{0,79}$/);
 const slug = z.string().regex(/^(?:[a-z0-9]+(?:-[a-z0-9]+)*)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$|^$/);
 const seo = z.preprocess(value => value == null ? '' : value, z.string().trim().max(LIMITS.seoDescription));
 const publication = {status:z.enum(['draft','published']),publishAt:z.iso.datetime({offset:true}).optional()};
@@ -23,13 +25,13 @@ export const sectionCopySchemas = Object.freeze({
  cta:z.strictObject({title,description:richSummary,link:linkSchema}),
 });
 export const sectionSchema = z.strictObject({
- id:identifier,_template:z.enum(SECTION_TYPES),variant:z.literal('default'),enabled:z.boolean().default(true),
+ id:fieldId,_template:z.enum(SECTION_TYPES),variant:z.literal('default'),enabled:z.boolean().default(true),
  appearance:z.strictObject({surface:z.enum(SURFACES)}),
 });
-const copy = z.strictObject({sections:z.record(identifier,z.unknown())});
+const copy = z.strictObject({sections:z.record(fieldId,z.unknown())});
 const pageTranslation = z.strictObject({...publication,meta:metaSchema,copy});
 export const pageSchema = z.strictObject({
- contentId:identifier,_template:z.enum(PAGE_TEMPLATES),slug,...publication,meta:metaSchema,
+ contentId:fieldId,_template:z.enum(PAGE_TEMPLATES),slug,...publication,meta:metaSchema,
  sections:z.array(sectionSchema).min(1),copy,translations:translations(pageTranslation),
 }).superRefine((page,ctx)=>{
  const ids=new Set();
@@ -71,13 +73,13 @@ const settingsCopy = {
  brand:z.strictObject({name:title,tagline:z.string().max(300)}),
  legal:z.strictObject({businessName:title,privacyVersion:z.string().trim().min(1).max(80),notice:richBody}),
  contact:z.strictObject({email:z.email(),phone:z.string().max(100),address:z.string().max(1000)}),
- navigation:z.array(z.strictObject({label:title,pageId:identifier})),
+ navigation:z.array(z.strictObject({label:title,pageId:fieldId})),
 };
 const localizedSettingsCopy = {
  brand:z.strictObject({tagline:z.string().max(300)}),
  legal:z.strictObject({notice:richBody}),
  contact:z.strictObject({address:z.string().max(1000)}),
- navigation:z.record(identifier,title),
+ navigation:z.record(fieldId,title),
 };
 export const settingsSchema=z.strictObject({...settingsCopy,translations:translations(z.strictObject(localizedSettingsCopy))}).superRefine((settings,ctx)=>{
  const ids=settings.navigation.map(n=>n.pageId);

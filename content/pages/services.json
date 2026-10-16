@@ -18,7 +18,7 @@
       }
     },
     {
-      "id": "services-list",
+      "id": "services_list",
       "_template": "offering-list",
       "variant": "default",
       "enabled": true,
@@ -33,7 +33,7 @@
         "title": "Services",
         "description": "Explore a starting point for working together."
       },
-      "services-list": {
+      "services_list": {
         "title": "Available services",
         "description": "Each service can begin with a discussion of your needs."
       }
@@ -52,7 +52,7 @@
             "title": "Υπηρεσίες",
             "description": "Εξερευνήστε ένα σημείο εκκίνησης για τη συνεργασία μας."
           },
-          "services-list": {
+          "services_list": {
             "title": "Διαθέσιμες υπηρεσίες",
             "description": "Κάθε υπηρεσία μπορεί να ξεκινήσει με μια συζήτηση για τις ανάγκες σας."
           }

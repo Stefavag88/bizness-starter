@@ -50,7 +50,7 @@ Canonical locale keys use hyphens, for example en-US. The loader rejects undersc
 
 Exported LIMITS are title 200, SEO 300, Markdown summary 10,000, and Markdown body 100,000 characters. renderRichText escapes raw HTML, downgrades H1 to H2 and disables Markdown images. renderInlineRichText(body, { links: false }) retains emphasis while removing anchors for whole-card links. plainText(body, limit?) extracts text and truncates by Unicode code point without splitting surrogate pairs.
 
-isSafeLink is shared with native link validation. HTTP(S), mailto, tel, internal relative paths, fragments and queries are supported. Unsafe schemes, controls, protocol-relative links, backslashes, encoded bypasses and credentialed HTTP URLs are rejected. Foundation rich-text controls must not expose image/embed tools; content media belongs to stage 3. Safe rendering does not parse or mutate Tina ASTs.
+isSafeLink is shared with native link validation. HTTP(S), mailto, tel, internal relative paths, fragments and queries are supported. Unsafe schemes, controls, protocol-relative links, backslashes, encoded bypasses and credentialed HTTP URLs are rejected. Encoded spaces in paths/queries remain supported. Foundation rich-text controls must not expose image/embed tools; content media belongs to stage 3. Safe rendering does not parse or mutate Tina ASTs.
 
 ## Exports
 

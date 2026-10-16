@@ -13,7 +13,7 @@ export function isSafeLink(value) {
       link = decoded;
     }
   } catch { return false; }
-  if (/[\s\u0000-\u001f\u007f-\u009f\\\uFFFD]/u.test(link) || link.startsWith('//')) return false;
+  if (/[\u0000-\u001f\u007f-\u009f\\\uFFFD]/u.test(link) || link.startsWith('//')) return false;
   if (/^https?:/i.test(link)) {
     if (!/^https?:\/\//i.test(link)) return false;
     try { const url = new URL(link); return !!url.hostname && !url.username && !url.password; } catch { return false; }

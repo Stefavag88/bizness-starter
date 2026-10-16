@@ -18,7 +18,7 @@
       }
     },
     {
-      "id": "before-writing",
+      "id": "before_writing",
       "_template": "rich-text",
       "variant": "default",
       "enabled": true,
@@ -33,7 +33,7 @@
         "title": "Start a conversation",
         "description": "Tell us a little about your question or project."
       },
-      "before-writing": {
+      "before_writing": {
         "title": "What to include",
         "body": "Share your goal, any relevant timing, and the best way to reach you. Please leave out sensitive personal information."
       }
@@ -52,7 +52,7 @@
             "title": "Ξεκινήστε μια συζήτηση",
             "description": "Πείτε μας λίγα λόγια για την ερώτηση ή το έργο σας."
           },
-          "before-writing": {
+          "before_writing": {
             "title": "Τι να συμπεριλάβετε",
             "body": "Αναφέρετε τον στόχο σας, το σχετικό χρονοδιάγραμμα και τον καλύτερο τρόπο επικοινωνίας. Παρακαλούμε μην συμπεριλαμβάνετε ευαίσθητα προσωπικά στοιχεία."
           }

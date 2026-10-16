@@ -38,3 +38,12 @@ it('requires explicit article publication timestamps and validates updated dates
  expect(()=>articleSchema.parse({...article,translations:{el:{...article.translations.el,publishAt:undefined}}})).toThrow();
  expect(articleSchema.parse({...article,updatedAt:'2025-01-03T00:00:00Z'}).updatedAt).toBe('2025-01-03T00:00:00Z');
 });
+it('accepts GraphQL-safe stable page/section map IDs without an implicit codec',()=>{
+ const p=page('extra_page','standard','extra-page');p.sections[1].id='extra_section';p.copy.sections={intro:p.copy.sections.intro,extra_section:p.copy.sections.details} as any;p.translations.el.copy.sections={intro:p.translations.el.copy.sections.intro,extra_section:p.translations.el.copy.sections.details} as any;
+ expect(pageSchema.parse(p).contentId).toBe('extra_page');
+});
+it('rejects hyphenated page IDs and section map keys while keeping hyphenated slugs',()=>{
+ expect(()=>pageSchema.parse(page('extra-page','standard','extra-page'))).toThrow();
+ const p=page();p.sections[1].id='extra-section';(p.copy.sections as any)['extra-section']=p.copy.sections.details;delete (p.copy.sections as any).details;(p.translations.el.copy.sections as any)['extra-section']=p.translations.el.copy.sections.details;delete (p.translations.el.copy.sections as any).details;
+ expect(()=>pageSchema.parse(p)).toThrow();
+});

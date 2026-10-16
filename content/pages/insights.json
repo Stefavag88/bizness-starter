@@ -18,7 +18,7 @@
       }
     },
     {
-      "id": "articles-list",
+      "id": "articles_list",
       "_template": "article-list",
       "variant": "default",
       "enabled": true,
@@ -33,7 +33,7 @@
         "title": "Articles",
         "description": "Notes and questions from everyday work."
       },
-      "articles-list": {
+      "articles_list": {
         "title": "Recent reading",
         "description": "Browse our latest notes."
       }
@@ -52,7 +52,7 @@
             "title": "Άρθρα",
             "description": "Σημειώσεις και ερωτήματα από την καθημερινή εργασία."
           },
-          "articles-list": {
+          "articles_list": {
             "title": "Πρόσφατα άρθρα",
             "description": "Διαβάστε τις τελευταίες σημειώσεις μας."
           }

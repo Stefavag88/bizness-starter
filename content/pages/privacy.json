@@ -18,7 +18,7 @@
       }
     },
     {
-      "id": "privacy-details",
+      "id": "privacy_details",
       "_template": "rich-text",
       "variant": "default",
       "enabled": true,
@@ -33,7 +33,7 @@
         "title": "Privacy information",
         "description": "Read how this demonstration describes the handling of enquiries."
       },
-      "privacy-details": {
+      "privacy_details": {
         "title": "Example privacy notice",
         "body": "## Before using this website\n\nThis notice is a placeholder for review. Replace it with information about your organization, the data you collect, why you use it, how long you keep it, and how people can contact you about their rights.\n\nDo not publish this demonstration as a completed privacy notice."
       }
@@ -52,7 +52,7 @@
             "title": "Πληροφορίες απορρήτου",
             "description": "Διαβάστε πώς αυτό το παράδειγμα περιγράφει τη διαχείριση αιτημάτων."
           },
-          "privacy-details": {
+          "privacy_details": {
             "title": "Ενδεικτική ενημέρωση απορρήτου",
             "body": "## Πριν χρησιμοποιήσετε αυτόν τον ιστότοπο\n\nΑυτή η ενημέρωση είναι προσωρινό κείμενο προς έλεγχο. Αντικαταστήστε την με πληροφορίες για τον οργανισμό σας, τα δεδομένα που συλλέγετε, τον σκοπό χρήσης, τον χρόνο διατήρησης και τον τρόπο επικοινωνίας σχετικά με τα δικαιώματα των προσώπων.\n\nΜη δημοσιεύσετε αυτό το παράδειγμα ως ολοκληρωμένη ενημέρωση απορρήτου."
           }
