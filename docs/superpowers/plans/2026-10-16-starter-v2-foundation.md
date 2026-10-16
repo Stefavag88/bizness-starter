@@ -8,7 +8,7 @@
 
 **Tech Stack:** Astro static output, TypeScript, TinaCMS, Zod, MarkdownIt, pnpm, Vitest, Playwright and the existing Cloudflare Worker/D1/Queues/SES architecture. Reuse source implementations and test contracts, not local installations or generated output.
 
-**Spec:** [Separate-project v2 architecture](../specs/2026-10-16-business-starter-v2-design.md). This revision supersedes the in-place Foundation plan committed as `7473c08` in the original starter. The revised separate-project spec and written plan were reviewed and approved for execution on 2026-10-16. Tasks 1–4 passed independent task review; Task 5 delivers the native/browser proof and current handoff. Final whole-branch review remains the controller gate.
+**Spec:** [Separate-project v2 architecture](../specs/2026-10-16-business-starter-v2-design.md). This revision supersedes the in-place Foundation plan committed as `7473c08` in the original starter. The revised separate-project spec and written plan were reviewed and approved for execution on 2026-10-16. All five tasks passed independent review. Final whole-branch review and its single scoped fix-wave rereview passed on 2026-10-16 with no open findings. Foundation is accepted for local development; stages 2–4 remain deferred.
 
 ## Global Constraints
 
@@ -119,7 +119,7 @@ The new `packages/config` is a focused shared configuration boundary inside the 
 - [x] Run check, unit tests, build, worker dry-run, public E2E, native CMS tests and serial profile verification including articles disabled. Use only new-project local databases and ignored fixture backups; profile script restores owned configuration after failure. Do not run a CMS build against a live watcher.
 - [x] Compare both source working trees/status against initial snapshots. Confirm new repo provenance is recorded, source histories/remotes are absent and all new defaults are neutral with real delivery disabled. Investigate every unexpected delta rather than reverting someone else's work.
 - [x] Document how to run/edit the Foundation and its exact limitations. Record deferred owners: stage 2 full section library, section add/reorder, page creation and Rooms extension; stage 3 media/social/motion/visitor controls and hosted-provider verification; stage 4 presets, safe destination initializer and release tagging. No migration guide/CLI is needed.
-- [ ] Independent whole-branch review, resolve findings, rerun affected checks and commit `test: verify new starter foundation and editor`. Present a local branch/diff and the evidence. Do not merge, publish or tag v2.
+- [x] Independent whole-branch review, resolve findings, rerun affected checks and commit `test: verify new starter foundation and editor`. Present a local branch/diff and the evidence. Do not merge, publish or tag v2.
 
 ## Acceptance and next-stage contracts
 

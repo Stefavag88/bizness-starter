@@ -96,3 +96,11 @@ The owned launcher stopped its content37036/Tina20208/Worker20240/site36032 proc
 Self-review confirms collection flags match the installed native runtime's allowedActions consumers; native Delete/Rename bypassing the save hook is addressed by the protected capability. The flat policy rejects active subfolders rather than introducing recursive support. The existing RichText safe renderer and locale link helper are reused. Stage2 must implement relationship-aware authoring/deletion before enabling protected deletes. Changed published editorial slugs require explicit redirects before hosted release; Stage2 authoring and the release gate must enforce this obligation, with no redirect subsystem added here. QUICKSTART, CONTENT_MODEL and FOUNDATION_DECISIONS record these contracts.
 
 Implementation self-review is complete. Independent scoped rereview remains pending and is owned by the coordinating agent. This evidence does not claim Foundation acceptance, hosted readiness, merge, push or release approval.
+
+### Controller acceptance — 2026-10-16
+
+All five independent task gates passed. Final whole-branch review identified four P2 findings; the single fix wave 22a33cc resolved all four, and independent scoped rereview found no open findings. Permanent review reports are under docs/reviews. The final accepted runtime code is 22a33cc; this acceptance update changes documentation only.
+
+The controller freshly ran pnpm test at that runtime commit: 219 ordinary tests passed with one opt-in native-query skip, followed by two real Astro footer rendering tests passed. Real native-query proof was separately recorded earlier. The controller also reconfirmed clean working trees and unchanged original source SHAs, and no remote in the new repository. Prior successful strict checks, default static/native builds, Worker dry-run, native saves, public viewport/axe and serial-profile evidence retain their documented scope.
+
+Keep codex/starter-v2-foundation as a local branch in C:/Projects/bizness-starter-v2. No merge, push, deployment, hosted-production certification or release tag is performed. Implementation choices and their revision costs are permanently recorded in docs/FOUNDATION_DECISIONS.md. Stages 2–4 and the published-slug redirect/protection release obligation remain explicit follow-up work.

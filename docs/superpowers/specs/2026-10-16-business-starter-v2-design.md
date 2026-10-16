@@ -1,7 +1,7 @@
 # Business Website Starter v2 — Architecture Design
 
 Date: 2026-10-16
-Status: Separate-project design and Foundation plan reviewed and approved for execution on 2026-10-16. Foundation is implemented and locally verified; Task 5 evidence is recorded in the plan/evidence, with final whole-branch review still the controller gate. Later stages remain deferred.
+Status: Separate-project design and Foundation plan reviewed and approved for execution on 2026-10-16. Foundation is implemented, locally verified and independently reviewed, including the final scoped fix wave. No open review findings remain. Later stages remain deferred.
 
 Authority: This revision supersedes the in-place-upgrade spec and Foundation plan committed in the original starter. Those historical documents remain unchanged. Planning copies live in the conversation workspace until the new repository is created.
 
@@ -138,7 +138,7 @@ All Markdown is English. Provide quickstart, architecture/ownership map, CMS edi
 
 ## Approval and delivery boundary
 
-The revised architecture spec and Foundation plan were reviewed and approved for execution on 2026-10-16. Tasks 1–4 have independent task reviews; the controller owns independent Task 5 and final whole-branch review. Both original source repositories and their historical planning documents remain unchanged. Later stages require separate approved plans.
+The revised architecture spec and Foundation plan were reviewed and approved for execution on 2026-10-16. All five tasks and the final whole-branch fix wave passed independent review on 2026-10-16. Both original source repositories and their historical planning documents remain unchanged. Later stages require separate approved plans.
 
 Current delivery is Foundation: canonical rich content, seeded Pages, six section types, native bilingual authoring, publication/locale contracts, neutral public routes and profile-safe local backend. Full staged acceptance above includes future work; it does not claim page creation/reorder, the full section library, Rooms, media/social/motion/visitor controls, hosted-provider verification, presets, destination initialization or release tagging. Current run/edit/verification instructions live in [QUICKSTART](../../QUICKSTART.md), [CONTENT_MODEL](../../CONTENT_MODEL.md), [ARCHITECTURE](../../ARCHITECTURE.md) and [SOURCE_INVENTORY](../../SOURCE_INVENTORY.md).
 
