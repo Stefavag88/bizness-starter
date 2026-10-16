@@ -1,11 +1,15 @@
 import {test,expect,type Page} from '@playwright/test';
-import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {createCmsSources} from './helpers/cms-source-ownership';
+import {createCmsEvidence} from './helpers/cms-evidence';
 const cms=process.env.E2E_CMS_URL;
 test.skip(!cms,'Opt in with E2E_CMS_URL pointing to the running site with native CMS.');
 test.describe.configure({mode:'serial',timeout:180000});
 let visit=0;
+let evidence:ReturnType<typeof createCmsEvidence>;
+// Initialization must succeed before any native UI edit/save.
+test.beforeAll(()=>{evidence=createCmsEvidence();});
 async function open(page:Page,path:string){
  await page.goto(cms+'/cms/index.html?visit='+ ++visit+'#/collections/edit/'+path);
  const enter=page.getByRole('button',{name:'Enter Edit Mode',exact:true});
@@ -18,13 +22,13 @@ async function bold(page:Page,index:number,text:string){
  const editor=page.locator('[contenteditable=true]').nth(index);await editor.click();await editor.focus();await expect(editor).toBeFocused();await page.waitForTimeout(400);await page.keyboard.press('Control+a');await page.waitForTimeout(400);await page.keyboard.press('Backspace');await expect(editor).toHaveText(/^[\uFEFF\s]*$/);await page.keyboard.type(text,{delay:20});await page.keyboard.press('Home');await page.keyboard.press('Shift+End');await page.waitForTimeout(250);await page.getByRole('radio',{name:'format bold',exact:true}).nth(index).click();await expect(editor.locator('strong')).toHaveText(text);
 }
 async function save(page:Page,sources:ReturnType<typeof createCmsSources>,path:string,predicate:(data:any)=>boolean){
+ const schema=JSON.parse(readFileSync('tina/__generated__/_schema.json','utf8'));
  sources.assertUnchanged();
  const responsePromise=page.waitForResponse(r=>new URL(r.url()).pathname==='/graphql'&&r.request().method()==='POST'&&(r.request().postData()||'').includes('updateDocument'));
  await page.getByRole('button',{name:'Save',exact:true}).click();const response=await responsePromise;expect(response.ok()).toBe(true);expect((await response.json()).errors||[]).toEqual([]);
  const mutation=response.request().postDataJSON().variables;
  // Expected content comes exclusively from this actual native request and active generated schema.
- writeFileSync('.generated/evidence/last-native-mutation.json',JSON.stringify({mutation,saved:JSON.parse(readFileSync(path,'utf8'))},null,2));
- await sources.captureNative(path,mutation,JSON.parse(readFileSync('tina/__generated__/_schema.json','utf8')),predicate);
+ await evidence.captureNative(sources,path,mutation,schema,predicate);
 }
 const sha=(bytes:string)=>createHash('sha256').update(bytes).digest('hex');
 test('native bilingual offering rich text, cleared SEO, editor reload and public rendering restore exactly',async({page,context})=>{
@@ -43,7 +47,7 @@ test('native bilingual offering rich text, cleared SEO, editor reload and public
   }
  }finally{
   await sources.restore(()=>site.close());
-  expect(readFileSync(path,'utf8')).toBe(sources.originalBytes(path));mkdirSync('.generated/evidence',{recursive:true});writeFileSync('.generated/evidence/native-offering.json',JSON.stringify({checks,backup:sources.backup,before:sha(sources.originalBytes(path)),after:sha(readFileSync(path,'utf8'))},null,2));
+  expect(readFileSync(path,'utf8')).toBe(sources.originalBytes(path));writeFileSync('.generated/evidence/native-offering.json',JSON.stringify({checks,backup:sources.backup,before:sha(sources.originalBytes(path)),after:sha(readFileSync(path,'utf8'))},null,2));
  }
 });
 test('native page hides an optional section but protects the required hero',async({page,context})=>{
