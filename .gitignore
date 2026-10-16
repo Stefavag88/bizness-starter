@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+.generated/
+wrangler.generated.json
+tina/__generated__/
+apps/site/public/admin/
+.env*
+.dev.vars*
+coverage/
+test-results/
+playwright-report/
+*.log
+.DS_Store

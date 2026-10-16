@@ -1,0 +1,7 @@
+{
+  "name":"business-starter-v2", "starterVersion":"2.0.0-dev", "schemaVersion":1, "profile":"enquiries", "articles":true,
+  "locale":"en", "languages":[{"code":"en","label":"English"},{"code":"el","label":"Ελληνικά"}],
+  "siteUrl":"https://example.com", "environment":"local", "design":{"theme":"neutral","density":"comfortable"},
+  "infrastructure":{"databaseId":"00000000-0000-0000-0000-000000000000","sesRegion":"eu-west-1","sender":"Example Studio <hello@example.com>","notificationEmail":"owner@example.com","allowedRecipients":[],"sesConfigurationSet":"starter-transactional","snsTopicArn":"","accessIssuer":"","accessAudience":"","adminEmail":"","sendingEnabled":false,"marketingEnabled":false,"sendIntervalMs":1000},
+  "interests":[{"id":"updates","label":"Useful updates"}], "legalReviewed":false, "contentReviewed":false
+}

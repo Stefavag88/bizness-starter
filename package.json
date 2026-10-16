@@ -1,0 +1,13 @@
+{
+  "name": "business-starter-v2", "version": "2.0.0-dev", "private": true, "type": "module",
+  "packageManager": "pnpm@10.13.1", "engines": { "node": "22.x || 24.x" },
+  "scripts": {
+    "configure": "node scripts/configure.mjs", "check": "pnpm configure && tsc --noEmit && pnpm --filter @starter/site check",
+    "test": "vitest run", "build": "pnpm configure && pnpm --filter @starter/site build",
+    "dev": "node scripts/dev.mjs", "dev:cms": "node scripts/dev.mjs --cms", "cms:local-build": "node scripts/dev.mjs --cms-build",
+    "worker:check": "pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json"
+  },
+  "dependencies": { "zod": "4.6.5" },
+  "devDependencies": { "@cloudflare/workers-types": "5.20261007.1", "@tinacms/cli": "4.0.1", "@types/node": "24.0.0", "react": "18.3.1", "react-dom": "18.3.1", "tinacms": "3.14.3", "typescript": "5.9.3", "vitest": "5.0.3", "wrangler": "4.148.0" },
+  "pnpm": { "overrides": { "tinacms": "3.14.3" }, "onlyBuiltDependencies": ["esbuild", "sharp", "workerd", "@tailwindcss/oxide"] }
+}
