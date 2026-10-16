@@ -24,3 +24,7 @@ it('claims a valid save before diagnostic failure so finally can restore exact o
  try{await expect(evidence.captureNative(f.sources,f.path,f.mutation,f.schema,d=>d.body==='Native proof')).rejects.toThrow();expect(f.sources.owns(f.path)).toBe(true);}finally{await f.sources.restore();}
  expect(readFileSync(f.path,'utf8')).toBe(f.original);
 });
+it('removes an owned initially absent create even when optional diagnostic output fails',async()=>{
+ const f=fixture();const created=join(roots.at(-1)!,'created.json');const sources=createCmsSources([created],join(roots.at(-1)!,'create-backups'),{allowCreate:true});mkdirSync(f.directory,{recursive:true});mkdirSync(join(f.directory,'last-native-mutation.json'));const evidence=createCmsEvidence(f.directory);writeFileSync(created,'{"body":"Native proof"}');
+ try{await expect(evidence.captureNative(sources,created,{...f.mutation,operation:'create',relativePath:'/created.json'},f.schema,d=>d.body==='Native proof')).rejects.toThrow();expect(sources.owns(created)).toBe(true);}finally{await sources.restore();}expect(existsSync(created)).toBe(false);
+});

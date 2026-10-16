@@ -238,3 +238,34 @@ it('normalizes a native datetime timezone as the installed backend does',async()
  writeFileSync(path,JSON.stringify({meta:{title:'Original About'},body:'Dated',publishAt:'2026-10-16T10:00:00.000Z'}));
  await sources.captureNative(path,{collection:'page',relativePath:'about.json',params:{page:{body:'Dated',publishAt:'2026-10-16T13:00:00+03:00'}}},schema,()=>true);await sources.restore();
 });
+
+it('owns and removes an initially absent complete native create with one wire slash',async()=>{
+ const {path}=fixture();const root=roots.at(-1)!;const created=join(root,'created.json');
+ const sources=createCmsSources([path,created],join(root,'create-backups'),{allowCreate:true});
+ expect(sources.originalState(created)).toEqual({exists:false});sources.assertUnchanged();
+ writeFileSync(created,JSON.stringify({body:'Created'}));
+ await sources.captureNative(created,{operation:'create',collection:'page',relativePath:'/created.json',params:{page:{body:'Created'}}},{collections:[{name:'page',path:root,fields:[{name:'body',type:'string'}]}]},()=>true);
+ await sources.restore();expect(()=>readFileSync(created)).toThrow();
+});
+it('preserves an unclaimed creation and its absent original manifest',async()=>{
+ fixture();const root=roots.at(-1)!;const path=join(root,'created.json');const sources=createCmsSources([path],join(root,'create-backups'),{allowCreate:true});
+ writeFileSync(path,'{"body":"External"}');expect(()=>sources.capture(path,{body:'Expected'},()=>true)).toThrow('Unexpected saved document');
+ await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');expect(readFileSync(path,'utf8')).toBe('{"body":"External"}');
+ expect(readFileSync(join(sources.backup,'manifest.json'),'utf8')).toContain('"exists": false');
+});
+it('preserves a concurrent edit after an owned creation',async()=>{
+ fixture();const root=roots.at(-1)!;const path=join(root,'created.json');const sources=createCmsSources([path],join(root,'create-backups'),{allowCreate:true});
+ writeFileSync(path,'{"body":"Owned"}');sources.capture(path,{body:'Owned'},()=>true);writeFileSync(path,'{"body":"External"}');
+ await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');expect(readFileSync(path,'utf8')).toBe('{"body":"External"}');
+});
+it('retains the external and expected records when restore detects an edit after capture',async()=>{
+ const {path,expected,sources}=fixture();writeFileSync(path,JSON.stringify(expected));sources.capture(path,expected,()=>true);writeFileSync(path,'{"body":"External"}');await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');
+ expect(readFileSync(sources.backupFor(path)+'.unclaimed.json','utf8')).toBe('{"body":"External"}');
+ expect(JSON.parse(readFileSync(sources.backupFor(path)+'.expected.json','utf8'))).toEqual(expected);
+});
+it('revokes prior ownership when native expectation derivation fails and preserves diagnostic inputs',async()=>{
+ const {path,expected,sources}=fixture();const current=JSON.stringify(expected);writeFileSync(path,current);sources.capture(path,expected,()=>true);
+ await expect(sources.captureNative(path,{operation:'update',collection:'page',relativePath:'about.json',params:{page:{unknown:'unexpected'}}},{collections:[{name:'page',path:roots.at(-1)!,fields:[{name:'body',type:'string'}]}]},()=>true)).rejects.toThrow('Unknown native mutation field');
+ expect(sources.owns(path)).toBe(false);await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');expect(readFileSync(path,'utf8')).toBe(current);
+ expect(JSON.parse(readFileSync(sources.backupFor(path)+'.expected.json','utf8')).unprovenMutation.params.page).toEqual({unknown:'unexpected'});
+});

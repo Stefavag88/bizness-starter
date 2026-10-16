@@ -1,0 +1,2 @@
+import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'./e2e',testMatch:'composition-probe.spec.ts',timeout:150000,workers:1,use:{baseURL:process.env.E2E_BASE_URL,headless:true,actionTimeout:10000,trace:'retain-on-failure',screenshot:'only-on-failure'},reporter:[['list']],outputDir:process.env.COMPOSITION_PROBE_ROOT?process.env.COMPOSITION_PROBE_ROOT+'/evidence/playwright':'.generated/composition-probe-results'});

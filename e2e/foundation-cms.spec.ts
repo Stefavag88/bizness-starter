@@ -26,7 +26,7 @@ async function save(page:Page,sources:ReturnType<typeof createCmsSources>,path:s
  sources.assertUnchanged();
  const responsePromise=page.waitForResponse(r=>new URL(r.url()).pathname==='/graphql'&&r.request().method()==='POST'&&(r.request().postData()||'').includes('updateDocument'));
  await page.getByRole('button',{name:'Save',exact:true}).click();const response=await responsePromise;expect(response.ok()).toBe(true);expect((await response.json()).errors||[]).toEqual([]);
- const mutation=response.request().postDataJSON().variables;
+ const mutation={...response.request().postDataJSON().variables,operation:'update' as const};
  // Expected content comes exclusively from this actual native request and active generated schema.
  await evidence.captureNative(sources,path,mutation,schema,predicate);
 }
