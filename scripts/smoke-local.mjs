@@ -1,12 +1,14 @@
+import {createOwnedFileEdit,cleanupOwnedEdit} from './owned-file-edit.mjs';
 import {spawn} from 'node:child_process';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {setTimeout as delay} from 'node:timers/promises';
 import {resolvePorts} from './ports.mjs';
 const ports=resolvePorts();const base=`http://127.0.0.1:${ports.site}`,worker=`http://127.0.0.1:${ports.worker}`;
-const original=readFileSync('content/articles/sample-article.json');
+const edit=createOwnedFileEdit('content/articles/sample-article.json','.generated/smoke-backups');
+const original=edit.original;
 const digest=b=>createHash('sha256').update(b).digest('hex');
-let output='',modified=false;const evidence={ports,checks:[],sourceBefore:digest(original)};
+let output='',failure;const evidence={ports,checks:[],sourceBefore:digest(original)};
 const child=spawn(process.execPath,['scripts/dev.mjs'],{stdio:['pipe','pipe','pipe'],env:process.env,windowsHide:true});
 child.stdout.on('data',d=>output+=d);child.stderr.on('data',d=>output+=d);
 const exited=new Promise(r=>child.once('exit',r));
@@ -25,18 +27,26 @@ try{
  assert((await fetch(base+'/api/contact',{method:'POST',headers:{origin:'https://evil.test','Content-Type':'application/json'},body:'{}'})).status===403,'Contact rejects remote origin');
  const missing=await fetch(worker+'/el/does-not-exist');assert(missing.status===404&&(await missing.text()).includes('Η σελίδα δεν βρέθηκε'),'Worker preserves localized Greek 404');
  const devMissing=await fetch(base+'/el/does-not-exist');assert(devMissing.status===404&&(await devMissing.text()).includes('Η σελίδα δεν βρέθηκε'),'Astro preserves localized Greek 404');
- const cms=readFileSync('.generated/cms.json','utf8');const record=JSON.parse(original.toString('utf8'));record.seoDescription='Task 4 live publication freshness proof';modified=true;writeFileSync('content/articles/sample-article.json',JSON.stringify(record,null,2)+'\n');
+ const cms=readFileSync('.generated/cms.json','utf8');const record=JSON.parse(original.toString('utf8'));record.seoDescription='Task 4 live publication freshness proof';edit.replace(Buffer.from(JSON.stringify(record,null,2)+'\n'));
  await until(async()=>{const m=JSON.parse(readFileSync('.generated/manifest.json','utf8'));return m.articles[0].description===record.seoDescription&&(await html('/en/insights/a-useful-first-question')).includes(record.seoDescription);},15000);
  assert(true,'Canonical save updates public page and backend manifest without restart');assert(readFileSync('.generated/cms.json','utf8')===cms,'Copy-only save keeps CMS descriptor bytes unchanged');
- writeFileSync('content/articles/sample-article.json',original);modified=false;
+ edit.restore();
  await until(async()=>!JSON.parse(readFileSync('.generated/manifest.json','utf8')).articles[0].description.includes('Task 4')&&!(await html('/en/insights/a-useful-first-question')).includes(record.seoDescription),15000);
  assert(digest(readFileSync('content/articles/sample-article.json'))===digest(original),'Canonical source restored byte-for-byte');
  evidence.sourceAfter=digest(readFileSync('content/articles/sample-article.json'));
+ }catch(error){failure=error;}finally{
+ try{
+  await cleanupOwnedEdit(edit,async()=>{
+   if(child.exitCode===null){child.stdin.write(Buffer.from([3]));await Promise.race([exited,delay(10000).then(()=>{throw Error('Launcher failed to stop');})]);}
+  });
+ }catch(error){failure??=error;}
  evidence.ownedPids=[...output.matchAll(/Owned (\w+) process (\d+)/g)].map(m=>({name:m[1],pid:Number(m[2])}));
-}finally{
- if(modified)writeFileSync('content/articles/sample-article.json',original);
- if(child.exitCode===null){child.stdin.write(Buffer.from([3]));await Promise.race([exited,delay(10000).then(()=>{throw Error('Launcher failed to stop');})]);}
+ for(const {pid}of evidence.ownedPids){let alive=true;try{process.kill(pid,0);}catch{alive=false;}if(alive)failure??=Error('Owned process '+pid+' did not stop');else evidence.checks.push('Owned process '+pid+' stopped');}
+ evidence.originalBackup=edit.backupPath;
+ evidence.unexpectedSnapshot=edit.conflictPath;
+ try{evidence.sourceAfter=digest(readFileSync('content/articles/sample-article.json'));}catch{evidence.sourceAfter='missing';}
+ if(failure)evidence.error=failure.message;
+ writeFileSync('.generated/task4-smoke.json',JSON.stringify(evidence,null,2)+'\n');
+ console.log(JSON.stringify(evidence,null,2));
 }
-for(const {pid}of evidence.ownedPids||[]){let alive=true;try{process.kill(pid,0);}catch{alive=false;}assert(!alive,'Owned process '+pid+' stopped');}
-writeFileSync('.generated/task4-smoke.json',JSON.stringify(evidence,null,2)+'\n');
-console.log(JSON.stringify(evidence,null,2));
+if(failure)throw failure;

@@ -1,0 +1,26 @@
+import {it,expect,vi} from 'vitest';
+import {fixture,project,editorial} from './fixtures/content/factory';
+import {readContent} from '../packages/content/read.mjs';
+import {localizeContent} from '../packages/content/localize.mjs';
+import {createManifest} from '../scripts/manifest.mjs';
+import {environment} from './db';
+import worker from '../worker/index';
+const manifest=vi.hoisted(()=>({offerings:[] as {id:string}[],articles:[],campaigns:[]}));
+vi.mock('../.generated/manifest.json',()=>({default:manifest}));
+vi.mock('../worker/workflow',()=>({startEnrollments:async()=>{},WelcomeWorkflow:class{}}));
+it('accepts a Greek-only published offering context and rejects offerings unpublished everywhere',async()=>{
+ const f=fixture();const greek=editorial('offering','greek-only');greek.status='draft';f.write('offerings/greek.json',greek);
+ const hidden=editorial('offering','hidden');hidden.status='draft';hidden.translations.el.status='draft';f.write('offerings/hidden.json',hidden);
+ const article=editorial('article','greek-article');article.status='draft';f.write('articles/greek.json',article);
+ const source=readContent(f.root,project);const localized=localizeContent(source,'el',project);
+ expect(localized.offerings.some(o=>o.contentId==='greek-only')).toBe(true);
+ const generated=createManifest(source,project);manifest.offerings.splice(0,manifest.offerings.length,...generated.offerings);
+ expect(generated.offerings.map(o=>o.id)).toEqual(['sample','greek-only']);
+ expect(generated.articles.map(a=>a.id)).toEqual(['article']);
+ const {env,database}=environment('enquiries');const pending:Promise<unknown>[]=[];
+ const ctx={waitUntil:(promise:Promise<unknown>)=>pending.push(promise)} as unknown as ExecutionContext;
+ const send=(contextId:string)=>worker.fetch(new Request('http://127.0.0.1:8899/api/contact',{method:'POST',headers:{origin:'http://127.0.0.1:4433','Content-Type':'application/json'},body:JSON.stringify({contextId,requestKey:crypto.randomUUID(),name:'Greek visitor',email:'visitor@example.com',message:'A question about the published Greek offering.',privacyAccepted:true,turnstileToken:'local'})}),env,ctx);
+ expect((await send('greek-only')).status).toBe(202);await Promise.all(pending);
+ expect((await send('hidden')).status).toBe(400);
+ expect(database.prepare('SELECT context_id FROM inquiry').get()!.context_id).toBe('greek-only');
+});
