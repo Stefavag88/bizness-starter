@@ -1,0 +1,6 @@
+---
+import Layout from '../layouts/Layout.astro';
+import {contents,project} from '../lib/content';
+const content=contents.find(c=>c.locale===project.locale)!;
+---
+<Layout content={content} title="Page not found" description="Page not found" path="/404" alternates={[]} noindex><div class="wrap editorial"><h1>Page not found</h1><a href={'/'+project.locale}>Return home</a></div></Layout>

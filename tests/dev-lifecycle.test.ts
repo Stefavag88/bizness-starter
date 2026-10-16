@@ -9,15 +9,15 @@ it('serves overridden ports then removes its own child tree on Ctrl+C input', as
  let output='';child.stdout.on('data',d=>output+=d);child.stderr.on('data',d=>output+=d);
  const exited=new Promise<number|null>(r=>child.once('exit',r));
  try {
-  const deadline=Date.now()+20000;let ready=false;
+  const deadline=Date.now()+45000;let ready=false;
   while(Date.now()<deadline){try{const r=await fetch(`http://127.0.0.1:${site}/api/health`,{signal:AbortSignal.timeout(500)});if(r.ok){ready=true;break;}}catch{}await delay(150);}
   expect(ready,output).toBe(true);
   expect((await fetch(`http://127.0.0.1:${worker}/api/health`)).status).toBe(200);
   child.stdin.write(Buffer.from([3]));
   expect(await Promise.race([exited,delay(8000).then(()=> 'timeout')]),output).toBe(0);
-  const pids=[...output.matchAll(/Owned (?:site|worker) process (\d+)/g)].map(m=>Number(m[1]));expect(pids).toHaveLength(2);
+  const pids=[...output.matchAll(/Owned (?:site|worker|content) process (\d+)/g)].map(m=>Number(m[1]));expect(pids).toHaveLength(3);
   for(const pid of pids) expect(()=>process.kill(pid,0)).toThrow();
   await expect(fetch(`http://127.0.0.1:${site}/`,{signal:AbortSignal.timeout(500)})).rejects.toThrow();
   await expect(fetch(`http://127.0.0.1:${worker}/api/health`,{signal:AbortSignal.timeout(500)})).rejects.toThrow();
  } finally {if(child.exitCode===null){if(process.platform==='win32'){const killer=spawn('taskkill',['/PID',String(child.pid),'/T','/F']);await new Promise(r=>killer.on('exit',r));}else child.kill('SIGTERM');}}
-},35000);
+},60000);

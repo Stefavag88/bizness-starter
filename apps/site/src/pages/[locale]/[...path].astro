@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Page from '../../templates/Page.astro';
+import RichText from '../../components/ui/RichText.astro';
+import Description from '../../components/ui/Description.astro';
+import {contents,routes,description} from '../../lib/content';
+export function getStaticPaths(){return routes.map(route=>({params:{locale:route.locale,path:route.path.split('/').slice(2).join('/')||undefined},props:{route}}));}
+const {route}=Astro.props;const content=contents.find(c=>c.locale===route.locale)!;
+const record=(route.kind==='page'?content.pages:route.kind==='offering'?content.offerings:route.kind==='person'?content.people:content.articles).find(r=>r.contentId===route.contentId)!;
+const title='meta' in record?record.meta.title:record.title;
+---
+<Layout content={content} title={title} description={description('meta' in record?{...record,seoDescription:record.meta.seoDescription}:record)} path={route.path} alternates={route.alternates}>
+{'meta' in record?<Page page={record} content={content}/>:<article class="wrap editorial"><h1>{record.title}</h1>{'role' in record&&<p>{record.role}</p>}{'publishAt' in record&&record.publishAt&&<p><time datetime={record.publishAt}>{new Date(record.publishAt).toLocaleDateString(content.locale,{dateStyle:'long',timeZone:'UTC'})}</time></p>}<Description text={record.description} locale={content.locale}/><RichText body={record.body} locale={content.locale}/></article>}
+</Layout>

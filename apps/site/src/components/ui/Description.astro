@@ -1,0 +1,6 @@
+---
+import {rich} from '../../lib/content';
+interface Props {text:string;locale:string;links?:boolean}
+const {text,locale,links=true}=Astro.props;
+---
+<p class="description" set:html={rich(text,locale,true,links)} />

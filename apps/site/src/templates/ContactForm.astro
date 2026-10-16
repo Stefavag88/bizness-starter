@@ -1,0 +1,63 @@
+---
+import Field from '../components/ui/Field.astro';
+import type {LocalizedContent} from '../../../../packages/content/types';
+import {project} from '../lib/content';
+interface Props {content:LocalizedContent}
+const {content}=Astro.props;const el=content.locale==='el';
+---
+<section><div class="wrap"><h2>{el?'Ας μιλήσουμε':'Let’s talk'}</h2><p>{el?'Τα πεδία με * είναι υποχρεωτικά.':'Fields marked * are required.'}</p>
+<form id="contact-form" action="/api/contact" method="post" data-locale={content.locale}>
+<Field name="name" label={el?'Όνομα':'Name'} required maxlength={120} autocomplete="name"/>
+<Field name="email" label={el?'Email':'Email'} type="email" required maxlength={254} autocomplete="email"/>
+<Field name="phone" label={el?'Τηλέφωνο':'Phone'} type="tel" maxlength={40} autocomplete="tel"/>
+<div class="field"><label for="contextId">{el?'Θέμα ενδιαφέροντος':'Area of interest'}</label><select id="contextId" name="contextId"><option value="">{el?'Γενική ερώτηση':'General enquiry'}</option>{content.offerings.map(o=><option value={o.contentId}>{o.title}</option>)}</select></div>
+<Field name="message" label={el?'Μήνυμα':'Message'} required minlength={20} maxlength={5000} multiline/>
+<label class="check"><input type="checkbox" name="privacyAccepted" id="privacyAccepted" aria-describedby="privacyAccepted-error" required/>{el?'Έχω διαβάσει την':'I have read the'} <a href={'/'+content.locale+'/privacy'}>{el?'πολιτική απορρήτου':'privacy notice'}</a> *</label><span id="privacyAccepted-error" class="field-error"></span>
+{project.profile!=='enquiries'&&<><label class="check"><input type="checkbox" name="marketingConsent"/>{el?'Θέλω να λαμβάνω ενημερώσεις μέσω email (προαιρετικό).':'Send me useful email updates (optional).'}</label><div class="field"><label for="interest">{el?'Ενημερώσεις':'Updates'}</label><select name="interest" id="interest">{project.interests.map(i=><option value={i.id}>{i.label}</option>)}</select></div></>}
+<input type="hidden" name="turnstileToken" value="local-preview"/>
+<div id="form-errors" tabindex="-1" role="alert" hidden></div><button type="submit">{el?'Αποστολή μηνύματος':'Send message'}</button><p id="form-status" role="status" aria-live="polite"></p>
+<noscript><p>{el?'Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email.':'This form needs JavaScript. You can also email us directly.'} <a href={'mailto:'+content.settings.contact.email}>{content.settings.contact.email}</a></p></noscript>
+</form></div></section>
+<script>
+const form=document.querySelector<HTMLFormElement>('#contact-form');
+if(form){
+ form.noValidate=true;
+ let requestKey=crypto.randomUUID();
+ const el=form.dataset.locale==='el';
+ const summary=form.querySelector<HTMLElement>('#form-errors')!;
+ const controls=Array.from(form.querySelectorAll<HTMLInputElement|HTMLTextAreaElement>('input,textarea'));
+ function errorFor(field:HTMLInputElement|HTMLTextAreaElement){
+  if(field.validity.valueMissing)return el?'Συμπληρώστε αυτό το πεδίο.':'Please complete this field.';
+  if(field.validity.typeMismatch)return el?'Γράψτε μια έγκυρη διεύθυνση email.':'Enter a valid email address.';
+  if(field.minLength>0&&field.value.length<field.minLength)return el?'Γράψτε τουλάχιστον '+field.minLength+' χαρακτήρες.':'Use at least '+field.minLength+' characters.';
+  return field.validationMessage;
+ }
+ function showError(field:HTMLInputElement|HTMLTextAreaElement,message:string){
+  const output=document.getElementById(field.name+'-error');if(output)output.textContent=message;
+  if(message)field.setAttribute('aria-invalid','true');else field.removeAttribute('aria-invalid');
+ }
+ function showSummary(errors:{name:string;message:string}[]){
+  summary.replaceChildren();summary.hidden=errors.length===0;
+  if(!errors.length)return;
+  const title=document.createElement('p');title.textContent=el?'Ελέγξτε τα παρακάτω πεδία:':'Please check these fields:';summary.append(title);
+  const list=document.createElement('ul');for(const error of errors){const item=document.createElement('li');const link=document.createElement('a');link.href='#'+error.name;link.textContent=error.message;item.append(link);list.append(item);}summary.append(list);summary.focus();
+ }
+ for(const control of controls)control.addEventListener('blur',()=>showError(control,errorFor(control)));
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();const button=form.querySelector('button')!;const status=form.querySelector<HTMLElement>('#form-status')!;
+  const invalid=controls.map(field=>({field,message:errorFor(field)}));for(const {field,message}of invalid)showError(field,message);
+  const errors=invalid.filter(e=>e.message).map(e=>({name:e.field.name,message:e.message}));showSummary(errors);if(errors.length)return;
+  const fields=new FormData(form);
+  const payload:Record<string,unknown>=Object.fromEntries(fields.entries());payload.requestKey=requestKey;payload.privacyAccepted=fields.has('privacyAccepted');payload.marketingConsent=fields.has('marketingConsent');
+  button.disabled=true;status.textContent=el?'Αποστολή…':'Sending…';
+  try{const response=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(15000)});const data=await response.json();
+   if(!response.ok){
+    if(Array.isArray(data.errors)){const errors=data.errors.filter((e:{name:string})=>controls.some(c=>c.name===e.name)).map((e:{name:string;message:string})=>({name:e.name,message:el?'Ελέγξτε αυτό το πεδίο.':e.message}));for(const error of errors){const field=controls.find(c=>c.name===error.name);if(field)showError(field,error.message);}showSummary(errors);}
+    throw Error(response.status===400?(el?'Ελέγξτε τα υποχρεωτικά πεδία.':'Please check the required fields.'):data.message);
+   }
+   status.textContent=el?'Ευχαριστούμε. Το μήνυμά σας παραλήφθηκε.':data.message;form.reset();requestKey=crypto.randomUUID();
+  }catch(error){status.textContent=error instanceof Error&&!['TimeoutError','TypeError'].includes(error.name)?error.message:(el?'Δεν ήταν δυνατή η αποστολή. Δοκιμάστε ξανά.':'Unable to send. Please try again.');}
+  finally{button.disabled=false;}
+ });
+}
+</script>

@@ -1,0 +1,7 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {contents} from '../../lib/content';
+export function getStaticPaths(){return contents.map(content=>({params:{locale:content.locale},props:{content}}));}
+const {content}=Astro.props;const el=content.locale==='el';const title=el?'Η σελίδα δεν βρέθηκε':'Page not found';
+---
+<Layout content={content} title={title} description={title} path={'/'+content.locale+'/404'} alternates={[]} noindex><div class="wrap editorial"><h1>{title}</h1><a href={'/'+content.locale}>{el?'Επιστροφή στην αρχική':'Return home'}</a></div></Layout>

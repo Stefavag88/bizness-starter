@@ -15,9 +15,16 @@
     "dev": "node scripts/dev.mjs",
     "dev:cms": "node scripts/dev.mjs --cms",
     "cms:local-build": "node scripts/dev.mjs --cms-build",
-    "worker:check": "pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json"
+    "worker:check": "pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json",
+    "db:local": "pnpm configure && node scripts/wrangler.mjs d1 migrations apply DB --local --config wrangler.generated.json",
+    "doctor": "node scripts/doctor.mjs",
+    "deploy:check": "node scripts/doctor.mjs --production",
+    "smoke:local": "node scripts/smoke-local.mjs"
   },
   "dependencies": {
+    "@fontsource/noto-sans": "5.2.8",
+    "aws4fetch": "1.0.20",
+    "jose": "6.2.12",
     "markdown-it": "14.3.2",
     "zod": "4.6.5"
   },

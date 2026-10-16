@@ -1,0 +1,9 @@
+import Hero from './sections/Hero.astro';
+import RichText from './sections/RichText.astro';
+import OfferingList from './sections/OfferingList.astro';
+import PeopleList from './sections/PeopleList.astro';
+import ArticleList from './sections/ArticleList.astro';
+import Cta from './sections/Cta.astro';
+import {rendererKey} from './section-registry';
+export const sectionRenderers={hero:Hero,'rich-text':RichText,'offering-list':OfferingList,'people-list':PeopleList,'article-list':ArticleList,cta:Cta} satisfies Record<keyof typeof import('./section-registry').sectionRegistry,unknown>;
+export function sectionRenderer(type:string,variant:string){return sectionRenderers[rendererKey(type,variant)];}

@@ -1,0 +1,6 @@
+---
+import Description from './Description.astro';
+interface Props {record:{path:string;title:string;description:string};locale:string}
+const {record,locale}=Astro.props;
+---
+<article class="card"><h3><a href={record.path}>{record.title}</a></h3><Description text={record.description} locale={locale}/></article>

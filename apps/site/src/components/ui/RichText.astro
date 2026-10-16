@@ -1,0 +1,6 @@
+---
+import {rich} from '../../lib/content';
+interface Props {body:string;locale:string}
+const {body,locale}=Astro.props;
+---
+<div class="prose" set:html={rich(body,locale)} />

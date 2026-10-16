@@ -1,0 +1,8 @@
+---
+import Description from '../../components/ui/Description.astro';
+import Button from '../../components/ui/Button.astro';
+import type {LocalizedSection} from '../../../../../packages/content/types';
+interface Props {section:Extract<LocalizedSection,{_template:'hero'}>;locale:string;primary?:boolean}
+const {section,locale,primary=false}=Astro.props;const {copy}=section;const Heading=primary?'h1':'h2';
+---
+<section class="hero" data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><Heading id={section.id}>{copy.title}</Heading><Description text={copy.description} locale={locale}/>{copy.link&&<Button {...copy.link} locale={locale}/>}</div></section>

@@ -1,0 +1,7 @@
+---
+import RichText from '../../components/ui/RichText.astro';
+import type {LocalizedSection} from '../../../../../packages/content/types';
+interface Props {section:Extract<LocalizedSection,{_template:'rich-text'}>;locale:string}
+const {section,locale}=Astro.props;
+---
+<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><RichText body={section.copy.body} locale={locale}/></div></section>

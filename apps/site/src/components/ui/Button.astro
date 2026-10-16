@@ -1,0 +1,6 @@
+---
+import {localizedLink} from '../../lib/content';
+interface Props {href:string;label:string;locale:string}
+const {href,label,locale}=Astro.props;
+---
+<a class="button" href={localizedLink(href,locale)}>{label}</a>
