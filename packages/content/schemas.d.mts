@@ -1,0 +1,16 @@
+import type { ZodType } from 'zod';
+import type { Page,Offering,Person,Article,Settings,Meta,Link,SectionReference,SectionCopyMap,PageTemplate,SectionType,Surface } from './types';
+export type * from './types';
+export const LIMITS:Readonly<{title:200;seoDescription:300;description:10000;body:100000}>;
+export const PAGE_TEMPLATES:readonly PageTemplate[];
+export const SECTION_TYPES:readonly SectionType[];
+export const SURFACES:readonly Surface[];
+export const linkSchema:ZodType<Link>;
+export const metaSchema:ZodType<Meta>;
+export const sectionSchema:ZodType<SectionReference>;
+export const sectionCopySchemas:{readonly [K in SectionType]:ZodType<SectionCopyMap[K]>};
+export const pageSchema:ZodType<Page>;
+export const offeringSchema:ZodType<Offering>;
+export const personSchema:ZodType<Person>;
+export const articleSchema:ZodType<Article>;
+export const settingsSchema:ZodType<Settings>;

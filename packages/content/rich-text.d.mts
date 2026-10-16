@@ -1,0 +1,4 @@
+export function isSafeLink(value:unknown):boolean;
+export function renderRichText(body:string):string;
+export function renderInlineRichText(body:string,options?:{links?:boolean}):string;
+export function plainText(body:string,limit?:number):string;

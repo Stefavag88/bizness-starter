@@ -1,0 +1,18 @@
+{
+  "contentId": "sample-service",
+  "slug": "planning-session",
+  "status": "published",
+  "title": "Planning session",
+  "description": "A focused conversation to identify your **next practical step**.",
+  "body": "## A shared starting point\n\nBring a question, an early idea, or a project that needs a clearer direction. We will discuss what matters to you and outline possible next steps.",
+  "seoDescription": "",
+  "translations": {
+    "el": {
+      "status": "published",
+      "title": "Συνάντηση σχεδιασμού",
+      "description": "Μια στοχευμένη συζήτηση για το **επόμενο πρακτικό σας βήμα**.",
+      "body": "## Ένα κοινό σημείο εκκίνησης\n\nΦέρτε μια ερώτηση, μια αρχική ιδέα ή ένα έργο που χρειάζεται πιο σαφή κατεύθυνση. Θα συζητήσουμε τι έχει σημασία για εσάς και θα περιγράψουμε πιθανά επόμενα βήματα.",
+      "seoDescription": ""
+    }
+  }
+}

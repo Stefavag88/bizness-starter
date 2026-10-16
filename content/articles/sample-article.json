@@ -1,0 +1,22 @@
+{
+  "contentId": "sample-article",
+  "slug": "a-useful-first-question",
+  "status": "published",
+  "publishAt": "2026-01-12T09:00:00Z",
+  "title": "A useful first question",
+  "description": "Before choosing a solution, ask what a **useful outcome** would look like.",
+  "body": "## Start with the outcome\n\nA clear question can make a project easier to discuss. Try describing the change you hope to see before listing the work you think is needed.\n\nKeep the first description short. You can refine it together as you learn more.",
+  "seoDescription": "",
+  "authorId": "sample-person",
+  "offeringId": "sample-service",
+  "translations": {
+    "el": {
+      "status": "published",
+      "publishAt": "2026-01-12T09:00:00Z",
+      "title": "Μια χρήσιμη πρώτη ερώτηση",
+      "description": "Πριν επιλέξετε μια λύση, ρωτήστε ποιο θα ήταν ένα **χρήσιμο αποτέλεσμα**.",
+      "body": "## Ξεκινήστε από το αποτέλεσμα\n\nΜια σαφής ερώτηση μπορεί να κάνει ένα έργο πιο εύκολο στη συζήτηση. Δοκιμάστε να περιγράψετε την αλλαγή που θέλετε να δείτε πριν καταγράψετε την εργασία που θεωρείτε απαραίτητη.\n\nΚρατήστε την πρώτη περιγραφή σύντομη. Μπορείτε να τη βελτιώσετε μαζί καθώς μαθαίνετε περισσότερα.",
+      "seoDescription": ""
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "brand": {
+    "name": "Example Studio",
+    "tagline": "A place to start a useful conversation."
+  },
+  "legal": {
+    "businessName": "Example Studio",
+    "privacyVersion": "sample-v1",
+    "notice": "Demonstration website. Review all business and legal information before public use."
+  },
+  "contact": {
+    "email": "hello@example.com",
+    "phone": "",
+    "address": ""
+  },
+  "navigation": [
+    {
+      "pageId": "home",
+      "label": "Home"
+    },
+    {
+      "pageId": "services",
+      "label": "Services"
+    },
+    {
+      "pageId": "about",
+      "label": "About"
+    },
+    {
+      "pageId": "insights",
+      "label": "Articles"
+    },
+    {
+      "pageId": "contact",
+      "label": "Contact"
+    }
+  ],
+  "translations": {
+    "el": {
+      "brand": {
+        "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+      },
+      "legal": {
+        "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση."
+      },
+      "contact": {
+        "address": ""
+      },
+      "navigation": {
+        "home": "Αρχική",
+        "services": "Υπηρεσίες",
+        "about": "Σχετικά",
+        "insights": "Άρθρα",
+        "contact": "Επικοινωνία"
+      }
+    }
+  }
+}

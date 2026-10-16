@@ -1,0 +1,88 @@
+{
+  "contentId": "home",
+  "_template": "home",
+  "slug": "",
+  "status": "published",
+  "meta": {
+    "title": "Make room for your next idea",
+    "seoDescription": ""
+  },
+  "sections": [
+    {
+      "id": "intro",
+      "_template": "hero",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    },
+    {
+      "id": "services-preview",
+      "_template": "offering-list",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    },
+    {
+      "id": "next-step",
+      "_template": "cta",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    }
+  ],
+  "copy": {
+    "sections": {
+      "intro": {
+        "title": "Make room for your next idea",
+        "description": "Explore our work and tell us what you would like to do next."
+      },
+      "services-preview": {
+        "title": "Ways to work together",
+        "description": "Start with a conversation about your priorities."
+      },
+      "next-step": {
+        "title": "Share your starting point",
+        "description": "A few details help us prepare for a useful first conversation.",
+        "link": {
+          "label": "Get in touch",
+          "href": "/en/contact"
+        }
+      }
+    }
+  },
+  "translations": {
+    "el": {
+      "status": "published",
+      "meta": {
+        "title": "Δώστε χώρο στην επόμενη ιδέα σας",
+        "seoDescription": ""
+      },
+      "copy": {
+        "sections": {
+          "intro": {
+            "title": "Δώστε χώρο στην επόμενη ιδέα σας",
+            "description": "Γνωρίστε τη δουλειά μας και πείτε μας τι θέλετε να κάνετε στη συνέχεια."
+          },
+          "services-preview": {
+            "title": "Τρόποι συνεργασίας",
+            "description": "Ξεκινήστε με μια συζήτηση για τις προτεραιότητές σας."
+          },
+          "next-step": {
+            "title": "Μοιραστείτε το σημείο εκκίνησής σας",
+            "description": "Λίγες πληροφορίες μάς βοηθούν να προετοιμάσουμε μια χρήσιμη πρώτη συζήτηση.",
+            "link": {
+              "label": "Επικοινωνήστε",
+              "href": "/el/contact"
+            }
+          }
+        }
+      }
+    }
+  }
+}

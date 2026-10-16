@@ -1,0 +1,63 @@
+{
+  "contentId": "contact",
+  "_template": "contact",
+  "slug": "contact",
+  "status": "published",
+  "meta": {
+    "title": "Start a conversation",
+    "seoDescription": ""
+  },
+  "sections": [
+    {
+      "id": "intro",
+      "_template": "hero",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    },
+    {
+      "id": "before-writing",
+      "_template": "rich-text",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    }
+  ],
+  "copy": {
+    "sections": {
+      "intro": {
+        "title": "Start a conversation",
+        "description": "Tell us a little about your question or project."
+      },
+      "before-writing": {
+        "title": "What to include",
+        "body": "Share your goal, any relevant timing, and the best way to reach you. Please leave out sensitive personal information."
+      }
+    }
+  },
+  "translations": {
+    "el": {
+      "status": "published",
+      "meta": {
+        "title": "Ξεκινήστε μια συζήτηση",
+        "seoDescription": ""
+      },
+      "copy": {
+        "sections": {
+          "intro": {
+            "title": "Ξεκινήστε μια συζήτηση",
+            "description": "Πείτε μας λίγα λόγια για την ερώτηση ή το έργο σας."
+          },
+          "before-writing": {
+            "title": "Τι να συμπεριλάβετε",
+            "body": "Αναφέρετε τον στόχο σας, το σχετικό χρονοδιάγραμμα και τον καλύτερο τρόπο επικοινωνίας. Παρακαλούμε μην συμπεριλαμβάνετε ευαίσθητα προσωπικά στοιχεία."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "contentId": "about",
+  "_template": "about",
+  "slug": "about",
+  "status": "published",
+  "meta": {
+    "title": "About the studio",
+    "seoDescription": ""
+  },
+  "sections": [
+    {
+      "id": "intro",
+      "_template": "hero",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    },
+    {
+      "id": "approach",
+      "_template": "rich-text",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    },
+    {
+      "id": "people-preview",
+      "_template": "people-list",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    }
+  ],
+  "copy": {
+    "sections": {
+      "intro": {
+        "title": "About the studio",
+        "description": "Meet the people and approach behind our work."
+      },
+      "approach": {
+        "title": "How we begin",
+        "body": "We begin by listening. Together, we identify a practical next step and agree what a useful outcome looks like.\n\nThis is **sample content** to adapt to your own organization."
+      },
+      "people-preview": {
+        "title": "People",
+        "description": "Find the right person for your first question."
+      }
+    }
+  },
+  "translations": {
+    "el": {
+      "status": "published",
+      "meta": {
+        "title": "Σχετικά με το στούντιο",
+        "seoDescription": ""
+      },
+      "copy": {
+        "sections": {
+          "intro": {
+            "title": "Σχετικά με το στούντιο",
+            "description": "Γνωρίστε τους ανθρώπους και την προσέγγιση πίσω από τη δουλειά μας."
+          },
+          "approach": {
+            "title": "Πώς ξεκινάμε",
+            "body": "Ξεκινάμε ακούγοντας. Μαζί εντοπίζουμε ένα πρακτικό επόμενο βήμα και συμφωνούμε ποιο αποτέλεσμα θα ήταν χρήσιμο.\n\nΑυτό είναι **ενδεικτικό περιεχόμενο** για προσαρμογή στον οργανισμό σας."
+          },
+          "people-preview": {
+            "title": "Άνθρωποι",
+            "description": "Βρείτε τον κατάλληλο άνθρωπο για την πρώτη σας ερώτηση."
+          }
+        }
+      }
+    }
+  }
+}

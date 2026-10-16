@@ -1,0 +1,20 @@
+{
+  "contentId": "sample-person",
+  "slug": "studio-guide",
+  "status": "published",
+  "title": "Studio guide",
+  "role": "Project contact",
+  "description": "Your first point of contact for questions about working together.",
+  "body": "## Get in touch\n\nUse the contact page to tell us what you have in mind. This is an example team profile to replace with approved information.",
+  "seoDescription": "",
+  "translations": {
+    "el": {
+      "status": "published",
+      "title": "Οδηγός του στούντιο",
+      "role": "Υπεύθυνος επικοινωνίας",
+      "description": "Το πρώτο σημείο επικοινωνίας για ερωτήσεις σχετικά με τη συνεργασία μας.",
+      "body": "## Επικοινωνήστε\n\nΧρησιμοποιήστε τη σελίδα επικοινωνίας για να μας πείτε τι σκέφτεστε. Αυτό είναι ένα ενδεικτικό προφίλ ομάδας που πρέπει να αντικατασταθεί με εγκεκριμένες πληροφορίες.",
+      "seoDescription": ""
+    }
+  }
+}
