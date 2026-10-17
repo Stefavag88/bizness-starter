@@ -1,6 +1,47 @@
-import type { Collection,TinaField } from 'tinacms';
+import type { Collection, TinaField } from 'tinacms';
 import type { ProjectConfig } from '../../packages/config/project.mjs';
-import { validateCurrentSave } from '../validation';
-export function collection(name:string,path:string,fields:TinaField[],project:ProjectConfig,protectedRecords=false):Collection {
- return {name,label:name==='person'?'People':name[0].toUpperCase()+name.slice(1),path,format:'json',fields,ui:{allowedActions:{create:!protectedRecords,delete:!protectedRecords&&!['offering','person','article'].includes(name),createFolder:false,createNestedFolder:false},beforeSubmit:async({values,cms,form})=>validateCurrentSave(values,name,project,cms,String(form.path||form.relativePath).replaceAll('\\','/').replace(path+'/',''))}};
+import { validateCurrentSave, resolveNativeSubmission } from '../validation';
+export function collection(
+  name: string,
+  path: string,
+  fields: TinaField[],
+  project: ProjectConfig,
+  protectedRecords = false,
+): Collection {
+  return {
+    name,
+    label: name === 'person' ? 'People' : name[0].toUpperCase() + name.slice(1),
+    path,
+    format: 'json',
+    fields,
+    ui: {
+      allowedActions: {
+        create: !protectedRecords,
+        delete:
+          !protectedRecords &&
+          !['offering', 'person', 'article'].includes(name),
+        createFolder: false,
+        createNestedFolder: false,
+      },
+      beforeSubmit: async ({ values, cms, form }) => {
+        try {
+          return await validateCurrentSave(
+            values,
+            name,
+            project,
+            cms,
+            resolveNativeSubmission(form, values, path),
+          );
+        } catch (error) {
+          // Native Form invokes this hook before createDocument/updateDocument's alert handler.
+          cms.alerts?.error(
+            error instanceof Error
+              ? error.message
+              : 'The document could not be validated.',
+          );
+          throw error;
+        }
+      },
+    },
+  };
 }

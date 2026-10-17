@@ -2,6 +2,7 @@ import { createElement as h, lazy, Suspense } from 'react';
 import type { TinaField, Template } from 'tinacms';
 import { sectionDefinitions } from '../../packages/content/section-registry.mjs';
 import { text, object, link } from './common';
+import { SectionCopyControls } from './composition';
 import { rich } from './rich-text';
 
 // Load the native renderer in the browser; schema construction stays usable in Node.
@@ -33,7 +34,7 @@ export const sectionCopyTemplates: Template[] = sectionDefinitions.map(definitio
 
 export function pageCopy(): TinaField {
   return object('copy', [{ name: 'sections', label: 'Section copy', type: 'object', list: true,
-    templates: sectionCopyTemplates, ui: { component: FixedEntries } }]);
+    templates: sectionCopyTemplates, ui: { component: SectionCopyControls } }]);
 }
 
 export function navigationLabels(): TinaField {

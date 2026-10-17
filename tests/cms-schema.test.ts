@@ -7,7 +7,7 @@ describe('native CMS collections',()=>{
   const {buildCollections}=await import('../tina/collections/index');
   const collections=buildCollections(project);
   expect(collections.map(c=>c.name)).toEqual(['settings','page','offering','person','article']);
-  expect(collections.find(c=>c.name==='page')?.ui).toMatchObject({allowedActions:{create:false,delete:false}});
+  expect(collections.find(c=>c.name==='page')?.ui).toMatchObject({allowedActions:{create:true,delete:false}});
   expect(collections.find(c=>c.name==='settings')?.match).toEqual({include:'site'});
   expect(buildCollections({...project,articles:false}).map(c=>c.name)).not.toContain('article');
   expect(JSON.stringify(collections)).not.toMatch(/databaseId|sesRegion|notificationEmail/);

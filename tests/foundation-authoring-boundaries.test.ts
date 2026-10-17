@@ -22,7 +22,7 @@ it('disables both native folder controls on every collection, including protecte
 it.each(['nested/sample.json','nested\\sample.json','../sample.json'])('rejects nested native save path %s before data-layer access or mutation',async relativePath=>{
  const values=editorial();const original=structuredClone(values);
  const cms={get api(){throw Error('Unexpected data-layer access');}};
- await expect(validateCurrentSave(values,'offering',project,cms,relativePath)).rejects.toThrow(/flat|directly.*collection/i);
+ await expect(validateCurrentSave(values,'offering',project,cms,{operation:'update',relativePath})).rejects.toThrow(/flat|directly.*collection/i);
  expect(values).toEqual(original);
 });
 it.each(['pages','offerings','people','articles','settings'])('fails actionably for nested active %s content',folder=>{
@@ -37,12 +37,12 @@ it('rejects nested campaigns when active, but ignores dormant article and campai
 
 it('rejects nested paths through the actual generated collection save hook without changing native values',async()=>{
  const values=editorial();const original=structuredClone(values);const offering=buildCollections(project).find(c=>c.name==='offering')!;
- await expect(offering.ui!.beforeSubmit!({values,cms:{get api(){throw Error('Unexpected data-layer access');}},form:{path:'content/offerings/nested/sample.json'}})).rejects.toThrow(/flat collection/);
+ await expect(offering.ui!.beforeSubmit!({values,cms:{get api(){throw Error('Unexpected data-layer access');}},form:{crudType:'update',path:'content/offerings/nested/sample.json'}})).rejects.toThrow(/flat collection/);
  expect(values).toEqual(original);
 });
 it('rejects an About native save candidate with slug 404 before persistence',async()=>{
  const p=parseProject(JSON.parse(readFileSync('project.json','utf8')));const values=JSON.parse(readFileSync('content/pages/about.json','utf8'));values.slug='404';const original=structuredClone(values);
  const request=async(query:string)=>query.includes('settingsConnection')?{settingsConnection:{edges:[{node:{_values:JSON.parse(readFileSync('content/settings/site.json','utf8')),_sys:{relativePath:'site.json'}}}],pageInfo:{hasNextPage:false}}}:{pageConnection:{edges:[{node:{_values:JSON.parse(readFileSync('content/pages/about.json','utf8')),_sys:{relativePath:'about.json'}}}],pageInfo:{hasNextPage:false}}};
- await expect(validateCurrentSave(values,'page',p,{api:{tina:{request}}},'about.json')).rejects.toThrow(/protected|reserved/);
+ await expect(validateCurrentSave(values,'page',p,{api:{tina:{request}}},{operation:'update',relativePath:'about.json'})).rejects.toThrow(/protected|reserved/);
  expect(values).toEqual(original);
 });

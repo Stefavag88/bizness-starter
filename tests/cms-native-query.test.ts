@@ -11,12 +11,12 @@ it.skipIf(!url)('validates actual native GraphQL ASTs and candidate catalogs wit
  for(const kind of ['settings','page','offering','person','article']){
   const result=await request(`query { ${kind}Connection { edges {node { ... on Document {_values _sys {relativePath}} }}}}`);
   const node=result[kind+'Connection'].edges[0].node;const values=node._values;const original=structuredClone(values);
-  expect(await validateCurrentSave(values,kind,project,cms,node._sys.relativePath)).toBe(values);expect(values).toEqual(original);
+  expect(await validateCurrentSave(values,kind,project,cms,{operation:'update',relativePath:node._sys.relativePath})).toBe(values);expect(values).toEqual(original);
   const collection=buildCollections(project).find(c=>c.name===kind)!;
-  expect(await collection.ui!.beforeSubmit!({values,cms,form:{path:collection.path+'/'+node._sys.relativePath}})).toBe(values);
+  expect(await collection.ui!.beforeSubmit!({values,cms,form:{crudType:'update',path:collection.path+'/'+node._sys.relativePath}})).toBe(values);
   if(kind==='offering'){
-   const duplicate={...values,contentId:'home'};await expect(validateCurrentSave(duplicate,kind,project,cms,'new-offering.json')).rejects.toThrow(/Duplicate/);
-   await expect(validateCurrentSave({...values,contentId:'new-offering',slug:values.slug},kind,project,cms,'new-offering.json')).rejects.toThrow(/collision|duplicate/i);
+   const duplicate={...values,contentId:'home'};await expect(validateCurrentSave(duplicate,kind,project,cms,{operation:'create',relativePath:'new-offering.json'})).rejects.toThrow(/Duplicate/);
+   await expect(validateCurrentSave({...values,contentId:'new-offering',slug:values.slug},kind,project,cms,{operation:'create',relativePath:'new-offering.json'})).rejects.toThrow(/collision|duplicate/i);
   }
  }
 },30000);

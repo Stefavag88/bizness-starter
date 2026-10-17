@@ -42,14 +42,13 @@ it('normalizes typed native aliases and regional locales on detached rich AST pr
  const {beforeSubmit,nativeProjection}=await import('../tina/validation');const current=JSON.parse(readFileSync('content/pages/about.json','utf8'));const p={...project,languages:[...project.languages,{code:'pt-BR',label:'Portuguese'}]};
  const values=structuredClone(current);values.translations.pt_BR=structuredClone(values.translations.el);
  for(const c of [values.copy,...Object.values(values.translations).map((t:any)=>t.copy)] as any[])for(const entry of c.sections){entry._template=entry._template.replaceAll('-','_');if(entry.body!==undefined)entry.body=ast('Typed body');}
- values.sections.forEach((s:any)=>s._template=s._template.replaceAll('-','_'));
  const before=structuredClone(values);expect(beforeSubmit(values,'page',p,current)).toBe(values);expect(values).toEqual(before);expect(nativeProjection(values,p).translations['pt-BR']).toBeDefined();
  values.translations['pt-BR']=values.translations.pt_BR;expect(()=>beforeSubmit(values,'page',p,current)).toThrow(/Duplicate.*alias/);
 });
 it('permits optional add/reorder/remove at save while preserving exact native ASTs and current identity',async()=>{
  const {beforeSubmit}=await import('../tina/validation');const current=JSON.parse(readFileSync('content/pages/about.json','utf8'));
  const values=structuredClone(current);const body=ast('New native body');
- values.sections.splice(1,0,{id:'extra',_template:'rich_text',variant:'default',enabled:false,appearance:{surface:'default'}});
+ values.sections.splice(1,0,{id:'extra',_template:'rich-text',variant:'default',enabled:false,appearance:{surface:'default'}});
  values.copy.sections.push({id:'extra',_template:'rich_text',title:'Extra',body});
  expect(beforeSubmit(values,'page',project,current)).toBe(values);expect(values.copy.sections.at(-1).body).toBe(body);
  const removed=structuredClone(current);const id=removed.sections.pop().id;removed.copy.sections=removed.copy.sections.filter((e:any)=>e.id!==id);for(const t of Object.values(removed.translations) as any[])t.copy.sections=t.copy.sections.filter((e:any)=>e.id!==id);
@@ -70,7 +69,7 @@ it('uses the current relativePath record for composition identity and fails clos
  };
  const cms={api:{tina:{request}}};const values=JSON.parse(readFileSync('content/pages/about.json','utf8'));
  [values.sections[1],values.sections[2]]=[values.sections[2],values.sections[1]];
- expect(await validateCurrentSave(values,'page',project,cms,'about.json')).toBe(values);
- await expect(validateCurrentSave({...values,contentId:'home'},'page',project,cms,'about.json')).rejects.toThrow(/identity.*protected/i);
- await expect(validateCurrentSave(values,'page',project,cms,'absent.json')).rejects.toThrow(/current native record.*not found/i);
+ expect(await validateCurrentSave(values,'page',project,cms,{operation:'update',relativePath:'about.json'})).toBe(values);
+ await expect(validateCurrentSave({...values,contentId:'home'},'page',project,cms,{operation:'update',relativePath:'about.json'})).rejects.toThrow(/identity.*protected/i);
+ await expect(validateCurrentSave(values,'page',project,cms,{operation:'update',relativePath:'absent.json'})).rejects.toThrow(/current native record.*not found/i);
 });
