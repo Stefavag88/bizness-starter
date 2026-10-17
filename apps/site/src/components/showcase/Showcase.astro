@@ -1,0 +1,39 @@
+---
+import {project} from '../../lib/content';
+import themes from '../../../../../packages/design-system/themes.generated.json';
+import type {LocalizedContent} from '../../../../../packages/content/types';
+import {createShowcaseSamples} from './samples';
+import {sectionRenderer} from '../../templates/sections';
+import Button from '../ui/Button.astro';
+import Field from '../ui/Field.astro';
+import Card from '../ui/Card.astro';
+import RichText from '../ui/RichText.astro';
+interface Props {contents:LocalizedContent[]}
+const groups=Astro.props.contents.filter(c=>c.locale==='en'||c.locale==='el').map(createShowcaseSamples);
+const defaultLocale=groups.find(c=>c.locale===project.locale)?.locale??groups[0]?.locale;
+const home=Astro.props.contents.find(c=>c.locale===project.locale)?.pages.find(p=>p._template==='home')?.path??'/'+project.locale;
+const theme=themes[project.design.theme as keyof typeof themes];
+const roles=['surface','textPrimary','textMuted','brandAccent','border','controlBorder','focus','actionPrimary','actionHover','onAction','feedbackError','feedbackSuccess','errorSurface','successSurface','surfaceMuted','noticeSurface'] as const;
+const token=(role:string)=>'--color-'+role.replace(/[A-Z]/g,c=>'-'+c.toLowerCase());
+---
+<header class="wrap showcase-shell" lang="en"><div><p>Preview only</p><h1>Business Starter v2</h1><p>Design-system showcase</p></div><a href={home}>Back to homepage</a></header>
+<main id="showcase-main">
+<div class="wrap showcase-shell" lang="en"><p>Presentation themes are independent of business presets. For permanent theme and density settings, edit <code>project.json</code>; theme tokens live in <code>packages/design-system/themes/</code>.</p>
+{groups.length>0?<div id="showcase-toolbar" class="showcase-toolbar" data-default-theme={project.design.theme} data-default-density={project.design.density} data-default-language={defaultLocale}>
+<label for="showcase-theme">Theme<select id="showcase-theme" disabled>{Object.entries(themes).map(([key,value])=><option value={key} selected={key===project.design.theme}>{value.label}</option>)}</select></label>
+<label for="showcase-density">Density<select id="showcase-density" disabled>{['compact','comfortable','spacious'].map(value=><option value={value} selected={value===project.design.density}>{value}</option>)}</select></label>
+<label for="showcase-language">Sample language<select id="showcase-language" disabled>{groups.map(group=><option value={group.locale} selected={group.locale===defaultLocale}>{project.languages.find(l=>l.code===group.locale)?.label}</option>)}</select></label>
+<button id="showcase-reset" type="button" disabled>Reset preview</button></div>:<p>No supported sample languages are configured. Configure English or Greek to view samples.</p>}
+<noscript><p>JavaScript enables preview controls. Configured-default examples remain available below.</p></noscript>
+<nav aria-label="Showcase sections"><a href="#showcase-foundations">Foundations</a><a href="#showcase-controls">Controls</a><a href="#showcase-cards">Cards</a><a href="#showcase-sections">Section examples</a></nav>
+<section id="showcase-foundations"><h2>Foundations</h2><p>Self-hosted Noto Sans supports Greek and Latin at the same type sizes.</p><div class="showcase-swatches">{roles.map(role=><div class="showcase-swatch"><span aria-hidden="true" class={'showcase-color showcase-color-'+role}></span><code>{token(role)}</code><span data-color-token={role}>{theme.primitiveColors[theme.semanticColors[role] as keyof typeof theme.primitiveColors]}</span></div>)}</div>
+<dl><dt>--radius-control</dt><dd data-theme-token="radius">{theme.radius}</dd><dt>--section-space</dt><dd data-theme-token="sectionSpace">{theme.sectionSpace}px</dd><dt>--section-space-mobile</dt><dd data-theme-token="mobileSectionSpace">{theme.mobileSectionSpace}px</dd></dl><p>Density multiplies shared section spacing by 0.75, 1 or 1.25. Hero retains its existing component spacing. Layout metadata is informational; only registered default renderers are demonstrated.</p></section></div>
+<div class="wrap showcase-shell" lang="en"><h2 id="showcase-controls">Controls</h2><p>Demonstration fields do not submit. Help, error and disabled states are explicitly labelled.</p></div>
+{groups.map(group=>{const el=group.locale==='el';const prefix='showcase-'+group.locale+'-control';const contact=group.content.pages.find(p=>p._template==='contact')!.path;return <div data-sample-language={group.locale} hidden={group.locale!==defaultLocale} lang={group.locale}>
+<div class="wrap showcase-controls"><Button href={contact} label={el?'Ενεργός σύνδεσμος':'Enabled link button'} locale={group.locale}/><button type="button" disabled>{el?'Ανενεργό κουμπί δείγματος':'Disabled sample button'}</button><Field name={prefix+'-help'} label={el?'Πεδίο με βοήθεια':'Field with help'} help={el?'Ενδεικτική βοήθεια.':'Example help text.'}/><Field name={prefix+'-error'} label={el?'Πεδίο με σφάλμα':'Field with error'} error={el?'Ενδεικτικό σφάλμα.':'Example error state.'}/><Field name={prefix+'-disabled'} label={el?'Ανενεργό πεδίο':'Disabled field'} disabled/><RichText locale={group.locale} body={el?'**Έντονο**, *πλάγιο* και [σύνδεσμος]('+contact+').':'**Strong**, *emphasis* and a [link]('+contact+').'}/></div></div>;})}
+<div class="wrap showcase-shell" lang="en"><h2 id="showcase-cards">Cards</h2></div>
+{groups.map(group=><div class="wrap cards" data-sample-language={group.locale} hidden={group.locale!==defaultLocale} lang={group.locale}><Card record={group.content.offerings[0]} locale={group.locale}/></div>)}
+<div class="wrap showcase-shell" lang="en"><h2 id="showcase-sections">Section examples</h2><p>The six registered default renderers. ArticleList uses a labelled synthetic card linked to Contact, including when public articles are disabled.</p></div>
+{groups.map(group=><div data-sample-language={group.locale} hidden={group.locale!==defaultLocale} lang={group.locale}>{group.sections.map(section=>{const Renderer=sectionRenderer(section._template,'default');return <Renderer section={section as never} content={group.content} locale={group.locale} primary={false}/>;})}</div>)}
+</main>
+

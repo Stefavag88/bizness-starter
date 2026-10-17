@@ -1,5 +1,6 @@
 ---
-interface Props {name:string;label:string;type?:'text'|'email'|'tel';required?:boolean;minlength?:number;maxlength?:number;autocomplete?:string;multiline?:boolean}
-const {name,label,type='text',required=false,minlength,maxlength,autocomplete,multiline=false}=Astro.props;
+interface Props {name:string;label:string;type?:'text'|'email'|'tel';required?:boolean;minlength?:number;maxlength?:number;autocomplete?:string;multiline?:boolean;help?:string;error?:string;disabled?:boolean}
+const {name,label,type='text',required=false,minlength,maxlength,autocomplete,multiline=false,help,error,disabled=false}=Astro.props;
+const describedby=name+'-error'+(help?' '+name+'-help':'');
 ---
-<div class="field"><label for={name}>{label}{required?' *':''}</label>{multiline?<textarea id={name} name={name} required={required} minlength={minlength} maxlength={maxlength} rows="6" aria-describedby={name+'-error'} />:<input id={name} name={name} type={type} required={required} minlength={minlength} maxlength={maxlength} autocomplete={autocomplete} aria-describedby={name+'-error'}/>}<span id={name+'-error'} class="field-error"></span></div>
+<div class="field"><label for={name}>{label}{required?' *':''}</label>{multiline?<textarea id={name} name={name} required={required} minlength={minlength} maxlength={maxlength} rows="6" aria-describedby={describedby} aria-invalid={error?'true':undefined} disabled={disabled}/>:<input id={name} name={name} type={type} required={required} minlength={minlength} maxlength={maxlength} autocomplete={autocomplete} aria-describedby={describedby} aria-invalid={error?'true':undefined} disabled={disabled}/>}<span id={name+'-error'} class="field-error">{error}</span>{help&&<span id={name+'-help'}>{help}</span>}</div>

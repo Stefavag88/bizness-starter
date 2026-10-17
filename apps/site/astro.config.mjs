@@ -15,4 +15,4 @@ const contentRefresh={
  handleHotUpdate(context){if(isContentInput(context.file)){context.server.moduleGraph.invalidateAll();context.server.ws.send({type:'full-reload'});return [];}}
 };
 const target=`http://127.0.0.1:${ports.worker}`;
-export default defineConfig({site:project.siteUrl,output:'static',trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});
+export default defineConfig({site:project.siteUrl,output:'static',build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});
