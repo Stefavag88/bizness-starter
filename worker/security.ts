@@ -1,6 +1,7 @@
 import { jwtVerify, createRemoteJWKSet, SignJWT } from 'jose';
 import { hash } from '../packages/contracts';
 import type { Env } from './types';
+import { accessEmail, accessEmails } from '../packages/config/access.mjs';
 const encoder = new TextEncoder();
 export class HttpError extends Error {
   constructor(
@@ -107,9 +108,20 @@ export async function readToken(env: Env, token: string, purpose: string) {
   }
 }
 const keys = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
-export async function admin(request: Request, env: Env) {
+function roleLists(env: Env) {
+  try {
+    return {
+      admins: accessEmails.parse(JSON.parse(env.ADMIN_EMAILS)),
+      editors: accessEmails.parse(JSON.parse(env.EDITOR_EMAILS)),
+    };
+  } catch {
+    throw new HttpError(503, 'Access roles are not configured.');
+  }
+}
+async function authorize(request: Request, env: Env, role: 'admin' | 'editor') {
   if (isLocal(request, env)) return 'local-developer';
-  if (!env.ACCESS_ISSUER || !env.ACCESS_AUDIENCE || !env.ADMIN_EMAIL)
+  const lists = roleLists(env);
+  if (!env.ACCESS_ISSUER || !env.ACCESS_AUDIENCE)
     throw new HttpError(503, 'Administration is not configured.');
   const issuer = env.ACCESS_ISSUER.replace(/\/$/, '');
   if (!/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/.test(issuer))
@@ -123,10 +135,20 @@ export async function admin(request: Request, env: Env) {
     const { payload } = await jwtVerify(request.headers.get('cf-access-jwt-assertion') || '', key, {
       issuer,
       audience: env.ACCESS_AUDIENCE,
+      algorithms: ['RS256'],
+      requiredClaims: ['exp', 'email'],
     });
-    if (payload.email !== env.ADMIN_EMAIL) throw Error();
-    return String(payload.email);
+    const email = accessEmail.parse(payload.email);
+    if (!lists.admins.includes(email) && !(role === 'editor' && lists.editors.includes(email)))
+      throw Error();
+    return email;
   } catch {
-    throw new HttpError(403, 'Administrator access is required.');
+    throw new HttpError(403, role === 'admin' ? 'Administrator access is required.' : 'Editor access is required.');
   }
+}
+export async function admin(request: Request, env: Env) {
+  return authorize(request, env, 'admin');
+}
+export async function editor(request: Request, env: Env) {
+  return authorize(request, env, 'editor');
 }

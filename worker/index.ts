@@ -3,7 +3,7 @@ import project from '../project.json';
 import { ZodError } from 'zod';
 import { inquirySchema, signupSchema } from '../packages/contracts';
 import { jobStatement, now, rateLimit } from './db';
-import { HttpError, admin, body, isLocal, ipKey, requireOrigin, verifyTurnstile } from './security';
+import { HttpError, admin, editor, body, isLocal, ipKey, requireOrigin, verifyTurnstile } from './security';
 import { subscribe, confirm, unsubscribe } from './newsletter';
 import { deliver, dispatch, drainLocal } from './delivery';
 import { createCampaign, campaignAction, fanOut } from './campaigns';
@@ -48,7 +48,7 @@ export default {
         return json(await overview(env));
       }
       if (path === '/cms' || path.startsWith('/cms/')) {
-        await admin(request, env);
+        await editor(request, env);
         return env.ASSETS.fetch(request);
       }
       if (path.startsWith('/api/local/')) {

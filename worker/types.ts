@@ -17,7 +17,8 @@ export interface Env {
   SNS_TOPIC_ARN: string;
   ACCESS_ISSUER: string;
   ACCESS_AUDIENCE: string;
-  ADMIN_EMAIL: string;
+  ADMIN_EMAILS: string;
+  EDITOR_EMAILS: string;
   SENDING_ENABLED: string;
   MARKETING_ENABLED: string;
   SEND_INTERVAL_MS: string;

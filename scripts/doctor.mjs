@@ -7,7 +7,7 @@ if(process.argv.includes('--production')){
  if(!p.contentReviewed||!p.legalReviewed)issues.push('Review business content and legal wording.');
  if(p.siteUrl.includes('example.')||p.infrastructure.sender.includes('example.')||p.infrastructure.notificationEmail.includes('example.'))issues.push('Replace example domain, sender and recipient.');
  if(p.infrastructure.databaseId==='00000000-0000-0000-0000-000000000000')issues.push('Configure a project-specific D1 database.');
- if(!p.infrastructure.accessIssuer||!p.infrastructure.accessAudience||!p.infrastructure.adminEmail)issues.push('Configure hosted CMS and administration Access protection.');
+ if(!p.infrastructure.accessIssuer||!p.infrastructure.accessAudience||!p.infrastructure.adminEmails.length)issues.push('Configure hosted CMS and administration Access protection with at least one administrator.');
  if(!p.infrastructure.snsTopicArn)issues.push('Configure verified SES feedback.');
  if(!p.infrastructure.sendingEnabled)issues.push('Review transactional delivery readiness before enabling sending.');
  if(p.profile!=='enquiries'&&!p.infrastructure.marketingEnabled)issues.push('Review subscription lifecycle before enabling marketing.');

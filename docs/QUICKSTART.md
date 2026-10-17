@@ -90,3 +90,7 @@ Stop the owned dev or dev:cms launcher before pnpm test. The dev-lifecycle regre
 ## Static routing acceptance
 
 Stop the owned launcher and run `pnpm test:static-routing` to rebuild and verify asset bypass, localized errors, redirects, static security headers and real protected-route handling with pinned Wrangler. See [routing decision and evidence](STATIC_ASSET_ROUTING.md). This command owns and stops its temporary runtime; restart `pnpm dev:cms` afterward as needed.
+
+## Worker access roles
+
+Configure developer-owned infrastructure.adminEmails and infrastructure.editorEmails arrays for hosted access. Administrators can use CMS and operational routes; editors can use CMS only. Keep Tina membership separate and within its Free plan's two CMS users. See [authentication and migration](AUTHENTICATION.md) for normalized lists, Access application coverage, migration from adminEmail and pending hosted verification.

@@ -25,3 +25,10 @@ it.each(['comfortable', 'compact', 'spacious'] as const)('accepts %s density wit
 it.each(['dense', '', 'SPACIOUS', 1, null])('rejects unsupported density %s', (density) => {
   expect(() => parseProject({ ...valid(), design: { theme: 'neutral', density } })).toThrow();
 });
+
+it('defaults role lists to empty and normalizes explicit identities without mutating input',()=>{
+ const defaults=parseProject(valid()).infrastructure;expect(defaults).toMatchObject({adminEmails:[],editorEmails:[]});
+ const raw={...valid(),infrastructure:{adminEmails:[' Admin1@Example.COM ','admin2@example.com'],editorEmails:['editor@example.com','admin1@example.com']}};
+ expect(parseProject(raw).infrastructure).toMatchObject({adminEmails:['admin1@example.com','admin2@example.com'],editorEmails:['editor@example.com','admin1@example.com']});expect(raw.infrastructure.adminEmails[0]).toBe(' Admin1@Example.COM ');
+});
+it.each([{adminEmail:''},{adminEmails:'admin@example.com'},{adminEmails:['']},{editorEmails:['*']},{adminEmails:['a@example.com',' A@EXAMPLE.COM ']},{editorEmails:['a@example.com','a@example.com']},{editorEmails:[2]}])('rejects malformed or legacy role configuration %j', infrastructure=>{expect(()=>parseProject({...valid(),infrastructure})).toThrow();});

@@ -4,7 +4,7 @@ export interface ProjectConfig {
   locale:string; languages:{code:string;label:string}[]; siteUrl:string; environment:'local'|'staging'|'production';
   design:{theme:string;density:'comfortable'|'compact'|'spacious'}; legalReviewed:boolean; contentReviewed:boolean;
   interests:{id:string;label:string}[];
-  infrastructure:{databaseId:string;sesRegion:string;sender:string;notificationEmail:string;allowedRecipients:string[];sesConfigurationSet:string;snsTopicArn:string;accessIssuer:string;accessAudience:string;adminEmail:string;sendingEnabled:boolean;marketingEnabled:boolean;sendIntervalMs:number};
+  infrastructure:{databaseId:string;sesRegion:string;sender:string;notificationEmail:string;allowedRecipients:string[];sesConfigurationSet:string;snsTopicArn:string;accessIssuer:string;accessAudience:string;adminEmails:string[];editorEmails:string[];sendingEnabled:boolean;marketingEnabled:boolean;sendIntervalMs:number};
 }
 export const projectSchema: ZodType<ProjectConfig>;
 export function parseProject(raw:unknown):ProjectConfig;

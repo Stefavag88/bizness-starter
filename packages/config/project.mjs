@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { accessEmails } from './access.mjs';
 const text = z.string().trim().min(1);
 const code = z.string().regex(/^[a-z]{2}(?:-[A-Z]{2})?$/);
 const id = z.string().regex(/^[a-z0-9_-]{1,40}$/);
@@ -11,7 +12,7 @@ const infrastructure = z.strictObject({
   sesRegion: text.default('eu-west-1'), sender: text.default('Example Studio <hello@example.com>'),
   notificationEmail: z.email().default('owner@example.com'), allowedRecipients: z.array(z.email()).default([]),
   sesConfigurationSet: z.string().default('starter-transactional'), snsTopicArn: z.string().default(''),
-  accessIssuer: z.string().default(''), accessAudience: z.string().default(''), adminEmail: z.union([z.email(),z.literal('')]).default(''),
+  accessIssuer: z.string().default(''), accessAudience: z.string().default(''), adminEmails: accessEmails.default([]), editorEmails: accessEmails.default([]),
   sendingEnabled: z.boolean().default(false), marketingEnabled: z.boolean().default(false), sendIntervalMs: z.number().int().min(1000).default(1000),
 });
 export const projectSchema = z.strictObject({
