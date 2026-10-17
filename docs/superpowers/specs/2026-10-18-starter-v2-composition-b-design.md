@@ -1,6 +1,6 @@
 # Business Starter v2 — Composition B design
 
-Date: 2026-10-18. Status: Written design approved by the user on 2026-10-18; implementation plan review pending. Authority: the approved v2 architecture and Composition A delivery decomposition. Showcase is accepted at runtime29bbc05, handoffd3a3478. This increment extends the existing registry and native CMS; it is architectural work, not a replacement website or preset implementation.
+Date: 2026-10-18. Status: Written design approved by the user on 2026-10-18; implementation plan approved for execution on 2026-10-18. Authority: the approved v2 architecture and Composition A delivery decomposition. Showcase is accepted at runtime29bbc05, handoffd3a3478. This increment extends the existing registry and native CMS; it is architectural work, not a replacement website or preset implementation.
 
 ## Intent and selected approach
 

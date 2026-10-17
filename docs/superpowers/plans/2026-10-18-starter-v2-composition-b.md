@@ -10,7 +10,7 @@
 
 **Spec:** [Approved Composition B design](../specs/2026-10-18-starter-v2-composition-b-design.md).
 
-**Status:** Written spec approved2026-10-18. This plan awaits review. Preserve the already selected medium subagents with independent task gates; no new execution-method choice is needed.
+**Status:** Written spec and implementation plan approved2026-10-18. Execution authorized after the separately completed routing and access-role prerequisites. Preserve the already selected medium subagents with independent task gates; no new execution-method choice is needed.
 
 ## Global Constraints
 
