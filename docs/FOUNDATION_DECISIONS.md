@@ -80,3 +80,10 @@ Use supported Vite build.assetsInlineLimit=0 because installed Astro's small exe
 Four source theme JSON records share the unchanged validator and self-hosted Noto Sans. Spacious is additive project configuration; schemaVersion and CMS documents are unchanged. Density is shared responsive spacing rather than showcase-only CSS. Detached fixtures reuse six registered default renderers; themes do not select business presets. The only language samples are configured EN/EL. Staging/production exclusion is an artifact gate, independently of navigation visibility.
 
 The owned build verifier preserves originals/evidence and refuses conflicting external bytes or missing source. It restores local output last when ownership remains intact. No native profile/save suite was repeated because no CMS/backend contract changed. Composition B/C and stages 3/4 require their own plans.
+
+
+## 2026-10-18 showcase final-review correction
+
+The controller approved replacing empty getStaticPaths gating with supported local-only astro:config:setup injectRoute registration after actual staging/production builds confirmed dedicated preview JS/CSS leakage. Move the entry outside src/pages and remove the filesystem route so nonlocal builds never discover its client graph. Wrong-choice cost: Astro route/integration and local-route revalidation; no content/schema change, production feature, post-build deletion or CSP relaxation. Shared business/theme/font and CMS assets remain emitted normally.
+
+The verifier now retains hashed per-stage asset inventories and rejects dedicated compiled preview selectors/entry names in JS/CSS. Do not reject every design-system string: the CMS validator legitimately reserves that URL. Earlier HTML-only acceptance remains historical and did not prove asset exclusion; the dated correction in showcase evidence records the resolved gap. Ownership, exact restoration, timeout and best-effort comparison semantics remain unchanged. Both dense verifier/browser workflows were expanded into readable phases with only a small RGB helper extraction.

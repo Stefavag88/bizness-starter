@@ -14,5 +14,19 @@ const contentRefresh={
  configureServer(server){server.watcher.add([resolve(projectRoot,'content'),resolve(projectRoot,'project.json'),resolve(projectRoot,'packages/design-system/themes')]);},
  handleHotUpdate(context){if(isContentInput(context.file)){context.server.moduleGraph.invalidateAll();context.server.ws.send({type:'full-reload'});return [];}}
 };
+// Register before Astro discovers the client graph. An empty getStaticPaths
+// still emits the route's scripts/styles in nonlocal builds.
+const localShowcase={
+ name:'local-design-system-showcase',
+ hooks:{
+  'astro:config:setup':({injectRoute})=>{
+   if(project.environment==='local') injectRoute({
+    pattern:'/design-system',
+    entrypoint:new URL('./src/showcase/DesignSystem.astro',import.meta.url),
+    prerender:true,
+   });
+  },
+ },
+};
 const target=`http://127.0.0.1:${ports.worker}`;
-export default defineConfig({site:project.siteUrl,output:'static',build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});
+export default defineConfig({site:project.siteUrl,output:'static',integrations:[localShowcase],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});

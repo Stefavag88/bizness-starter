@@ -16,3 +16,35 @@ it('preserves a concurrent deletion and skips regeneration',async()=>{const f=fi
 it('rejects navigation leakage without a route directory',async()=>{const f=fixture();await expect(verifyShowcaseBuilds({...f,run:async()=>{output(f.root,false);writeFileSync(join(f.root,'apps/site/dist/index.html'),'<a href="/design-system">Preview</a>');},refresh:async()=>output(f.root,true)})).rejects.toThrow(/navigation/);});
 it('rejects missing final local output',async()=>{const f=fixture();await expect(verifyShowcaseBuilds({...f,run:async()=>output(f.root,false),refresh:async()=>output(f.root,false)})).rejects.toThrow(/showcase output/);expect(readFileSync(f.path)).toEqual(f.original);});
 it('rejects concurrent edits during final local refresh without replacing them',async()=>{const f=fixture();await expect(verifyShowcaseBuilds({...f,run:async()=>output(f.root,false),refresh:async()=>{output(f.root,true);writeFileSync(f.path,'external final edit');}})).rejects.toThrow(/ownership conflict/);expect(readFileSync(f.path,'utf8')).toBe('external final edit');});
+it.each([
+ ['renamed preview controller', 'renamed.js', 'document.querySelector("#showcase-toolbar");'],
+ ['dedicated layout script', 'ShowcaseLayout.astro_astro_type_script_index_0_lang.hash.js', 'export {};'],
+ ['showcase stylesheet', 'renamed.css', '.showcase-toolbar{display:grid}'],
+])('rejects asset-only leakage: %s',async(_name,file,source)=>{
+ const f=fixture();
+ await expect(verifyShowcaseBuilds({...f,run:async()=>{
+  output(f.root,false);
+  const assets=join(f.root,'apps/site/dist/_astro');
+  mkdirSync(assets,{recursive:true});
+  writeFileSync(join(assets,file),source);
+ },refresh:async()=>output(f.root,true)})).rejects.toThrow(/Showcase asset leaked/);
+ expect(readFileSync(f.path)).toEqual(f.original);
+});
+it('preserves shared themes, business assets and CMS reserved-path validation in asset inventories',async()=>{
+ const f=fixture();
+ await verifyShowcaseBuilds({...f,run:async()=>{
+  output(f.root,false);
+  const assets=join(f.root,'apps/site/dist/_astro');
+  mkdirSync(assets,{recursive:true});
+  writeFileSync(join(assets,'shared.css'),'html[data-theme=trades]{--color-surface:#f5f8fb}');
+  writeFileSync(join(assets,'ContactForm.hash.js'),'document.querySelector("form");');
+  writeFileSync(join(assets,'cms.js'),'const reserved=["/design-system","design-system"];');
+  writeFileSync(join(assets,'font.woff2'),Buffer.from([0,1,2]));
+ },refresh:async()=>output(f.root,true)});
+ const evidence=JSON.parse(readFileSync(join(f.backupRoot,'evidence.json'),'utf8'));
+ expect(evidence.inventories.map((entry:any)=>entry.environment)).toEqual(['staging','production','local']);
+ expect(evidence.inventories[0].assets.map((entry:any)=>entry.path).sort()).toEqual([
+  '_astro/ContactForm.hash.js','_astro/cms.js','_astro/font.woff2','_astro/shared.css',
+ ]);
+ expect(evidence.inventories[0].assets.every((entry:any)=>entry.bytes>0&&/^[a-f0-9]{64}$/.test(entry.sha256))).toBe(true);
+});

@@ -1,9 +1,0 @@
----
-import ShowcaseLayout from '../../layouts/ShowcaseLayout.astro';
-import Showcase from '../../components/showcase/Showcase.astro';
-import {project,contents} from '../../lib/content';
-export function getStaticPaths(){return project.environment==='local'?[{params:{index:undefined}}]:[];}
-const supported=contents.filter(c=>c.locale==='en'||c.locale==='el');
-const locale=supported.find(c=>c.locale===project.locale)?.locale??supported[0]?.locale??project.locale;
----
-<ShowcaseLayout locale={locale}><Showcase contents={supported}/></ShowcaseLayout>
