@@ -78,3 +78,7 @@ pnpm exec playwright test e2e/composition-content.spec.ts
 ```
 
 The matrix owns a unique initially absent Standard fixture and removes it only after complete-record ownership checks. It covers EN/EL Home, Contact and Standard at 375/768/1440, plus required privacy content. Task 4/5 native suites retain the schema/serializer-derived mutation proofs. Current evidence is [Composition A acceptance](superpowers/plans/2026-10-16-starter-v2-composition-a-evidence.md); historical Foundation evidence remains unchanged.
+
+## Design-system showcase
+
+The local-only `/design-system` reference compares four themes, responsive density and configured English/Greek samples without changing canonical content. See [showcase usage](DESIGN_SYSTEM_SHOWCASE.md) for bookmarks, reset, permanent settings and isolated build/browser acceptance. Stop the owned launcher before `pnpm test:showcase-builds`; its final build restores local output. The next authoring increment remains Composition B.

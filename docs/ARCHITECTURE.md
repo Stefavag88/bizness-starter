@@ -66,3 +66,9 @@ Pure page/navigation operations copy changed containers while retaining opaque r
 Composition B/C and stages 3/4 remain deferred. Historical Foundation evidence retains its schemaVersion 1 observations; current Composition evidence records schemaVersion 2. No deployment, sending or external resources are enabled.
 
 A known development freshness limit remains: the current Vite plugin invalidates on input changes through handleHotUpdate, but an add-only externally written published file may leave the route module cached and return 404 until a later content change or launcher restart. The supported native flow creates a draft and explicitly publishes through an update; its actual native proofs passed. Task 6's separately Node-owned fixture models that same draft-create/publish-update sequence and does not claim the add-only behavior is fixed.
+
+## Showcase boundary
+
+The local `/design-system` route uses a separate developer shell, actual registered renderers and detached localized fixtures. Its browser controller imports only pure preview state and generated theme metadata. Allowlisted URL values update document attributes and sample visibility without content/config/storage/API writes. The route is absent from staging/production static artifacts and all content-derived manifests/navigation/feeds. See DESIGN_SYSTEM_SHOWCASE.md.
+
+Astro build.inlineStylesheets='never' and Vite build.assetsInlineLimit=0 keep emitted showcase styles/scripts external under the existing self-only asset CSP. These supported compiler settings affect asset packaging and request/performance costs across the site; they grant no new runtime permission. Shared component defaults and canonical content contracts remain unchanged.

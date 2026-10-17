@@ -22,7 +22,8 @@
     "deploy:check": "node scripts/doctor.mjs --production",
     "smoke:local": "node scripts/smoke-local.mjs",
     "test:e2e": "playwright test",
-    "test:profiles": "node scripts/verify-profiles.mjs"
+    "test:profiles": "node scripts/verify-profiles.mjs",
+    "test:showcase-builds": "node scripts/verify-showcase-builds.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.2.8",

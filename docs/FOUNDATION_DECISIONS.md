@@ -68,3 +68,15 @@ Composition B/C and stages 3/4, more renderers, Rooms, media/social/motion, visi
 | Archive final reviews and the final fix report under docs/superpowers/reviews, then remove the plan-specific scratch workspace. | Preserve review findings, their resolution and recovery decisions without retaining a tracked report in disposable scratch storage. | Documentation relocation and link maintenance only; runtime is unchanged. |
 
 All final review findings I1/M1/M2/M3 were addressed in runtime commit d411bcad5db5dd2f284869d159287e752aacf181 and the scoped rereview found no new Critical/Important breakage. This is local Composition A acceptance, not hosted release approval. Existing add-only development freshness, unverified main focus transfer, best-effort concurrency and the observed Windows native writer failure remain disclosed in the authoring/evidence documents.
+
+## 2026-10-17 showcase decisions and controller rulings
+
+Use the approved isolated new repository and dedicated codex/starter-v2-showcase branch in place. The written plan names this workspace; reference projects remain read-only. A wrong choice costs later checkout relocation, without reference-project changes.
+
+Use supported Astro build.inlineStylesheets='never' for external stylesheet output under self-only CSP. A wrong choice costs stylesheet packaging/performance revalidation; do not relax CSP or change content. Optional Field help/error/disabled props support real demonstration states with unchanged defaults and regression coverage.
+
+Use supported Vite build.assetsInlineLimit=0 because installed Astro's small executable-script inlining otherwise conflicts with self-only CSP. A wrong choice costs changed asset request/packaging performance, without runtime permission or content changes. Built Worker browser evidence verifies the external output and no external font requests.
+
+Four source theme JSON records share the unchanged validator and self-hosted Noto Sans. Spacious is additive project configuration; schemaVersion and CMS documents are unchanged. Density is shared responsive spacing rather than showcase-only CSS. Detached fixtures reuse six registered default renderers; themes do not select business presets. The only language samples are configured EN/EL. Staging/production exclusion is an artifact gate, independently of navigation visibility.
+
+The owned build verifier preserves originals/evidence and refuses conflicting external bytes or missing source. It restores local output last when ownership remains intact. No native profile/save suite was repeated because no CMS/backend contract changed. Composition B/C and stages 3/4 require their own plans.
