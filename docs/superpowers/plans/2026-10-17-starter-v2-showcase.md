@@ -10,7 +10,7 @@
 
 **Spec:** [Approved showcase design](../specs/2026-10-17-starter-v2-showcase-design.md).
 
-**Status:** Written spec approved on 2026-10-17. This implementation plan awaits the user's review. Preserve the previously selected medium subagent execution with independent review; do not ask for a new execution-method choice.
+**Status:** Written spec approved on 2026-10-17. This implementation plan was approved for execution by the user on 2026-10-17. Preserve the previously selected medium subagent execution with independent review; do not ask for a new execution-method choice.
 
 ## Global Constraints
 
