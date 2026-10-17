@@ -17,6 +17,8 @@ import {
   type CompositionDraft,
 } from '../../packages/content/composition.mjs';
 import type { SectionType } from '../../packages/content/types';
+import {SectionItemsControls} from './section-items';
+import {setSectionVariant} from '../../packages/content/section-items.mjs';
 import { nativeRichText } from './rich-text';
 export { removeSection };
 const NativeFields = lazy(async () => ({
@@ -128,6 +130,7 @@ function emptyCopy(
     id: section.id,
     _template: d.nativeName as NativeSectionType,
     title: '',
+    ...(d.itemCopySchema?{items:[]}:{}),
     ...(d.type === 'rich-text'
       ? { body: nativeRichText() }
       : { description: nativeRichText() }),
@@ -169,7 +172,7 @@ export function sectionControlState(values: CompositionDraft, index: number) {
     downDisabled: hero || index >= values.sections.length - 1,
   };
 }
-function useValues(tinaForm: any) {
+export function useValues(tinaForm: any) {
   const form = tinaForm.finalForm;
   return useSyncExternalStore(
     (callback) => form.subscribe(callback, { values: true }),
@@ -254,6 +257,8 @@ export function SectionControls({
             ),
           ),
         ),
+        h('label',{},' Layout ',h('select',{value:section.variant,onChange:(e:any)=>run(v=>setSectionVariant(v,section.id,e.target.value))},...definition(section._template).variants.map(variant=>h('option',{key:variant,value:variant},variant)))),
+        definition(section._template).itemCopySchema && h(SectionItemsControls,{tinaForm,sectionId:section.id}),
         h(
           'button',
           {

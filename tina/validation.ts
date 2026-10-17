@@ -109,7 +109,19 @@ export function nativeProjection(
     if (record.legal && Object.hasOwn(record.legal, 'notice'))
       record.legal.notice = markdown(record.legal.notice, false);
     if (record.copy?.sections)
-      for (const section of Object.values(record.copy.sections)) prose(section);
+      for (const section of Object.values(record.copy.sections) as any[]) {
+        const definition=sectionDefinitions.find(d=>d.type===section._template);
+        if(!definition) continue;
+        for(const {path,inline} of definition.richFields){
+          const visit=(value:any,keys:readonly string[]):void=>{
+            if(keys[0]==='*'){if(Array.isArray(value))value.forEach(item=>visit(item,keys.slice(1)));return;}
+            if(!value || typeof value!=='object')return;
+            if(keys.length===1){if(Object.hasOwn(value,keys[0]))value[keys[0]]=markdown(value[keys[0]],inline);}
+            else visit(value[keys[0]],keys.slice(1));
+          };
+          visit(section,path);
+        }
+      }
   }
   const sectionLists = [
     copy.sections,

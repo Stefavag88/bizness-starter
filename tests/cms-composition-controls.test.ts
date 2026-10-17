@@ -58,7 +58,7 @@ it('declares bounded labelled moves, protects required sections and excludes dor
   expect(controls.availableSections(false).map((d) => d.type)).not.toContain(
     'article-list',
   );
-  expect(controls.availableSections(true)).toHaveLength(5);
+  expect(controls.availableSections(true)).toHaveLength(7);
   values.contentId = 'privacy';
   values.sections[1].id = 'privacy_details';
   expect(controls.sectionControlState(values, 1).required).toBe(true);

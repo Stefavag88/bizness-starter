@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { isSafeMarkdown } from './rich-text.mjs';
-import { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas } from './section-registry.mjs';
+import { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas, sectionDefinitions } from './section-registry.mjs';
 export { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas, sectionDefinitions } from './section-registry.mjs';
 export const PAGE_TEMPLATES = Object.freeze(['home','about','contact','standard','offerings','insights']);
 export const SURFACES = Object.freeze(['default','muted','accent']);
@@ -15,10 +15,10 @@ const seo = z.preprocess(value => value == null ? '' : value, z.string().trim().
 const publication = {status:z.enum(['draft','published']),publishAt:z.iso.datetime({offset:true}).optional()};
 const translations = schema => z.record(z.string().regex(/^[a-z]{2}(?:-[A-Z]{2})?$/),schema).default({});
 export const metaSchema = z.strictObject({title,seoDescription:seo});
-export const sectionSchema = z.strictObject({
- id:fieldId,_template:z.enum(SECTION_TYPES),variant:z.literal('default'),enabled:z.boolean().default(true),
- appearance:z.strictObject({surface:z.enum(SURFACES)}),
-});
+export const sectionSchema = z.discriminatedUnion('_template',sectionDefinitions.map(d=>z.strictObject({
+ id:fieldId,_template:z.literal(d.type),variant:z.enum(d.variants),enabled:z.boolean().default(true),
+ appearance:z.strictObject({surface:z.enum(SURFACES)}),...d.referenceFields,
+})));
 const copy = z.strictObject({sections:z.record(fieldId,z.unknown())});
 const pageTranslation = z.strictObject({...publication,meta:metaSchema,copy});
 export const pageSchema = z.strictObject({
@@ -29,6 +29,7 @@ export const pageSchema = z.strictObject({
  for(const section of page.sections) {
   if(ids.has(section.id))ctx.addIssue({code:'custom',path:['sections'],message:'Duplicate section ID: '+section.id});
   ids.add(section.id);
+  if(section.items){const itemIds=section.items.map(i=>i.id);if(new Set(itemIds).size!==itemIds.length)ctx.addIssue({code:'custom',path:['sections',page.sections.indexOf(section),'items'],message:'Duplicate item ID'});if(section.enabled&&!itemIds.length)ctx.addIssue({code:'custom',path:['sections',page.sections.indexOf(section),'items'],message:'Enabled sections require items'});}
  }
  const heroes=page.sections.filter(s=>s._template==='hero');
  if(heroes.length!==1 || !heroes[0].enabled)ctx.addIssue({code:'custom',path:['sections'],message:'Each template requires exactly one enabled hero/H1'});
@@ -40,6 +41,7 @@ export const pageSchema = z.strictObject({
     if(required || section._template==='hero')ctx.addIssue({code:'custom',path:[...path,section.id],message:'Missing section copy: '+section.id});
     continue;
    }
+   if(section.items && Array.isArray(value.items)){const expected=section.items.map(i=>i.id),actual=value.items.map(i=>i.id);if(new Set(actual).size!==actual.length || actual.length!==expected.length || actual.some(id=>!expected.includes(id)))ctx.addIssue({code:'custom',path:[...path,section.id,'items'],message:'Item IDs must exactly match shared items'});}
    const parsed=sectionCopySchemas[section._template].safeParse(value);
    if(!parsed.success)for(const issue of parsed.error.issues)ctx.addIssue({...issue,path:[...path,section.id,...issue.path]});
   }

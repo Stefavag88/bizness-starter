@@ -59,14 +59,20 @@ function assertCopy(copy, id, registered, translation = false) {
   const { id: ignoredId, _template: ignoredType, ...fields } = copy;
   // Validate scalar fields and membership, without parsing or rewriting any native AST.
   const projection = { ...fields };
-  for (const key of ['body', 'description']) {
-    if (!(key in registered.copySchema.shape)) continue;
-    const value = fields[key];
-    if (typeof value !== 'string' && (!value || value.type !== 'root' || !Array.isArray(value.children))) {
-      throw Error('Copy requires explicit rich text: ' + key);
+  function draftRich(record, paths) {
+    for (const {path} of paths) {
+      const walk = (value, keys) => {
+        if (keys[0] === '*') { if (!Array.isArray(value)) throw Error('Copy requires items'); return value.map(item => walk({...item}, keys.slice(1))); }
+        const key=keys[0];
+        if(keys.length===1){const rich=value[key];if(typeof rich!=='string'&&(!rich||rich.type!=='root'||!Array.isArray(rich.children)))throw Error('Copy requires explicit rich text: '+key);value[key]=path.length>1?'Draft':'';}
+        else value[key]=walk(value[key],keys.slice(1));
+        return value;
+      };
+      walk(record,path);
     }
-    projection[key] = '';
   }
+  if(Array.isArray(projection.items))projection.items=projection.items.map(item=>({...item}));
+  draftRich(projection,registered.richFields);
   // Explicit translation drafts may start empty; publication and required prose are save concerns.
   if (translation) {
     if (projection.title === '') projection.title = 'Draft';
@@ -86,7 +92,7 @@ export function addSection(values, { type, id, afterId, copy }) {
   if (typeof id !== 'string' || !idPattern.test(id) || values.sections.some(section => section.id === id)) throw Error('Invalid or duplicate section ID');
   const index = sectionIndex(values, afterId);
   assertCopy(copy, id, registered);
-  const section = { id, _template: registered.type, variant: 'default', enabled: false, appearance: { surface: 'default' } };
+  const section = { id, _template: registered.type, variant: 'default', enabled: false, appearance: { surface: 'default' }, ...registered.defaultReference() };
   const sections = [...values.sections];
   sections.splice(index + 1, 0, section);
   return { ...values, sections, copy: { ...values.copy, sections: [...values.copy.sections, copy] } };

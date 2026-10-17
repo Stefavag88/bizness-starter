@@ -3,6 +3,7 @@ import type { TinaField, Template } from 'tinacms';
 import { sectionDefinitions } from '../../packages/content/section-registry.mjs';
 import { text, object, link } from './common';
 import { SectionCopyControls } from './composition';
+import {FixedSectionItems} from './section-items';
 import { rich } from './rich-text';
 
 // Load the native renderer in the browser; schema construction stays usable in Node.
@@ -21,6 +22,7 @@ export function FixedEntries({ input, field, tinaForm }: any) {
 }
 
 export function sectionCopyFields(type: string): TinaField[] {
+  if(type==='faq'||type==='steps')return [text('id',true),text('title'),rich('description',true),{name:'items',label:'Items',type:'object',list:true,fields:[text('id',true),text(type==='faq'?'question':'title'),rich(type==='faq'?'answer':'body')],ui:{component:FixedSectionItems}}];
   return [text('id', true), text('title'), type === 'rich-text' ? rich('body') : rich('description', true),
     ...(['hero', 'cta'].includes(type) ? [link] : [])];
 }

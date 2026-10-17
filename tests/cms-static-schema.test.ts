@@ -1,7 +1,7 @@
 import { it, expect } from 'vitest';
 import { buildCollections } from '../tina/collections';
 import { project } from './fixtures/content/factory';
-it('declares six static typed copy templates including canonical native aliases with fixed copy membership', () => {
+it('declares eight static typed copy templates including canonical native aliases with fixed copy membership', () => {
   const c = buildCollections({ ...project, articles: false }).find(
     (c) => c.name === 'page',
   )!;
@@ -19,6 +19,8 @@ it('declares six static typed copy templates including canonical native aliases 
     'people-list',
     'article-list',
     'cta',
+    'faq',
+    'steps',
   ]);
   expect(
     copy.templates.find((t: any) => t.name === 'rich_text').nameOverride,
@@ -77,8 +79,8 @@ it('keeps descriptor bytes and native declarations independent of standard page,
   ]);
 });
 it('uses one registry with unique GraphQL-safe aliases and detached honest copy defaults', () => {
-  expect(sectionDefinitions).toHaveLength(6);
-  expect(new Set(sectionDefinitions.map((d) => d.nativeName)).size).toBe(6);
+  expect(sectionDefinitions).toHaveLength(8);
+  expect(new Set(sectionDefinitions.map((d) => d.nativeName)).size).toBe(8);
   for (const definition of sectionDefinitions) {
     expect(definition.nativeName).toMatch(/^[a-z][a-z_]*$/);
     const a = definition.defaultCopy(),

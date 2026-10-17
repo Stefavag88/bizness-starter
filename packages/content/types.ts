@@ -1,5 +1,5 @@
 export type PageTemplate = 'home'|'about'|'contact'|'standard'|'offerings'|'insights';
-export type SectionType = 'hero'|'rich-text'|'offering-list'|'people-list'|'article-list'|'cta';
+export type SectionType = 'hero'|'rich-text'|'offering-list'|'people-list'|'article-list'|'cta'|'faq'|'steps';
 export type Surface = 'default'|'muted'|'accent';
 export type Status = 'draft'|'published';
 export interface Publication { status:Status; publishAt?:string }
@@ -11,10 +11,13 @@ export interface SectionCopyMap {
  'offering-list':{title:string;description:string};
  'people-list':{title:string;description:string};
  'article-list':{title:string;description:string};
+ faq:{title:string;description:string;items:{id:string;question:string;answer:string}[]};
+ steps:{title:string;description:string;items:{id:string;title:string;body:string}[]};
  cta:{title:string;description:string;link:Link};
 }
 export type SectionCopy = SectionCopyMap[SectionType];
-export interface SectionReference {id:string;_template:SectionType;variant:'default';enabled:boolean;appearance:{surface:Surface}}
+export type SectionVariant = 'default'|'expanded'|'cards';
+export interface SectionReference {id:string;_template:SectionType;variant:SectionVariant;enabled:boolean;appearance:{surface:Surface};items?:{id:string}[]}
 export interface PageCopy {sections:Record<string,SectionCopy>}
 export interface PageTranslation extends Publication {meta:Meta;copy:PageCopy}
 export interface Page extends Publication {contentId:string;_template:PageTemplate;slug:string;meta:Meta;sections:SectionReference[];copy:PageCopy;translations:Record<string,PageTranslation>}

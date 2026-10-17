@@ -12,8 +12,9 @@ export const references: TinaField = {
   fields: [
     text('id', true),
     text('_template', true),
-    { name: 'variant', type: 'string', options: ['default'] },
+    { name: 'variant', type: 'string', options: ['default','expanded','cards'] },
     { name: 'enabled', type: 'boolean' },
+    object('items',[text('id',true)],true),
     object('appearance', [
       {
         name: 'surface',
