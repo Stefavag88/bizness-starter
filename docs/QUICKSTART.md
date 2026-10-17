@@ -86,3 +86,7 @@ The local-only `/design-system` reference compares four themes, responsive densi
 ### Full-suite server prerequisite
 
 Stop the owned dev or dev:cms launcher before pnpm test. The dev-lifecycle regression starts an owned Astro instance with alternate ports, but Astro also holds a per-project lock: another running instance in this checkout still prevents that test from starting. Restart pnpm dev:cms after the stopped-server checks. Do not force-replace or stop an unrelated Astro process.
+
+## Static routing acceptance
+
+Stop the owned launcher and run `pnpm test:static-routing` to rebuild and verify asset bypass, localized errors, redirects, static security headers and real protected-route handling with pinned Wrangler. See [routing decision and evidence](STATIC_ASSET_ROUTING.md). This command owns and stops its temporary runtime; restart `pnpm dev:cms` afterward as needed.

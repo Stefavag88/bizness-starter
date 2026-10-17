@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
 import { readFileSync } from 'node:fs';
+import { copyFile } from 'node:fs/promises';
 import { parseProject } from '../../packages/config/project.mjs';
 import { resolvePorts } from '../../scripts/ports.mjs';
 const project=parseProject(JSON.parse(readFileSync(new URL('../../project.json',import.meta.url),'utf8')));
@@ -28,5 +29,15 @@ const localShowcase={
   },
  },
 };
+// Workers Static Assets selects the nearest literal 404.html for missing paths.
+// Astro's directory format otherwise emits locale/404/index.html.
+const localizedNotFound={
+ name:'localized-static-not-found',
+ hooks:{'astro:build:done':async({dir})=>{
+  await Promise.all(project.languages.map(({code})=>copyFile(
+   new URL(code+'/404/index.html',dir),new URL(code+'/404.html',dir),
+  )));
+ }},
+};
 const target=`http://127.0.0.1:${ports.worker}`;
-export default defineConfig({site:project.siteUrl,output:'static',integrations:[localShowcase],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});
+export default defineConfig({site:project.siteUrl,output:'static',integrations:[localShowcase,localizedNotFound],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});

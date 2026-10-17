@@ -1,10 +1,5 @@
 import {it,expect} from 'vitest';
 import {localizedAsset} from '../worker/assets';
-import {readFileSync} from 'node:fs';
-it('routes localized HTML through Worker before asset fallback',()=>{
- const generated=JSON.parse(readFileSync('wrangler.generated.json','utf8'));
- for(const locale of ['en','el'])expect(generated.assets.run_worker_first).toContain('/'+locale+'/*');
-});
 it('returns localized content with 404 status and strips conditional headers',async()=>{
  const seen:Request[]=[];
  const response=await localizedAsset(new Request('https://example.com/el/missing',{headers:{'If-None-Match':'old'}}),async request=>{seen.push(request);return new Response(new URL(request.url).pathname==='/el/404'?'Η σελίδα δεν βρέθηκε':'Default 404',{status:seen.length===1?404:200,headers:{'Content-Type':'text/html'}});},['en','el']);

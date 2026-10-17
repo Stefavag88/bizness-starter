@@ -23,7 +23,8 @@
     "smoke:local": "node scripts/smoke-local.mjs",
     "test:e2e": "playwright test",
     "test:profiles": "node scripts/verify-profiles.mjs",
-    "test:showcase-builds": "node scripts/verify-showcase-builds.mjs"
+    "test:showcase-builds": "node scripts/verify-showcase-builds.mjs",
+    "test:static-routing": "pnpm build && node scripts/verify-static-routing.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.2.8",

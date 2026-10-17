@@ -27,7 +27,7 @@ writeFileSync('apps/site/public/_headers',`/*
 `);
 const i=p.infrastructure;
 const config={name:p.name,main:'worker/index.ts',compatibility_date:'2026-10-07',compatibility_flags:['nodejs_compat'],workers_dev:false,preview_urls:false,
- assets:{directory:'apps/site/dist',binding:'ASSETS',html_handling:'drop-trailing-slash',run_worker_first:['/','/api/*','/admin','/admin/*','/cms','/cms/*','/newsletter/*',...p.languages.map(l=>'/'+l.code+'/*')],not_found_handling:'404-page'},
+ assets:{directory:'apps/site/dist',binding:'ASSETS',html_handling:'drop-trailing-slash',run_worker_first:['/','/api','/api/*','/admin','/admin/*','/cms','/cms/*','/newsletter','/newsletter/*',...p.languages.flatMap(l=>['!/'+l.code,'!/'+l.code+'/*'])],not_found_handling:'404-page'},
  d1_databases:[{binding:'DB',database_name:p.name+'-db',database_id:i.databaseId,migrations_dir:'.generated/migrations'}],
  queues:{producers:[{binding:'OUTBOUND',queue:p.name+'-outbound'}],consumers:[{queue:p.name+'-outbound',max_batch_size:10,max_concurrency:1,max_retries:3,dead_letter_queue:p.name+'-dead'}]},
  triggers:{crons:['* * * * *']},
