@@ -156,7 +156,19 @@ function parseNative(
     );
   const projected = nativeProjection(values, project);
   if (kind === 'page') return normalizePageDocument(projected);
-  if (kind === 'settings') return normalizeSettingsDocument(projected);
+  if (kind === 'settings') {
+    const parsed = normalizeSettingsDocument(projected);
+    for (const language of project.languages) {
+      if (
+        language.code !== project.locale &&
+        !parsed.translations[language.code]
+      )
+        throw Error(
+          'Missing required settings translation for locale ' + language.code,
+        );
+    }
+    return parsed;
+  }
   return schema.parse(projected);
 }
 
