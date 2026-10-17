@@ -82,3 +82,7 @@ The matrix owns a unique initially absent Standard fixture and removes it only a
 ## Design-system showcase
 
 The local-only `/design-system` reference compares four themes, responsive density and configured English/Greek samples without changing canonical content. See [showcase usage](DESIGN_SYSTEM_SHOWCASE.md) for bookmarks, reset, permanent settings and isolated build/browser acceptance. Stop the owned launcher before `pnpm test:showcase-builds`; its final build restores local output. The next authoring increment remains Composition B.
+
+### Full-suite server prerequisite
+
+Stop the owned dev or dev:cms launcher before pnpm test. The dev-lifecycle regression starts an owned Astro instance with alternate ports, but Astro also holds a per-project lock: another running instance in this checkout still prevents that test from starting. Restart pnpm dev:cms after the stopped-server checks. Do not force-replace or stop an unrelated Astro process.
