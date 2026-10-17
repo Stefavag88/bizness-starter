@@ -19,7 +19,7 @@ export const projectSchema = z.strictObject({
   profile: z.enum(['enquiries','newsletter','nurture']).default('enquiries'), articles: z.boolean().default(true),
   locale: code, languages: z.array(z.strictObject({code, label:text})).min(1), siteUrl: origin,
   environment: z.enum(['local','staging','production']).default('local'),
-  design: z.strictObject({theme:z.string().regex(/^[a-z0-9-]+$/).default('neutral'),density:z.enum(['comfortable','compact']).default('comfortable')}).default({theme:'neutral',density:'comfortable'}),
+  design: z.strictObject({theme:z.string().regex(/^[a-z0-9-]+$/).default('neutral'),density:z.enum(['comfortable','compact','spacious']).default('comfortable')}).default({theme:'neutral',density:'comfortable'}),
   infrastructure: infrastructure.prefault({}), legalReviewed:z.boolean().default(false), contentReviewed:z.boolean().default(false),
   interests:z.array(z.strictObject({id,label:text})).default([]),
 }).superRefine((p,ctx) => {

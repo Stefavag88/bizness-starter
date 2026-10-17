@@ -17,3 +17,11 @@ describe('project configuration boundary', () => {
   it('keeps the input immutable', () => { const raw = valid(); parseProject(raw); expect(raw.infrastructure).toEqual({}); });
 });
 it('defaults missing infrastructure with both sending capabilities disabled', () => { const {infrastructure: _omitted,...raw}=valid(); const p=parseProject(raw); expect(p.infrastructure.sendingEnabled).toBe(false); expect(p.infrastructure.marketingEnabled).toBe(false); });
+
+it.each(['comfortable', 'compact', 'spacious'] as const)('accepts %s density without changing the selected theme', (density) => {
+  const raw = { ...valid(), design: { theme: 'trades', density } };
+  expect(parseProject(raw).design).toEqual({ theme: 'trades', density });
+});
+it.each(['dense', '', 'SPACIOUS', 1, null])('rejects unsupported density %s', (density) => {
+  expect(() => parseProject({ ...valid(), design: { theme: 'neutral', density } })).toThrow();
+});
