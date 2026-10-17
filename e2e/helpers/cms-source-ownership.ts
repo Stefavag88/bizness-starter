@@ -102,6 +102,14 @@ export function createCmsSources(paths: string[], backupRoot = '.generated/cms-r
         throw Error('Source changed outside this test before save: ' + path);
       }
     },
+    createAbsent(path: string, expected: unknown, predicate: Predicate) {
+      path = sourcePath(path);
+      if (originals.get(path) !== undefined)
+        throw Error('Fixture must be initially absent: ' + path);
+      // Exclusive creation also protects a file appearing after the original snapshot.
+      writeFileSync(path, JSON.stringify(expected, null, 2) + '\n', { flag: 'wx' });
+      capture(path, expected, predicate);
+    },
     capture,
     async captureNative(path: string, mutation: Omit<Mutation,'operation'> & {operation?:Mutation['operation']}, schema: Schema, predicate: Predicate) {
       path = sourcePath(path);

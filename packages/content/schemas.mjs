@@ -76,7 +76,7 @@ export const settingsSchema=z.strictObject({...settingsCopy,translations:transla
  const ids=settings.navigation.map(n=>n.pageId);
  if(new Set(ids).size!==ids.length)ctx.addIssue({code:'custom',path:['navigation'],message:'Navigation page IDs must be unique'});
  for(const [locale,translation] of Object.entries(settings.translations)) {
-  for(const id of ids)if(!(id in translation.navigation))ctx.addIssue({code:'custom',path:['translations',locale,'navigation',id],message:'Missing translated navigation label'});
+  for(const id of ids)if(!Object.hasOwn(translation.navigation,id))ctx.addIssue({code:'custom',path:['translations',locale,'navigation',id],message:'Missing translated navigation label'});
   for(const id of Object.keys(translation.navigation))if(!ids.includes(id))ctx.addIssue({code:'custom',path:['translations',locale,'navigation',id],message:'Stale translated navigation page ID'});
  }
 });

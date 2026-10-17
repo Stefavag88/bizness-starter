@@ -5,6 +5,7 @@ import {
   PageIdentityControls,
   createStandardPageDefaults,
 } from '../fields/page-identity';
+import { pageCorrectionFields } from '../fields/composition';
 import { pageCopy } from '../templates/pages';
 import { withTranslations } from '../i18n';
 import { collection } from './common';
@@ -32,17 +33,19 @@ export function pages(p: ProjectConfig) {
         ...(name === 'standard'
           ? { ui: { defaultItem: createStandardPageDefaults } }
           : {}),
-        fields: withTranslations(
-          [
-            { ...text('contentId'), ui: { component: PageIdentityControls } },
-            { ...text('slug'), ui: { component: PageIdentityControls } },
-            ...publication,
-            meta,
-            pageReferences(p),
-            pageCopy(),
-          ],
-          p,
-          ['status', 'publishAt', 'meta', 'copy'],
+        fields: pageCorrectionFields(
+          withTranslations(
+            [
+              { ...text('contentId'), ui: { component: PageIdentityControls } },
+              { ...text('slug'), ui: { component: PageIdentityControls } },
+              ...publication,
+              meta,
+              pageReferences(p),
+              pageCopy(),
+            ],
+            p,
+            ['status', 'publishAt', 'meta', 'copy'],
+          ),
         ),
       }),
     ),

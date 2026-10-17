@@ -549,3 +549,59 @@ it('surfaces pre-write validation through native alerts and rethrows without mut
   );
   expect(values).toEqual(original);
 });
+
+it('offers actual nested Page correction destinations after rejection without changing values or ASTs', () => {
+  const values = controls.initializeTranslationCopy(
+    { ...about(), translations: {} },
+    'el',
+    'intro',
+  );
+  const ast = nativeRichText('Unsaved prose');
+  values.copy.sections[1].body = ast;
+  const before = structuredClone(values);
+  const dispatch = vi.fn();
+  for (const fieldName of [
+    'meta',
+    'copy',
+    'translations.el.meta',
+    'translations.el.copy',
+  ]) {
+    controls.openPageCorrection(
+      { id: 'native-page', finalForm: { getState: () => ({ values }) } },
+      { dispatch },
+      fieldName,
+    );
+    expect(dispatch).toHaveBeenLastCalledWith({
+      type: 'forms:set-active-field-name',
+      value: { formId: 'native-page', fieldName },
+    });
+  }
+  expect(values).toEqual(before);
+  expect(values.copy.sections[1].body).toBe(ast);
+});
+
+it('binds correction navigation to every actual Page object including both locale levels', async () => {
+  const { buildCollections } = await import('../tina/collections');
+  const page = buildCollections(project).find((c) => c.name === 'page')!;
+  for (const template of page.templates as any[]) {
+    const fields = template.fields;
+    for (const name of ['meta', 'copy', 'translations'])
+      expect(fields.find((f: any) => f.name === name).ui.component).toBe(
+        controls.PageObjectControls,
+      );
+    const copyTemplates = fields.find((f: any) => f.name === 'copy').fields[0]
+      .templates;
+    for (const name of ['hero', 'cta']) {
+      const link = copyTemplates
+        .find((t: any) => t.name === name)
+        .fields.find((f: any) => f.name === 'link');
+      expect(link.ui.component).toBe(controls.PageObjectControls);
+    }
+    const locale = fields.find((f: any) => f.name === 'translations').fields[0];
+    expect(locale.ui.component).toBe(controls.PageObjectControls);
+    for (const name of ['meta', 'copy'])
+      expect(locale.fields.find((f: any) => f.name === name).ui.component).toBe(
+        controls.PageObjectControls,
+      );
+  }
+});

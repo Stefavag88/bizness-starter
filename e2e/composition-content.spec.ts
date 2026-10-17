@@ -29,6 +29,7 @@ test.beforeAll(async () => {
   sources = createCmsSources([path], join(directory, 'backups'), {
     allowCreate: true,
   });
+  expect(sources.originalState(path)).toEqual({ exists: false });
   sources.assertUnchanged();
   const document = JSON.parse(readFileSync('content/pages/about.json', 'utf8'));
   document._template = 'standard';
@@ -60,8 +61,7 @@ test.beforeAll(async () => {
   document.status = 'draft';
   document.translations.el.status = 'draft';
   normalizePageDocument(document);
-  writeFileSync(path, JSON.stringify(document, null, 2));
-  sources.capture(
+  sources.createAbsent(
     path,
     document,
     (d) => d.slug === fixtureSlug && d._template === 'standard',

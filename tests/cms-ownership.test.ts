@@ -279,3 +279,44 @@ it('revokes a claim when restore cannot read its current source',async()=>{
  const {path,expected,sources}=fixture();writeFileSync(path,JSON.stringify(expected));sources.capture(path,expected,()=>true);rmSync(path);mkdirSync(path);
  await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');expect(sources.owns(path)).toBe(false);rmdirSync(path);writeFileSync(path,JSON.stringify(expected));await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');expect(readFileSync(path,'utf8')).toBe(JSON.stringify(expected));
 });
+
+it('refuses an existing original for an absent-only fixture without overwriting or claiming it', async () => {
+  const { path, original, sources } = fixture();
+  expect(() =>
+    sources.createAbsent(path, { body: 'Fixture' }, () => true),
+  ).toThrow(/initially absent/);
+  expect(readFileSync(path, 'utf8')).toBe(original);
+  expect(sources.owns(path)).toBe(false);
+  await sources.restore();
+  expect(readFileSync(path, 'utf8')).toBe(original);
+});
+it('exclusively creates an absent fixture and preserves a file appearing after the absence check', async () => {
+  fixture();
+  const root = roots.at(-1)!;
+  const path = join(root, 'new.json');
+  const sources = createCmsSources([path], join(root, 'absent-backups'), {
+    allowCreate: true,
+  });
+  expect(sources.originalState(path)).toEqual({ exists: false });
+  writeFileSync(path, '{"body":"Concurrent"}');
+  expect(() =>
+    sources.createAbsent(path, { body: 'Fixture' }, () => true),
+  ).toThrow(/EEXIST/);
+  expect(readFileSync(path, 'utf8')).toBe('{"body":"Concurrent"}');
+  expect(sources.owns(path)).toBe(false);
+  await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');
+  expect(readFileSync(path, 'utf8')).toBe('{"body":"Concurrent"}');
+});
+it('claims an exclusive first fixture write and removes only its unchanged owned bytes', async () => {
+  fixture();
+  const root = roots.at(-1)!;
+  const path = join(root, 'new.json');
+  const sources = createCmsSources([path], join(root, 'absent-backups'), {
+    allowCreate: true,
+  });
+  sources.createAbsent(path, { body: 'Fixture' }, (d) => d.body === 'Fixture');
+  expect(sources.owns(path)).toBe(true);
+  sources.assertUnchanged();
+  await sources.restore();
+  expect(() => readFileSync(path)).toThrow();
+});

@@ -10,6 +10,8 @@ This local branch implements Composition A on the neutral Foundation. It uses pr
 4. Fill the required default-language title, hero and metadata. Save the draft, reload, then inspect it. Creation does not publish, create navigation or invent translations.
 5. Explicitly initialize each desired locale, enter its required hero and metadata, and complete any chosen optional copy. A locale can be initialized before the first save, but supplied translations must be complete drafts. Publish each locale deliberately when ready. Public alternatives expose only independently published available locales.
 
+If Save rejects incomplete Page metadata or locale copy, close the native error dialog and open the same metadata/copy editors to correct it. Page object navigation stays available after rejection, including nested locale and link fields. Current unsaved text and rich-text ASTs remain in the same form; resubmit after completing the required fields.
+
 After the first save, filename, contentId, slug and page template are immutable. Existing section IDs and their types are immutable too. The save hook checks current catalog records independently of the controls. Catalog freshness and file ownership checks are best effort; they are not filesystem locks or atomic multi-editor transactions.
 
 ## Compose sections
@@ -44,6 +46,6 @@ Use the commands in QUICKSTART.md. Native query tests use CMS_QUERY_URL=http://l
 
 Acceptance initializes evidence before any save. Native expected records come from the actual request, generated schema and installed serializer before diagnostic writes. Unique backups record initial existence and original bytes. Restore compares complete owned bytes, rejects external edits permanently, and deletes initially absent files only after proving ownership. Restore Settings before removing an owned newly created destination Page. Avoid concurrent editing; retain unknown bytes and backups for review, never blindly reset fixtures.
 
-The public composition fixture is separately Node-owned and is not native-creation evidence. Opt in with E2E_COMPOSITION_FIXTURE=1 only against this checkout's development stack. Screenshots and representative axe scans are acceptance evidence, not accessibility certification.
+The public composition fixture is separately Node-owned and is not native-creation evidence. Its initial source must be absent and its first write is exclusive; subsequent updates and restoration retain complete-record ownership guards. Opt in with E2E_COMPOSITION_FIXTURE=1 only against this checkout's development stack. Screenshots and representative axe scans are acceptance evidence, not accessibility certification.
 
 Development freshness note: directly adding an already-published JSON file outside the native editor may leave the dev route cache stale. The current change-driven Vite refresh does not handle add-only events. Restart the owned launcher or perform a subsequent deliberate owned content edit. Native creation starts as a draft and explicit publication is an update; that sequence is separately proven. This limitation remains unresolved.

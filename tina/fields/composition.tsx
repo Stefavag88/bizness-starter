@@ -29,6 +29,52 @@ const definition = (type: string) => {
   if (!result) throw Error('Unknown section type');
   return result;
 };
+// The installed Group blocks entry whenever a submission error makes the form invalid.
+// Page correction must still reach its actual fields. Tina's typed navigation action
+// (also used by breadcrumbs) changes only the active field, preserving values/ASTs.
+export function openPageCorrection(tinaForm: any, cms: any, fieldName: string) {
+  cms.dispatch({
+    type: 'forms:set-active-field-name',
+    value: { formId: tinaForm.id, fieldName },
+  });
+}
+const NativePageObject = lazy(async () => {
+  const { useCMS } = await import('tinacms');
+  return {
+    default: ({ tinaForm, field }: any) => {
+      const cms = useCMS();
+      return h(
+        'button',
+        {
+          type: 'button',
+          className: 'block w-full rounded border p-3 mb-5 text-left',
+          onClick: () => openPageCorrection(tinaForm, cms, field.name),
+        },
+        field.label || field.name,
+      );
+    },
+  };
+});
+export function PageObjectControls(props: any) {
+  return h(Suspense, { fallback: null }, h(NativePageObject, props));
+}
+export function pageCorrectionFields(fields: any[]): any[] {
+  return fields.map((field) => ({
+    ...field,
+    ...(field.type === 'object' && !field.list
+      ? { ui: { ...field.ui, component: PageObjectControls } }
+      : {}),
+    ...(field.fields ? { fields: pageCorrectionFields(field.fields) } : {}),
+    ...(Array.isArray(field.templates)
+      ? {
+          templates: field.templates.map((template: any) => ({
+            ...template,
+            fields: pageCorrectionFields(template.fields),
+          })),
+        }
+      : {}),
+  }));
+}
 export function RegisteredFields({ tinaForm, fields }: any) {
   return h(
     Suspense,
