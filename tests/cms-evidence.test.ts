@@ -28,3 +28,41 @@ it('removes an owned initially absent create even when optional diagnostic outpu
  const f=fixture();const created=join(roots.at(-1)!,'created.json');const sources=createCmsSources([created],join(roots.at(-1)!,'create-backups'),{allowCreate:true});mkdirSync(f.directory,{recursive:true});mkdirSync(join(f.directory,'last-native-mutation.json'));const evidence=createCmsEvidence(f.directory);writeFileSync(created,'{"body":"Native proof"}');
  try{await expect(evidence.captureNative(sources,created,{...f.mutation,operation:'create',relativePath:'/created.json'},f.schema,d=>d.body==='Native proof')).rejects.toThrow();expect(sources.owns(created)).toBe(true);}finally{await sources.restore();}expect(existsSync(created)).toBe(false);
 });
+
+it('preserves a concurrent replacement after diagnostic failure on an initially absent native create', async () => {
+  const f = fixture(),
+    created = join(roots.at(-1)!, 'interrupted.json');
+  const sources = createCmsSources(
+    [created],
+    join(roots.at(-1)!, 'interrupted-backups'),
+    { allowCreate: true },
+  );
+  const evidence = createCmsEvidence(f.directory);
+  mkdirSync(join(f.directory, 'last-native-mutation.json'));
+  writeFileSync(created, '{"body":"Native proof"}');
+  await expect(
+    evidence.captureNative(
+      sources,
+      created,
+      { ...f.mutation, operation: 'create', relativePath: '/interrupted.json' },
+      f.schema,
+      (d) => d.body === 'Native proof',
+    ),
+  ).rejects.toThrow();
+  expect(sources.owns(created)).toBe(true);
+  writeFileSync(created, '{"body":"Another editor after interruption"}');
+  await expect(sources.restore()).rejects.toThrow('Concurrent edits preserved');
+  expect(sources.owns(created)).toBe(false);
+  expect(readFileSync(created, 'utf8')).toBe(
+    '{"body":"Another editor after interruption"}',
+  );
+  expect(
+    JSON.parse(
+      readFileSync(sources.backupFor(created) + '.expected.json', 'utf8'),
+    ),
+  ).toEqual({ body: 'Native proof' });
+  expect(
+    JSON.parse(readFileSync(join(sources.backup, 'manifest.json'), 'utf8'))[0]
+      .exists,
+  ).toBe(false);
+});

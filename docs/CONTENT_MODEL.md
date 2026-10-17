@@ -1,6 +1,6 @@
 # Canonical content contracts
 
-Foundation uses one representation: JSON records with Markdown strings. No paragraph-array loader or conversion path exists. packages/content/schemas.mjs and packages/content/index.ts are browser-safe. Filesystem consumers import readContent explicitly from packages/content/read.mjs; Tina must never import that module.
+Composition A uses schemaVersion 2 with one persisted representation: JSON records with Markdown strings. Page copy is stored in typed lists and translated navigation in label lists; detached normalization supplies the internal ID maps described below. No paragraph-array loader or conversion path exists. packages/content/schemas.mjs and packages/content/index.ts are browser-safe. Filesystem consumers import readContent explicitly from packages/content/read.mjs; Tina must never import that module.
 
 ## Reading and projecting
 
@@ -14,7 +14,7 @@ publicRoutes(localized) returns Route[], where each route is { kind: 'page' | 'o
 
 A Page owns { contentId, _template, slug, status, publishAt?, meta, sections, copy, translations }. meta is { title, seoDescription }; null, blank or absent optional SEO becomes ''. Shared sections are ordered references { id, _template, variant: 'default', enabled, appearance: { surface } }. Persisted enabled may be omitted and defaults to true. Surfaces are default, muted, and accent; no arbitrary class, color or component path is accepted.
 
-Templates are home, about, contact, standard, offerings, and insights. Every template requires exactly one enabled hero, which the renderer must use for the page's single H1. There is no reserved hero instance ID: the seed uses intro. Contact's form is a template capability outside the optional section list. Foundation Tina restricts structural authoring in Task 3; the persisted contract already supports generic registered pages and repeatable optional sections.
+Templates are home, about, contact, standard, offerings, and insights. Every template requires exactly one enabled hero, which the renderer must use for the page's single H1. There is no reserved hero instance ID: the seed uses intro. Contact's form is a template capability outside the optional section list. Composition A exposes optional section add/reorder/remove and Standard draft creation while preserving required regions and immutable saved identity.
 
 Default copy.sections[id] is required for every structural reference, including hidden sections. Translations are { status, publishAt?, meta, copy: { sections: { [id]: copy } } } and cannot override section structure, appearance, IDs or slug. The translated hero is required. Any optional section absent from translated copy is omitted from that locale, without default-language fallback. Stale translated IDs, duplicate structural IDs, unknown keys, types and variants fail. Shared reorder preserves associations by ID.
 
@@ -69,7 +69,7 @@ Schemas additionally export campaignSchema. catalog.mjs holds the browser-safe c
 
 Native UI roundtrips verify bilingual offering description/body Markdown, cleared optional SEO, editor reload and public output. A Pages save verifies optional visibility and protected hero controls. Native JSON serializes rich text through the installed CLI serializer; datetime mutation values follow the installed backend Date/ISO behavior. The test ownership helper uses the active generated schema and request inputs, never newly saved disk bytes as its expected model. Exact original bytes are restored only after complete-record ownership validation. See QUICKSTART.md for opt-in commands and conflicts.
 
-Foundation includes six section types: hero, rich-text, offering-list, people-list, article-list and CTA. Only seeded Pages and current order/identity are supported. Stage 2 adds page creation, section add/reorder, more sections and Rooms; stage 3 adds media/social/motion/visitor controls and hosted-provider verification; stage 4 adds presets, safe initialization and releases. No such later-stage capability is claimed by these contracts.
+Foundation includes six section types: hero, rich-text, offering-list, people-list, article-list and CTA. Composition A supports Standard draft creation and optional composition/navigation authoring. Composition B/C defer more sections and Rooms; stage 3 defers media/social/motion/visitor controls and hosted-provider verification; stage 4 defers presets, safe initialization and releases. See COMPOSITION_AUTHORING.md for current editor limits.
 
 ## Flat collections and protected relationship targets
 
@@ -78,3 +78,9 @@ Foundation documents live directly in their collection folders. Native folder an
 Offerings, People and Articles are protected from native Delete because canonical `offeringId`, `authorId` and campaign `articleId` remain stable scalar IDs. Native Delete bypasses `beforeSubmit`; the save catalog guard alone cannot protect references. Loader/catalog dangling-ID rejection remains mandatory. Stage 2 must provide relationship-aware authoring/deletion before enabling these deletes. No full CRUD engine or path-based relationship conversion is part of Foundation.
 
 Published editorial slug changes require explicit redirects from previous published URLs before hosted release. This remains a mandatory stage 2 authoring and release-gate obligation; Foundation has no redirects subsystem. `404` is reserved alongside the other system prefixes. Settings `legal.notice` renders as localized safe rich-text blocks outside the business-name paragraph in both locales, using the same renderer/link localization as editorial bodies.
+
+## Composition A wire boundary
+
+The Page and Settings map shapes above are internal projections. Canonical PageDocument stores copy.sections as typed entries { id, _template, ...copy } in the default and supplied translations. Canonical SettingsDocument stores each translated navigation as [{ pageId, label }]. Duplicate/stale/mismatched IDs and old map-shaped disk content are rejected. Shared list order owns structure; copy/translated-label list order does not. New section IDs are page-local UUID-based values. The generated descriptor contains project/module metadata and article-index exclusions only, without page structure or navigation IDs. New valid IDs require no schema regeneration.
+
+Creation is limited to Standard drafts with unique flat filenames, IDs and potential routes; explicitly supplied complete draft translations are permitted. Saved filename/template/contentId/slug and retained section ID/type pairs are immutable. UI restrictions and current-catalog native validation enforce these policies independently. Structural operations preserve opaque existing native ASTs; only detached complete serialization is parsed on save.

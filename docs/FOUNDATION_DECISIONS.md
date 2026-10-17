@@ -29,3 +29,32 @@ The six initial section renderers are intentionally neutral. JSON-LD, photograph
 | Disable native Delete for Offerings, People and Articles during Foundation. | Native deletion bypasses the save hook and scalar canonical IDs are relationship targets; the existing catalog guard cannot prevent this mutation. | Stage 2 must provide relationship-aware authoring/deletion before exposing Delete; retain stable IDs and dangling-reference validation. |
 | Explicitly disable both native folder controls across every collection and reject nested native save paths. Active collection subfolders fail public loading with actionable instructions. | Foundation has flat collection documents; silently ignoring native nested documents can hide published content or break relationships. Dormant article/campaign folders retain their unread profile gates. | Deliberate recursive discovery and authoring/ownership contracts would be required to add folders; no folder feature is implied. |
 | Require explicit redirects for changed published editorial slugs before hosted release. | Previously published URLs must remain supported under the approved architecture. | Stage 2 authoring and the release gate must enforce this requirement; the redirects subsystem is outside Foundation. |
+
+## Composition A decisions superseding current Foundation limits
+
+Historical Foundation decisions/evidence above remain a record of that stage. Composition A now uses schemaVersion 2, typed-list documents, Standard draft creation and optional section/navigation composition.
+
+| Decision | Reason | Cost if wrong or revisited |
+| --- | --- | --- |
+| Reuse the explicitly selected isolated repository/branch in place. | Preserves the approved separate-project delivery boundary. | Later checkout relocation; neither source repository changes. |
+| Keep normalized fixture factories separate from wire factories; no old disk-map reader. | Internal ID maps remain useful while disk has one typed-list representation. | Fixture refactoring, without adding compatibility. |
+| Include common hooks and all save callsites in operation/path-context changes. | Collection-specific guards cannot work with inconsistent submission signatures. | Reviewable shared-hook changes. |
+| Permit explicit complete draft translations during Standard creation. | Explicit editor initialization is allowed; automatic prose/publication is forbidden. | Narrowing creation policy is a deliberate guard change. |
+| Reject shared scalar aliases at actual save; retain aliases in native typed-copy discriminators and opaque pure operations. | Installed serializer preserves scalar aliases but canonicalizes template aliases. | Malformed external values are rejected; valid native saves stay compatible. |
+| Use a separate documented Node-owned cross-page same-ID/different-type fixture followed by native edit/save. | Immutable UI UUID generation cannot choose a collision ID. | Rework fixture proof without production overrides or raw mutations. |
+| Reuse the unchanged complete-record evidence helper rather than edit it to satisfy a file checklist. | Existing create/update/absent-source ownership covers actual native saves. | A concrete later helper gap requires a scoped change. |
+| Keep direct locale label correction beside fixed nested Settings editors, editing the same form state. | Installed editor blocks nested navigation after invalid Save until corrected. | Extra visible label inputs; no additional state owner or wire fields. |
+| Retain original thrown native error/object after actionable alerts. | Error handling must preserve installed semantics and failure evidence. | Changes to alert presentation rather than swallowed/replaced failures. |
+| Initialize evidence and capture ownership before diagnostic I/O; restore Settings before deleting an owned destination. | Failures and absent-source cleanup must not erase unknown editor bytes or break references. | More guarded acceptance code; no atomic cross-editor guarantee. |
+| Keep isolated local skip-indexing and separate indexed native query/UI proof. | Accepted CLI build workaround does not itself prove indexing. | Reverify upstream behavior before changing the local workaround. |
+| Retain failed native Windows UNKNOWN/open evidence; use one unchanged targeted retry after diagnosis. | One observed installed-writer failure was transient; hiding it or adding blind production retries is unjustified. | Investigate Windows native I/O if recurrence appears. |
+| Use bounded public convergence checks after saves. | Vite HMR may abort immediate navigation while inputs settle. | A bounded test wait; continued failure remains visible. |
+| Preserve the historical Foundation record and add Composition evidence. | Earlier evidence used schemaVersion 1, current acceptance uses schemaVersion 2. | Documentation separation only. |
+| Leave independent task gate and final whole-branch review to the controller. | Implementer must not self-approve or spawn reviewers. | Subsequent scoped corrections remain reviewable. |
+
+Composition B/C and stages 3/4, more renderers, Rooms, media/social/motion, visitor state, presets, destination initialization, hosted verification and releases remain deferred. Sending/marketing/review flags stay false. Neither read-only source repository receives installs, builds, saves or process stops. No remotes/secrets, real delivery, deployment, merge, push or tag are introduced.
+
+| Additional Task 6 decision | Reason | Cost if wrong or revisited |
+| --- | --- | --- |
+| Model Node-owned public fixture creation as draft then explicit publication update; retain add-only dev freshness as unresolved. | Existing Vite handleHotUpdate reacts to changes, not add-only events; supported native create/publish already supplies the update. | Externally added published files may require another deliberate edit or launcher restart. A future watcher fix needs targeted add/unlink coverage. |
+| Test the current skip link's fragment navigation and actual focused-link outline without claiming main focus transfer. | The existing main has no tabindex and does not become document.activeElement on activation. | This acceptance does not prove active-element transfer to the nonfocusable target; a later focus behavior change requires a scoped test/fix. |

@@ -1,6 +1,6 @@
-# Foundation quickstart
+# Composition A quickstart
 
-This checkout is the neutral Business Starter v2 Foundation, version `2.0.0-dev`. It is a local development branch, with no hosted provider configuration or production-readiness certification. Start with Node 22.x or 24.x and pnpm 10.13.1.
+This checkout is the neutral Business Starter v2 Foundation with Composition A, version `2.0.0-dev`. It is a local development branch, with no hosted provider configuration or production-readiness certification. Start with Node 22.x or 24.x and pnpm 10.13.1.
 
 ```powershell
 pnpm install --frozen-lockfile
@@ -19,7 +19,7 @@ The defaults are site 4330, Worker 8790, Tina 4010 and datalayer 9010. Override 
 
 Settings own identity, contact and navigation. Pages own seeded page text and stable section instances. Offerings, People and optional Articles own detail content. Expand Translations → Ελληνικά for Greek copy. Rich descriptions allow emphasis and safe links; bodies additionally allow H2/H3, lists and quotes. Optional SEO may be cleared. Save, reload the editor, and reload the public route to inspect the result.
 
-The default locale owns section structure and appearance; translations provide copy by stable section ID. Optional section visibility and approved surface choices are editable. The required hero remains enabled; Contact owns its required form. Foundation deliberately protects page identity, section order, creation/deletion and structural type/variant changes. Page creation and section add/reorder belong to stage 2.
+The default locale owns section structure and appearance; translations provide copy by stable section ID. Composition A supports explicit Standard draft creation, optional section add/reorder/remove and Settings navigation authoring. Saved identity and URLs remain immutable. Hero, required privacy body and Contact form remain protected. Read [Composition authoring](COMPOSITION_AUTHORING.md) for native template-picker limits, explicit locale initialization and save recovery.
 
 Content saves refresh public development output and the backend manifest through the owned input watcher. Invalid content reports validation errors. Static deployment output requires rebuilding. Never edit generated files under `.generated`, Tina generated output, generated theme CSS/registry or `wrangler.generated.json`.
 
@@ -27,7 +27,7 @@ Content saves refresh public development output and the backend manifest through
 
 ```powershell
 pnpm exec playwright install chromium
-# Against an already running pnpm dev:cms stack:
+# Against an already running pnpm dev:cms stack (reuse an installed browser):
 $env:E2E_BASE_URL='http://127.0.0.1:4330'
 $env:E2E_CMS_URL='http://127.0.0.1:4330'
 pnpm test:e2e
@@ -50,7 +50,7 @@ The public suite covers EN/EL Home/About/Contact/offering/article at 375/768/144
 
 `project.json` selects profile, independently optional articles, languages and design defaults. Theme JSON owns semantic brand tokens. Default sending and marketing are false, review flags are false, and all identities/addresses are honest sample placeholders. `pnpm doctor` validates local configuration; `pnpm deploy:check` intentionally reports hosted CMS, protection, account, secret, legal/content and sample nurture blockers.
 
-Stage 2 owns the larger section library, add/reorder, page creation and Rooms extension. Stage 3 owns media, social, motion, visitor controls and hosted-provider verification. Stage 4 owns business presets, safe destination initialization and release/tagging. No presets, initializer, migration guide, production delivery, deployment, tagging or remote setup is included here. See [content ownership](CONTENT_MODEL.md), [architecture](ARCHITECTURE.md) and [source provenance](SOURCE_INVENTORY.md).
+Composition A completes the first stage 2 authoring slice. Composition B/C retain the larger section library and Rooms extension. Stage 3 owns media, social, motion, visitor controls and hosted-provider verification. Stage 4 owns business presets, safe destination initialization and release/tagging. No presets, initializer, migration guide, production delivery, deployment, tagging or remote setup is included here. See [content ownership](CONTENT_MODEL.md), [architecture](ARCHITECTURE.md) and [source provenance](SOURCE_INVENTORY.md).
 
 ## Local native build note
 
@@ -60,8 +60,21 @@ The pinned CLI 4.0.1 intermittently stalled at `Indexing local files` during rep
 
 All native collections explicitly disable Create folder and Create nested folder. Store JSON documents directly in each collection folder; nested native save paths are rejected before validation queries or persistence. The public loader fails with the offending active subfolder and a move-to-collection instruction, rather than silently omitting nested documents. Disabled article folders and campaign folders outside newsletter/nurture remain unread.
 
-Native Delete is disabled for Offerings, People and Articles because their stable scalar IDs are relationship targets. Native deletion does not run the save catalog guard. Foundation preserves those IDs and its dangling-relationship validation; stage 2 must add relationship-aware authoring/deletion before exposing deletion. Settings and seeded Pages retain their existing creation/deletion protections.
+Native Delete is disabled for Offerings, People and Articles because their stable scalar IDs are relationship targets. Native deletion does not run the save catalog guard. Foundation preserves those IDs and its dangling-relationship validation; stage 2 must add relationship-aware authoring/deletion before exposing deletion. Settings creation/deletion and Page deletion/rename remain protected; only Standard draft creation is enabled.
 
 Changing a published editorial slug requires an explicit redirect from its previous public URL before hosted release. Stage 2 authoring and the release gate must enforce that obligation; Foundation does not implement a redirects subsystem. The localized system `404` path is reserved and cannot be assigned to content.
 
 The ordinary `pnpm test` command runs the boundary/unit suite and then the site-root Astro Layout render suite. Use `pnpm test:footer` for only the bilingual rich-footer component regression; it renders detached fixture content without editing canonical source files.
+
+## Composition acceptance
+
+Against the owned indexed dev:cms stack, run the query test separately, then the owned public matrix:
+
+```powershell
+$env:CMS_QUERY_URL='http://localhost:4010/graphql'
+pnpm exec vitest run tests/cms-native-query.test.ts
+$env:E2E_COMPOSITION_FIXTURE='1'
+pnpm exec playwright test e2e/composition-content.spec.ts
+```
+
+The matrix owns a unique initially absent Standard fixture and removes it only after complete-record ownership checks. It covers EN/EL Home, Contact and Standard at 375/768/1440, plus required privacy content. Task 4/5 native suites retain the schema/serializer-derived mutation proofs. Current evidence is [Composition A acceptance](superpowers/plans/2026-10-16-starter-v2-composition-a-evidence.md); historical Foundation evidence remains unchanged.

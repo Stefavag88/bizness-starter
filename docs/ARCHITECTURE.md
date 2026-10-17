@@ -1,6 +1,6 @@
 # Architecture
 
-This is the isolated Business Starter v2 foundation. Canonical EN/EL JSON lives under `content/`; developer configuration lives in `project.json`. Public output is static Astro, with a separate Worker for forms, protected operations and email lifecycle. No deployment or external account has been configured.
+This is the isolated Business Starter v2 Foundation with Composition A. Canonical EN/EL JSON lives under `content/`; developer configuration lives in `project.json`. Public output is static Astro, with a separate Worker for forms, protected operations and email lifecycle. No deployment or external account has been configured.
 
 | Boundary | Contract |
 | --- | --- |
@@ -53,6 +53,16 @@ Local origin allowances are generated exact loopback origins for the configured 
 
 ## Verification and handoff
 
-The configurable Playwright harness uses E2E_BASE_URL and explicitly opted-in E2E_CMS_URL. Public routes and native saves have separate tests. Native source ownership derives expected serialized content from the actual UI request, active generated schema and installed CLI serializer, then verifies the complete persisted record before claiming its bytes. Conflicts retain user edits and original backups. The profile verifier serially builds native/static outputs, exercises built Worker/browser boundaries, stops only its own Worker tree and restores exact owned configuration on failure. See QUICKSTART.md for commands and Foundation limitations.
+The configurable Playwright harness uses E2E_BASE_URL and explicitly opted-in E2E_CMS_URL. Public routes and native saves have separate tests. Native source ownership derives expected serialized content from the actual UI request, active generated schema and installed CLI serializer, then verifies the complete persisted record before claiming its bytes. Conflicts retain user edits and original backups. The profile verifier serially builds native/static outputs, exercises built Worker/browser boundaries, stops only its own Worker tree and restores exact owned configuration on failure. See QUICKSTART.md for commands and COMPOSITION_AUTHORING.md for current authoring limits.
 
 Isolated local CMS builds use Tina CLI’s supported --skip-indexing after an observed intermittent Indexing-local-files stall; native dev keeps full indexing and its query/UI saves are verified. The exact local-build limitation and controller-approved boundary are in QUICKSTART.md. Profile stages are bounded by PROFILE_STAGE_TIMEOUT_MS (default120000); their command runner stops only its created process tree on timeout.
+
+## Composition A boundary
+
+Project schemaVersion 2 selects one typed-list persisted document shape. Strict browser-safe document codecs produce detached normalized Page/Settings ID maps; public components, backend manifests and routes retain their semantic contracts. The static registry owns type/variant/copy definitions and does not import schemas back into itself. The CMS descriptor contains no page structure or navigation IDs. Static registered fields support new IDs and cross-page ID/type reuse without regenerating the schema.
+
+Pure page/navigation operations copy changed containers while retaining opaque rich AST identity. Native custom controls batch shared/copy/translation changes in Final Form, permit incomplete editing states and validate a complete detached serialized candidate only at Save. Current catalog identity/path checks protect updates and flat Standard draft creation. No raw mutation service or custom persistence bypass is added. Native template creation permissions are collection-wide; visible special-template choices fail before disk writes. Settings exposes same-state direct locale labels so a rejected invalid form can be corrected before entering nested editors again.
+
+Composition B/C and stages 3/4 remain deferred. Historical Foundation evidence retains its schemaVersion 1 observations; current Composition evidence records schemaVersion 2. No deployment, sending or external resources are enabled.
+
+A known development freshness limit remains: the current Vite plugin invalidates on input changes through handleHotUpdate, but an add-only externally written published file may leave the route module cached and return 404 until a later content change or launcher restart. The supported native flow creates a draft and explicitly publishes through an update; its actual native proofs passed. Task 6's separately Node-owned fixture models that same draft-create/publish-update sequence and does not claim the add-only behavior is fixed.
