@@ -1,0 +1,73 @@
+{
+  "contentId": "rooms",
+  "_template": "rooms",
+  "slug": "rooms",
+  "status": "draft",
+  "meta": {
+    "title": "Rooms",
+    "seoDescription": ""
+  },
+  "sections": [
+    {
+      "id": "intro",
+      "_template": "hero",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    },
+    {
+      "id": "room_list",
+      "_template": "room-list",
+      "variant": "default",
+      "enabled": true,
+      "appearance": {
+        "surface": "default"
+      }
+    }
+  ],
+  "copy": {
+    "sections": [
+      {
+        "id": "intro",
+        "_template": "hero",
+        "title": "Rooms",
+        "description": "Explore our rooms."
+      },
+      {
+        "id": "room_list",
+        "_template": "room-list",
+        "title": "Rooms",
+        "description": "",
+        "emptyMessage": "No rooms are currently available to view."
+      }
+    ]
+  },
+  "translations": {
+    "el": {
+      "status": "draft",
+      "meta": {
+        "title": "Δωμάτια",
+        "seoDescription": ""
+      },
+      "copy": {
+        "sections": [
+          {
+            "id": "intro",
+            "_template": "hero",
+            "title": "Δωμάτια",
+            "description": "Εξερευνήστε τα δωμάτιά μας."
+          },
+          {
+            "id": "room_list",
+            "_template": "room-list",
+            "title": "Δωμάτια",
+            "description": "",
+            "emptyMessage": "Δεν υπάρχουν δωμάτια διαθέσιμα για προβολή."
+          }
+        ]
+      }
+    }
+  }
+}

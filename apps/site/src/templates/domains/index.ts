@@ -1,3 +1,4 @@
+import RoomDetail from './rooms/RoomDetail.astro';
 import type {AstroComponentFactory} from 'astro/runtime/server/index.js';
 import type {ProjectConfig} from '../../../../../packages/config/project.mjs';
 import type {DomainRegistry} from '../../../../../packages/content/domain-contracts';
@@ -10,7 +11,7 @@ export function createDomainRendererRegistry(definitions:readonly DomainRenderer
  return Object.freeze({definitions:Object.freeze(definitions.map(definition=>Object.freeze({...definition})))});
 }
 // Server-only static registrations. Every enabled content domain must have coverage.
-export const domainRenderers=createDomainRendererRegistry([]);
+export const domainRenderers=createDomainRendererRegistry([{key:'rooms',renderer:RoomDetail}]);
 export function domainRenderer(key:string,registry=domainRenderers):AstroComponentFactory {
  const entry=registry.definitions.find(entry=>entry.key===key);
  if(!entry)throw Error('Domain '+key+' requires a renderer registration in templates/domains/index.ts');

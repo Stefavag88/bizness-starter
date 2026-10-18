@@ -1,10 +1,11 @@
+import {roomCollection,assertRoomIdentity} from './rooms/collection';
 import type {Collection} from 'tinacms';
 import type {ProjectConfig} from '../../packages/config/project.mjs';
 import {getNativeDomainAdapters} from '../domain-validation';
 import type {NativeDomainRegistration} from '../domain-validation';
 export interface NativeDomainFactory extends NativeDomainRegistration {readonly buildCollection:(project:ProjectConfig)=>Collection}
 // Tina-only static factories; never import these from browser-safe content contracts.
-export const nativeDomainRegistrations:readonly NativeDomainFactory[]=Object.freeze([]);
+export const nativeDomainRegistrations:readonly NativeDomainFactory[]=Object.freeze([{key:'rooms',allowCreate:true,assertIdentity:assertRoomIdentity,buildCollection:roomCollection}]);
 export function buildDomainCollections(project:ProjectConfig):Collection[] {
  return getNativeDomainAdapters(project).map(adapter=>{
   const collection=nativeDomainRegistrations.find(entry=>entry.key===adapter.key)!.buildCollection(project);

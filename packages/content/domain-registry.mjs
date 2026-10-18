@@ -1,4 +1,5 @@
 // Browser-safe static registrations. Domain modules are added here by developers.
+import {roomsDomain} from '../domains/rooms/contract.mjs';
 const identifier=/^[a-z][a-z0-9_-]{0,63}$/;
 const nativeIdentifier=/^[a-z][a-z0-9_]{0,63}$/;
 const fieldIdentifier=/^[A-Za-z_][A-Za-z0-9_-]{0,63}$/;
@@ -44,6 +45,6 @@ export function createDomainRegistry(definitions) {
  });
  return Object.freeze({definitions:Object.freeze(registered)});
 }
-export const domainRegistry=createDomainRegistry([]);
+export const domainRegistry=createDomainRegistry([roomsDomain]);
 export function getActiveDomains(project,registry=domainRegistry) {return registry.definitions.filter(definition=>definition.enabled(project));}
 export function getDisabledDomainPages(project,registry=domainRegistry) {return registry.definitions.filter(definition=>!definition.enabled(project)).flatMap(definition=>definition.ownedPages);}

@@ -1,0 +1,20 @@
+import {it,expect} from 'vitest';
+import {roomSchema,roomListDefinition} from '../packages/domains/rooms/contract.mjs';
+import {parseProject} from '../packages/config/project.mjs';
+import {project} from './fixtures/content/factory';
+import {room} from './fixtures/content/room';
+it('enforces numeric, list, safety and copy bounds with exact membership',()=>{
+ expect(roomSchema.safeParse(room()).success).toBe(true);
+ for(const maxGuests of [0,101,1.5])expect(roomSchema.safeParse({...room(),maxGuests}).success).toBe(false);
+ for(const maxGuests of [1,100])expect(roomSchema.safeParse({...room(),maxGuests}).success).toBe(true);
+ for(const field of ['title','bedDescription'])expect(roomSchema.safeParse({...room(),[field]:'x'.repeat(201)}).success).toBe(false);
+ for(const field of ['description','body','seoDescription'])expect(roomSchema.safeParse({...room(),[field]:'x'.repeat(field==='body'?100001:field==='description'?10001:301)}).success).toBe(false);
+ for(const images of [[{id:'view',media:{src:'https://evil.test/x.png'}}],[{id:'view',media:{src:'/uploads/%2e%2e/x.png'}}],[{id:'view'}],Array(21).fill(room().images[0])])expect(roomSchema.safeParse({...room(),images}).success).toBe(false);
+ expect(roomSchema.safeParse({...room(),amenities:Array(41).fill({id:'wifi'})}).success).toBe(false);
+ for(const imageCopy of [[],[{id:'stale',alt:'Alt'}],[{id:'view',alt:''}],[...room().imageCopy,...room().imageCopy]])expect(roomSchema.safeParse({...room(),imageCopy}).success).toBe(false);
+ const missing=room();missing.translations.el.amenityCopy=[];expect(roomSchema.safeParse(missing).success).toBe(false);
+ expect(roomSchema.safeParse({...room(),images:[],imageCopy:[],translations:{}}).success).toBe(true);
+ expect(roomListDefinition.copySchema.safeParse({title:'Rooms',description:'',emptyMessage:''}).success).toBe(false);
+ expect(parseProject(project).modules.rooms).toBe(false);
+ expect(()=>parseProject({...project,modules:{unknown:true}})).toThrow();
+});

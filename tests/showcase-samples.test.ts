@@ -5,10 +5,10 @@ import {localizeContent} from '../packages/content/localize.mjs';
 import {fixture,project} from './fixtures/content/factory';
 import {createShowcaseSamples} from '../apps/site/src/components/showcase/samples';
 describe('detached showcase samples',()=>{
- it.each(['en','el'])('renders every registered type/variant with unique %s instance IDs and available destinations',locale=>{
+ it.each(['en','el'])('renders every default-enabled registered type/variant with unique %s instance IDs and available destinations',locale=>{
   const {root}=fixture();const input=localizeContent(readContent(root,project),locale,project);const before=structuredClone(input);
   const samples=createShowcaseSamples(input);
-  expect(samples.sections.map(s=>s._template+'/'+s.variant).sort()).toEqual(sectionDefinitions.flatMap(d=>d.variants.map(v=>d.type+'/'+v)).sort());
+  expect(samples.sections.map(s=>s._template+'/'+s.variant).sort()).toEqual(sectionDefinitions.filter(d=>!d.enabled||d.enabled(project)).flatMap(d=>d.variants.map(v=>d.type+'/'+v)).sort());
   expect(new Set(samples.sections.map(s=>s.id)).size).toBe(14);
   expect(samples.sections.every(s=>s.id.startsWith('showcase-'+locale+'-'))).toBe(true);
   const paths=input.pages.map(p=>p.path);

@@ -128,16 +128,20 @@ function emptyCopy(
   section: CompositionDraft['sections'][number],
 ): CompositionCopyEntry {
   const d = definition(section._template);
-  return {
-    id: section.id,
-    _template: d.nativeName as NativeSectionType,
-    title: '',
-    ...(d.itemCopySchema?{items:[]}:{}),
-    ...(['rich-text','media-text'].includes(d.type)
-      ? { body: nativeRichText() }
-      : { description: nativeRichText() }),
-    ...(d.type === 'cta' ? { link: { label: '', href: '' } } : {}),
-  };
+  const blank = (value: any): any =>
+    typeof value === 'string' ? '' : Array.isArray(value) ? [] :
+    value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, child]) => [key, blank(child)])) : value;
+  const fields = blank(d.defaultCopy());
+  for (const {path} of d.richFields) {
+    const initialize = (value: any, keys: readonly string[]): void => {
+      if (!value) return;
+      if (keys[0] === '*') { if (Array.isArray(value)) value.forEach(item => initialize(item, keys.slice(1))); return; }
+      if (keys.length === 1) value[keys[0]] = nativeRichText();
+      else initialize(value[keys[0]], keys.slice(1));
+    };
+    initialize(fields, path);
+  }
+  return {id:section.id,_template:d.nativeName as NativeSectionType,...fields};
 }
 export function initializeTranslationCopy(
   values: CompositionDraft,

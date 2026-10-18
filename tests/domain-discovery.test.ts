@@ -49,7 +49,7 @@ it('emits declaration metadata without secrets or domain instance/item IDs',()=>
  expect(JSON.stringify(createCmsDescriptor(f.root,p,registry))).toBe(before);
  expect(before).not.toMatch(/private-record-id|another-record-id|secret-infrastructure-audience|lesson-index|Secret record title/);
 });
-it('defaults the explicit module boundary to empty and rejects unknown module keys',()=>{
- expect(parseProject(project).modules).toEqual({});
+it('defaults the explicit Rooms module to disabled and rejects unknown module keys',()=>{
+ expect(parseProject(project).modules).toEqual({rooms:false});
  expect(()=>parseProject({...project,modules:{unknown:true}})).toThrow();
 });

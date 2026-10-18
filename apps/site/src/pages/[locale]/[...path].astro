@@ -2,10 +2,10 @@
 import Layout from '../../layouts/Layout.astro';
 import Page from '../../templates/Page.astro';
 import EditorialDetail from '../../templates/EditorialDetail.astro';
-import {domainRenderer} from '../../templates/domains';
+import {domainRenderer,assertDomainRendererCoverage} from '../../templates/domains';
 import {getDomainRouteRecord} from '../../../../../packages/content/domain-publication.mjs';
-import {contents,routes,description} from '../../lib/content';
-export function getStaticPaths(){return routes.map(route=>({params:{locale:route.locale,path:route.path.split('/').slice(2).join('/')||undefined},props:{route}}));}
+import {contents,routes,description,project} from '../../lib/content';
+export function getStaticPaths(){assertDomainRendererCoverage(project);return routes.map(route=>({params:{locale:route.locale,path:route.path.split('/').slice(2).join('/')||undefined},props:{route}}));}
 const {route}=Astro.props;const content=contents.find(c=>c.locale===route.locale)!;
 const page=route.kind==='page'?content.pages.find(r=>r.contentId===route.contentId):undefined;
 const editorial=(route.kind==='offering'?content.offerings:route.kind==='person'?content.people:content.articles).find(r=>r.contentId===route.contentId);

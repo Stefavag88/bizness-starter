@@ -1,3 +1,4 @@
+import {roomListCopyFields} from '../domains/rooms/fields';
 import { createElement as h, lazy, Suspense } from 'react';
 import type { TinaField, Template } from 'tinacms';
 import { sectionDefinitions } from '../../packages/content/section-registry.mjs';
@@ -22,7 +23,7 @@ export function FixedEntries({ input, field, tinaForm }: any) {
 }
 
 // Tina-only registration seam for module-owned section copy controls.
-export const moduleSectionCopyFields:Readonly<Record<string,()=>TinaField[]>>=Object.freeze({});
+export const moduleSectionCopyFields:Readonly<Record<string,()=>TinaField[]>>=Object.freeze({'room-list':roomListCopyFields});
 export function sectionCopyFields(type: string): TinaField[] {
   if(moduleSectionCopyFields[type])return moduleSectionCopyFields[type]();
   if(type==='media-text')return [text('id',true),text('title'),rich('body'),object('image',[text('alt'),rich('caption',true)]),link];

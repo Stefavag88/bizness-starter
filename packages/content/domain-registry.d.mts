@@ -1,3 +1,4 @@
+import type {} from '../domains/rooms/types';
 import type { ProjectConfig } from '../config/project.mjs';
 import type { DomainDefinition, DomainRegistry, OwnedDomainPage } from './domain-contracts';
 export type { DomainDefinition, DomainRegistry } from './domain-contracts';

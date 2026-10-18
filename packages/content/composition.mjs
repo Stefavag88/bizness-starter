@@ -76,12 +76,13 @@ function assertCopy(copy, id, registered, translation = false) {
   draftRich(projection,registered.richFields);
   // Explicit translation drafts may start empty; publication and required prose are save concerns.
   if (translation) {
-    if (projection.title === '') projection.title = 'Draft';
-    if (projection.link && typeof projection.link === 'object') {
-      projection.link = { ...projection.link };
-      if (projection.link.label === '') projection.link.label = 'Draft';
-      if (projection.link.href === '') projection.link.href = '/';
-    }
+    const draftText = (value, key) => {
+      if (value === '') return key === 'href' ? '/' : 'Draft';
+      if (Array.isArray(value)) return value.map(child => draftText(child));
+      if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([childKey,child]) => [childKey,draftText(child,childKey)]));
+      return value;
+    };
+    for (const key of Object.keys(projection)) projection[key] = draftText(projection[key],key);
   }
   if (!registered.copySchema.safeParse(projection).success) throw Error('Invalid section copy fields');
 }
