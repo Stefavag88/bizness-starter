@@ -30,7 +30,7 @@ export const roomsDomain=Object.freeze({key:'rooms',collectionName:'room',direct
   const {translations,images,amenities,imageCopy,amenityCopy,...shared}=record;
   const {imageCopy:localizedImages,amenityCopy:localizedAmenities,...localized}=copy;
   delete localized.translations;delete localized.images;delete localized.amenities;
-  return {...shared,...localized,images:images.map(item=>({...item,...localizedImages.find(c=>c.id===item.id)})),amenities:amenities.map(item=>({...item,...localizedAmenities.find(c=>c.id===item.id)}))};
+  return {...shared,...localized,publishAt:copy.publishAt,images:images.map(item=>({...item,...localizedImages.find(c=>c.id===item.id)})),amenities:amenities.map(item=>({...item,...localizedAmenities.find(c=>c.id===item.id)}))};
  },
  routePath(record,context){return joinPath(context.locale,context.pages.find(p=>p.contentId==='rooms').slug,record.slug);},
  validate(records,context){for(const room of records){roomSchema.parse(room);if(['404','api','cms','admin','design-system','newsletter'].includes(room.slug)||context.project.languages.some(l=>l.code.toLowerCase()===room.slug))throw Error('Room slug is reserved: '+room.slug);}}
