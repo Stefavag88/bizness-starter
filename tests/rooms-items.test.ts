@@ -44,3 +44,12 @@ it('initializes module-required translation fields blank without default prose o
  copy.title='Δωμάτια';copy.emptyMessage='Δεν υπάρχουν δωμάτια.';expect(beforeSubmit(initialized,'page',p,values,{operation:'update',relativePath:'about.json'})).toBe(initialized);expect(initialized.translations.el.copy.sections[1].body).toBe(ast);
  const missing:any=initializeTranslationCopy({...values,translations:{}},'el',id);expect(missing.translations.el.status).toBe('draft');expect(missing.translations.el.copy.sections.find((s:any)=>s.id===id).emptyMessage).toBe('');
 });
+
+it('invalid nested Room copy rejects detached validation and correction preserves opaque AST identity',()=>{
+ const p={...project,modules:{rooms:true}},body={type:'root',children:[{type:'p',children:[{text:'Retained native body',id:'opaque-identity'}]}]};
+ const original:any={...room(),body,status:'draft',translations:{}};
+ const broken=addRoomItem(original,'amenities',{id:'desk',copy:{id:'desk',label:''}});
+ expect(()=>beforeSubmit(broken,'room',p,original,{operation:'update',relativePath:'suite.json'})).toThrow();expect(broken.body).toBe(body);expect(original.amenities).toHaveLength(1);
+ const corrected={...broken,amenityCopy:broken.amenityCopy.map((c:any)=>c.id==='desk'?{...c,label:'Desk'}:c)};
+ expect(beforeSubmit(corrected,'room',p,original,{operation:'update',relativePath:'suite.json'})).toBe(corrected);expect(corrected.body).toBe(body);
+});

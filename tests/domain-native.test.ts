@@ -62,3 +62,28 @@ it('hides disabled Page destinations without reading their native values',async(
  const edges=[{node:{_sys:{relativePath:'lessons.json'},get _values(){read=true;throw Error('Dormant');}}},{node:{_sys:{relativePath:'about.json'},_values:{contentId:'about',slug:'about'}}}];
  expect(visibleNativePages(edges,['lessons.json'])).toEqual([{contentId:'about',slug:'about'}]);expect(read).toBe(false);
 });
+
+import {room as roomFixture} from './fixtures/content/room';
+import {roomCollection} from '../tina/domains/rooms/collection';
+import {assertOwnedPageIdentity} from '../packages/content/domain-publication.mjs';
+it('Rooms index is edit-only at its declared filename/template/contentId; Room identity is flat and draft-only',()=>{
+ const enabled={...project,modules:{rooms:true}};
+ expect(roomCollection(enabled).ui?.allowedActions).toEqual({create:true,delete:false,createFolder:false,createNestedFolder:false});
+ const saved={...roomFixture(),status:'draft',translations:{}};
+ for(const relativePath of ['nested/room.json','../room.json','C:room.json'])expect(()=>assertDomainIdentity(saved,undefined,{operation:'create',relativePath})).toThrow(/flat/);
+ for(const changed of [{...saved,contentId:'other'},{...saved,slug:'other'}])expect(()=>assertDomainIdentity(changed,saved,{operation:'update',relativePath:'room.json'})).toThrow(/identity/);
+ expect(()=>assertDomainIdentity({...saved,translations:{el:{status:'published'}}},undefined,{operation:'create',relativePath:'room.json'})).toThrow(/draft/);
+ expect(()=>assertOwnedPageIdentity({_template:'rooms',contentId:'rooms'},'other.json')).toThrow();
+ expect(()=>assertOwnedPageIdentity({_template:'standard',contentId:'rooms'},'rooms.json')).toThrow();
+ expect(()=>assertOwnedPageIdentity({_template:'rooms',contentId:'other'},'rooms.json')).toThrow();
+ expect(()=>assertOwnedPageIdentity({_template:'rooms',contentId:'rooms'},'rooms.json')).not.toThrow();
+ const index=pageDocument('rooms','rooms','rooms');expect(()=>beforeSubmit(index,'page',enabled,undefined,{operation:'create',relativePath:'rooms.json'})).toThrow();
+});
+it('disabled Rooms save catalog never requests roomConnection and preserves malformed dormant bytes',async()=>{
+ const {readFileSync,writeFileSync,mkdirSync,readdirSync}=await import('node:fs');const {join}=await import('node:path');
+ const f=fixture();mkdirSync(join(f.root,'content/rooms'));const paths=['content/rooms/broken.json','content/pages/rooms.json'].map(p=>join(f.root,p));const bytes=Buffer.from('{ malformed dormant room bytes');paths.forEach(p=>writeFileSync(p,bytes));
+ const data:Record<string,any[]>={settings:[JSON.parse(readFileSync(join(f.root,'content/settings/site.json'),'utf8'))],page:readdirSync(join(f.root,'content/pages')).filter(p=>p!=='rooms.json').map(p=>JSON.parse(readFileSync(join(f.root,'content/pages',p),'utf8'))),offering:[editorial()],person:[editorial('person','person')],article:[editorial('article','article')]};
+ const queries:string[]=[];const cms={api:{tina:{request:async(query:string)=>{queries.push(query);const kind=/\{(\w+)Connection/.exec(query)![1];if(kind==='room')throw Error('Absent roomConnection must never be queried');return {[kind+'Connection']:{edges:data[kind].map((v:any)=>({node:{_values:v,_sys:{relativePath:'sample.json'}}})),pageInfo:{hasNextPage:false,endCursor:null}}};}}}};
+ expect(await validateCurrentSave(data.offering[0],'offering',project,cms,{operation:'update',relativePath:'sample.json'})).toBe(data.offering[0]);expect(queries.some(q=>q.includes('roomConnection'))).toBe(false);paths.forEach(p=>expect(readFileSync(p)).toEqual(bytes));
+});
+import {pageDocument} from './fixtures/content/factory';
