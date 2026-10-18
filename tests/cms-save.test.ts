@@ -73,3 +73,16 @@ it('uses the current relativePath record for composition identity and fails clos
  await expect(validateCurrentSave({...values,contentId:'home'},'page',project,cms,{operation:'update',relativePath:'about.json'})).rejects.toThrow(/identity.*protected/i);
  await expect(validateCurrentSave(values,'page',project,cms,{operation:'update',relativePath:'absent.json'})).rejects.toThrow(/current native record.*not found/i);
 });
+it('accepts installed link-dialog metadata on a detached projection and retains native AST identity',async()=>{
+ const {beforeSubmit,nativeProjection}=await import('../tina/validation');const values=offering();
+ // Observed through public Tina Form + registered MdxFieldPluginExtendible UI.
+ const leaf={type:'text',text:'Native link',bold:true,id:'ENhL0Gj9Uh'};
+ const link={type:'a',url:'/contact',target:undefined,id:'tItr92Nfbj',children:[leaf]};
+ const body={type:'root',children:[{type:'p',id:1792302712578,children:[link,{text:''}]}]};values.body=body;
+ expect(beforeSubmit(values,'offering',project)).toBe(values);expect(values.body).toBe(body);expect(values.body.children[0].children[0]).toBe(link);expect(link.children[0]).toBe(leaf);expect(Object.hasOwn(link,'target')).toBe(true);expect(nativeProjection(values,project).body).toBe('**[Native link](/contact)**\n');
+});
+it('still rejects unsupported native link attributes, targets and malformed leaf metadata',async()=>{
+ const {beforeSubmit}=await import('../tina/validation');
+ for(const patch of [{target:'_blank'},{target:'javascript:bad'},{onclick:'bad'},{style:'color:red'}]){const values=offering();values.body={type:'root',children:[{type:'p',children:[{type:'a',url:'/contact',children:[{text:'Link'}],...patch}]}]};expect(()=>beforeSubmit(values,'offering',project)).toThrow();}
+ for(const id of [{},[],false]){const values=offering();values.body={type:'root',children:[{type:'p',children:[{text:'Link',id}]}]};expect(()=>beforeSubmit(values,'offering',project)).toThrow();}
+});

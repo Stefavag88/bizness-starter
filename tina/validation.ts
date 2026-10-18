@@ -36,10 +36,17 @@ function markdown(value: unknown, inline: boolean): string {
       if (
         (node.type !== undefined && node.type !== 'text') ||
         Object.keys(node).some(
-          (k) => !['type', 'text', 'bold', 'italic'].includes(k),
+          (k) => !['type', 'text', 'bold', 'italic', 'id'].includes(k),
         )
       )
         throw Error('Unsupported rich text mark');
+      // The installed link dialog gives text leaves opaque editor IDs.
+      if (
+        Object.hasOwn(node, 'id') &&
+        typeof node.id !== 'string' &&
+        !(typeof node.id === 'number' && Number.isFinite(node.id))
+      )
+        throw Error('Invalid rich text editor ID');
       return;
     }
     const allowed = inline
@@ -75,7 +82,10 @@ function markdown(value: unknown, inline: boolean): string {
             'children',
             'url',
             'id',
-            ...(node.type === 'a' ? ['title'] : []),
+            // The installed dialog owns target: undefined; no target behavior is enabled.
+            ...(node.type === 'a'
+              ? ['title', ...(node.target === undefined ? ['target'] : [])]
+              : []),
           ].includes(k),
       )
     )
