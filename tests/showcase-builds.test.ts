@@ -48,3 +48,11 @@ it('preserves shared themes, business assets and CMS reserved-path validation in
  ]);
  expect(evidence.inventories[0].assets.every((entry:any)=>entry.bytes>0&&/^[a-f0-9]{64}$/.test(entry.sha256))).toBe(true);
 });
+
+it('inventories reusable original PNGs in every environment without classifying them as dedicated preview code',async()=>{
+ const f=fixture();const bytes=Buffer.from([137,80,78,71]);
+ const build=(local:boolean)=>{output(f.root,local);const uploads=join(f.root,'apps/site/dist/uploads/starter-samples');mkdirSync(uploads,{recursive:true});writeFileSync(join(uploads,'original.png'),bytes);};
+ await verifyShowcaseBuilds({...f,run:async()=>build(false),refresh:async()=>build(true)});
+ const evidence=JSON.parse(readFileSync(join(f.backupRoot,'evidence.json'),'utf8'));
+ for(const inventory of evidence.inventories){const asset=inventory.assets.find((a:any)=>a.path==='uploads/starter-samples/original.png');expect(asset).toMatchObject({bytes:4,showcase:false});expect(asset.sha256).toMatch(/^[a-f0-9]{64}$/);}
+});

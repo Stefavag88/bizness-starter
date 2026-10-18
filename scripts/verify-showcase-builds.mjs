@@ -19,7 +19,7 @@ function files(path) {
 // legitimately occurs in CMS validation. Shared theme/global CSS stays allowed.
 const previewSelector = /(?:#showcase-(?:toolbar|theme|density|language|reset)|\.showcase-(?:shell|toolbar|swatches|swatch|color|controls))\b/;
 function assetInventory(dist) {
-  return files(dist).filter(file => /\.(js|css|woff2?)$/.test(file)).map(file => {
+  return files(dist).filter(file => /\.(js|css|woff2?|png)$/.test(file)).map(file => {
     const bytes = readFileSync(file);
     const executable = /\.(js|css)$/.test(file);
     const showcase = executable && (

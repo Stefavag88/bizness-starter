@@ -12,7 +12,7 @@ publicRoutes(localized) returns Route[], where each route is { kind: 'page' | 'o
 
 ## Pages and sections
 
-A Page owns { contentId, _template, slug, status, publishAt?, meta, sections, copy, translations }. meta is { title, seoDescription }; null, blank or absent optional SEO becomes ''. Shared sections are ordered references { id, _template, variant: 'default', enabled, appearance: { surface } }. Persisted enabled may be omitted and defaults to true. Surfaces are default, muted, and accent; no arbitrary class, color or component path is accepted.
+A Page owns { contentId, _template, slug, status, publishAt?, meta, sections, copy, translations }. meta is { title, seoDescription }; null, blank or absent optional SEO becomes ''. Shared sections are ordered references { id, _template, variant, enabled, appearance: { surface } }. Persisted enabled may be omitted and defaults to true. Surfaces are default, muted, and accent; no arbitrary class, color or component path is accepted.
 
 Templates are home, about, contact, standard, offerings, and insights. Every template requires exactly one enabled hero, which the renderer must use for the page's single H1. There is no reserved hero instance ID: the seed uses intro. Contact's form is a template capability outside the optional section list. Composition A exposes optional section add/reorder/remove and Standard draft creation while preserving required regions and immutable saved identity.
 
@@ -26,6 +26,10 @@ Default copy.sections[id] is required for every structural reference, including 
 | people-list | { title, description } |
 | article-list | { title, description } |
 | cta | { title, description, link: { label, href } } |
+| faq | { title, description, items: [{ id, question, answer }] } |
+| steps | { title, description, items: [{ id, title, body }] } |
+| media-text | { title, body, image?: { alt, caption? }, link? } |
+| gallery | { title, description, items: [{ id, alt, caption? }] } |
 
 Localized pages remove translations and the separate copy container. Their sections are visible ordered references with a typed copy attached to each reference, plus the record's path and alternates. The discriminated LocalizedSection union supports renderer narrowing by _template.
 
@@ -50,7 +54,7 @@ Canonical locale keys use hyphens, for example en-US. Tina native field names en
 
 Exported LIMITS are title 200, SEO 300, Markdown summary 10,000, and Markdown body 100,000 characters. renderRichText escapes raw HTML, downgrades H1 to H2 and disables Markdown images. renderInlineRichText(body, { links: false }) retains emphasis while removing anchors for whole-card links. plainText(body, limit?) extracts text and truncates by Unicode code point without splitting surrogate pairs.
 
-isSafeLink is shared with native link validation. HTTP(S), mailto, tel, internal relative paths, fragments and queries are supported. Unsafe schemes, controls, protocol-relative links, backslashes, encoded bypasses and credentialed HTTP URLs are rejected. Encoded spaces in paths/queries remain supported. Foundation rich-text controls must not expose image/embed tools; content media belongs to stage 3. Safe rendering does not parse or mutate Tina ASTs.
+isSafeLink is shared with native link validation. HTTP(S), mailto, tel, internal relative paths, fragments and queries are supported. Unsafe schemes, controls, protocol-relative links, backslashes, encoded bypasses and credentialed HTTP URLs are rejected. Encoded spaces in paths/queries remain supported. Rich-text controls must not expose image/embed tools; Composition B media uses explicit shared source references with localized alt/caption. Stage 3 optimized media remains deferred. Safe rendering does not parse or mutate Tina ASTs.
 
 ## Exports
 
@@ -69,7 +73,7 @@ Schemas additionally export campaignSchema. catalog.mjs holds the browser-safe c
 
 Native UI roundtrips verify bilingual offering description/body Markdown, cleared optional SEO, editor reload and public output. A Pages save verifies optional visibility and protected hero controls. Native JSON serializes rich text through the installed CLI serializer; datetime mutation values follow the installed backend Date/ISO behavior. The test ownership helper uses the active generated schema and request inputs, never newly saved disk bytes as its expected model. Exact original bytes are restored only after complete-record ownership validation. See QUICKSTART.md for opt-in commands and conflicts.
 
-Foundation includes six section types: hero, rich-text, offering-list, people-list, article-list and CTA. Composition A supports Standard draft creation and optional composition/navigation authoring. Composition B/C defer more sections and Rooms; stage 3 defers media/social/motion/visitor controls and hosted-provider verification; stage 4 defers presets, safe initialization and releases. See COMPOSITION_AUTHORING.md for current editor limits.
+The registry includes ten section types: hero, rich-text, offering-list, people-list, article-list, CTA, FAQ, steps, media-text and gallery. Composition A supports Standard draft creation and optional composition/navigation authoring; Composition B adds nested copy and original local images. Composition C defers Rooms; stage 3 defers optimized media/social/motion/visitor controls and hosted-provider verification; stage 4 defers presets, safe initialization and releases. See COMPOSITION_AUTHORING.md for current editor limits.
 
 ## Flat collections and protected relationship targets
 
@@ -84,3 +88,14 @@ Published editorial slug changes require explicit redirects from previous publis
 The Page and Settings map shapes above are internal projections. Canonical PageDocument stores copy.sections as typed entries { id, _template, ...copy } in the default and supplied translations. Canonical SettingsDocument stores each translated navigation as [{ pageId, label }]. Duplicate/stale/mismatched IDs and old map-shaped disk content are rejected. Shared list order owns structure; copy/translated-label list order does not. New section IDs are page-local UUID-based values. The generated descriptor contains project/module metadata and article-index exclusions only, without page structure or navigation IDs. New valid IDs require no schema regeneration.
 
 Creation is limited to Standard drafts with unique flat filenames, IDs and potential routes; explicitly supplied complete draft translations are permitted. Saved filename/template/contentId/slug and retained section ID/type pairs are immutable. UI restrictions and current-catalog native validation enforce these policies independently. Structural operations preserve opaque existing native ASTs; only detached complete serialization is parsed on save.
+
+
+## Composition B nested and media contracts
+
+Existing six types retain default-only variants. FAQ adds expanded; steps adds cards; media-text adds reversed; gallery adds featured. Shared FAQ/steps references own ordered items: [{ id }]; gallery items own [{ id, media: { src, crop } }]. Media/text owns optional media: { src, crop }. Crop is center, top or bottom. Default-language structure controls order, variants, visibility, sources and crops. Supplied locale item arrays are associated by stable ID within their section, never by list position or across section boundaries. Missing whole optional translated sections are omitted; supplied item sets must be complete, even while hidden. An enabled list section must have at least one item. IDs use lowercase field IDs and generated item_ UUID hex; retained identities cannot be edited.
+
+Every supplied image translation requires nonempty alt text, maximum 200 characters; captions are optional safe inline Markdown, maximum 10,000. FAQ answers and step/media bodies require meaningful safe body Markdown, maximum 100,000. Clear optional media through the native control: the operation removes shared media and every locale's image text while preserving body and CTA. Physical uploads are retained. Unreferenced media/text renders as text-only. A referenced missing/broken source fails visibly with page/section/item context instead of silently omitting the image.
+
+Sources are original PNG, JPEG or WebP under /uploads/, resolved to apps/site/public/uploads by the server-only packages/media/source.mjs adapter. Queries, fragments, remote URLs, encoded dots/separators, traversal, double decoding, generated/section-images destinations and symlink escapes are rejected. Bounds are 20 MiB, 20,000 pixels per side and 40 million pixels; format must match extension. Metadata reads headers, not an exhaustive compressed-payload decode. EXIF orientation swaps intrinsic dimensions when necessary. Each read hashes actual bytes; the bounded 128-entry metadata cache uses hash and format, so same-path replacement cannot retain stale dimensions. No decoder or filesystem code enters the CMS/browser bundle.
+
+Images emit intrinsic width/height, lazy loading and fixed 3:2 media/text or 4:3 gallery frames with object-fit cover and fixed crop classes. These are original files with no derivative/srcset pipeline: upload appropriately small files. Header bounds are safety limits, not performance targets. Stage 3 owns optimized derivatives and further performance work. No schemaVersion change, JSON migration, remote media service or business-photo import is included.

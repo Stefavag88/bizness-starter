@@ -1,6 +1,6 @@
-# Composition A quickstart
+# Composition A and B quickstart
 
-This checkout is the neutral Business Starter v2 Foundation with Composition A, version `2.0.0-dev`. It is a local development branch, with no hosted provider configuration or production-readiness certification. Start with Node 22.x or 24.x and pnpm 10.13.1.
+This checkout is the neutral Business Starter v2 Foundation with Composition A and B, version `2.0.0-dev`. It is a local development branch, with no hosted provider configuration or production-readiness certification. Start with Node 22.x or 24.x and pnpm 10.13.1.
 
 ```powershell
 pnpm install --frozen-lockfile
@@ -50,7 +50,7 @@ The public suite covers EN/EL Home/About/Contact/offering/article at 375/768/144
 
 `project.json` selects profile, independently optional articles, languages and design defaults. Theme JSON owns semantic brand tokens. Default sending and marketing are false, review flags are false, and all identities/addresses are honest sample placeholders. `pnpm doctor` validates local configuration; `pnpm deploy:check` intentionally reports hosted CMS, protection, account, secret, legal/content and sample nurture blockers.
 
-Composition A completes the first stage 2 authoring slice. Composition B/C retain the larger section library and Rooms extension. Stage 3 owns media, social, motion, visitor controls and hosted-provider verification. Stage 4 owns business presets, safe destination initialization and release/tagging. No presets, initializer, migration guide, production delivery, deployment, tagging or remote setup is included here. See [content ownership](CONTENT_MODEL.md), [architecture](ARCHITECTURE.md) and [source provenance](SOURCE_INVENTORY.md).
+Composition A completes the first stage 2 authoring slice. Composition B adds FAQ, steps, media/text and gallery. Composition C retains the Rooms extension. Stage 3 owns optimized media, social, motion, visitor controls and hosted-provider verification. Stage 4 owns business presets, safe destination initialization and release/tagging. No presets, initializer, migration guide, production delivery, deployment, tagging or remote setup is included here. See [content ownership](CONTENT_MODEL.md), [architecture](ARCHITECTURE.md) and [source provenance](SOURCE_INVENTORY.md).
 
 ## Local native build note
 
@@ -81,7 +81,7 @@ The matrix owns a unique initially absent Standard fixture and removes it only a
 
 ## Design-system showcase
 
-The local-only `/design-system` reference compares four themes, responsive density and configured English/Greek samples without changing canonical content. See [showcase usage](DESIGN_SYSTEM_SHOWCASE.md) for bookmarks, reset, permanent settings and isolated build/browser acceptance. Stop the owned launcher before `pnpm test:showcase-builds`; its final build restores local output. The next authoring increment remains Composition B.
+The local-only `/design-system` reference compares four themes, responsive density and configured English/Greek samples without changing canonical content. See [showcase usage](DESIGN_SYSTEM_SHOWCASE.md) for bookmarks, reset, permanent settings and isolated build/browser acceptance. Stop the owned launcher before `pnpm test:showcase-builds`; its final build restores local output. The showcase includes all fourteen type/variant pairs; ordinary starter PNGs remain reusable in nonlocal builds.
 
 ### Full-suite server prerequisite
 
@@ -94,3 +94,18 @@ Stop the owned launcher and run `pnpm test:static-routing` to rebuild and verify
 ## Worker access roles
 
 Configure developer-owned infrastructure.adminEmails and infrastructure.editorEmails arrays for hosted access. Administrators can use CMS and operational routes; editors can use CMS only. Keep Tina membership separate and within its Free plan's two CMS users. See [authentication and migration](AUTHENTICATION.md) for normalized lists, Access application coverage, migration from adminEmail and pending hosted verification.
+
+
+## Composition B acceptance
+
+With the installed Chromium path and owned indexed local stack:
+
+```powershell
+$env:PLAYWRIGHT_BROWSERS_PATH='C:/Projects/bizness-starter-v2/.generated/browsers'
+$env:E2E_COMPOSITION_B_FIXTURE='1'
+pnpm exec playwright test e2e/composition-b-content.spec.ts
+```
+
+This opt-in public suite uses an owned temporary Standard seed and known image bytes, covering EN/EL at 375/768/1440, all eight new variants, no-JS disclosure/text, reduced motion, image dimensions/crops, translation omission and upload add/change/unlink. It preserves canonical Home/brand and removes only proven fixture bytes. Native authoring evidence is separately retained from Task 4; rerun e2e/composition-b-cms.spec.ts only when that boundary changes. Stop the launcher before frozen install/check/test/build, Worker dry-run, isolated CMS build and test:showcase-builds. The separate owned articles-disabled build/public probe uses the installed Playwright runner; see the evidence document. No new runtime or dependency is needed.
+
+Read [Composition authoring](COMPOSITION_AUTHORING.md) before adding nested items or images, [sample provenance](STARTER_SAMPLE_ASSETS.md) before replacing the neutral illustrations, and [Composition B evidence](superpowers/plans/2026-10-18-starter-v2-composition-b-evidence.md) for actual verification and limits.

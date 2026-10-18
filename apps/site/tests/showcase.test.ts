@@ -16,6 +16,7 @@ it('renders real bilingual sample groups with unique IDs, one H1 and disabled to
  const ids=Array.from(html.matchAll(/\bid="([^"]+)"/g),m=>m[1]);expect(new Set(ids).size).toBe(ids.length);
  expect(html).toContain('data-sample-language="en"');expect(html).toContain('data-sample-language="el" hidden');
  expect(html).toContain('id="showcase-language" disabled');expect(html).toContain('Synthetic ArticleList');expect(html).toContain('Συνθετικό δείγμα ArticleList');
+ expect(html.match(/class="faq-items"/g)).toHaveLength(4);expect(html.match(/class="steps steps-cards"/g)).toHaveLength(2);expect(html.match(/class="[^"]*media-text-reversed[^"]*"/g)).toHaveLength(2);expect(html.match(/class="gallery gallery-featured"/g)).toHaveLength(2);expect(html.match(/<img\b/g)).toHaveLength(12);
  expect(html).not.toContain('<form');expect(html).not.toContain('style=');
 });
 it('shows a notice without preview controls when no configured sample language is supported',async()=>{

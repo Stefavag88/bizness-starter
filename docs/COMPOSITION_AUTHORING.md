@@ -1,6 +1,6 @@
-# Composition A authoring
+# Composition A and B authoring
 
-This local branch implements Composition A on the neutral Foundation. It uses project schemaVersion 2 and one persisted JSON format. It does not enable sending, hosted providers, deployment or release tagging. Composition B/C and stages 3/4 remain deferred.
+This local branch implements Composition A and B on the neutral Foundation. It uses project schemaVersion 2 and one persisted JSON format. It does not enable sending, hosted providers, deployment or release tagging. Composition C and stages 3/4 remain deferred.
 
 ## Create a Standard page
 
@@ -16,13 +16,13 @@ After the first save, filename, contentId, slug and page template are immutable.
 
 ## Compose sections
 
-The default-language shared section list owns order, visibility, type, default variant and neutral surface. Use Add section to select rich text, offerings, people, articles (when enabled) or CTA. New optional instances start hidden with a fresh UUID-based ID. Hero cannot be added, moved, hidden or removed. The required privacy_details body remains enabled and protected; Contact's required form is outside optional composition.
+The default-language shared section list owns order, visibility, type, registered variant and neutral surface. Use Add section to select rich text, offerings, people, articles (when enabled) CTA, FAQ, process steps, media/text or gallery. New optional instances start hidden with a fresh UUID-based ID. Hero cannot be added, moved, hidden or removed. The required privacy_details body remains enabled and protected; Contact's required form is outside optional composition.
 
 Enter copy, enable the section when ready, and move optional instances with the labelled up/down buttons using the keyboard or pointer. Repeated types are supported. IDs are page-local, so different pages may reuse an ID with different types. No ID becomes a generated native field name.
 
 Use the explicit locale-copy action for an existing shared instance. Missing optional translated copy omits that instance in that locale; no default-language fallback is published. Shared visibility retains all copy. Remove section asks for confirmation and removes the reference plus every locale's copy in one editor batch; cancel changes nothing. Retained rich ASTs are preserved by identity during structural edits.
 
-Only the six existing static section renderers and default variants are included. This work adds no photos, media library, new styling system or section library from Composition B/C.
+The ten registered static section renderers share the existing theme tokens. Existing six types keep default-only variants; FAQ supports default/expanded, steps default/cards, media/text default/reversed and gallery default/featured.
 
 ## Navigation
 
@@ -49,3 +49,17 @@ Acceptance initializes evidence before any save. Native expected records come fr
 The public composition fixture is separately Node-owned and is not native-creation evidence. Its initial source must be absent and its first write is exclusive; subsequent updates and restoration retain complete-record ownership guards. Opt in with E2E_COMPOSITION_FIXTURE=1 only against this checkout's development stack. Screenshots and representative axe scans are acceptance evidence, not accessibility certification.
 
 Development freshness note: directly adding an already-published JSON file outside the native editor may leave the dev route cache stale. The current change-driven Vite refresh does not handle add-only events. Restart the owned launcher or perform a subsequent deliberate owned content edit. Native creation starts as a draft and explicit publication is an update; that sequence is separately proven. This limitation remains unresolved.
+
+
+## Author FAQ, steps and content images
+
+1. In the default-language shared section editor, add a section; it starts hidden. Choose its registered variant and surface.
+2. For FAQ, steps or gallery, add items, then complete their default-language question/answer, title/body or image/alt/caption. Use the labelled item move buttons for shared order. Item IDs are generated once and are read-only; repeated IDs in another section remain separate identities.
+3. Explicitly initialize each desired section translation. Enter every item by its fixed shared ID. Locale list order never changes public shared order. Omit an optional section translation entirely to omit that whole public section; there is no per-item/default-language fallback.
+4. For media/text or a gallery item, open the actual native image picker, select an original PNG/JPEG/WebP under uploads and choose center/top/bottom crop. The two labelled abstract starter samples are reusable neutral illustrations, not client photographs. Enter nonempty alt in every supplied translation; captions may be blank. Media/text also owns body and optional CTA independently of its image.
+5. Complete the section, enable it, save and reload. Inspect both public locales. Invalid nested answers or missing translated alt block Save before mutations. Dismiss the actionable alert, reopen the same item/localized editors, correct the field and resubmit; current unrelated prose and rich ASTs remain in memory.
+6. To make media/text text-only, use the picker's clear button. Installed native blank/null states are normalized by the shared control operation: shared source and all localized image text are removed, body/CTA retained. Save/reload to verify. Removing gallery items or references also retains physical files. Cancel removal leaves the draft unchanged.
+
+A selected missing, unsafe or broken source fails public rendering with an actionable error. Re-select a valid upload or clear optional media; do not use an arbitrary external URL or silently delete the erroring copy. See [source and metadata limits](CONTENT_MODEL.md#composition-b-nested-and-media-contracts). Original files are served directly, without optimized derivatives; choose small uploads rather than treating the safety bounds as a loading budget.
+
+Run the separate Node-owned public matrix with E2E_COMPOSITION_B_FIXTURE=1 and pnpm exec playwright test e2e/composition-b-content.spec.ts against this checkout's owned indexed dev:cms stack. It creates an initially absent page exclusively, compares complete expected documents before updates, preserves unknown bytes on conflicts and removes only owned fixtures. Binary sources use caller-known buffers, exclusive creation and permanent ownership revocation. This is public seed/render/watch proof, not native creation/upload proof. Task 4's actual UI save evidence remains separate.
