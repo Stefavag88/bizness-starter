@@ -3,6 +3,7 @@ import {readFileSync,writeFileSync,mkdirSync,mkdtempSync,existsSync} from 'node:
 import {join} from 'node:path';
 import {createCmsSources} from './helpers/cms-source-ownership';
 import {createOwnedMedia} from './helpers/owned-media';
+import {cleanupCompositionCNative} from './helpers/composition-c-fixture';
 import {expectedNativeDocument,type Mutation,type Schema} from './helpers/native-document';
 const cms=process.env.E2E_CMS_URL;
 test.skip(!cms,'Requires the owned indexed Rooms-enabled native CMS stack.');
@@ -24,7 +25,6 @@ test('native Room draft, bilingual nested correction, reorder, publish, cancel a
  async function reject(label:string){const count=requests.length,bytes=readFileSync(path);await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('button',{name:'Close',exact:true})).toBeVisible();expect(requests).toHaveLength(count);expect(readFileSync(path)).toEqual(bytes);sources.assertUnchanged();writeFileSync(join(directory,label+'.json'),JSON.stringify({mutationsBefore:count,mutationsAfter:requests.length,bytesUnchanged:true,text:await page.locator('body').innerText()},null,2));await page.screenshot({path:join(directory,label+'.png'),fullPage:true});await page.getByRole('button',{name:'Close',exact:true}).click();}
  async function picker(name:string){await page.getByRole('button',{name:/Drag 'n' drop/}).last().click();await page.getByText(name,{exact:true}).click();await page.getByRole('button',{name:'Insert',exact:true}).click();}
  async function translation(){await page.getByRole('button',{name:'Translations',exact:true}).click();}
- let restored=false;
  try{
   media.forEach(m=>m.create(png));await open(page,'collections/room');await page.getByRole('link',{name:'Add File',exact:true}).click();
   await page.locator('[name=contentId]').fill(name);await page.locator('[name=slug]').fill(name);await page.getByRole('textbox',{name:'My_Document'}).fill(name);await page.locator('[name=title]').fill('Native Room proof');
@@ -49,7 +49,7 @@ test('native Room draft, bilingual nested correction, reorder, publish, cancel a
   await page.getByRole('button',{name:'Remove '+imageIds[0],exact:true}).click();await page.getByRole('button',{name:'Confirm removal',exact:true}).click();await page.getByRole('button',{name:'Remove '+amenityIds[0],exact:true}).click();await page.getByRole('button',{name:'Confirm removal',exact:true}).click();await save('update',d=>d.amenities.length===2&&[d,...Object.values(d.translations) as any[]].every(t=>t.amenityCopy.length===2&&!t.amenityCopy.some((c:any)=>c.id===amenityIds[0]))&&d.images.length===1&&[d,...Object.values(d.translations) as any[]].every(t=>t.imageCopy.length===1&&t.imageCopy[0].id===imageIds[1]));await reload();media.forEach(m=>expect(m.owns()).toBe(true));
   await page.screenshot({path:join(directory,'saved-room.png'),fullPage:true});await open(page,'collections/room');await expect(page.getByRole('button',{name:'Delete',exact:true})).toHaveCount(0);await expect(page.getByRole('link',{name:/Create folder|Create nested folder/})).toHaveCount(0);expect(JSON.parse(readFileSync('tina/__generated__/_schema.json','utf8'))).toEqual(schema);expect(requests).toHaveLength(4);writeFileSync(join(directory,'acceptance.json'),JSON.stringify({name,imageIds,amenityIds,mutations:requests.length,rejectedAttempts:1,physicalMediaPreserved:true},null,2));
  }finally{
-  try{await sources.restore();restored=true;}finally{if(restored)media.forEach(m=>m.restore());writeFileSync(join(directory,'restoration.json'),JSON.stringify({recordsRestored:restored,recordAbsent:!existsSync(path),mediaAbsent:names.every(n=>!existsSync('apps/site/public/uploads/'+n)),backup:sources.backup},null,2));}
+  await cleanupCompositionCNative({restoreRecords:()=>sources.restore(),restoreMedia:media.map(owner=>()=>owner.restore()),record:state=>writeFileSync(join(directory,'restoration.json'),JSON.stringify({...state,recordAbsent:!existsSync(path),mediaAbsent:names.every(n=>!existsSync('apps/site/public/uploads/'+n)),backup:sources.backup},null,2))});
  }
 });
 
