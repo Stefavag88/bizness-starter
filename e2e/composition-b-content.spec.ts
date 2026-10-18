@@ -1,3 +1,4 @@
+import {cleanupCompositionPublic} from './helpers/composition-b-cleanup';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
@@ -155,9 +156,10 @@ test('owned upload add, same-path replacement, unlink and visible unsafe/missing
         writeFileSync(join(directory, 'live-media.json'), JSON.stringify({ source: src, added: { width: 480, height: 320, sha256: hash(a) }, replaced: { width: 320, height: 480, sha256: hash(b) }, unlinked: true, missingVisible: true, unsafeVisible: true, reloadMessages: reloads, schemaBefore: schema, schemaAfter: hash(readFileSync(schemaPath)) }, null, 2));
     }
     finally {
-        await monitor.close();
-        document = original;
-        owner.replace(document);
-        media.restore();
+        await cleanupCompositionPublic([
+            () => monitor.close(),
+            () => {document = original; owner.replace(document);},
+            () => media.restore(),
+        ]);
     }
 });

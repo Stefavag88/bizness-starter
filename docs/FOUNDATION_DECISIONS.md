@@ -104,3 +104,13 @@ The verifier now retains hashed per-stage asset inventories and rejects dedicate
 | Scroll lazy-loaded original images into view before naturalWidth checks and representative theme screenshots. | Offscreen lazy images legitimately have naturalWidth zero before loading. | Test waits for actual browser decoding, without changing loading policy. |
 
 Composition B public/native checks are local acceptance, not hosted or accessibility certification. Historical Foundation/Composition A/showcase evidence remains historical. Composition C, Stage 3 optimized media/social/motion/visitor controls and Stage 4 presets/initialization/releases remain deferred. Controller-owned independent Task 5 and whole-branch final review are still required; this document does not pre-approve them. Existing auth role/routing/provider limits remain in their current dedicated documents. No newsletter/nurture delivery suite is replayed without a changed delivery boundary.
+
+
+## 2026-10-18 Composition B Task 5 cleanup review rulings
+
+| Decision | Reason | Cost or boundary |
+| --- | --- | --- |
+| Attempt monitor, known Page and independently owned temporary PNG cleanup separately, then aggregate errors. | A rejected monitor close or unknown Page must not strand a safely owned upload. | Small shared test-harness helper; unknown Page bytes stay preserved and its guard stays revoked. |
+| Require confirmed runtime shutdown, independent owner restoration and the complete exact content/upload/project snapshot before each restore-build command. | Owner success alone does not make unrelated external edits safe to consume; failed shutdown must block configuration/build. | Additional bounded hash comparisons and explicit skipped-rebuild diagnostics; conflicts require reconciliation. Checks remain best effort, not filesystem locks. |
+
+The scoped fix uses seven actual-file cleanup cases and affected public/articles-disabled acceptance. Earlier successful native/environment/full-suite evidence remains historical and was not broadly replayed for these harness-only changes. Independent scoped rereview remains controller-owned.

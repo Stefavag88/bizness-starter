@@ -1,3 +1,5 @@
+import {cleanupCompositionBuild} from './helpers/composition-b-cleanup';
+import {isDeepStrictEqual} from 'node:util';
 import { test, expect } from '@playwright/test';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, readdirSync, existsSync, appendFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -69,22 +71,31 @@ test('articles disabled preserves dormant bytes and all new public sections', as
         writeFileSync(join(directory, 'public.json'), JSON.stringify({ locales: ['en', 'el'], newVariants: 8, articleRoutesAbsent: true, feedAbsent: true, runtimeErrors, csp }, null, 2));
     }
     finally {
-        const failures: unknown[] = [];
-        for (const cleanup of [() => context?.close(), () => server?.stop()]) {
-            try { await cleanup(); } catch (error) { failures.push(error); }
-        }
-        // Restore independent owners even if one refuses a concurrent edit.
-        let pageRestored = false, projectRestored = false;
-        try { await owner.restore(); pageRestored = true; } catch (error) { failures.push(error); }
-        try { edit.restore(); projectRestored = readFileSync('project.json').equals(projectBytes); } catch (error) { failures.push(error); }
-        if (pageRestored && projectRestored) {
-            try {
-                await command(['scripts/configure.mjs']);
-                await command([resolve('apps/site/node_modules/astro/bin/astro.mjs'), 'build'], resolve('apps/site'));
-            } catch (error) { failures.push(error); }
-        }
-        writeFileSync(join(directory, 'restoration.json'), JSON.stringify({projectBefore:hash(projectBytes), projectAfter:existsSync('project.json')?hash(readFileSync('project.json')):null, before, after:snapshot(), commands, pageRestored, projectRestored, fixtureRemoved:!existsSync(owner.path), cleanupErrors:failures.map(String)}, null, 2));
-        if (failures.length) throw new AggregateError(failures, 'Owned articles-disabled cleanup failed; preserve backups for review');
+        await cleanupCompositionBuild({
+            closeContext: () => context?.close(),
+            // No allocated runtime is already stopped; a rejected stop never confirms shutdown.
+            stopRuntime: () => server?.stop(),
+            restorePage: () => owner.restore(),
+            restoreProject: () => {
+                edit.restore();
+                if(!readFileSync('project.json').equals(projectBytes))throw Error('Project restoration unconfirmed');
+            },
+            sourcesUnchanged: () => readFileSync('project.json').equals(projectBytes) && isDeepStrictEqual(snapshot(),before),
+            rebuild: [
+                () => command(['scripts/configure.mjs']),
+                () => command([resolve('apps/site/node_modules/astro/bin/astro.mjs'), 'build'], resolve('apps/site')),
+            ],
+            record: state => {
+                const observe = (read: () => unknown) => {
+                    try { return read(); } catch (error) { return { unreadable: String(error) }; }
+                };
+                writeFileSync(join(directory, 'restoration.json'), JSON.stringify({
+                    projectBefore: hash(projectBytes),
+                    projectAfter: observe(() => existsSync('project.json') ? hash(readFileSync('project.json')) : null),
+                    before, after: observe(snapshot), commands, ...state, fixtureRemoved: !existsSync(owner.path),
+                }, null, 2));
+            },
+        });
         expect(readFileSync('project.json')).toEqual(projectBytes);
         expect(snapshot()).toEqual(before);
         expect(existsSync(owner.path)).toBe(false);
