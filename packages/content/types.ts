@@ -1,7 +1,8 @@
 import type { DomainRecords,LocalizedDomainRecords } from './domain-contracts';
 import type {MediaReference} from './media.mjs';
-export type PageTemplate = 'home'|'about'|'contact'|'standard'|'offerings'|'insights';
-export type SectionType = 'hero'|'rich-text'|'offering-list'|'people-list'|'article-list'|'cta'|'faq'|'steps'|'media-text'|'gallery';
+export interface PageTemplateMap {home:unknown;about:unknown;contact:unknown;standard:unknown;offerings:unknown;insights:unknown}
+export type PageTemplate = keyof PageTemplateMap;
+export type SectionType = keyof SectionCopyMap;
 export type Surface = 'default'|'muted'|'accent';
 export type Status = 'draft'|'published';
 export interface Publication { status:Status; publishAt?:string }
@@ -45,7 +46,8 @@ export type LocalizedOffering = Omit<Offering,'translations'> & RouteFields;
 export type LocalizedPerson = Omit<Person,'translations'> & RouteFields;
 export type LocalizedArticle = Omit<Article,'translations'> & RouteFields;
 export interface LocalizedContent {locale:string;settings:SettingsCopy;pages:LocalizedPage[];offerings:LocalizedOffering[];people:LocalizedPerson[];articles:LocalizedArticle[];domains:LocalizedDomainRecords;feedPath:string|null}
-export interface Route {kind:'page'|'offering'|'person'|'article';contentId:string;locale:string;path:string;alternates:Alternate[]}
+interface RouteIdentity {contentId:string;locale:string;path:string;alternates:Alternate[]}
+export type Route = RouteIdentity & ({kind:'page'|'offering'|'person'|'article'}|{kind:'domain';domain:string});
 
 export type PersistedCopyEntry<K extends SectionType = SectionType> = K extends SectionType ? {id:string;_template:K} & SectionCopyMap[K] : never;
 export interface PageDocumentCopy {sections:PersistedCopyEntry[]}

@@ -47,7 +47,8 @@ const NativeNavigation = lazy(async () => {
 export function NavigationControls(props: any) {
   return h(Suspense, { fallback: null }, h(NativeNavigation, props));
 }
-export function NavigationEditor({ field, tinaForm, cms }: any) {
+export function visibleNativePages(edges:readonly any[],excludedFiles:readonly string[]){return edges.filter(edge=>!excludedFiles.includes(edge.node._sys?.relativePath)).map(edge=>edge.node._values);}
+export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }: any) {
   const form = tinaForm.finalForm;
   const values = useSyncExternalStore(
     (callback) => form.subscribe(callback, { values: true }),
@@ -72,11 +73,11 @@ export function NavigationEditor({ field, tinaForm, cms }: any) {
         more = true;
       while (more) {
         const result: any = await cms.api.tina.request(
-          'query NavigationPages($after:String){pageConnection(first:100,after:$after){edges{node{... on Document{_values}}}pageInfo{hasNextPage endCursor}}}',
+          'query NavigationPages($after:String){pageConnection(first:100,after:$after){edges{node{... on Document{_values _sys{relativePath}}}}pageInfo{hasNextPage endCursor}}}',
           { variables: { after } },
         );
         records.push(
-          ...result.pageConnection.edges.map((edge: any) => edge.node._values),
+          ...visibleNativePages(result.pageConnection.edges,disabledPageFiles),
         );
         more = result.pageConnection.pageInfo.hasNextPage;
         after = result.pageConnection.pageInfo.endCursor;

@@ -5,7 +5,8 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { sectionDefinitions } from '../../packages/content/section-registry.mjs';
+import type {ProjectConfig} from '../../packages/config/project.mjs';
+import { sectionDefinitions,sectionEnabled } from '../../packages/content/section-registry.mjs';
 import {
   addSection,
   moveSection,
@@ -99,9 +100,9 @@ export function applyComposition(
       if (after[key] !== before[key]) form.change(key, after[key]);
   });
 }
-export function availableSections(articles: boolean) {
+export function availableSections(articles: boolean, project?:ProjectConfig) {
   return sectionDefinitions.filter(
-    (d) => d.type !== 'hero' && (articles || d.type !== 'article-list'),
+    (d) => d.type !== 'hero' && (articles || d.type !== 'article-list') && (!project||sectionEnabled(d,project)),
   );
 }
 export function appendSection(
@@ -184,6 +185,7 @@ export function useValues(tinaForm: any) {
 export function SectionControls({
   tinaForm,
   articles = true,
+  project,
   languages = [],
 }: any) {
   const raw = useValues(tinaForm),
@@ -216,6 +218,7 @@ export function SectionControls({
       return h(
         'fieldset',
         { key: section.id, 'data-section-id': section.id },
+        project&&!sectionEnabled(definition(section._template),project)&&h('p',{},'This section is dormant while its module is disabled. Its copy is retained and it is omitted from public output.'),
         h('legend', {}, section.id),
         h(
           'label',
@@ -332,7 +335,7 @@ export function SectionControls({
               },
             },
             h('option', { value: '' }, 'Choose section type'),
-            ...availableSections(articles).map((d) =>
+            ...availableSections(articles,project).map((d) =>
               h('option', { key: d.type, value: d.type }, d.type),
             ),
           ),

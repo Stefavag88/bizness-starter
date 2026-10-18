@@ -33,6 +33,7 @@ export function pageReferences(project: ProjectConfig): TinaField {
         h(SectionControls, {
           ...props,
           articles: project.articles,
+          project,
           languages: project.languages.filter((l) => l.code !== project.locale),
         }),
     },

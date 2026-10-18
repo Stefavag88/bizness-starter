@@ -28,7 +28,7 @@ export function pages(p: ProjectConfig) {
           },
         }
       : {}),
-    templates: PAGE_TEMPLATES.filter((t) => p.articles || t !== 'insights').map(
+    templates: PAGE_TEMPLATES.filter((t) => (p.articles || t !== 'insights')&&!getDisabledDomainPages(p).some(page=>page.template===t)).map(
       (name) => ({
         name,
         label: name,

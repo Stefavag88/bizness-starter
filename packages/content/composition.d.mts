@@ -1,5 +1,6 @@
 import type { Page, PageDocument, PageDocumentTranslation, SectionReference, SectionType } from './types';
-export type NativeSectionType = SectionType | 'media_text' | 'rich_text' | 'offering_list' | 'people_list' | 'article_list';
+export type NativeSectionName<T extends string> = T extends `${infer Head}-${infer Tail}` ? `${Head}_${NativeSectionName<Tail>}` : T;
+export type NativeSectionType = SectionType | NativeSectionName<SectionType>;
 /** Rich text stays opaque in the editor. Only detached save projections serialize it. */
 export interface CompositionCopyEntry { id:string; _template:NativeSectionType; [field:string]:unknown }
 export interface CompositionDraft extends Omit<PageDocument,'sections'|'copy'|'translations'> {

@@ -1,7 +1,7 @@
 import type { ZodType } from 'zod';
 import type { Campaign,Page,Offering,Person,Article,Settings,Meta,Link,SectionReference,SectionCopyMap,PageTemplate,SectionType,Surface } from './types';
 export type * from './types';
-export const LIMITS:Readonly<{title:200;seoDescription:300;description:10000;body:100000}>;
+export {LIMITS} from './limits.mjs';
 export const PAGE_TEMPLATES:readonly PageTemplate[];
 export const SECTION_TYPES:readonly SectionType[];
 export const SURFACES:readonly Surface[];

@@ -1,8 +1,10 @@
+import {modulePageTemplates} from './module-extensions.mjs';
 import { z } from 'zod';
 import { isSafeMarkdown } from './rich-text.mjs';
 import { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas, sectionDefinitions } from './section-registry.mjs';
 export { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas, sectionDefinitions } from './section-registry.mjs';
-export const PAGE_TEMPLATES = Object.freeze(['home','about','contact','standard','offerings','insights']);
+export const PAGE_TEMPLATES = Object.freeze(['home','about','contact','standard','offerings','insights',...modulePageTemplates]);
+if(new Set(PAGE_TEMPLATES).size!==PAGE_TEMPLATES.length)throw Error('Duplicate Page template registration');
 export const SURFACES = Object.freeze(['default','muted','accent']);
 const title = z.string().trim().min(1).max(LIMITS.title);
 const richSummary = z.string().max(LIMITS.description).refine(value=>isSafeMarkdown(value,true),'Description allows safe inline emphasis and links only');

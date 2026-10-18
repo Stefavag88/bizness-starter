@@ -1,3 +1,5 @@
+import {getActiveDomains,getDisabledDomainPages} from './domain-registry.mjs';
+import {assertOwnedPageIdentity} from './domain-publication.mjs';
 import { localizeContent } from './localize.mjs';
 import { activeRecords } from './publication.mjs';
 import { publicRoutes } from './routes.mjs';
@@ -7,7 +9,8 @@ export function validateCatalog(source,project,registry) {
   if(!project.interests.some(interest=>interest.id===campaign.interest))throw Error('Campaign references missing interest '+campaign.interest);
   if(campaign.articleId&&!activeRecords(source,project.locale,project).articles.some(article=>article.contentId===campaign.articleId))throw Error('Campaign references unavailable published article '+campaign.articleId);
  }
- const records=[...source.pages,...source.offerings,...source.people,...source.articles,...(source.campaigns??[])];
+ const domains=getActiveDomains(project,registry);
+ const records=[...domains.flatMap(definition=>source.domains?.[definition.key]??[]),...source.pages,...source.offerings,...source.people,...source.articles,...(source.campaigns??[])];
  const ids=new Set();
  for(const record of records) {
   if(ids.has(record.contentId))throw new Error('Duplicate contentId: '+record.contentId);
@@ -18,6 +21,17 @@ export function validateCatalog(source,project,registry) {
    if(reserved.has(first)||project.languages.some(l=>l.code.toLowerCase()===first.toLowerCase()))throw new Error(record.contentId+': reserved slug '+record.slug);
   }
  }
+ for(const page of source.pages)assertOwnedPageIdentity(page,undefined,registry);
+ for(const definition of domains)definition.validate(source.domains?.[definition.key]??[],{project,now:source.now,pages:source.pages,recordIds:ids});
+ const prefixes=[{owner:'people',prefix:'people'},...source.pages.filter(page=>page._template==='offerings'||(project.articles&&page._template==='insights')).map(page=>({owner:page._template,prefix:page.slug}))];
+ for(const definition of domains)for(const owned of definition.ownedPages){
+  const page=source.pages.find(page=>page.contentId===owned.contentId&&page._template===owned.template);
+  if(!page)continue;
+  const conflict=prefixes.find(claim=>claim.prefix===page.slug||claim.prefix.startsWith(page.slug+'/')||page.slug.startsWith(claim.prefix+'/'));
+  if(conflict)throw Error('Domain '+definition.key+' index prefix '+page.slug+' conflicts with '+conflict.owner+' prefix '+conflict.prefix);
+  prefixes.push({owner:definition.key,prefix:page.slug});
+ }
+ const disabledIds=new Set(getDisabledDomainPages(project,registry).map(page=>page.contentId));
  for(const locale of Object.keys(source.settings.translations))if(!project.languages.some(l=>l.code===locale)||locale===project.locale)throw new Error('Settings: unexpected translation locale '+locale);
  const requireOne=(template)=>{
   const pages=source.pages.filter(p=>p._template===template);
@@ -33,7 +47,7 @@ export function validateCatalog(source,project,registry) {
  for(const article of source.articles)for(const [field,list] of [['authorId',source.people],['offeringId',source.offerings]])
   if(article[field]&&!list.some(r=>r.contentId===article[field]))throw new Error(article.contentId+': '+field+' references missing ID '+article[field]);
  for(const nav of source.settings.navigation)
-  if(!source.pages.some(p=>p.contentId===nav.pageId)&&!(nav.pageId==='insights'&&!project.articles))throw new Error('Navigation references missing pageId '+nav.pageId);
+  if(!source.pages.some(p=>p.contentId===nav.pageId)&&!(nav.pageId==='insights'&&!project.articles)&&!disabledIds.has(nav.pageId))throw new Error('Navigation references missing pageId '+nav.pageId);
  // The same pipeline validates all publication/URL decisions, regardless of consumer.
  for(const language of project.languages)publicRoutes(localizeContent(source,language.code,project,registry));
 }

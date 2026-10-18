@@ -1,3 +1,4 @@
+import {assertOwnedPageIdentity} from './domain-publication.mjs';
 import { getActiveDomains,getDisabledDomainPages } from './domain-registry.mjs';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -27,7 +28,7 @@ export function readContent(root,project,options={}) {
   if(!existsSync(folder))return [];
   return flatFiles(folder)
    .filter(file=>name!=='pages'||!excludedPages.has(file))
-   .map(file=>json(join(folder,file),schema,project));
+   .map(file=>{const record=json(join(folder,file),schema,project);if(name==='pages')assertOwnedPageIdentity(record,file,options.registry);return record;});
  };
  flatFiles(join(directory,'settings'));
  const source={

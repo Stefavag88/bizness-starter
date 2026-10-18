@@ -1,3 +1,6 @@
+import {projectDomains} from './domain-publication.mjs';
+import {getDisabledDomainPages} from './domain-registry.mjs';
+import {sectionDefinitions,sectionEnabled} from './section-registry.mjs';
 import { activeRecords, requiredPage, joinPath } from './publication.mjs';
 
 export function localizeContent(source,locale,project,registry) {
@@ -10,6 +13,8 @@ export function localizeContent(source,locale,project,registry) {
   contact:{...baseSettings.contact,...translation.contact},
   navigation:baseSettings.navigation.map(item=>({...item,label:translation.navigation[item.pageId]})),
  });
+ const disabledIds=new Set(getDisabledDomainPages(project,registry).map(page=>page.contentId));
+ source={...source,pages:source.pages.filter(page=>!disabledIds.has(page.contentId))};
  const active=activeRecords(source,locale,project);
  for(const page of source.pages) {
   if(requiredPage(page,project)&&!active.pages.some(p=>p.contentId===page.contentId))
@@ -25,11 +30,14 @@ export function localizeContent(source,locale,project,registry) {
   alternates:project.languages.filter(l=>availability.get(l.code)[kind==='page'?'pages':kind==='offering'?'offerings':kind==='person'?'people':'articles'].some(r=>r.contentId===record.contentId))
    .map(l=>({locale:l.code,path:pathFor(kind,record,l.code)})),
  });
- const pages=active.pages.map(page=>{
+ const localizedPages=language=>availability.get(language).pages.map(page=>{
   const {copy,sections,...rest}=page;
-  return routeRecord('page',{...rest,sections:sections.filter(s=>s.enabled && copy.sections[s.id]!==undefined && (project.articles||s._template!=='article-list'))
-   .map(section=>{const localized=structuredClone(copy.sections[section.id]);if(section.items)localized.items=section.items.map(item=>localized.items.find(entry=>entry.id===item.id));return {...section,copy:localized};})});
+  return {...routeRecord('page',rest),path:pathFor('page',rest,language),sections:sections.filter(s=>s.enabled && copy.sections[s.id]!==undefined && sectionEnabled(sectionDefinitions.find(d=>d.type===s._template),project))
+   .map(section=>{const localized=structuredClone(copy.sections[section.id]);if(section.items)localized.items=section.items.map(item=>localized.items.find(entry=>entry.id===item.id));return {...section,copy:localized};})};
  });
- return {locale,settings,pages,domains:{},offerings:active.offerings.map(r=>routeRecord('offering',r)),people:active.people.map(r=>routeRecord('person',r)),articles:active.articles.map(r=>routeRecord('article',r)),
+ const pagesByLocale=new Map(project.languages.map(language=>[language.code,localizedPages(language.code)]));
+ const pages=pagesByLocale.get(locale);
+ const domains=projectDomains(source,locale,project,pagesByLocale,registry);
+ return {locale,settings,pages,domains,offerings:active.offerings.map(r=>routeRecord('offering',r)),people:active.people.map(r=>routeRecord('person',r)),articles:active.articles.map(r=>routeRecord('article',r)),
   feedPath:project.articles?joinPath(locale,'feed.xml').replace(/\/$/,''):null};
 }

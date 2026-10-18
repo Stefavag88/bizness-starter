@@ -1,3 +1,5 @@
+import {createElement as h} from 'react';
+import {getDisabledDomainPages} from '../../packages/content/domain-registry.mjs';
 import type { ProjectConfig } from '../../packages/config/project.mjs';
 import { navigationLabels } from '../fields/section-copy';
 import { NavigationControls } from '../fields/navigation';
@@ -5,11 +7,13 @@ import { text, object } from '../fields/common';
 import { rich } from '../fields/rich-text';
 import { collection } from './common';
 export function settings(p: ProjectConfig) {
+  const disabledPageFiles=[...getDisabledDomainPages(p).map(page=>page.filename),...(!p.articles?['insights.json']:[])];
+  const navigation=()=>({...navigationLabels(),ui:{component:(props:any)=>h(NavigationControls,{...props,disabledPageFiles})}});
   const translated = [
     object('brand', [text('tagline')]),
     object('legal', [rich('notice')]),
     object('contact', [text('address')]),
-    { ...navigationLabels(), ui: { component: NavigationControls } },
+    navigation(),
   ];
   return {
     ...collection(
@@ -23,7 +27,7 @@ export function settings(p: ProjectConfig) {
           rich('notice'),
         ]),
         object('contact', [text('email'), text('phone'), text('address')]),
-        { ...navigationLabels(), ui: { component: NavigationControls } },
+        navigation(),
         object(
           'translations',
           p.languages

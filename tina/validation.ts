@@ -1,3 +1,7 @@
+import {getNativeDomainAdapters} from './domain-validation';
+import type {NativeDomainOptions} from './domain-validation';
+import {getDisabledDomainPages} from '../packages/content/domain-registry.mjs';
+import {assertOwnedPageIdentity} from '../packages/content/domain-publication.mjs';
 import { serializeMDX } from '@tinacms/mdx';
 import type { ProjectConfig } from '../packages/config/project.mjs';
 import {
@@ -106,6 +110,8 @@ function markdown(value: unknown, inline: boolean): string {
 export function nativeProjection(
   values: Record<string, unknown>,
   project: ProjectConfig,
+  kind?:string,
+  options:NativeDomainOptions={},
 ): Record<string, any> {
   const copy: any = normalizeNativeLocales(values, project);
   if (copy._collection !== 'page' && copy._template === copy._collection)
@@ -149,9 +155,19 @@ export function nativeProjection(
       if (definition) section._template = definition.type;
     }
   }
-  prose(copy);
-  for (const translation of Object.values(copy.translations || {}))
-    prose(translation);
+  const adapter=getNativeDomainAdapters(project,options).find(entry=>entry.collectionName===(kind??values._collection));
+  if(adapter){
+    const visit=(value:any,keys:readonly string[],inline:boolean):void=>{
+      if(keys[0]==='*'){if(Array.isArray(value))value.forEach(item=>visit(item,keys.slice(1),inline));return;}
+      if(!value||typeof value!=='object')return;
+      if(keys.length===1){if(Object.hasOwn(value,keys[0]))value[keys[0]]=markdown(value[keys[0]],inline);}
+      else visit(value[keys[0]],keys.slice(1),inline);
+    };
+    for(const record of [copy,...Object.values(copy.translations??{})])for(const field of adapter.richFields)visit(record,field.path,field.inline);
+  }else{
+    prose(copy);
+    for (const translation of Object.values(copy.translations || {}))prose(translation);
+  }
   return copy;
 }
 
@@ -160,10 +176,11 @@ function parseNative(
   values: Record<string, unknown>,
   kind: string,
   project: ProjectConfig,
+  options:NativeDomainOptions={},
 ): any {
   if (kind === 'campaign' && project.profile === 'enquiries')
     throw Error('Campaign copy is disabled');
-  const schema = schemas[kind as keyof typeof schemas];
+  const schema = schemas[kind as keyof typeof schemas]??getNativeDomainAdapters(project,options).find(adapter=>adapter.collectionName===kind)?.schema;
   if (!schema) throw Error('Unknown collection');
   if (
     kind === 'page' &&
@@ -176,7 +193,7 @@ function parseNative(
     throw Error(
       'Shared section scalar types must use canonical registered names',
     );
-  const projected = nativeProjection(values, project);
+  const projected = nativeProjection(values, project,kind,options);
   if (kind === 'page') return normalizePageDocument(projected);
   if (kind === 'settings') {
     const parsed = normalizeSettingsDocument(projected);
@@ -270,6 +287,7 @@ export function validateNativeSave(
   project: ProjectConfig,
   currentPage?: unknown,
   submission?: NativeSubmission,
+  options:NativeDomainOptions={},
 ): void {
   const context = submission ? submissionContext(submission) : undefined;
   if (
@@ -280,8 +298,17 @@ export function validateNativeSave(
     throw Error(
       'Create a Standard page. Special page templates are reserved for existing records.',
     );
-  const parsed = parseNative(submissionValues(values, context), kind, project);
-  if (kind !== 'page') return;
+  const parsed = parseNative(submissionValues(values, context), kind, project,options);
+  if(kind!=='page'){
+    const adapter=getNativeDomainAdapters(project,options).find(entry=>entry.collectionName===kind);
+    if(adapter){
+      if(!context)throw Error('Explicit domain create/update submission is required');
+      if(context.operation==='create'&&!adapter.allowCreate)throw Error('Domain creation is disabled');
+      adapter.assertIdentity(parsed,currentPage?parseNative(currentPage as Record<string,unknown>,kind,project,options):undefined,context);
+    }
+    return;
+  }
+  assertOwnedPageIdentity(parsed,context?.relativePath,options.registry);
   if (context?.operation === 'create') {
     if (
       parsed.status !== 'draft' ||
@@ -301,7 +328,7 @@ export function validateNativeSave(
   const original = parseNative(
     currentPage as Record<string, unknown>,
     'page',
-    project,
+    project,options,
   );
   assertExistingPageIdentity(parsed, original);
 }
@@ -311,8 +338,9 @@ export function beforeSubmit(
   project: ProjectConfig,
   currentPage?: unknown,
   submission?: NativeSubmission,
+  options:NativeDomainOptions={},
 ) {
-  validateNativeSave(values, kind, project, currentPage, submission);
+  validateNativeSave(values, kind, project, currentPage, submission,options);
   return values;
 }
 
@@ -323,14 +351,17 @@ export async function validateCurrentSave(
   project: ProjectConfig,
   cms: any,
   submission: NativeSubmission,
+  options:NativeDomainOptions={},
 ) {
   const context = submissionContext(submission),
     relativePath = context.relativePath;
   const candidate = submissionValues(values, context);
-  if (context.operation === 'create')
-    validateNativeSave(values, kind, project, undefined, context);
-  else parseNative(candidate, kind, project);
+  const adapters=getNativeDomainAdapters(project,options);
+  if(!Object.hasOwn(schemas,kind)&&!adapters.some(adapter=>adapter.collectionName===kind))throw Error('Unknown or disabled collection: '+kind);
+  if (context.operation === 'create')validateNativeSave(values, kind, project, undefined, context,options);
+  else parseNative(candidate, kind, project,options);
   const source: any = {
+    domains:Object.fromEntries(adapters.map(adapter=>[adapter.key,[]])),
     pages: [],
     offerings: [],
     people: [],
@@ -351,7 +382,10 @@ export async function validateCurrentSave(
     'person',
     ...(project.articles ? ['article'] : []),
     ...(project.profile === 'enquiries' ? [] : ['campaign']),
+    ...adapters.map(adapter=>adapter.collectionName),
   ];
+  const disabledPages=new Set([...getDisabledDomainPages(project,options.registry).map(page=>page.filename),...(!project.articles?['insights.json']:[])]);
+  const append=(collection:string,record:any)=>{const adapter=adapters.find(entry=>entry.collectionName===collection);if(adapter)source.domains[adapter.key].push(record);else source[target(collection)].push(record);};
   for (const collection of collections) {
     let after: string | null = null;
     let more = true;
@@ -363,6 +397,7 @@ export async function validateCurrentSave(
       );
       const result = response[collection + 'Connection'];
       for (const edge of result.edges) {
+        if(collection==='page'&&disabledPages.has(edge.node._sys.relativePath))continue;
         if (
           collection === kind &&
           context.operation === 'create' &&
@@ -381,15 +416,16 @@ export async function validateCurrentSave(
             );
           replaced = true;
           // Match persisted filename, never candidate identity or an old descriptor.
-          validateNativeSave(values, kind, project, edge.node._values, context);
+          validateNativeSave(values, kind, project, edge.node._values, context,options);
         }
         const record = parseNative(
           matches ? candidate : edge.node._values,
           collection,
-          project,
+          project,options,
         );
+        if(collection==='page')assertOwnedPageIdentity(record,edge.node._sys.relativePath,options.registry);
         if (collection === 'settings') source.settings = record;
-        else source[target(collection)].push(record);
+        else append(collection,record);
       }
       more = result.pageInfo.hasNextPage;
       after = result.pageInfo.endCursor;
@@ -397,16 +433,14 @@ export async function validateCurrentSave(
     if (
       collection === kind &&
       !replaced &&
-      kind === 'page' &&
+      (kind === 'page'||adapters.some(adapter=>adapter.collectionName===kind)) &&
       context.operation === 'update'
     )
       throw Error(
         'Existing page identity is protected; current native record was not found',
       );
     if (collection === kind && !replaced && kind !== 'settings')
-      source[target(collection)].push(
-        parseNative(candidate, collection, project),
-      );
+      append(collection,parseNative(candidate, collection, project,options));
   }
   if (kind === 'page' && context.operation === 'create') {
     const pages = source.pages.filter((p: any) => p.slug === candidate.slug);
@@ -415,8 +449,8 @@ export async function validateCurrentSave(
         'Page slug must be unique across the current catalog, including drafts',
       );
   }
-  validateCatalog(source, project);
-  if (kind === 'page' && context.operation === 'create') {
+  validateCatalog(source, project,options.registry);
+  if ((kind === 'page'||adapters.some(adapter=>adapter.collectionName===kind)) && context.operation === 'create') {
     // Reserve actual URLs across the complete catalog, including unpublished records.
     // This detached availability projection never changes publication in the native form.
     const planned = { ...source };
@@ -426,7 +460,8 @@ export async function validateCurrentSave(
         status: 'published',
         publishAt: undefined,
       }));
-    publicRoutes(localizeContent(planned, project.locale, project));
+    planned.domains=Object.fromEntries(Object.entries(source.domains).map(([key,records]:any)=>[key,records.map((record:any)=>({...record,status:'published',publishAt:undefined}))]));
+    publicRoutes(localizeContent(planned, project.locale, project,options.registry));
   }
   return values;
 }

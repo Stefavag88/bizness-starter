@@ -5,7 +5,7 @@ export type Lesson=z.infer<typeof lessonSchema>;
 export const lessonDomain=(enabled=true):DomainDefinition<Lesson,Lesson & import('../../../packages/content/types').RouteFields>=>({
  key:'lessons',collectionName:'lesson',directory:'lessons',schema:lessonSchema,
  ownedPages:[{filename:'lessons.json',template:'lessons',contentId:'lesson-index'}],
- enabled:()=>enabled,richFields:[],projectRecord:record=>({...record}),routePath:record=>'/en/lessons/'+record.slug,
+ enabled:()=>enabled,richFields:[],projectRecord:record=>({...record}),routePath:(record,context)=>'/'+context.locale+'/lessons/'+record.slug,
  validate:()=>{},enquiry:false,
 });
 declare module '../../../packages/content/domain-contracts' {
