@@ -1,3 +1,4 @@
+import {SectionMediaControls} from './section-media';
 import { createElement as h, useState } from "react";
 import { sectionDefinitions } from "../../packages/content/section-registry.mjs";
 import {
@@ -112,6 +113,7 @@ export function SectionItemsControls({ tinaForm, sectionId }: any) {
         "div",
         { key: item.id, "data-item-id": item.id },
         h("span", {}, item.id),
+        section._template==='gallery' && h(SectionMediaControls,{tinaForm,sectionId,itemId:item.id}),
         ...(["up", "down"] as const).map((direction) =>
           h(
             "button",
@@ -162,7 +164,7 @@ export function SectionItemsControls({ tinaForm, sectionId }: any) {
           ),
       ),
     ),
-    h(
+    section._template==='gallery'?h(SectionMediaControls,{tinaForm,sectionId,adding:true}):h(
       "button",
       {
         type: "button",

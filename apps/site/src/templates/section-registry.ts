@@ -1,4 +1,4 @@
-export const sectionRegistry=Object.freeze({hero:['default'],'rich-text':['default'],'offering-list':['default'],'people-list':['default'],'article-list':['default'],cta:['default'],faq:['default','expanded'],steps:['default','cards']});
+export const sectionRegistry=Object.freeze({hero:['default'],'rich-text':['default'],'offering-list':['default'],'people-list':['default'],'article-list':['default'],cta:['default'],faq:['default','expanded'],steps:['default','cards'],'media-text':['default','reversed'],gallery:['default','featured']});
 export function rendererKey(type:string,variant:string):keyof typeof sectionRegistry {
  if(!Object.hasOwn(sectionRegistry,type)||!sectionRegistry[type as keyof typeof sectionRegistry].includes(variant))throw Error('Unsupported section '+type+'/'+variant);
  return type as keyof typeof sectionRegistry;

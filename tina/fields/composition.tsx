@@ -17,6 +17,7 @@ import {
   type CompositionDraft,
 } from '../../packages/content/composition.mjs';
 import type { SectionType } from '../../packages/content/types';
+import {SectionMediaControls} from './section-media';
 import {SectionItemsControls} from './section-items';
 import {setSectionVariant} from '../../packages/content/section-items.mjs';
 import { nativeRichText } from './rich-text';
@@ -131,7 +132,7 @@ function emptyCopy(
     _template: d.nativeName as NativeSectionType,
     title: '',
     ...(d.itemCopySchema?{items:[]}:{}),
-    ...(d.type === 'rich-text'
+    ...(['rich-text','media-text'].includes(d.type)
       ? { body: nativeRichText() }
       : { description: nativeRichText() }),
     ...(d.type === 'cta' ? { link: { label: '', href: '' } } : {}),
@@ -258,6 +259,7 @@ export function SectionControls({
           ),
         ),
         h('label',{},' Layout ',h('select',{value:section.variant,onChange:(e:any)=>run(v=>setSectionVariant(v,section.id,e.target.value))},...definition(section._template).variants.map(variant=>h('option',{key:variant,value:variant},variant)))),
+        definition(section._template).type==='media-text' && h(SectionMediaControls,{tinaForm,sectionId:section.id}),
         definition(section._template).itemCopySchema && h(SectionItemsControls,{tinaForm,sectionId:section.id}),
         h(
           'button',

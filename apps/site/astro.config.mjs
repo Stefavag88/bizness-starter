@@ -15,6 +15,17 @@ const contentRefresh={
  configureServer(server){server.watcher.add([resolve(projectRoot,'content'),resolve(projectRoot,'project.json'),resolve(projectRoot,'packages/design-system/themes')]);},
  handleHotUpdate(context){if(isContentInput(context.file)){context.server.moduleGraph.invalidateAll();context.server.ws.send({type:'full-reload'});return [];}}
 };
+// Watch the stable public parent so a first upload directory is discovered.
+// Canonical content's existing refresh behavior remains separate.
+const uploadRefresh={
+ name:'section-upload-refresh',
+ configureServer(server){
+  const uploads=normalize(resolve(projectRoot,'apps/site/public/uploads'));
+  server.watcher.add(resolve(projectRoot,'apps/site/public'));
+  const refresh=file=>{const path=normalize(file);if(path===uploads||path.startsWith(uploads+'/')){server.moduleGraph.invalidateAll();server.ws.send({type:'full-reload'});}};
+  for(const event of ['add','change','unlink','addDir'])server.watcher.on(event,refresh);
+ },
+};
 // Register before Astro discovers the client graph. An empty getStaticPaths
 // still emits the route's scripts/styles in nonlocal builds.
 const localShowcase={
@@ -40,4 +51,4 @@ const localizedNotFound={
  }},
 };
 const target=`http://127.0.0.1:${ports.worker}`;
-export default defineConfig({site:project.siteUrl,output:'static',integrations:[localShowcase,localizedNotFound],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});
+export default defineConfig({site:project.siteUrl,output:'static',integrations:[localShowcase,localizedNotFound],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh,uploadRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});

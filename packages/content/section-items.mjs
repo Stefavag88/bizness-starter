@@ -1,3 +1,4 @@
+import { mediaReferenceSchema } from "./media.mjs";
 import { sectionDefinitions } from "./section-registry.mjs";
 import { assertPageCapabilities } from "./composition.mjs";
 const idPattern = /^[a-z][a-z0-9_]{0,79}$/;
@@ -46,6 +47,7 @@ function validCopy(definition, id, copy) {
   )) {
     const key = path.at(-1),
       value = copy[key];
+    if (value === undefined) continue;
     if (
       typeof value !== "string" &&
       (!value || value.type !== "root" || !Array.isArray(value.children))
@@ -54,7 +56,7 @@ function validCopy(definition, id, copy) {
     projected[key] = "Draft";
   }
   // Draft controls preserve opaque ASTs; safe serialization and meaningful prose are save concerns.
-  for (const key of ["question", "title"])
+  for (const key of ["question", "title", "alt"])
     if (projected[key] === "") projected[key] = "Draft";
   if (!definition.itemCopySchema.safeParse(projected).success)
     throw Error("Invalid item copy");
@@ -81,6 +83,8 @@ export function addSectionItem(values, sectionId, { id, copy, media }) {
     section.items.some((i) => i.id === id)
   )
     throw Error("Invalid or duplicate item ID");
+  if (Object.hasOwn(definition.referenceFields.items.element.shape, "media"))
+    media = mediaReferenceSchema.parse(media);
   validCopy(definition, id, copy);
   return {
     ...values,
@@ -176,4 +180,61 @@ export function setSectionVariant(values, sectionId, variant) {
       s === section ? { ...s, variant } : s,
     ),
   };
+}
+
+/** Shared reference change; rich editor values are deliberately opaque. */
+export function setSectionMedia(values, { sectionId, itemId, media }) {
+  assertPageCapabilities(values);
+  const section = values.sections.find((s) => s.id === sectionId);
+  if (!section) throw Error("Unknown section ID");
+  if (section._template === "gallery") {
+    target(values, sectionId);
+    if (!section.items.some((i) => i.id === itemId))
+      throw Error("Unknown gallery item ID");
+    if (media === null)
+      throw Error("Remove the gallery item instead of clearing its image");
+    const parsed = mediaReferenceSchema.parse(media);
+    return {
+      ...values,
+      sections: values.sections.map((s) =>
+        s === section
+          ? {
+              ...s,
+              items: s.items.map((i) =>
+                i.id === itemId ? { ...i, media: parsed } : i,
+              ),
+            }
+          : s,
+      ),
+    };
+  }
+  if (
+    !["media-text", "media_text"].includes(section._template) ||
+    itemId !== undefined
+  )
+    throw Error("Section does not support media");
+  const next = { ...section };
+  if (media === null) delete next.media;
+  else next.media = mediaReferenceSchema.parse(media);
+  let result = {
+    ...values,
+    sections: values.sections.map((s) => (s === section ? next : s)),
+  };
+  if (media !== null) return result;
+  const prune = (copy) => ({
+    ...copy,
+    sections: copy.sections.map((e) => {
+      if (e.id !== sectionId || !Object.hasOwn(e, "image")) return e;
+      const { image, ...retained } = e;
+      return retained;
+    }),
+  });
+  result.copy = prune(values.copy);
+  result.translations = Object.fromEntries(
+    Object.entries(values.translations || {}).map(([locale, t]) => [
+      locale,
+      { ...t, copy: prune(t.copy) },
+    ]),
+  );
+  return result;
 }

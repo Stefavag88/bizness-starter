@@ -31,3 +31,5 @@ export function setSectionVariant(
   sectionId: string,
   variant: string,
 ): CompositionDraft;
+
+export function setSectionMedia(values:CompositionDraft, options:{sectionId:string;itemId?:string;media:import('./media.mjs').MediaReference|null}):CompositionDraft;

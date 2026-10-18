@@ -42,6 +42,7 @@ export const pageSchema = z.strictObject({
     continue;
    }
    if(section.items && Array.isArray(value.items)){const expected=section.items.map(i=>i.id),actual=value.items.map(i=>i.id);if(new Set(actual).size!==actual.length || actual.length!==expected.length || actual.some(id=>!expected.includes(id)))ctx.addIssue({code:'custom',path:[...path,section.id,'items'],message:'Item IDs must exactly match shared items'});}
+   if(section._template==='media-text' && Boolean(section.media)!==Boolean(value.image))ctx.addIssue({code:'custom',path:[...path,section.id,'image'],message:section.media?'Referenced image requires localized alt text':'Image text requires a shared media reference'});
    const parsed=sectionCopySchemas[section._template].safeParse(value);
    if(!parsed.success)for(const issue of parsed.error.issues)ctx.addIssue({...issue,path:[...path,section.id,...issue.path]});
   }

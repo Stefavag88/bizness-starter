@@ -1,0 +1,7 @@
+---
+import {rich} from '../../lib/content';
+import type {ResolvedMedia,Crop} from '../../lib/section-media';
+interface Props {media:ResolvedMedia;alt:string;caption?:string;crop:Crop;ratio:'landscape'|'gallery';locale:string}
+const {media,alt,caption,crop,ratio,locale}=Astro.props;
+---
+<figure class="section-image"><div class:list={['image-frame','frame-'+ratio]}><img src={media.src} width={media.width} height={media.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/></div>{caption&&<figcaption set:html={rich(caption,locale,true)}/>}</figure>

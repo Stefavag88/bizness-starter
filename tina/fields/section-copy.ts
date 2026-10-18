@@ -22,6 +22,8 @@ export function FixedEntries({ input, field, tinaForm }: any) {
 }
 
 export function sectionCopyFields(type: string): TinaField[] {
+  if(type==='media-text')return [text('id',true),text('title'),rich('body'),object('image',[text('alt'),rich('caption',true)]),link];
+  if(type==='gallery')return [text('id',true),text('title'),rich('description',true),{name:'items',label:'Images',type:'object',list:true,fields:[text('id',true),text('alt'),rich('caption',true)],ui:{component:FixedSectionItems}}];
   if(type==='faq'||type==='steps')return [text('id',true),text('title'),rich('description',true),{name:'items',label:'Items',type:'object',list:true,fields:[text('id',true),text(type==='faq'?'question':'title'),rich(type==='faq'?'answer':'body')],ui:{component:FixedSectionItems}}];
   return [text('id', true), text('title'), type === 'rich-text' ? rich('body') : rich('description', true),
     ...(['hero', 'cta'].includes(type) ? [link] : [])];

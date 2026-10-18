@@ -62,10 +62,11 @@ function assertCopy(copy, id, registered, translation = false) {
   function draftRich(record, paths) {
     for (const {path} of paths) {
       const walk = (value, keys) => {
+        if(value===undefined)return value;
         if (keys[0] === '*') { if (!Array.isArray(value)) throw Error('Copy requires items'); return value.map(item => walk({...item}, keys.slice(1))); }
         const key=keys[0];
-        if(keys.length===1){const rich=value[key];if(typeof rich!=='string'&&(!rich||rich.type!=='root'||!Array.isArray(rich.children)))throw Error('Copy requires explicit rich text: '+key);value[key]=path.length>1?'Draft':'';}
-        else value[key]=walk(value[key],keys.slice(1));
+        if(keys.length===1){if(!Object.hasOwn(value,key))return value;const rich=value[key];if(typeof rich!=='string'&&(!rich||rich.type!=='root'||!Array.isArray(rich.children)))throw Error('Copy requires explicit rich text: '+key);value[key]=registered.type==='media-text'||path.length>1?'Draft':'';}
+        else {value[key]=walk(value[key] && typeof value[key]==='object' && !Array.isArray(value[key])?{...value[key]}:value[key],keys.slice(1));}
         return value;
       };
       walk(record,path);
