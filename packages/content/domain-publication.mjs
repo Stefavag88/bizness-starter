@@ -20,7 +20,7 @@ export function projectDomains(source,locale,project,pagesByLocale,registry=doma
 function domainPath(definition,record,context) {
  const path=definition.routePath(record,context);
  const parts=typeof path==='string'?path.split('/'):[];
- if(parts[1]!==context.locale||parts.length<3||parts.slice(2).some(part=>!(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).test(part)))throw Error('Domain '+definition.key+' returned an invalid public path: '+path);
+ if(parts[0]!==''||parts[1]!==context.locale||parts.length<3||parts.slice(2).some(part=>!(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).test(part)))throw Error('Domain '+definition.key+' returned an invalid public path: '+path);
  if(['404','api','cms','admin','design-system','newsletter'].includes(parts[2])||context.project.languages.some(language=>language.code.toLowerCase()===parts[2].toLowerCase()))throw Error('Domain '+definition.key+' returned a reserved public path: '+path);
  return path;
 }

@@ -68,3 +68,8 @@ it('rejects overlapping domain index prefixes and built-in detail-prefix ownersh
 it('rejects callback routes into system or configured locale prefixes',()=>{
  const source=sample();for(const prefix of ['api','el']){const reg=createDomainRegistry([{...workshopDomain(),routePath:(_record,context)=>'/'+context.locale+'/'+prefix+'/one'}]);expect(()=>validateCatalog(source,project,reg)).toThrow(/reserved/);}
 });
+
+it.each(['en','el'])('rejects nonempty prefixes before locale %s in callback paths',locale=>{
+ const source=sample();const registry=createDomainRegistry([{...workshopDomain(),routePath:(_record,context)=>context.locale===locale?'relative/'+context.locale+'/item':'/'+context.locale+'/learn/item'}]);
+ expect(()=>localizeContent(source,locale,project,registry)).toThrow(/invalid public path: relative/);
+});
