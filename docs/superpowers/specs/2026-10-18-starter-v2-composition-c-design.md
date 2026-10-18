@@ -1,6 +1,6 @@
 # Business Starter v2 — Composition C design
 
-Date: 2026-10-18. Status: Proposed written specification for user review; not implementation approval. Starting point: accepted Composition B runtime f9b93e2 and handoff 9ad9d86. Work remains in C:/Projects/bizness-starter-v2 on codex/starter-v2-composition-c. Both source repositories remain read-only.
+Date: 2026-10-18. Status: Written specification approved by the user on 2026-10-18; implementation awaits separate written-plan review. Starting point: accepted Composition B runtime f9b93e2 and handoff 9ad9d86. Work remains in C:/Projects/bizness-starter-v2 on codex/starter-v2-composition-c. Both source repositories remain read-only.
 
 ## Intent and success
 
