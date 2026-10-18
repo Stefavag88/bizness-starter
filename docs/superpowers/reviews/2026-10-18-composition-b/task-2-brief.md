@@ -1,0 +1,11 @@
+### Task 2: Safe local image contract and metadata adapter
+
+**Files:** Create packages/content/media.{mjs,d.mts}, packages/media/source.{mjs,d.mts}, tests/media-source.test.ts and tests/media-contract.test.ts. No new wire fields are activated until Task3; this adapter is independently testable.
+
+**Interfaces:** parseMediaSource(src:string):{src:string;relativePath:string;extension:'png'|'jpeg'|'webp'} preserves the wire source, resolves exactly one safe decode for filesystem use and normalizes jpg to jpeg only in extension metadata. Export mediaReferenceSchema={src,crop}, crop default center. resolveSourceMedia(root,src):Promise<{src,width,height,format,fingerprint}> is server-only; fingerprint is SHA256 of actual bytes. Cache decoded metadata by byte hash/format, never filename alone.
+
+- [ ] Write red path cases for local uploads with ordinary spaces, valid percent-encoded spaces, traversal/encoded dots/separators/double encoding, backslashes/UNC/remote/data/query/hash/control paths and generated uploads/section-images or uploads/generated destinations. Other ordinary upload subfolders remain supported.
+- [ ] Resolve real upload-root/file paths and require containment, a regular file and matching png/jpeg/webp actual format. Bound source bytes to20MiB, dimensions topositive integers no greater than20000 each and area to40,000,000 pixels. Check byte length after read as well as stat; use installed Sharp input limits and apply EXIF orientations5-8 when reporting dimensions. These are metadata checks, not a claim of exhaustive compressed-payload validation.
+- [ ] Verify adapter resolution from the pinned Astro dependency using Node createRequire (planning resolved Sharp0.35.5). Keep all fs/decoder imports out of browser media.mjs. No derivative output, network fetch or global mutable filename-only cache. Add temp-directory fixtures for supported/missing/corrupt-header/format-mismatch/oversized/oriented/symlink files and same-path changed bytes yielding new dimensions/hash. If Windows symlink permissions are unavailable, report that explicit gap rather than claiming a skipped case passed.
+- [ ] Run focused media tests and strict check. Commit feat: validate local content image sources. Do not run native/profile suites for this isolated adapter.
+

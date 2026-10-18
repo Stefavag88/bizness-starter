@@ -94,3 +94,9 @@ Affected acceptance reruns: public10/10 in29.4s (.generated/task5-fix-public.log
 Fix-round owned dev launcher46124 stopped exact children26020/33572/24180/40488 via Ctrl+C; ports4330/8790/4010/9010 were checked free. The isolated articles probe stopped its own runtime in finally. The controller retains scoped rereview and eventual final stack restart.
 
 Ruling/cost: independently owned resources clean up independently, so an unknown Page cannot strand a proven temporary PNG. Cost is a shared test-harness helper and aggregate diagnostics; no atomic concurrency guarantee is introduced. Restore-build eligibility requires confirmed shutdown and a complete exact source snapshot before each command, costing bounded extra hash reads. Conflicts preserve unknown inputs, record the skipped command boundary and require manual reconciliation rather than regeneration from external bytes.
+
+## Final controller acceptance
+
+All five task gates and the final whole-branch review are approved. Task 5 I1/I2 were fixed in f9b93e2 and independently rereviewed. The final controller run of `pnpm test` at that HEAD passed537 boundary tests and16 actual Astro render tests, with1 optional native-query skip while the stack was stopped. The indexed native query was proven during Task4. No further runtime changes followed.
+
+[Final review](../reviews/2026-10-18-composition-b/final-review.md), [task reports and chronological ledger](../reviews/2026-10-18-composition-b/progress.md), and [all controller rulings and costs](../reviews/2026-10-18-composition-b/RULINGS.md) are permanently archived. Baseline toolchain advisories were triaged as nonblocking without demonstrated product regressions. Both read-only source repositories were freshly rechecked clean at their pinned HEADs. The local branch is retained; no merge, push, tag or deployment occurred.

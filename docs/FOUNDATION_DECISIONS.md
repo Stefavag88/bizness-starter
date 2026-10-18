@@ -114,3 +114,7 @@ Composition B public/native checks are local acceptance, not hosted or accessibi
 | Require confirmed runtime shutdown, independent owner restoration and the complete exact content/upload/project snapshot before each restore-build command. | Owner success alone does not make unrelated external edits safe to consume; failed shutdown must block configuration/build. | Additional bounded hash comparisons and explicit skipped-rebuild diagnostics; conflicts require reconciliation. Checks remain best effort, not filesystem locks. |
 
 The scoped fix uses seven actual-file cleanup cases and affected public/articles-disabled acceptance. Earlier successful native/environment/full-suite evidence remains historical and was not broadly replayed for these harness-only changes. Independent scoped rereview remains controller-owned.
+
+## Composition B final acceptance
+
+All task reviews, the cleanup scoped rereview and the final whole-branch review are approved at runtime HEAD f9b93e2. Fresh controller verification passed537 boundary tests and16 render tests; the one optional query skip is covered by earlier indexed native acceptance. The [complete controller ruling/cost record](superpowers/reviews/2026-10-18-composition-b/RULINGS.md) and [final review](superpowers/reviews/2026-10-18-composition-b/final-review.md) preserve every execution decision and deferred behavior before scratch cleanup. This supersedes the earlier pending-review notes above without changing their historical evidence.
