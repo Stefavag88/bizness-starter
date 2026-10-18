@@ -1,5 +1,5 @@
 import {Buffer} from 'node:buffer';
-import {cleanupCompositionPublic} from './composition-b-cleanup';
+import {cleanupCompositionPublic} from './composition-b-cleanup.ts';
 import {readFileSync,writeFileSync,mkdirSync,mkdtempSync} from 'node:fs';
 import {join} from 'node:path';
 /** Project configuration is independently owned; document ownership is request-derived. */

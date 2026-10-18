@@ -1,3 +1,4 @@
+import {execFileSync} from 'node:child_process';
 import {afterEach,expect,it,vi} from 'vitest';
 import {existsSync,mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -32,4 +33,8 @@ it('attempts all eligible image restores and ledger, aggregates ledger failure, 
  const f=fixture();writeFileSync(f.paths[0],'Unknown upload');const ledgerError=Error('ledger write failed');f.options.record.mockImplementation(()=>{throw ledgerError;});const independent=vi.fn();
  const failure=await cleanupCompositionPublic([()=>cleanupCompositionCNative(f.options),independent]).catch(error=>error);
  expect(failure).toBeInstanceOf(AggregateError);const cleanupFailure=failure.errors[0];expect(cleanupFailure).toBeInstanceOf(AggregateError);expect(cleanupFailure.errors).toHaveLength(2);expect(cleanupFailure.errors[1]).toBe(ledgerError);expect(f.options.record).toHaveBeenCalledOnce();expect(independent).toHaveBeenCalledOnce();expect(readFileSync(f.paths[0],'utf8')).toBe('Unknown upload');expect(existsSync(f.paths[1])).toBe(false);
+});
+
+it('loads the native fixture through the direct Node TypeScript launcher boundary',()=>{
+ expect(()=>execFileSync(process.execPath,['--input-type=module','-e',"await import('./e2e/helpers/composition-c-fixture.ts')"],{cwd:process.cwd(),stdio:'pipe'})).not.toThrow();
 });
