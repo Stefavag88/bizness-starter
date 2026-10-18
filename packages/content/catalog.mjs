@@ -2,7 +2,7 @@ import { localizeContent } from './localize.mjs';
 import { activeRecords } from './publication.mjs';
 import { publicRoutes } from './routes.mjs';
 const reserved=new Set(['404','api','cms','admin','design-system','newsletter']);
-export function validateCatalog(source,project) {
+export function validateCatalog(source,project,registry) {
  for(const campaign of source.campaigns??[]) {
   if(!project.interests.some(interest=>interest.id===campaign.interest))throw Error('Campaign references missing interest '+campaign.interest);
   if(campaign.articleId&&!activeRecords(source,project.locale,project).articles.some(article=>article.contentId===campaign.articleId))throw Error('Campaign references unavailable published article '+campaign.articleId);
@@ -35,5 +35,5 @@ export function validateCatalog(source,project) {
  for(const nav of source.settings.navigation)
   if(!source.pages.some(p=>p.contentId===nav.pageId)&&!(nav.pageId==='insights'&&!project.articles))throw new Error('Navigation references missing pageId '+nav.pageId);
  // The same pipeline validates all publication/URL decisions, regardless of consumer.
- for(const language of project.languages)publicRoutes(localizeContent(source,language.code,project));
+ for(const language of project.languages)publicRoutes(localizeContent(source,language.code,project,registry));
 }

@@ -78,6 +78,7 @@ it('keeps descriptor bytes and native declarations independent of standard page,
   expect(Object.keys(JSON.parse(before))).toEqual([
     'project',
     'articlePageFiles',
+    'domainPageFiles',
   ]);
 });
 it('uses one registry with unique GraphQL-safe aliases and detached honest copy defaults', () => {

@@ -1,6 +1,6 @@
 import { activeRecords, requiredPage, joinPath } from './publication.mjs';
 
-export function localizeContent(source,locale,project) {
+export function localizeContent(source,locale,project,registry) {
  if(!project.languages.some(l=>l.code===locale))throw new Error('Unconfigured locale: '+locale);
  const {translations,...baseSettings}=source.settings;
  const translation=translations[locale];
@@ -30,6 +30,6 @@ export function localizeContent(source,locale,project) {
   return routeRecord('page',{...rest,sections:sections.filter(s=>s.enabled && copy.sections[s.id]!==undefined && (project.articles||s._template!=='article-list'))
    .map(section=>{const localized=structuredClone(copy.sections[section.id]);if(section.items)localized.items=section.items.map(item=>localized.items.find(entry=>entry.id===item.id));return {...section,copy:localized};})});
  });
- return {locale,settings,pages,offerings:active.offerings.map(r=>routeRecord('offering',r)),people:active.people.map(r=>routeRecord('person',r)),articles:active.articles.map(r=>routeRecord('article',r)),
+ return {locale,settings,pages,domains:{},offerings:active.offerings.map(r=>routeRecord('offering',r)),people:active.people.map(r=>routeRecord('person',r)),articles:active.articles.map(r=>routeRecord('article',r)),
   feedPath:project.articles?joinPath(locale,'feed.xml').replace(/\/$/,''):null};
 }

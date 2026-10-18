@@ -1,3 +1,4 @@
+import type { DomainRecords,LocalizedDomainRecords } from './domain-contracts';
 import type {MediaReference} from './media.mjs';
 export type PageTemplate = 'home'|'about'|'contact'|'standard'|'offerings'|'insights';
 export type SectionType = 'hero'|'rich-text'|'offering-list'|'people-list'|'article-list'|'cta'|'faq'|'steps'|'media-text'|'gallery';
@@ -35,7 +36,7 @@ export interface SettingsCopy {brand:{name:string;tagline:string};legal:{busines
 export interface SettingsTranslation {brand:{tagline:string};legal:{notice:string};contact:{address:string};navigation:Record<string,string>}
 export interface Settings extends SettingsCopy {translations:Record<string,SettingsTranslation>}
 export interface Campaign {contentId:string;subject:string;intro:string;articleId?:string;interest:string}
-export interface ContentSnapshot {settings:Settings;pages:Page[];offerings:Offering[];people:Person[];articles:Article[];campaigns:Campaign[];now:string}
+export interface ContentSnapshot {settings:Settings;pages:Page[];offerings:Offering[];people:Person[];articles:Article[];campaigns:Campaign[];domains:DomainRecords;now:string}
 export interface Alternate {locale:string;path:string}
 export interface RouteFields {path:string;alternates:Alternate[]}
 export type LocalizedSection = {[K in SectionType]:Omit<SectionReference,'_template'> & {_template:K;copy:SectionCopyMap[K]}}[SectionType];
@@ -43,7 +44,7 @@ export interface LocalizedPage extends Omit<Page,'translations'|'sections'|'copy
 export type LocalizedOffering = Omit<Offering,'translations'> & RouteFields;
 export type LocalizedPerson = Omit<Person,'translations'> & RouteFields;
 export type LocalizedArticle = Omit<Article,'translations'> & RouteFields;
-export interface LocalizedContent {locale:string;settings:SettingsCopy;pages:LocalizedPage[];offerings:LocalizedOffering[];people:LocalizedPerson[];articles:LocalizedArticle[];feedPath:string|null}
+export interface LocalizedContent {locale:string;settings:SettingsCopy;pages:LocalizedPage[];offerings:LocalizedOffering[];people:LocalizedPerson[];articles:LocalizedArticle[];domains:LocalizedDomainRecords;feedPath:string|null}
 export interface Route {kind:'page'|'offering'|'person'|'article';contentId:string;locale:string;path:string;alternates:Alternate[]}
 
 export type PersistedCopyEntry<K extends SectionType = SectionType> = K extends SectionType ? {id:string;_template:K} & SectionCopyMap[K] : never;

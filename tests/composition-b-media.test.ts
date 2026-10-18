@@ -91,6 +91,7 @@ it('registers media variants and joins source/order/alt by ID across three local
         people: [],
         articles: [],
         campaigns: [],
+        domains: {},
         now: '2026-10-18T00:00:00Z',
       },
       locale,

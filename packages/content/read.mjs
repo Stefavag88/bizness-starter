@@ -1,3 +1,4 @@
+import { getActiveDomains,getDisabledDomainPages } from './domain-registry.mjs';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { offeringSchema,personSchema,articleSchema,campaignSchema } from './schemas.mjs';
@@ -19,11 +20,13 @@ export function readContent(root,project,options={}) {
  const directory=resolve(root,'content');
  const now=options.now??new Date();
  if(!Number.isFinite(now.getTime()))throw new Error('Invalid publication clock');
+ const excludedPages=new Set(getDisabledDomainPages(project,options.registry).map(page=>page.filename));
+ if(!project.articles)excludedPages.add('insights.json');
  const readFolder=(name,schema)=>{
   const folder=join(directory,name);
   if(!existsSync(folder))return [];
   return flatFiles(folder)
-   .filter(file=>!(name==='pages'&&!project.articles&&file==='insights.json'))
+   .filter(file=>name!=='pages'||!excludedPages.has(file))
    .map(file=>json(join(folder,file),schema,project));
  };
  flatFiles(join(directory,'settings'));
@@ -32,8 +35,9 @@ export function readContent(root,project,options={}) {
   pages:readFolder('pages',normalizePageDocument).filter(p=>project.articles||p._template!=='insights'),
   offerings:readFolder('offerings',offeringSchema),people:readFolder('people',personSchema),
   campaigns:project.profile==='enquiries'?[]:readFolder('campaigns',campaignSchema),
-  articles:project.articles?readFolder('articles',articleSchema):[],now:now.toISOString(),
+  articles:project.articles?readFolder('articles',articleSchema):[],
+  domains:Object.fromEntries(getActiveDomains(project,options.registry).map(domain=>[domain.key,readFolder(domain.directory,domain.schema)])),now:now.toISOString(),
  };
- validateCatalog(source,project);
+ validateCatalog(source,project,options.registry);
  return source;
 }

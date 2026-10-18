@@ -35,5 +35,6 @@ const config={name:p.name,main:'worker/index.ts',compatibility_date:'2026-10-07'
 if(p.profile==='nurture')config.workflows=[{binding:'NURTURE',name:p.name+'-welcome',class_name:'WelcomeWorkflow'}];
 writeFileSync('wrangler.generated.json',JSON.stringify(config,null,2)+'\n');
 // Keep the explicit configure -> structural CMS descriptor boundary.
-await import('./cms-descriptor.mjs');
+const {createCmsDescriptor}=await import('./cms-descriptor.mjs');
+writeFileSync('.generated/cms.json',JSON.stringify(createCmsDescriptor(process.cwd(),p)));
 console.log(`Configured ${p.profile} / ${p.environment}. No cloud resources were created.`);
