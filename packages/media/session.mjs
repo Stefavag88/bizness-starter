@@ -1,5 +1,5 @@
 // Server-only demand ownership. No cache inventory is used to authorize publication.
-import {resolve,join,basename} from 'node:path';
+import {resolve,join,basename,dirname} from 'node:path';
 import {lstat,mkdir,readFile,writeFile,rename,unlink} from 'node:fs/promises';
 import {randomUUID} from 'node:crypto';
 import {readValidatedSource} from './source-reader.mjs';
@@ -10,16 +10,34 @@ const key=root=>{const path=resolve(root).replaceAll('\\','/').replace(/\/$/,'')
 // process. The registry shares only explicitly begun sessions across those copies.
 const registrySymbol=Symbol.for('starter.media.session.registry.v1');
 const registry=globalThis[registrySymbol] ??= new Map();
+// Check from the filesystem anchor down, before creating any output. Checking
+// only the leaf follows a junction in an ancestor before lstat can reject it.
+async function validateDirectoryChain(path,allowMissing=false){
+ const chain=[];let cursor=resolve(path);
+ for(;;){chain.push(cursor);const parent=dirname(cursor);if(parent===cursor)break;cursor=parent;}
+ for(const directory of chain.reverse()){
+  let stat;
+  try {stat=await lstat(directory);}catch(error){if(allowMissing&&error.code==='ENOENT')return;throw error;}
+  if(stat.isSymbolicLink()||!stat.isDirectory())throw new Error('Unsafe media publication symlink/reparse directory');
+ }
+}
 async function safeDirectory(path){
+ await validateDirectoryChain(path,true);
  try {await mkdir(path);}catch(error){if(error.code!=='EEXIST')throw error;}
- const stat=await lstat(path);if(stat.isSymbolicLink()||!stat.isDirectory())throw new Error('Unsafe media publication symlink/reparse directory');
+ await validateDirectoryChain(path);
 }
 async function publishFile(outDir,candidate,bytes){
  const root=resolve(outDir);await safeDirectory(root);const media=join(root,'_media');await safeDirectory(media);const dir=join(media,'v1');await safeDirectory(dir);
  const file=join(dir,basename(candidate.src));
  try {const stat=await lstat(file);if(stat.isSymbolicLink()||!stat.isFile())throw new Error('Unsafe media publication symlink/reparse file');if(!(await readFile(file)).equals(bytes))throw new Error('Conflicting media publication bytes');return;}catch(error){if(error.code!=='ENOENT')throw error;}
  const temp=join(dir,`.${randomUUID()}.tmp`);
- try {await writeFile(temp,bytes,{flag:'wx'});await rename(temp,file);}finally{await unlink(temp).catch(error=>{if(error.code!=='ENOENT')throw error;});}
+ try {
+  await validateDirectoryChain(dir);await writeFile(temp,bytes,{flag:'wx'});
+  await validateDirectoryChain(dir);await rename(temp,file);
+ }finally{
+  await validateDirectoryChain(dir);
+  await unlink(temp).catch(error=>{if(error.code!=='ENOENT')throw error;});
+ }
 }
 export function createMediaSession({root,policy,mode}){
  root=resolve(root);policy={...policy,widths:[...policy.widths]};

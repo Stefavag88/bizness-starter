@@ -40,3 +40,13 @@ it('drains delayed sibling cache work before rejection and session close',async(
  });
  const session=createMediaSession({root,policy,mode:'build'});await expect(session.resolve('/uploads/a.png')).rejects.toThrow(/Controlled cache failure/);await session.close();expect(active).toBe(0);expect(completed).toBe(2);
 });
+
+it.each([false,true])('rejects junction ancestors before creating output for demanded=%s',async(demanded)=>{
+ const outside=join(root,'outside'),redirect=join(root,'redirect');await mkdir(outside);await writeFile(join(outside,'keep'),'unchanged');await symlink(outside,redirect,'junction');
+ const session=createMediaSession({root,policy:{...policy,enabled:demanded},mode:'build'});
+ try {
+  if(demanded)await session.resolve('/uploads/a.png');
+  await expect(session.publish(join(redirect,'dist'))).rejects.toThrow(/symlink|reparse/);
+  expect(await readdir(outside)).toEqual(['keep']);expect(await readFile(join(outside,'keep'),'utf8')).toBe('unchanged');
+ }finally{await session.close();}
+});
