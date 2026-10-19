@@ -4,6 +4,7 @@ import type { ProjectConfig } from '../../packages/config/project.mjs';
 import { navigationLabels } from '../fields/section-copy';
 import { NavigationControls } from '../fields/navigation';
 import { text, object } from '../fields/common';
+import { contactFields, socialFields } from '../fields/contact';
 import { rich } from '../fields/rich-text';
 import { collection } from './common';
 export function settings(p: ProjectConfig) {
@@ -12,7 +13,7 @@ export function settings(p: ProjectConfig) {
   const translated = [
     object('brand', [text('tagline')]),
     object('legal', [rich('notice')]),
-    object('contact', [text('address')]),
+    object('contact', contactFields().filter(field => field.name === 'address')),
     navigation(),
   ];
   return {
@@ -26,7 +27,8 @@ export function settings(p: ProjectConfig) {
           text('privacyVersion'),
           rich('notice'),
         ]),
-        object('contact', [text('email'), text('phone'), text('address')]),
+        object('contact', contactFields()),
+        { ...object('social', socialFields()), label: 'Social channels' },
         navigation(),
         object(
           'translations',
