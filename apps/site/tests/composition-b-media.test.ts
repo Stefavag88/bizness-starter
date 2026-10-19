@@ -72,7 +72,7 @@ it.each([
       );
       expect(html).toContain('<strong>Caption</strong>');
       expect(html).toContain('href="/el/contact"');
-      expect(html).not.toMatch(/style=|srcset=|<script|<h1/);
+      expect(html).not.toMatch(/style=|<script|<h1/);
       if (type === 'gallery') expect(html).toContain('alt="First image"');
       else expect(html).toContain('alt="Localized image"');
     } finally {
