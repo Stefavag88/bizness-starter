@@ -1,0 +1,93 @@
+[
+  {
+    "ProcessId": 20796,
+    "ParentProcessId": 15816,
+    "CreationDate": "2026-10-19T21:58:13.904102+03:00",
+    "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+    "CommandLine": "node  scripts/dev.mjs --cms"
+  },
+  {
+    "ProcessId": 15988,
+    "ParentProcessId": 20796,
+    "CreationDate": "2026-10-19T21:58:21.980424+03:00",
+    "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Projects\\bizness-starter-v2\\scripts\\watch-content.mjs"
+  },
+  {
+    "ProcessId": 22200,
+    "ParentProcessId": 20796,
+    "CreationDate": "2026-10-19T21:58:21.986617+03:00",
+    "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Projects\\bizness-starter-v2\\node_modules\\@tinacms\\cli\\bin\\tinacms dev --port 4010 --datalayer-port 9010 --noTelemetry"
+  },
+  {
+    "ProcessId": 4956,
+    "ParentProcessId": 20796,
+    "CreationDate": "2026-10-19T21:58:21.994267+03:00",
+    "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Projects\\bizness-starter-v2\\node_modules\\wrangler\\bin\\wrangler.js dev --local --ip 127.0.0.1 --port 8790 --inspector-port 0 --config C:\\Projects\\bizness-starter-v2\\wrangler.generated.json"
+  },
+  {
+    "ProcessId": 22244,
+    "ParentProcessId": 20796,
+    "CreationDate": "2026-10-19T21:58:22.001643+03:00",
+    "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Projects\\bizness-starter-v2\\apps\\site\\node_modules\\astro\\bin\\astro.mjs dev --host 127.0.0.1 --port 4330"
+  },
+  {
+    "ProcessId": 19716,
+    "ParentProcessId": 4956,
+    "CreationDate": "2026-10-19T21:58:22.076419+03:00",
+    "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" --no-warnings C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\wrangler@4.148.0_@cloudflar_1becda57a7552e3702c8dcf6b730ee61\\node_modules\\wrangler\\wrangler-dist\\cli.js dev --local --ip 127.0.0.1 --port 8790 --inspector-port 0 --config C:\\Projects\\bizness-starter-v2\\wrangler.generated.json"
+  },
+  {
+    "ProcessId": 16528,
+    "ParentProcessId": 19716,
+    "CreationDate": "2026-10-19T21:58:23.663466+03:00",
+    "ExecutablePath": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@esbuild+win32-x64@0.28.1\\node_modules\\@esbuild\\win32-x64\\esbuild.exe",
+    "CommandLine": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@esbuild+win32-x64@0.28.1\\node_modules\\@esbuild\\win32-x64\\esbuild.exe --service=0.28.1 --ping"
+  },
+  {
+    "ProcessId": 37632,
+    "ParentProcessId": 19716,
+    "CreationDate": "2026-10-19T21:58:23.81314+03:00",
+    "ExecutablePath": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@cloudflare+workerd-windows-64@1.20261006.1\\node_modules\\@cloudflare\\workerd-windows-64\\bin\\workerd.exe",
+    "CommandLine": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@cloudflare+workerd-windows-64@1.20261006.1\\node_modules\\@cloudflare\\workerd-windows-64\\bin\\workerd.exe serve --binary --experimental --socket-addr=entry=127.0.0.1:8790 --external-addr=loopback=127.0.0.1:53618 --control-fd=3 -"
+  },
+  {
+    "ProcessId": 16084,
+    "ParentProcessId": 37632,
+    "CreationDate": "2026-10-19T21:58:23.823191+03:00",
+    "ExecutablePath": "C:\\WINDOWS\\system32\\conhost.exe",
+    "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+  },
+  {
+    "ProcessId": 5492,
+    "ParentProcessId": 19716,
+    "CreationDate": "2026-10-19T21:58:24.261884+03:00",
+    "ExecutablePath": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@esbuild+win32-x64@0.28.1\\node_modules\\@esbuild\\win32-x64\\esbuild.exe",
+    "CommandLine": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@esbuild+win32-x64@0.28.1\\node_modules\\@esbuild\\win32-x64\\esbuild.exe --service=0.28.1 --ping"
+  },
+  {
+    "ProcessId": 40728,
+    "ParentProcessId": 19716,
+    "CreationDate": "2026-10-19T21:58:24.59559+03:00",
+    "ExecutablePath": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@cloudflare+workerd-windows-64@1.20261006.1\\node_modules\\@cloudflare\\workerd-windows-64\\bin\\workerd.exe",
+    "CommandLine": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@cloudflare+workerd-windows-64@1.20261006.1\\node_modules\\@cloudflare\\workerd-windows-64\\bin\\workerd.exe serve --binary --experimental --socket-addr=entry=127.0.0.1:0 --external-addr=loopback=127.0.0.1:53624 --control-fd=3 - --inspector-addr=127.0.0.1:0 --debug-port=127.0.0.1:0"
+  },
+  {
+    "ProcessId": 22276,
+    "ParentProcessId": 40728,
+    "CreationDate": "2026-10-19T21:58:24.605011+03:00",
+    "ExecutablePath": "C:\\WINDOWS\\system32\\conhost.exe",
+    "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+  },
+  {
+    "ProcessId": 3700,
+    "ParentProcessId": 22200,
+    "CreationDate": "2026-10-19T21:58:29.365418+03:00",
+    "ExecutablePath": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@esbuild+win32-x64@0.28.2\\node_modules\\@esbuild\\win32-x64\\esbuild.exe",
+    "CommandLine": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@esbuild+win32-x64@0.28.2\\node_modules\\@esbuild\\win32-x64\\esbuild.exe --service=0.28.2 --ping"
+  }
+]

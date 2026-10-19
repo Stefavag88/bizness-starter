@@ -1,0 +1,43 @@
+{
+  "checked": "2026-10-19T18:59:24.301Z",
+  "session": 14062,
+  "launcher": 20796,
+  "checks": [
+    {
+      "name": "en",
+      "url": "http://127.0.0.1:4330/en",
+      "status": 200
+    },
+    {
+      "name": "el",
+      "url": "http://127.0.0.1:4330/el",
+      "status": 200
+    },
+    {
+      "name": "cms",
+      "url": "http://127.0.0.1:4330/cms/index.html",
+      "status": 200
+    },
+    {
+      "name": "health",
+      "url": "http://127.0.0.1:8790/api/health",
+      "status": 200,
+      "response": {
+        "ok": true,
+        "profile": "enquiries"
+      }
+    },
+    {
+      "name": "tina",
+      "url": "http://localhost:4010/graphql",
+      "status": 200,
+      "response": {
+        "data": {
+          "page": {
+            "__typename": "PageHome"
+          }
+        }
+      }
+    }
+  ]
+}
