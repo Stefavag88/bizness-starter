@@ -6,6 +6,11 @@ import { join, resolve, relative, isAbsolute } from 'node:path';
 import { candidateWidths, encodeCandidate, withNativeImageWork, PIPELINE_VERSION, ENCODING_POLICY, SHARP_VERSION } from './optimization.mjs';
 export { candidateWidths } from './optimization.mjs';
 const MARKER = 'starter-media-optimization-cache-v1\n';
+// Small metadata envelopes; 160 MiB covers 40M 8-bit RGBA pixels plus PNG
+// row filters, deflate expansion and chunk overhead. Outputs strip metadata.
+const MARKER_BYTES = 256;
+const MANIFEST_BYTES = 4096;
+const OUTPUT_BYTES = 160 * 1024 * 1024;
 const CACHE_PARTS = ['.generated','media-optimization','cache','v1'];
 const URL = /^\/_media\/v1\/([a-f0-9]{64})\.(png|jpeg|webp)$/;
 const inFlight = new Map();
@@ -24,15 +29,33 @@ async function regular(path, directory = false, optional = false) {
   if (stat.isSymbolicLink() || (directory ? !stat.isDirectory() : !stat.isFile())) throw new Error(`Unsafe media cache symlink/reparse destination: ${path}`);
   return true;
 }
-async function readRegular(path) {
+async function readRegular(path, limit, expectedBytes) {
   await regular(path);
   const handle = await open(path,'r');
   try {
     const before = await handle.stat();
     const named = await lstat(path);
     if (!before.isFile() || named.isSymbolicLink() || before.ino !== named.ino || before.dev !== named.dev) throw new Error('Unsafe replaced media cache destination');
-    return await handle.readFile();
+    if (before.size > limit || (expectedBytes !== undefined && before.size !== expectedBytes)) throw new Error('Invalid media cache byte length');
+    // Never use readFile: stat is only an early refusal, not a bound on a file
+    // that grows while this handle is open. Read at most the envelope plus one.
+    const bound = expectedBytes ?? limit;
+    const chunks = [];
+    let total = 0;
+    for (;;) {
+      const buffer = Buffer.alloc(Math.min(64 * 1024, bound + 1 - total));
+      const {bytesRead} = await handle.read(buffer,0,buffer.length,null);
+      if (!bytesRead) break;
+      total += bytesRead;
+      if (total > bound) throw new Error('Media cache byte limit exceeded');
+      chunks.push(buffer.subarray(0,bytesRead));
+    }
+    if (expectedBytes !== undefined && total !== expectedBytes) throw new Error('Invalid media cache byte length');
+    return Buffer.concat(chunks,total);
   } finally { await handle.close(); }
+}
+function validateByteLength(bytes) {
+  if (!Number.isSafeInteger(bytes) || bytes < 1 || bytes > OUTPUT_BYTES) throw new Error('Invalid media cache output byte limit');
 }
 async function cacheDirectory(root, create) {
   const realRoot = await realpath(resolve(root));
@@ -52,7 +75,7 @@ async function cacheDirectory(root, create) {
       try {await link(temp,marker);} catch(error) {if(error.code !== 'EEXIST') throw error;}
     } finally {await handle?.close();await unlink(temp).catch(error=>{if(error.code!=='ENOENT') throw error;});}
   }
-  if ((await readRegular(marker)).toString() !== MARKER) throw new Error('Foreign media cache pipeline marker');
+  if ((await readRegular(marker,MARKER_BYTES)).toString() !== MARKER) throw new Error('Foreign media cache pipeline marker');
   return dir;
 }
 function candidateIdentity(candidate) {
@@ -63,13 +86,14 @@ function candidateIdentity(candidate) {
 async function validate(dir, candidate, expectedIdentity) {
   const id = candidateIdentity(candidate);
   const file = join(dir,`${id}.${candidate.format}`);
-  const manifest = JSON.parse((await readRegular(file+'.json')).toString());
+  const manifest = JSON.parse((await readRegular(file+'.json',MANIFEST_BYTES)).toString());
+  validateByteLength(manifest.bytes);
   const i = manifest.identity;
   if (!i || typeof i.source !== 'string' || !/^[a-f0-9]{64}$/.test(i.source) || !Number.isInteger(i.width) || i.width < 1 || i.width > 2560 || !Number.isInteger(i.quality) || i.quality < 40 || i.quality > 95) throw new Error('Invalid media cache manifest identity');
   const canonical = identity(i.source,i.width,i.format,i.quality);
   if (JSON.stringify(i) !== JSON.stringify(canonical) || identityHash(canonical) !== id || (expectedIdentity && JSON.stringify(i) !== JSON.stringify(expectedIdentity)) || i.format !== candidate.format || i.width !== candidate.width) throw new Error('Invalid media cache manifest identity');
   if (manifest.width !== candidate.width || manifest.height !== candidate.height || manifest.bytes !== candidate.bytes || manifest.file !== `${id}.${candidate.format}`) throw new Error('Invalid media cache manifest metadata');
-  const bytes = await readRegular(file);
+  const bytes = await readRegular(file,OUTPUT_BYTES,candidate.bytes);
   if (bytes.length !== candidate.bytes || hash(bytes) !== manifest.sha256) throw new Error('Invalid media cache output hash');
   // Acquire only for this decode, never around a cache resolution that may encode.
   await withNativeImageWork(async () => {
@@ -107,7 +131,8 @@ async function cachedCandidate(root,dir,snapshot,width,format,quality) {
     // Unsafe destinations are errors; ordinary incomplete/corrupt entries regenerate.
     await regular(file,false,true);await regular(file+'.json',false,true);
     try {
-      const m=JSON.parse((await readRegular(file+'.json')).toString());
+      const m=JSON.parse((await readRegular(file+'.json',MANIFEST_BYTES)).toString());
+      validateByteLength(m.bytes);
       // JPEG shrink-on-load can round one pixel differently from ratio arithmetic.
       // Bound that difference; decoded dimensions must still match the manifest exactly.
       const expectedHeight=Math.max(1,Math.round(snapshot.media.height*width/snapshot.media.width));

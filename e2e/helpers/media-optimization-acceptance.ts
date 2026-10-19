@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {createMediaOptimizationFixture} from './media-optimization-fixture';
 import {createMediaAcceptanceRun} from '../../scripts/media-optimization-acceptance.mjs';
 import {publicIndex,publicRoom} from './composition-c-acceptance';
-export const photoNames=['large-photo.jpg','portrait.jpg','alpha.png','small.png','animated.webp'];
+export const photoNames=['large-photo.jpg','portrait.jpg','alpha.png','small.png','animated.webp','static.webp'];
 export const upload=(name:string)=>'/uploads/media-acceptance-'+name;
 export const hash=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex');
 export const walk=(path:string):string[]=>existsSync(path)?readdirSync(path,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(join(path,e.name)):[join(path,e.name)]):[];

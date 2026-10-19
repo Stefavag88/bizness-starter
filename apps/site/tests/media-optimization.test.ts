@@ -5,7 +5,7 @@ import Gallery from '../src/templates/sections/Gallery.astro';
 import RoomList from '../src/templates/domains/rooms/RoomList.astro';
 import RoomDetail from '../src/templates/domains/rooms/RoomDetail.astro';
 import MediaText from '../src/templates/sections/MediaText.astro';
-import {beginMediaSession,endMediaSession} from '../../../packages/media/session.mjs';
+import {beginMediaSession,endMediaSession,getMediaSession} from '../../../packages/media/session.mjs';
 import {imageSizes} from '../../../packages/media/layout.mjs';
 import {fileURLToPath} from 'node:url';
 import {writeFileSync,readFileSync,unlinkSync} from 'node:fs';
@@ -27,7 +27,23 @@ it('renders picture families with largest fallback, safe localized caption and r
 });
 it('uses only one family for WebP originals and keeps passthrough original dimensions',async()=>{
  const c=await AstroContainer.create();
- const webp=await c.renderToString(SectionImage,{props:{...props,media:{...media,format:'webp',fallback:media.webp}}});expect(webp).not.toContain('<source');expect(webp).toContain('src="/_media/v1/webp640.webp"');
+ const name='final-fix-'+crypto.randomUUID()+'.webp';
+ const path=root+'apps/site/public/uploads/'+name;
+ const bytes=await sharp({create:{width:800,height:400,channels:4,background:'#33669980'}}).webp().toBuffer();
+ writeFileSync(path,bytes,{flag:'wx'});
+ try {
+  const actual=await getMediaSession(root).resolve('/uploads/'+name);
+  expect(actual.fallback).toEqual([]);
+  expect(actual.webp.map(c=>[c.width,c.height])).toEqual([[320,160],[640,320]]);
+  const webp=await c.renderToString(SectionImage,{props:{...props,media:actual}});
+  expect(webp).not.toContain('<source');
+  expect(webp).toContain('src="'+actual.webp[1].src+'"');
+  expect(webp).toContain('srcset="'+actual.webp.map(c=>c.src+' '+c.width+'w').join(', ')+'"');
+  expect(webp).toContain('width="640" height="320"');
+  expect(webp).toContain('sizes="'+imageSizes('gallery',2)+'"');
+ } finally {
+  if(readFileSync(path).equals(bytes))unlinkSync(path);else throw Error('Owned WebP fixture changed; preserved');
+ }
  for(const reason of ['disabled','animated-or-multipage']){const html=await c.renderToString(SectionImage,{props:{...props,media:{...media,fallback:[],webp:[],passthroughReason:reason}}});expect(html).not.toMatch(/<picture|srcset=|sizes=/);expect(html).toContain('src="/uploads/original.png" width="1600" height="800"');}
 });
 it('actual section renderers pass exact roles and rendered counts, including text-only Room cards',async()=>{

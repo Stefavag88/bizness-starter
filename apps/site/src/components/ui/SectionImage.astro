@@ -5,8 +5,9 @@ import {imageSizes,type ImageLayout} from '../../../../../packages/media/layout.
 import type {ImageCandidate} from '../../../../../packages/media/optimization.mjs';
 interface Props {media:ResolvedMedia;layout:ImageLayout;itemCount?:number;alt:string;caption?:string;crop:Crop;ratio:'landscape'|'gallery';locale:string}
 const {media,layout,itemCount=1,alt,caption,crop,ratio,locale}=Astro.props;
-const fallback=media.fallback.at(-1);
+const imgFamily=media.format==='webp'?media.webp:media.fallback;
+const fallback=imgFamily.at(-1);
 const sizes=imageSizes(layout,itemCount);
 const srcset=(candidates:ImageCandidate[])=>candidates.map(image=>`${image.src} ${image.width}w`).join(', ');
 ---
-<figure class="section-image"><div class:list={['image-frame','frame-'+ratio]}>{fallback?<picture>{media.format!=='webp'&&media.webp.length>0&&<source type="image/webp" srcset={srcset(media.webp)} sizes={sizes}/>}<img src={fallback.src} srcset={srcset(media.fallback)} sizes={sizes} width={fallback.width} height={fallback.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/></picture>:<img src={media.src} width={media.width} height={media.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/>}</div>{caption&&<figcaption set:html={rich(caption,locale,true)}/>}</figure>
+<figure class="section-image"><div class:list={['image-frame','frame-'+ratio]}>{fallback?<picture>{media.format!=='webp'&&media.webp.length>0&&<source type="image/webp" srcset={srcset(media.webp)} sizes={sizes}/>}<img src={fallback.src} srcset={srcset(imgFamily)} sizes={sizes} width={fallback.width} height={fallback.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/></picture>:<img src={media.src} width={media.width} height={media.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/>}</div>{caption&&<figcaption set:html={rich(caption,locale,true)}/>}</figure>

@@ -11,3 +11,5 @@ SHA-256 recorded before test use:
 - alpha.png: 0bd1c66e11cdfdcc8a2dba39b4f40ab5693b657ad4c5f3e4e5af11cdcdf965c0 (2291 bytes)
 - small.png: 7758a0a9c96ee74654871281d12e2ec3c78a803cfca4cff14667a6e82653ac5c (238 bytes)
 - animated.webp: 7e637503f94678635fc536ce61cc553520eb7d51678a3a4ae452756fdc3bb431 (202 bytes)
+
+static.webp: original CC0 synthetic 800×400 RGBA #33669980, Sharp 0.35.5 WebP default encoder. SHA-256 9e677bcf34d91c19980fddd6f8fd29af87528f10423ed257c1d3922d9798d3e9 (704 bytes). Added for the final-fix single-family static WebP regression.

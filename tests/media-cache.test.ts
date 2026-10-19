@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import sharp from 'sharp';
-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile, symlink, stat } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, rm, writeFile, symlink, stat, open, truncate, appendFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
 import { resolveCachedMedia, readCachedCandidate } from '../packages/media/cache.mjs';
@@ -120,4 +120,62 @@ it('shares two native slots between direct cached reads and cold transforms acro
   expect(work.decodes).toBe(8);expect(work.transforms).toBe(4);
   expect(work.max).toBe(2);expect(work.active).toBe(0);
  } finally {await rm(other,{recursive:true,force:true});}
+});
+
+// A sparse file plus a tripwire catches unbounded allocation without ever reading it.
+it.each([
+ ['marker',257],['manifest',4097],['output',160*1024*1024+1]
+])('refuses oversized %s before any whole-file allocation',async(kind,size)=>{
+ const r=await resolveCachedMedia(root,await snapshot(),policy),candidate=r.webp[0];
+ const path=kind==='marker'?join(cache,'.pipeline'):file(candidate.src)+(kind==='manifest'?'.json':'');
+ await truncate(path,size);
+ const target=await stat(path),probe=await open(path,'r'),proto=Object.getPrototypeOf(probe);await probe.close();
+ const original=proto.readFile;let unbounded=0;
+ vi.spyOn(proto,'readFile').mockImplementation(async function(this:any,...args:any[]){
+  if((await this.stat()).ino===target.ino){unbounded++;throw Error('Unbounded allocation tripwire');}
+  return original.apply(this,args);
+ });
+ await expect(readCachedCandidate(root,candidate)).rejects.toThrow(/byte|size|length|limit/i);
+ expect(unbounded).toBe(0);
+ if(kind!=='marker'){
+  const repaired=await resolveCachedMedia(root,await snapshot(),policy);
+  expect((await readCachedCandidate(root,repaired.webp[0])).bytes.length).toBe(candidate.bytes);
+ }
+});
+it.each(['marker','manifest','output'])('bounds opened-handle %s reads when it grows after stat',async kind=>{
+ const r=await resolveCachedMedia(root,await snapshot(),policy),candidate=r.webp[0];
+ const path=kind==='marker'?join(cache,'.pipeline'):file(candidate.src)+(kind==='manifest'?'.json':'');
+ const target=await stat(path),probe=await open(path,'r'),proto=Object.getPrototypeOf(probe);await probe.close();
+ const originalStat=proto.stat,originalReadFile=proto.readFile;let grew=false,unbounded=0;
+ vi.spyOn(proto,'stat').mockImplementation(async function(this:any,...args:any[]){
+  const value=await originalStat.apply(this,args);
+  if(value.ino===target.ino&&!grew){grew=true;await appendFile(path,Buffer.alloc(kind==='manifest'?4097:257,32));}
+  return value;
+ });
+ vi.spyOn(proto,'readFile').mockImplementation(async function(this:any,...args:any[]){
+  const value=await originalStat.call(this);
+  if(value.ino===target.ino){unbounded++;throw Error('Unbounded allocation tripwire');}
+  return originalReadFile.apply(this,args);
+ });
+ await expect(readCachedCandidate(root,candidate)).rejects.toThrow(/byte|size|length|limit/i);
+ expect(grew).toBe(true);expect(unbounded).toBe(0);
+});
+it.each([0,-1,1.5,160*1024*1024+1,'100'])('regenerates unbounded/invalid manifest byte field %s before reading output',async bytes=>{
+ const source=await snapshot(),r=await resolveCachedMedia(root,source,policy),candidate=r.webp[0];
+ const path=file(candidate.src)+'.json';const manifest=JSON.parse(await readFile(path,'utf8'));
+ manifest.bytes=bytes;await writeFile(path,JSON.stringify(manifest));
+ await expect(readCachedCandidate(root,{...candidate,bytes:bytes as number})).rejects.toThrow(/byte|size|length|limit/i);
+ const repaired=await resolveCachedMedia(root,source,policy);
+ expect((await readCachedCandidate(root,repaired.webp[0])).bytes.length).toBe(candidate.bytes);
+});
+it('refuses an initial output length mismatch before reading output bytes',async()=>{
+ const r=await resolveCachedMedia(root,await snapshot(),policy),candidate=r.webp[0];
+ const path=file(candidate.src);await appendFile(path,'extra');
+ const target=await stat(path),probe=await open(path,'r'),proto=Object.getPrototypeOf(probe);await probe.close();
+ const original=proto.readFile;let unbounded=0;
+ vi.spyOn(proto,'readFile').mockImplementation(async function(this:any,...args:any[]){
+  if((await this.stat()).ino===target.ino){unbounded++;throw Error('Unbounded allocation tripwire');}
+  return original.apply(this,args);
+ });
+ await expect(readCachedCandidate(root,candidate)).rejects.toThrow(/byte|size|length|limit/i);expect(unbounded).toBe(0);
 });

@@ -46,3 +46,17 @@ it('propagates compressed-payload corruption instead of silently passing through
  const {createHash}=await import('node:crypto');s.media.fingerprint=createHash('sha256').update(s.bytes).digest('hex');
  await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow();
 });
+
+it('characterizes pinned PNG output as at most RGBA8 even for a 16-bit alpha source',async()=>{
+ const input=await sharp({create:{width:8,height:4,channels:4,background:'#33669980'}}).toColourspace('rgb16').png().toBuffer();
+ expect((await sharp(input).metadata()).bitsPerSample).toBe(16);
+ await writeFile(join(root,'apps/site/public/uploads/deep.png'),input);
+ const source=await readValidatedSource(root,'/uploads/deep.png');
+ const result=await resolveCachedMedia(root,source,policy);
+ for(const candidate of result.fallback){
+  const {bytes}=await readCachedCandidate(root,candidate);
+  const metadata=await sharp(bytes).metadata();
+  expect(metadata.bitsPerSample).toBe(8);expect(metadata.channels).toBe(4);
+  expect(metadata.hasAlpha).toBe(true);expect(metadata.hasProfile).toBe(false);
+ }
+});

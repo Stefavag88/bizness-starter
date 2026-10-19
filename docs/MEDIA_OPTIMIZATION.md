@@ -26,7 +26,7 @@ Source bounds remain 20 MiB, 20,000 pixels per side and 40 million pixels. Only 
 
 Widths are capped at the oriented source width and the largest configured width, deduplicated and sorted. There is no upscaling, at most six candidates per family/twelve outputs per source, and two concurrent transform jobs. Orientation is normalized before resizing. Heights are integer encoder dimensions, so aspect-ratio calculations can differ by a pixel after rounding. Crop remains CSS `object-fit:cover` and center/top/bottom positioning inside the existing fixed frames. Intrinsic dimensions, lazy loading, async decoding, alt and safe localized captions are retained. Room listing cards intentionally omit captions; Room detail figures retain them.
 
-Small files and lossless fallback are exceptions to universal savings claims. Equal-dimension fallback can reuse original bytes when re-encoding would be larger. Browsers choose a candidate using viewport, DPR, format support and their own resource selection behavior; tests do not require an exact filename for every browser heuristic.
+Small files and lossless fallback are exceptions to universal savings claims. All enabled static candidates are encoded, including equal-dimension fallback, and may be larger than the original. Browsers choose a candidate using viewport, DPR, format support and their own resource selection behavior; tests do not require an exact filename for every browser heuristic.
 
 ## Layout sizing is coupled to CSS
 
@@ -41,6 +41,8 @@ The ignored `.generated/media-optimization/cache/v1` namespace is pipeline-owned
 Every build has its own demand session. Only variants requested by actual renderers are published into `apps/site/dist/_media/v1/`, even when a warm local cache contains showcase variants. Original starter-sample uploads are legitimate reusable business assets and remain public in staging/production. Local-only showcase route and dedicated preview code remain excluded outside local builds.
 
 Astro development creates derivatives while rendering known content and serves only exact already-demanded identities through its contained adapter. Same-path changed bytes produce new identities. Upload add/change/unlink retains existing live behavior; a referenced missing source fails visibly. Static production delivery is ordinary built Worker assets under existing CSP. There is no Worker encoder, remote fetch or visitor-controlled width/quality endpoint. Unknown `/_media/` paths cannot generate files.
+
+Cache reads cap pipeline markers at 256 bytes and manifests at 4 KiB. Derivative byte counts must be positive safe integers at most 160 MiB before any output read. Pinned Sharp 0.35.5 defaults produce at most 8-bit RGBA PNG (also from 16-bit alpha PNG inputs; this is existing normalization, not preserved 16-bit precision). The cap accommodates the supported 40 million pixels at 8-bit RGBA plus lossless PNG filter/deflate/chunk overhead with stripped metadata. Opened-handle reads enforce these caps even after file growth, and refuse initial output sizes differing from the manifest. Corrupt entries regenerate; foreign/oversized pipeline markers refuse ownership.
 
 Storage and build work can grow: originals remain, fallback and WebP variants coexist, and the persistent cache survives builds. Smaller visitor transfers do not imply a smaller deployment or a faster cold build. A warm cache reduces repeated encoding, not the source safety checks.
 

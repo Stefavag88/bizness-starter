@@ -1,13 +1,15 @@
-import {it,expect} from 'vitest';
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {ownedTempRoots} from './helpers/owned-temp-roots';
+import {it,expect,afterEach} from 'vitest';
+import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {admitMediaNativeWrite} from '../e2e/helpers/media-optimization-native-admission';
 import {nativeDocumentPath,type Schema} from '../e2e/helpers/native-document';
+const tempRoots=ownedTempRoots('media-native-admission-');
+afterEach(({task})=>{tempRoots.cleanup(task.result?.state==='fail');});
 const hash=(bytes:string)=>createHash('sha256').update(bytes).digest('hex');
 function fixture(){
- const directory=mkdtempSync(join(tmpdir(),'media-native-admission-'));
+ const directory=tempRoots.create();
  const pages=join(directory,'pages');mkdirSync(pages);
  const path=join(pages,'owned.json'),other=join(pages,'other.json');
  writeFileSync(path,'owned original');writeFileSync(other,'unrelated original');
