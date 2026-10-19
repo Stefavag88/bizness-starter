@@ -38,7 +38,7 @@
       {
         "id": "room_list",
         "_template": "room-list",
-        "title": "Rooms",
+        "title": "Explore our rooms",
         "description": "",
         "emptyMessage": "No rooms are currently available to view."
       }
@@ -62,7 +62,7 @@
           {
             "id": "room_list",
             "_template": "room-list",
-            "title": "Δωμάτια",
+            "title": "Γνωρίστε τα δωμάτιά μας",
             "description": "",
             "emptyMessage": "Δεν υπάρχουν δωμάτια διαθέσιμα για προβολή."
           }

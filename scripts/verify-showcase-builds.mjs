@@ -5,6 +5,8 @@ import {
 import {resolve, dirname, join, relative, basename} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
+import {isDeepStrictEqual} from 'node:util';
+import {canonicalSnapshot} from './composition-c-snapshot.mjs';
 import {createOwnedFileEdit} from './owned-file-edit.mjs';
 import {runOwnedCommand} from './owned-command.mjs';
 import {resolvePorts, assertPortsFree} from './ports.mjs';
@@ -67,6 +69,8 @@ export async function verifyShowcaseBuilds({
   const root = dirname(path);
   const original = readFileSync(path);
   const base = JSON.parse(original);
+  const canonicalBefore=canonicalSnapshot(root);
+  let expectedCanonical=canonicalBefore;
   let conflict = false;
 
   // Retain original bytes before any mutation and keep each run independently.
@@ -89,6 +93,8 @@ export async function verifyShowcaseBuilds({
     assertOutput(root, environment === 'local', assets);
   };
   const command = async (args, cwd = root) => {
+    await assertPortsFree(resolvePorts());
+    if(!isDeepStrictEqual(canonicalSnapshot(root),expectedCanonical))throw Error('Full canonical snapshot conflict; showcase regeneration refused');
     const timeoutMs = Number(process.env.SHOWCASE_BUILD_TIMEOUT_MS || 120000);
     const record = {args, cwd, timeoutMs, pid: null, passed: false};
     evidence.commands.push(record);
@@ -115,7 +121,7 @@ export async function verifyShowcaseBuilds({
   // Build each nonlocal environment under a separate exact-byte owner.
   try {
     for (const environment of ['staging', 'production']) {
-      if (!existsSync(path) || !readFileSync(path).equals(original)) {
+      if (!existsSync(path) || !readFileSync(path).equals(original) || !isDeepStrictEqual(canonicalSnapshot(root),canonicalBefore)) {
         conflict = true;
         throw Error('Showcase source ownership conflict before mutation; original backup: ' + join(evidenceDirectory, 'original.json'));
       }
@@ -123,13 +129,15 @@ export async function verifyShowcaseBuilds({
       const next = structuredClone(base);
       next.environment = environment;
       try {
-        edit.replace(JSON.stringify(next, null, 2) + '\n');
+        const bytes=JSON.stringify(next, null, 2) + '\n';
+        edit.replace(bytes);
+        expectedCanonical={...canonicalBefore,'project.json':hash(Buffer.from(bytes))};
         await (run ?? build)(environment);
         inspect(environment);
         evidence.stages.push(environment);
       } finally {
         try {
-          edit.restore();
+          if(!edit.restore())throw Error('Showcase owner restoration unconfirmed');
         } catch (error) {
           conflict = true;
           throw error;
@@ -141,11 +149,13 @@ export async function verifyShowcaseBuilds({
     throw error;
   } finally {
     // Conflicts preserve competing bytes and prevent configuration regeneration.
-    if (!existsSync(path) || !readFileSync(path).equals(original)) conflict = true;
+    if (!existsSync(path) || !readFileSync(path).equals(original) || !isDeepStrictEqual(canonicalSnapshot(root),canonicalBefore)) conflict = true;
     evidence.conflict = conflict;
     evidence.restored = !conflict;
     try {
+      if(conflict)throw Error('Showcase source ownership conflict; canonical source regeneration refused');
       if (!conflict) {
+        expectedCanonical=canonicalBefore;
         // Rebuild local last, then check ownership again before accepting it.
         await (refresh ?? build)();
         if (!existsSync(path) || !readFileSync(path).equals(original)) {

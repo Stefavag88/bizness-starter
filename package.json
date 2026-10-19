@@ -22,6 +22,7 @@
     "deploy:check": "node scripts/doctor.mjs --production",
     "smoke:local": "node scripts/smoke-local.mjs",
     "test:e2e": "playwright test",
+    "test:composition-c": "node scripts/verify-composition-c.mjs",
     "test:profiles": "node scripts/verify-profiles.mjs",
     "test:showcase-builds": "node scripts/verify-showcase-builds.mjs",
     "test:static-routing": "pnpm build && node scripts/verify-static-routing.mjs"

@@ -1,0 +1,3 @@
+import {it,expect} from 'vitest';
+import {readFileSync} from 'node:fs';
+it('the dormant Rooms seed uses distinct localized hero and list landmark names without availability claims',()=>{const index=JSON.parse(readFileSync('content/pages/rooms.json','utf8'));expect(index.status).toBe('draft');for(const [copy,hero,list] of [[index.copy,'Rooms','Explore our rooms'],[index.translations.el.copy,'Δωμάτια','Γνωρίστε τα δωμάτιά μας']] as const){expect(copy.sections.find((s:any)=>s._template==='hero').title).toBe(hero);expect(copy.sections.find((s:any)=>s._template==='room-list').title).toBe(list);}});
