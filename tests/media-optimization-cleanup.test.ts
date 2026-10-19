@@ -35,3 +35,47 @@ it('preserves external bytes after the actual pre-write owner revokes its claim'
 it('uses the supported site build entry and refuses a second command after canonical drift',async()=>{const root=project(),marker=join(root,'.generated/build-entry');mkdirSync(join(root,'apps/site/scripts'),{recursive:true});writeFileSync(join(root,'apps/site/scripts/build.mjs'),"import{writeFileSync}from'node:fs';writeFileSync('.generated/build-entry','public build');");const run=createMediaAcceptanceRun({root,checkPorts:async()=>{}});await run.build();expect(readFileSync(marker,'utf8')).toBe('public build');writeFileSync(join(root,'content/pages/base.json'),'external');await expect(run.build()).rejects.toThrow(/snapshot conflict/);});
 it('restores an existing static document through exact owned-file bytes',async()=>{const root=project(),f=createMediaOptimizationFixture({root,documents:['content/pages/base.json']});f.replaceDocument('content/pages/base.json','{"owned":true}\n');expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('{"owned":true}\n');await f.cleanup();expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('base\n');});
 it('preserves a conflicted existing document and restores its independent sibling',async()=>{const root=project(),f=createMediaOptimizationFixture({root,documents:['content/pages/base.json','content/pages/proof.json']});f.replaceDocument('content/pages/base.json','owned');f.createDocument('content/pages/proof.json',{id:'proof'});writeFileSync(join(root,'content/pages/base.json'),'external');await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('external');expect(existsSync(join(root,'content/pages/proof.json'))).toBe(false);});
+
+it('reserves command admission while port checks await and until the sole child closes', async () => {
+ const root = project();
+ let releasePorts!: () => void;
+ const ports = new Promise<void>(resolve => { releasePorts = resolve; });
+ const run = createMediaAcceptanceRun({root, checkPorts: () => ports});
+ const first = run.command(['-e', "setTimeout(()=>console.log('sole child closed'),30)"]);
+ // Observe both outcomes immediately so a failing overlap assertion cannot detach a child.
+ const second = run.command(['-e', "require('fs').writeFileSync('.generated/overlap','unexpected')"]).then(() => 'launched', error => String(error));
+ let portWaitFinish: unknown;
+ try { run.finish(); } catch (error) { portWaitFinish = error; }
+ releasePorts();
+ await Promise.resolve();
+ let childWaitFinish: unknown;
+ try { run.finish(); } catch (error) { childWaitFinish = error; }
+ const [overlap] = await Promise.all([second, first]);
+ expect(overlap).toMatch(/shutdown unconfirmed/);
+ expect(portWaitFinish).toBeInstanceOf(Error);
+ expect(childWaitFinish).toBeInstanceOf(Error);
+ expect(existsSync(join(root,'.generated/overlap'))).toBe(false);
+ expect(JSON.parse(readFileSync(join(run.directory,'commands.json'),'utf8'))).toHaveLength(1);
+ expect(run.finish().unchanged).toBe(true);
+});
+
+it.each(['ports', 'snapshot', 'shutdown'] as const)('releases admission after a %s gate failure for a later eligible command', async failure => {
+ const root = project();
+ let stopped = true;
+ let failGate = true;
+ const run = createMediaAcceptanceRun({root, isStopped: () => stopped, checkPorts: async () => {
+  if (!failGate) return;
+  if (failure === 'ports') throw Error('ports failed');
+  if (failure === 'snapshot') writeFileSync(join(root,'project.json'),'external');
+  if (failure === 'shutdown') stopped = false;
+ }});
+ const first = await run.command(['-e', "require('fs').writeFileSync('.generated/forbidden','unexpected')"]).then(() => undefined, error => error);
+ failGate = false;
+ stopped = true;
+ writeFileSync(join(root,'project.json'),'{}\n');
+ await run.command(['-e', "console.log('later eligible child')"]);
+ expect(first).toBeInstanceOf(Error);
+ expect(existsSync(join(root,'.generated/forbidden'))).toBe(false);
+ expect(JSON.parse(readFileSync(join(run.directory,'commands.json'),'utf8'))).toHaveLength(1);
+ expect(run.finish().unchanged).toBe(true);
+});

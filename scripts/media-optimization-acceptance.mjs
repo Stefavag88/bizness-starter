@@ -12,13 +12,55 @@ export function createMediaAcceptanceRun({root=process.cwd(),expected,isStopped=
  log('canonical-before.json',before);log('commands.json',commands);
  const assertInputs=()=>assertCanonicalSnapshot(expected(),root);
  let active=false;
- async function command(args,{cwd=root,timeoutMs=1800000,env={}}={}){
-  if(active||!isStopped())throw Error('Owned runtime shutdown unconfirmed; command refused');
-  assertInputs();await checkPorts();assertInputs();
-  const row={executable:process.execPath,args,cwd,started:new Date().toISOString(),ended:null,pid:null,passed:false,log:`command-${commands.length+1}.log`};commands.push(row);log('commands.json',commands);active=true;
-  try{await runOwnedCommand(process.execPath,args,{cwd,timeoutMs,env:{...process.env,ASTRO_TELEMETRY_DISABLED:'1',WRANGLER_SEND_METRICS:'false',XDG_CONFIG_HOME:join(directory,'config'),WRANGLER_LOG_PATH:join(directory,'wrangler-logs'),...env},onStart:pid=>{row.pid=pid;log('commands.json',commands);},onOutput:text=>{appendFileSync(join(directory,row.log),text);process.stdout.write(text);}});assertInputs();row.passed=true;}
-  catch(error){row.error=String(error);throw error;}
-  finally{active=false;row.ended=new Date().toISOString();log('commands.json',commands);}
+ async function command(args, {cwd = root, timeoutMs = 1800000, env = {}} = {}) {
+  if (active) throw Error('Owned runtime shutdown unconfirmed; command refused');
+  // Admission includes asynchronous gates, not only the spawned child lifetime.
+  active = true;
+  let row;
+  try {
+   if (!isStopped()) throw Error('Owned runtime shutdown unconfirmed; command refused');
+   assertInputs();
+   await checkPorts();
+   if (!isStopped()) throw Error('Owned runtime shutdown unconfirmed; command refused');
+   assertInputs();
+   row = {
+    executable: process.execPath, args, cwd,
+    started: new Date().toISOString(), ended: null, pid: null, passed: false,
+    log: `command-${commands.length + 1}.log`,
+   };
+   commands.push(row);
+   log('commands.json', commands);
+   await runOwnedCommand(process.execPath, args, {
+    cwd, timeoutMs,
+    env: {
+     ...process.env, ASTRO_TELEMETRY_DISABLED: '1', WRANGLER_SEND_METRICS: 'false',
+     XDG_CONFIG_HOME: join(directory, 'config'),
+     WRANGLER_LOG_PATH: join(directory, 'wrangler-logs'), ...env,
+    },
+    onStart: pid => {
+     row.pid = pid;
+     log('commands.json', commands);
+    },
+    onOutput: text => {
+     appendFileSync(join(directory, row.log), text);
+     process.stdout.write(text);
+    },
+   });
+   assertInputs();
+   row.passed = true;
+  } catch (error) {
+   if (row) row.error = String(error);
+   throw error;
+  } finally {
+   try {
+    if (row) {
+     row.ended = new Date().toISOString();
+     log('commands.json', commands);
+    }
+   } finally {
+    active = false;
+   }
+  }
  }
  return {directory,assertInputs,command,configure:()=>command(['scripts/configure.mjs']),build:(args=[])=>command(['apps/site/scripts/build.mjs',...args]),finish(){const after=canonicalSnapshot(root),unchanged=isDeepStrictEqual(before,after);log('restoration.json',{before,after,unchanged,commands});if(active||!isStopped())throw Error('Owned runtime shutdown unconfirmed');if(!unchanged)throw Error('Full canonical project/content/uploads snapshot conflict; acceptance failed');return {directory,unchanged};}};
 }
