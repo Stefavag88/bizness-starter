@@ -32,3 +32,41 @@ it('defaults role lists to empty and normalizes explicit identities without muta
  expect(parseProject(raw).infrastructure).toMatchObject({adminEmails:['admin1@example.com','admin2@example.com'],editorEmails:['editor@example.com','admin1@example.com']});expect(raw.infrastructure.adminEmails[0]).toBe(' Admin1@Example.COM ');
 });
 it.each([{adminEmail:''},{adminEmails:'admin@example.com'},{adminEmails:['']},{editorEmails:['*']},{adminEmails:['a@example.com',' A@EXAMPLE.COM ']},{editorEmails:['a@example.com','a@example.com']},{editorEmails:[2]}])('rejects malformed or legacy role configuration %j', infrastructure=>{expect(()=>parseProject({...valid(),infrastructure})).toThrow();});
+import { fixture } from './fixtures/content/factory';
+import { createCmsDescriptor } from '../scripts/cms-descriptor.mjs';
+
+describe('bounded developer media optimization policy', () => {
+  const defaults = { enabled: true, widths: [320, 640, 960, 1440, 1920], quality: 80 };
+  it.each([undefined, {}, { optimization: {} }])('defaults absent nested media policy %j', media => {
+    expect(parseProject({ ...valid(), ...(media === undefined ? {} : { media }) }).media.optimization).toEqual(defaults);
+  });
+  it('defaults partial settings and preserves disabled mode', () => {
+    expect(parseProject({ ...valid(), media: { optimization: { enabled: false } } }).media.optimization).toEqual({ ...defaults, enabled: false });
+    expect(parseProject({ ...valid(), media: { optimization: { quality: 95 } } }).media.optimization).toEqual({ ...defaults, quality: 95 });
+    expect(parseProject({ ...valid(), media: { optimization: { widths: [160, 2560] } } }).media.optimization).toEqual({ ...defaults, widths: [160, 2560] });
+  });
+  it('accepts a complete bounded policy without mutating it', () => {
+    const media = { optimization: { enabled: true, widths: [160, 320, 640, 960, 1920, 2560], quality: 40 } };
+    expect(parseProject({ ...valid(), media }).media).toEqual(media);
+    expect(media.optimization.widths).toEqual([160, 320, 640, 960, 1920, 2560]);
+  });
+  it.each([
+    { widths: [] }, { widths: [160, 320, 640, 960, 1440, 1920, 2560] },
+    { widths: [320, 320] }, { widths: [640, 320] }, { widths: [320.5] },
+    { widths: [159] }, { widths: [2561] }, { widths: ['320'] },
+    { quality: 39 }, { quality: 96 }, { quality: 80.5 }, { quality: '80' },
+    { enabled: 'false' }, { extra: true },
+  ])('rejects invalid policy %j even when disabled', optimization => {
+    expect(() => parseProject({ ...valid(), media: { optimization: { enabled: false, ...optimization } } })).toThrow();
+  });
+  it.each([{ extra: true }, { optimization: null }, null])('rejects unknown or malformed media settings %j', media => {
+    expect(() => parseProject({ ...valid(), media })).toThrow();
+  });
+  it('keeps developer optimization settings outside the CMS descriptor', () => {
+    const f = fixture();
+    const before = createCmsDescriptor(f.root, parseProject(valid()));
+    const after = createCmsDescriptor(f.root, parseProject({ ...valid(), media: { optimization: { enabled: false, widths: [2560], quality: 95 } } }));
+    expect(after).toEqual(before);
+    expect(after.project).not.toHaveProperty('media');
+  });
+});

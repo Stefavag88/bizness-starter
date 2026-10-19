@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRequire } from 'node:module';
+import sharp from 'sharp';
 import { mkdtemp, mkdir, writeFile, rm, symlink, truncate, open } from 'node:fs/promises';
 import type { FileHandle } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -8,9 +8,6 @@ import { createHash } from 'node:crypto';
 import { crc32 } from 'node:zlib';
 import { resolveSourceMedia } from '../packages/media/source.mjs';
 
-const siteRequire = createRequire(new URL('../apps/site/package.json', import.meta.url));
-const astroRequire = createRequire(siteRequire.resolve('astro/package.json'));
-const sharp = astroRequire('sharp');
 let root: string, uploads: string;
 beforeEach(async () => { root = await mkdtemp(join(tmpdir(), 'starter-media-')); uploads = join(root, 'apps/site/public/uploads'); await mkdir(uploads, { recursive: true }); });
 afterEach(async () => { await rm(root, { recursive: true, force: true }); });
@@ -68,7 +65,7 @@ describe('server source metadata', () => {
     finally { stat.mockRestore(); await handle.close(); }
   });
   it.each([[0, 2], [20001, 1], [10000, 4001]])('rejects invalid or excessive dimensions %i x %i', async (width, height) => {
-    const bytes = await image().png().toBuffer();
+    const bytes = Buffer.from(await image().png().toBuffer());
     bytes.writeUInt32BE(width, 16); bytes.writeUInt32BE(height, 20);
     bytes.writeUInt32BE(crc32(bytes.subarray(12, 29)), 29);
     const src = await save('dimensions.png', bytes);
@@ -108,5 +105,46 @@ describe('server source metadata', () => {
     await writeFile(join(realUploads, 'real.png'), await image().png().toBuffer());
     await symlink(join(realUploads, 'real.png'), join(realUploads, 'alias.png'), 'file');
     expect((await resolveSourceMedia(root, '/uploads/alias.png')).width).toBe(3);
+  });
+});
+
+// Snapshot assertions catch a second pathname read after validation. Only the
+// read boundary is intercepted; disk reads and Sharp metadata stay real.
+describe('validated source snapshots', () => {
+  it('returns the exact single read used for fingerprint and metadata despite a subsequent replacement', async () => {
+    const { readValidatedSource } = await import('../packages/media/source-reader.mjs');
+    const original = await image(11, 7).png().toBuffer();
+    const replacement = await image(4, 9).png().toBuffer();
+    const src = await save('snapshot.png', original);
+    const path = join(uploads, 'snapshot.png');
+    const handle = await open(path, 'r');
+    const prototype = Object.getPrototypeOf(handle);
+    const originalRead = prototype.readFile;
+    let reads = 0;
+    const read = vi.spyOn(prototype, 'readFile').mockImplementation(async function(this: FileHandle, ...args: unknown[]) {
+      reads++;
+      const bytes = await originalRead.apply(this, args);
+      await writeFile(path, replacement);
+      return bytes;
+    });
+    try {
+      const result = await readValidatedSource(root, src);
+      expect(result.bytes).toEqual(original);
+      expect(result.media).toEqual({ src, width: 11, height: 7, format: 'png', fingerprint: createHash('sha256').update(original).digest('hex') });
+      expect(result.pages).toBe(1);
+      expect(reads).toBe(1);
+    } finally { read.mockRestore(); await handle.close(); }
+  });
+  it('identifies animated WebP pages without adding private properties to public metadata', async () => {
+    const { readValidatedSource } = await import('../packages/media/source-reader.mjs');
+    // Two differently colored stacked frames, each 3 x 2.
+    const pixels = Buffer.from([...Array(6).fill([255, 0, 0]).flat(), ...Array(6).fill([0, 0, 255]).flat()]);
+    const bytes = await sharp(pixels, { raw: { width: 3, height: 4, channels: 3, pageHeight: 2 } }).webp({ loop: 0, delay: [100, 100] }).toBuffer();
+    const src = await save('animated.webp', bytes);
+    const result = await readValidatedSource(root, src);
+    expect(result.pages).toBe(2);
+    expect(result.bytes).toEqual(bytes);
+    expect(result.media).toEqual({ src, width: 3, height: 2, format: 'webp', fingerprint: createHash('sha256').update(bytes).digest('hex') });
+    expect(await resolveSourceMedia(root, src)).toEqual(result.media);
   });
 });

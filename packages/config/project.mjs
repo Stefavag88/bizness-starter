@@ -15,6 +15,13 @@ const infrastructure = z.strictObject({
   accessIssuer: z.string().default(''), accessAudience: z.string().default(''), adminEmails: accessEmails.default([]), editorEmails: accessEmails.default([]),
   sendingEnabled: z.boolean().default(false), marketingEnabled: z.boolean().default(false), sendIntervalMs: z.number().int().min(1000).default(1000),
 });
+const optimization = z.strictObject({
+  enabled: z.boolean().default(true),
+  widths: z.array(z.number().int().min(160).max(2560)).min(1).max(6)
+    .refine(widths => widths.every((width, index) => index === 0 || width > widths[index - 1]), 'Media widths must be ascending and unique')
+    .default([320, 640, 960, 1440, 1920]),
+  quality: z.number().int().min(40).max(95).default(80),
+});
 export const projectSchema = z.strictObject({
   name: z.string().regex(/^[a-z0-9-]{1,40}$/), starterVersion: z.literal('2.0.0-dev'), schemaVersion: z.literal(2),
   profile: z.enum(['enquiries','newsletter','nurture']).default('enquiries'), articles: z.boolean().default(true),
@@ -22,6 +29,7 @@ export const projectSchema = z.strictObject({
   locale: code, languages: z.array(z.strictObject({code, label:text})).min(1), siteUrl: origin,
   environment: z.enum(['local','staging','production']).default('local'),
   design: z.strictObject({theme:z.string().regex(/^[a-z0-9-]+$/).default('neutral'),density:z.enum(['comfortable','compact','spacious']).default('comfortable')}).default({theme:'neutral',density:'comfortable'}),
+  media: z.strictObject({ optimization: optimization.prefault({}) }).prefault({}),
   infrastructure: infrastructure.prefault({}), legalReviewed:z.boolean().default(false), contentReviewed:z.boolean().default(false),
   interests:z.array(z.strictObject({id,label:text})).default([]),
 }).superRefine((p,ctx) => {
