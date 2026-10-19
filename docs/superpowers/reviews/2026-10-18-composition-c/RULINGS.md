@@ -1,6 +1,6 @@
 # Composition C chronological execution ledger and rulings
 
-Snapshot through final whole-branch approval and final-review dispositions, 2026-10-19. The complete ledger below preserves chronology, all controller rulings/costs, interface clarifications, repairs and nonblocking follow-ups. Earlier pending entries are historical and superseded only by later entries. Scoped final documentation rereview and controller closeout remain pending.
+Final local closeout snapshot, 2026-10-19. All reviews are approved; historical pending entries are superseded by later observations. Full chronological ledger follows.
 
 # SDD ledger — plan: docs/superpowers/plans/2026-10-18-starter-v2-composition-c.md
 
@@ -142,3 +142,9 @@ Fresh controller finishing verification: pnpm test exit0,640root+21site passed,1
 Root localrestart: pnpm dev:cms session67522, raw .generated/composition-c-final-dev.log; exact createdprocess inventory/endpoints pending. Keep live stack for user, no further conflictingbuilds/tests.
 
 Root restart verified: content18524/Tina29448/Worker30216/site1256 from owned session67522; commands/creationtimes .generated/composition-c-final-runtime.json. EN/EL/showcase/CMS/Workerhealth/WorkerELcontact200, Greekmissing404, GraphQLQuery. CMS_QUERY_URL live native-query test1/1passed (.generated/composition-c-final-query.log). Live stack retained; no further conflicting configure/build/fulltests. Finaldocsminor/archive writer notified; scoped docreview pending.
+
+Final scoped documentation review /root/c_final_rereview APPROVED minor4addressed, no newImportant/Critical. Fresh16filecanonicalhash exact toacceptedTask6snapshot, roomsfalse, reference repos stillclean atpinnedrefs. Controller closes Task7 after permanent finalreport/ledger archive, verified exactscratchcleanup and finaldocscommit; liveownedstack retained.
+
+Closeout safety check initially stopped before deletion because raw string comparison included CRLF/LF differences. All four final report/archive pairs match exactly after documented line-ending/EOF normalization; no content mismatch or deletion occurred.
+
+Task 7: complete (runtime2c451d0; documentation7a12969/1d6f42b; finalwholebranch/scopedreviews approved). Controller verified report equality/planmarker/no reparse points and removed only C:/Projects/bizness-starter-v2/.superpowers/sdd/2026-10-18-starter-v2-composition-c. Fresh640root+21site and livequery1passed,16canonicalfilesexact,reference reposclean, localownedstackrunning. Final administrative commit records this closeout; no merge/push/tag/deploy.

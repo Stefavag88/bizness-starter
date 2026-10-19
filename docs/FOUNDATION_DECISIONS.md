@@ -121,7 +121,7 @@ All task reviews, the cleanup scoped rereview and the final whole-branch review 
 
 ## 2026-10-19 Composition C status and decisions
 
-This current status supersedes the historical statements above that defer Composition C/Rooms. Tasks 1–6 are independently accepted through runtime `2c451d0`; Task 7 documentation and most-capable-medium whole-branch review are approved at candidate `7a12969`; final documentation scoped rereview and controller closeout remain pending. The [complete chronological ledger and ruling/cost record](superpowers/reviews/2026-10-18-composition-c/RULINGS.md) preserves every execution entry, including startup inventory correction, helper exceptions and repair rounds. [C evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md) links actual commands and limits.
+This current status supersedes the historical statements above that defer Composition C/Rooms. Tasks 1–6 are independently accepted through runtime `2c451d0`; Task 7 documentation and most-capable-medium whole-branch review are approved at candidate `7a12969`; final documentation scoped rereview and local closeout are complete. The [complete chronological ledger and ruling/cost record](superpowers/reviews/2026-10-18-composition-c/RULINGS.md) preserves every execution entry, including startup inventory correction, helper exceptions and repair rounds. [C evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md) links actual commands and limits.
 
 | Decision | Reason | Recorded cost/boundary |
 | --- | --- | --- |
