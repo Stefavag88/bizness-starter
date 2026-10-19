@@ -33,7 +33,10 @@ export interface Person extends PersonCopy {contentId:string;slug:string;transla
 export interface ArticleCopy extends EditorialCopy {publishAt:string;updatedAt?:string}
 export interface Article extends ArticleCopy {contentId:string;slug:string;authorId?:string;offeringId?:string;translations:Record<string,ArticleCopy>}
 export interface NavigationItem {label:string;pageId:string}
-export interface SettingsCopy {brand:{name:string;tagline:string};legal:{businessName:string;privacyVersion:string;notice:string};contact:{email:string;phone:string;address:string};navigation:NavigationItem[]}
+export interface SocialSettings {instagram:string;linkedin:string;facebook:string;whatsapp:string;showInHeader:boolean}
+export interface ContactLink {id:'email'|'phone'|'instagram'|'linkedin'|'facebook'|'whatsapp';label:string;href:string;external:boolean}
+export interface ContactChannels {direct:ContactLink[];social:ContactLink[];phoneText?:string;address?:string}
+export interface SettingsCopy {social:SocialSettings;brand:{name:string;tagline:string};legal:{businessName:string;privacyVersion:string;notice:string};contact:{email:string;phone:string;address:string};navigation:NavigationItem[]}
 export interface SettingsTranslation {brand:{tagline:string};legal:{notice:string};contact:{address:string};navigation:Record<string,string>}
 export interface Settings extends SettingsCopy {translations:Record<string,SettingsTranslation>}
 export interface Campaign {contentId:string;subject:string;intro:string;articleId?:string;interest:string}

@@ -10,7 +10,7 @@ export function localizeContent(source,locale,project,registry) {
  if(locale!==project.locale&&!translation)throw new Error('Missing required settings translation for locale '+locale);
  const settings=structuredClone(locale===project.locale?baseSettings:{
   brand:{...baseSettings.brand,...translation.brand},legal:{...baseSettings.legal,...translation.legal},
-  contact:{...baseSettings.contact,...translation.contact},
+  contact:{...baseSettings.contact,...translation.contact},social:baseSettings.social,
   navigation:baseSettings.navigation.map(item=>({...item,label:translation.navigation[item.pageId]})),
  });
  const disabledIds=new Set(getDisabledDomainPages(project,registry).map(page=>page.contentId));

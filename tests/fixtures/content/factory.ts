@@ -18,6 +18,7 @@ export const editorial = (kind='offering',id='sample') => ({
  translations:{el:{status:'published',title:'Δείγμα',description:'Μια περίληψη.',body:'## Λεπτομέρειες',...(kind==='person'?{role:'Οδηγός'}:{}),...(kind==='article'?{publishAt:'2025-01-02T09:00:00Z'}:{})}}
 });
 export const normalizedSettings = () => ({
+ social:{instagram:'',linkedin:'',facebook:'',whatsapp:'',showInHeader:false},
  brand:{name:'Example Studio',tagline:'Space for useful work'},legal:{businessName:'Example Studio',privacyVersion:'sample-v1',notice:'Example content for review.'},
  contact:{email:'hello@example.com',phone:'',address:''},
  navigation:[{label:'Home',pageId:'home'},{label:'Articles',pageId:'insights'}],
@@ -44,6 +45,7 @@ export function pageDocument(id='home',template='home',slug='') {
 }
 export function settingsDocument() {
  const value:any=normalizedSettings();
+ delete value.social;
  for(const translation of Object.values(value.translations) as any[])translation.navigation=Object.entries(translation.navigation).map(([pageId,label])=>({pageId,label}));
  return value;
 }

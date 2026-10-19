@@ -1,3 +1,4 @@
+import {socialSettingsSchema} from './contact.mjs';
 import {modulePageTemplates} from './module-extensions.mjs';
 import { z } from 'zod';
 import { isSafeMarkdown } from './rich-text.mjs';
@@ -65,16 +66,18 @@ export const articleSchema=editorial({shared:{authorId:optionalId,offeringId:opt
  for(const [value,path] of [[article,[]],...Object.entries(article.translations).map(([locale,translation])=>[translation,['translations',locale]])])
   if(value.updatedAt&&Date.parse(value.updatedAt)<Date.parse(value.publishAt))ctx.addIssue({code:'custom',path:[...path,'updatedAt'],message:'updatedAt must not precede publishAt'});
 });
+const optionalContactText=max=>z.preprocess(value=>value==null?'':value,z.string().max(max));
 const settingsCopy = {
+ social:socialSettingsSchema,
  brand:z.strictObject({name:title,tagline:z.string().max(300)}),
  legal:z.strictObject({businessName:title,privacyVersion:z.string().trim().min(1).max(80),notice:richBody}),
- contact:z.strictObject({email:z.email(),phone:z.string().max(100),address:z.string().max(1000)}),
+ contact:z.strictObject({email:z.email(),phone:optionalContactText(100),address:optionalContactText(1000)}),
  navigation:z.array(z.strictObject({label:title,pageId:fieldId})),
 };
 const localizedSettingsCopy = {
  brand:z.strictObject({tagline:z.string().max(300)}),
  legal:z.strictObject({notice:richBody}),
- contact:z.strictObject({address:z.string().max(1000)}),
+ contact:z.strictObject({address:optionalContactText(1000)}),
  navigation:z.record(fieldId,title),
 };
 export const settingsSchema=z.strictObject({...settingsCopy,translations:translations(z.strictObject(localizedSettingsCopy))}).superRefine((settings,ctx)=>{
