@@ -3,9 +3,11 @@ import {fixture,project,editorial} from './fixtures/content/factory';
 import {readContent} from '../packages/content/read.mjs';
 import {localizeContent} from '../packages/content/localize.mjs';
 import {createManifest} from '../scripts/manifest.mjs';
+import {room} from './fixtures/content/room';
+import {pageDocument} from './fixtures/content/factory';
 import {environment} from './db';
 import worker from '../worker/index';
-const manifest=vi.hoisted(()=>({offerings:[] as {id:string}[],articles:[],campaigns:[]}));
+const manifest=vi.hoisted(()=>({enquiryContexts:[] as {id:string;kind:string}[],offerings:[] as {id:string}[],articles:[],campaigns:[]}));
 vi.mock('../.generated/manifest.json',()=>({default:manifest}));
 vi.mock('../worker/workflow',()=>({startEnrollments:async()=>{},WelcomeWorkflow:class{}}));
 it('accepts a Greek-only published offering context and rejects offerings unpublished everywhere',async()=>{
@@ -14,7 +16,7 @@ it('accepts a Greek-only published offering context and rejects offerings unpubl
  const article=editorial('article','greek-article');article.status='draft';f.write('articles/greek.json',article);
  const source=readContent(f.root,project);const localized=localizeContent(source,'el',project);
  expect(localized.offerings.some(o=>o.contentId==='greek-only')).toBe(true);
- const generated=createManifest(source,project);manifest.offerings.splice(0,manifest.offerings.length,...generated.offerings);
+ const generated=createManifest(source,project);manifest.enquiryContexts.splice(0,manifest.enquiryContexts.length,...generated.enquiryContexts);
  expect(generated.offerings.map(o=>o.id)).toEqual(['sample','greek-only']);
  expect(generated.articles.map(a=>a.id)).toEqual(['article']);
  const {env,database}=environment('enquiries');const pending:Promise<unknown>[]=[];
@@ -23,4 +25,16 @@ it('accepts a Greek-only published offering context and rejects offerings unpubl
  expect((await send('greek-only')).status).toBe(202);await Promise.all(pending);
  expect((await send('hidden')).status).toBe(400);
  expect(database.prepare('SELECT context_id FROM inquiry').get()!.context_id).toBe('greek-only');
+});
+
+it('accepts a Room absent from legacy offerings and rejects unknown, draft and disabled IDs',async()=>{
+ const f=fixture();f.write('pages/rooms.json',pageDocument('rooms','rooms','rooms'));f.write('rooms/suite.json',room());const draft=room();draft.contentId='draft-room';draft.slug='draft-room';draft.status='draft';draft.translations.el.status='draft';f.write('rooms/draft.json',draft);
+ const p={...project,modules:{rooms:true}};const generated=createManifest(readContent(f.root,p),p);manifest.enquiryContexts.splice(0,manifest.enquiryContexts.length,...generated.enquiryContexts);
+ expect(generated.offerings.map(o=>o.id)).not.toContain('suite');
+ const {env,database}=environment('enquiries');const pending:Promise<unknown>[]=[];const ctx={waitUntil:(p:Promise<unknown>)=>pending.push(p)} as unknown as ExecutionContext;
+ const key=crypto.randomUUID();const send=(id:string,requestKey=crypto.randomUUID())=>worker.fetch(new Request('http://127.0.0.1:8899/api/contact',{method:'POST',headers:{origin:'http://127.0.0.1:4433','Content-Type':'application/json'},body:JSON.stringify({contextId:id,requestKey,name:'Room visitor',email:'room@example.com',message:'A question about the published Room.',privacyAccepted:true,turnstileToken:'local'})}),env,ctx);
+ expect((await send('suite',key)).status).toBe(202);await Promise.all(pending);expect((await send('suite',key)).status).toBe(202);await Promise.all(pending);
+ expect((await send('unknown')).status).toBe(400);expect((await send('draft-room')).status).toBe(400);expect((await send('x'.repeat(81))).status).toBe(400);
+ expect(database.prepare('SELECT context_id FROM inquiry').all()).toEqual([{context_id:'suite'}]);expect(database.prepare('SELECT COUNT(*) n FROM email_capture').get()!.n).toBe(1);
+ const disabled=createManifest(readContent(f.root,project),project);manifest.enquiryContexts.splice(0,manifest.enquiryContexts.length,...disabled.enquiryContexts);expect((await send('suite')).status).toBe(400);
 });

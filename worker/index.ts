@@ -150,7 +150,7 @@ export default {
       if (path === '/api/contact' && request.method === 'POST') {
         requireOrigin(request, env);
         const data = inquirySchema.parse(await body(request));
-        if (data.contextId && !manifest.offerings.some((o) => o.id === data.contextId))
+        if (data.contextId && !manifest.enquiryContexts.some((context) => context.id === data.contextId))
           throw new HttpError(400, 'Unknown enquiry context.');
         if (!(await rateLimit(env, await ipKey(request), 10)))
           throw new HttpError(429, 'Please wait before trying again.');

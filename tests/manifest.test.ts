@@ -19,3 +19,9 @@ it('uses configured offering index and excludes article manifests when disabled'
  expect(m.offerings[0].path).toBe('/en/services/sample');
  expect(createManifest(source,{...project,articles:false}).articles).toEqual([]);
 });
+
+it('adds contexts from the same localized projection without changing legacy manifest arrays',()=>{
+ const f=fixture();const source=readContent(f.root,project);const manifest=createManifest(source,project);
+ expect(manifest.enquiryContexts).toEqual([{id:'sample',kind:'offering'}]);
+ expect(manifest.offerings).toEqual([{id:'sample',slug:'sample',title:'A sample',path:'/en/services/sample'}]);expect(manifest.campaigns).toEqual([]);
+});
