@@ -1,11 +1,11 @@
-// Server-only bounded encoder. All callers share these two transformation slots.
+// Server-only encoder. Encodes and full cache validation share two native-work slots.
 import sharp from 'sharp';
 export const PIPELINE_VERSION = 'v1-rotate-resize-lossless-png-1';
 export const ENCODING_POLICY = 'auto-orient;inside;without-enlargement;strip-metadata;png-lossless';
 export const SHARP_VERSION = sharp.versions.sharp;
 let active = 0;
 const waiting = [];
-async function transformSlot(job) {
+export async function withNativeImageWork(job) {
   if (active >= 2) await new Promise(resolve => waiting.push(resolve));
   else active++;
   try { return await job(); }
@@ -15,7 +15,7 @@ export function candidateWidths(sourceWidth, widths) {
   return [...new Set([...widths.filter(width => width <= sourceWidth), Math.min(sourceWidth, widths.at(-1))])].sort((a,b) => a-b);
 }
 export async function encodeCandidate(bytes, width, format, quality) {
-  return transformSlot(async () => {
+  return withNativeImageWork(async () => {
     let image = sharp(bytes, { limitInputPixels: 40000000, failOn: 'warning' }).rotate().resize({width,withoutEnlargement:true});
     if (format === 'png') image = image.png();
     else if (format === 'jpeg') image = image.jpeg({quality});

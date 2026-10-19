@@ -75,3 +75,49 @@ it('reuses photographic output despite Sharp shrink-on-load height rounding',asy
  await writeFile(join(uploads,'photo.jpg'),await readFile(new URL('./fixtures/media-optimization/large-photo.jpg',import.meta.url)));const s=await readValidatedSource(root,'/uploads/photo.jpg');const r=await resolveCachedMedia(root,s,{...policy,widths:[320]});const before=await Promise.all([...r.webp,...r.fallback].map(c=>stat(file(c.src))));
  const again=await resolveCachedMedia(root,s,{...policy,widths:[320]});expect(again.webp).toEqual(r.webp);expect(again.fallback).toEqual(r.fallback);const after=await Promise.all([...r.webp,...r.fallback].map(c=>stat(file(c.src))));expect(after.map(x=>x.mtimeMs)).toEqual(before.map(x=>x.mtimeMs));
 });
+
+// Observe both resized encodes and raw validation decodes. Keep real native work;
+// delay its completion briefly so independent requests overlap deterministically.
+function observeNativeImageWork() {
+ const state={active:0,max:0,decodes:0,transforms:0};
+ const proto=Object.getPrototypeOf(sharp());
+ const original=proto.toBuffer;
+ vi.spyOn(proto,'toBuffer').mockImplementation(async function(this:any,...args:any[]) {
+  state.active++;state.max=Math.max(state.max,state.active);
+  if(this.options.width>0)state.transforms++;else state.decodes++;
+  try {const result=await original.apply(this,args);await new Promise(resolve=>setTimeout(resolve,10));return result;}
+  finally {state.active--;}
+ });
+ return state;
+}
+
+it('bounds full warm-cache validation to two native jobs across roots and six-width families',async()=>{
+ const other=await mkdtemp(join(tmpdir(),'media-warm-bounded-'));
+ try {
+  await writeFile(join(uploads,'a.png'),await sharp({create:{width:1200,height:600,channels:4,background:'#a85'}}).png().toBuffer());
+  const s=await snapshot();const six={...policy,widths:[160,320,480,640,800,960]};
+  await resolveCachedMedia(root,s,six);await resolveCachedMedia(other,s,six);
+  const work=observeNativeImageWork();
+  const results=await Promise.all([resolveCachedMedia(root,s,six),resolveCachedMedia(other,s,six)]);
+  expect(results.map(r=>r.webp.length+r.fallback.length)).toEqual([12,12]);
+  expect(work.decodes).toBe(24);expect(work.transforms).toBe(0);
+  expect(work.max).toBe(2);expect(work.active).toBe(0);
+ } finally {await rm(other,{recursive:true,force:true});}
+});
+
+it('shares two native slots between direct cached reads and cold transforms across roots',async()=>{
+ const other=await mkdtemp(join(tmpdir(),'media-read-bounded-'));
+ try {
+  const s=await snapshot();const a=await resolveCachedMedia(root,s,policy);const b=await resolveCachedMedia(other,s,policy);
+  const candidatesA=[...a.webp,...a.fallback],candidatesB=[...b.webp,...b.fallback];
+  const work=observeNativeImageWork();
+  const results=await Promise.all([
+   ...candidatesA.map(c=>readCachedCandidate(root,c)),
+   ...candidatesB.map(c=>readCachedCandidate(other,c)),
+   resolveCachedMedia(other,s,{...policy,quality:90})
+  ]);
+  for(const result of results.slice(0,8))expect('bytes' in result && result.bytes.length).toBeGreaterThan(0);
+  expect(work.decodes).toBe(8);expect(work.transforms).toBe(4);
+  expect(work.max).toBe(2);expect(work.active).toBe(0);
+ } finally {await rm(other,{recursive:true,force:true});}
+});

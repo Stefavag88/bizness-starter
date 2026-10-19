@@ -3,7 +3,7 @@ import sharp from 'sharp';
 import { createHash, randomUUID } from 'node:crypto';
 import { lstat, mkdir, open, realpath, rename, unlink, link } from 'node:fs/promises';
 import { join, resolve, relative, isAbsolute } from 'node:path';
-import { candidateWidths, encodeCandidate, PIPELINE_VERSION, ENCODING_POLICY, SHARP_VERSION } from './optimization.mjs';
+import { candidateWidths, encodeCandidate, withNativeImageWork, PIPELINE_VERSION, ENCODING_POLICY, SHARP_VERSION } from './optimization.mjs';
 export { candidateWidths } from './optimization.mjs';
 const MARKER = 'starter-media-optimization-cache-v1\n';
 const CACHE_PARTS = ['.generated','media-optimization','cache','v1'];
@@ -71,10 +71,13 @@ async function validate(dir, candidate, expectedIdentity) {
   if (manifest.width !== candidate.width || manifest.height !== candidate.height || manifest.bytes !== candidate.bytes || manifest.file !== `${id}.${candidate.format}`) throw new Error('Invalid media cache manifest metadata');
   const bytes = await readRegular(file);
   if (bytes.length !== candidate.bytes || hash(bytes) !== manifest.sha256) throw new Error('Invalid media cache output hash');
-  const decoder = sharp(bytes,{limitInputPixels:40000000,failOn:'warning'});
-  const m = await decoder.metadata();
-  if (m.format !== candidate.format || m.width !== candidate.width || m.height !== candidate.height || (m.pages ?? 1) !== 1 || m.orientation) throw new Error('Invalid media cache decoded dimensions');
-  await decoder.raw().toBuffer();
+  // Acquire only for this decode, never around a cache resolution that may encode.
+  await withNativeImageWork(async () => {
+    const decoder = sharp(bytes,{limitInputPixels:40000000,failOn:'warning'});
+    const m = await decoder.metadata();
+    if (m.format !== candidate.format || m.width !== candidate.width || m.height !== candidate.height || (m.pages ?? 1) !== 1 || m.orientation) throw new Error('Invalid media cache decoded dimensions');
+    await decoder.raw().toBuffer();
+  });
   return {bytes,contentType:`image/${candidate.format}`};
 }
 /** Reads only a strictly identified, verified candidate; session demand is owned by the caller. */

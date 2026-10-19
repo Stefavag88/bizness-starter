@@ -7,3 +7,5 @@ export const ENCODING_POLICY: string;
 export const SHARP_VERSION: string;
 /** Server-only bounded encoder; consumes validated bytes. */
 export function encodeCandidate(bytes: Buffer, width: number, format: ImageCandidate['format'], quality: number): Promise<{bytes: Buffer; width: number; height: number}>;
+/** Server-only shared process-wide bound for encodes and full validation decodes. Call once per native job; do not nest acquisitions. */
+export function withNativeImageWork<T>(job: () => Promise<T>): Promise<T>;
