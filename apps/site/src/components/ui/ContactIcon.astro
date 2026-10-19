@@ -1,0 +1,7 @@
+---
+import {contactIcons} from '../../../../../packages/design-system/contact-icons.mjs';
+import type {ContactLink} from '../../../../../packages/content/types';
+interface Props {name:ContactLink['id']|'address'}
+const {name}=Astro.props;
+---
+<svg class="contact-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">{contactIcons[name].map(path=><path d={path.d} fill-rule={path.fillRule}/>)}</svg>

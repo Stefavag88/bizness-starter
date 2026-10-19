@@ -1,14 +1,19 @@
 ---
 import {getEnquiryContexts} from '../../../../packages/content/enquiry-contexts.mjs';
+import ContactDetails from '../components/ui/ContactDetails.astro';
+import SocialLinks from '../components/ui/SocialLinks.astro';
+import {contactChannels} from '../../../../packages/content/contact.mjs';
 import Field from '../components/ui/Field.astro';
 import type {LocalizedContent} from '../../../../packages/content/types';
 import {project} from '../lib/content';
 interface Props {content:LocalizedContent}
 const {content}=Astro.props;const el=content.locale==='el';
 const contexts=getEnquiryContexts(content);
+const channels=contactChannels(content.settings,content.locale);
+const email=channels.direct.find(link=>link.id==='email')!;
 ---
 <section><div class="wrap"><h2>{el?'Ας μιλήσουμε':'Let’s talk'}</h2><p>{el?'Τα πεδία με * είναι υποχρεωτικά.':'Fields marked * are required.'}</p>
-<form id="contact-form" action="/api/contact" method="post" data-locale={content.locale}>
+<div class="contact-layout"><form id="contact-form" action="/api/contact" method="post" data-locale={content.locale}>
 <Field name="name" label={el?'Όνομα':'Name'} required maxlength={120} autocomplete="name"/>
 <Field name="email" label={el?'Email':'Email'} type="email" required maxlength={254} autocomplete="email"/>
 <Field name="phone" label={el?'Τηλέφωνο':'Phone'} type="tel" maxlength={40} autocomplete="tel"/>
@@ -18,8 +23,8 @@ const contexts=getEnquiryContexts(content);
 {project.profile!=='enquiries'&&<><label class="check"><input type="checkbox" name="marketingConsent"/>{el?'Θέλω να λαμβάνω ενημερώσεις μέσω email (προαιρετικό).':'Send me useful email updates (optional).'}</label><div class="field"><label for="interest">{el?'Ενημερώσεις':'Updates'}</label><select name="interest" id="interest">{project.interests.map(i=><option value={i.id}>{i.label}</option>)}</select></div></>}
 <input type="hidden" name="turnstileToken" value="local-preview"/>
 <div id="form-errors" tabindex="-1" role="alert" hidden></div><button type="submit">{el?'Αποστολή μηνύματος':'Send message'}</button><p id="form-status" role="status" aria-live="polite"></p>
-<noscript><p>{el?'Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email.':'This form needs JavaScript. You can also email us directly.'} <a href={'mailto:'+content.settings.contact.email}>{content.settings.contact.email}</a></p></noscript>
-</form></div></section>
+<noscript><p>{el?'Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email.':'This form needs JavaScript. You can also email us directly.'} <a href={email.href}>{email.label}</a></p></noscript>
+</form><aside class="contact-aside"><ContactDetails channels={channels} locale={content.locale}/><SocialLinks links={channels.social} locale={content.locale} variant="labeled"/></aside></div></div></section>
 <script>
 const form=document.querySelector<HTMLFormElement>('#contact-form');
 if(form){

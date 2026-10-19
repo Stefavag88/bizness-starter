@@ -1,0 +1,7 @@
+---
+import ContactIcon from './ContactIcon.astro';
+import type {ContactChannels} from '../../../../../packages/content/types';
+interface Props {channels:ContactChannels;locale:string}
+const {channels,locale}=Astro.props;
+---
+<div class="contact-details"><h2 class="contact-group-heading">{locale==='el'?'Στοιχεία επικοινωνίας':'Contact details'}</h2><ul class="contact-list">{channels.direct.map(link=><li><a class="contact-link" href={link.href}><ContactIcon name={link.id}/><span>{link.label}</span></a></li>)}{channels.phoneText&&<li class="contact-text"><ContactIcon name="phone"/><span>{channels.phoneText}</span></li>}{channels.address&&<li class="contact-text contact-address"><ContactIcon name="address"/><span>{channels.address}</span></li>}</ul></div>

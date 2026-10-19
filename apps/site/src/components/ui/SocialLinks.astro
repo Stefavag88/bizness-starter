@@ -1,0 +1,9 @@
+---
+import ContactIcon from './ContactIcon.astro';
+import type {ContactLink} from '../../../../../packages/content/types';
+interface Props {links:ContactLink[];locale:string;variant:'labeled'|'icons'}
+const {links,locale,variant}=Astro.props;
+const heading=locale==='el'?'Ακολουθήστε μας':'Follow us';
+const newTab=locale==='el'?'ανοίγει σε νέα καρτέλα':'opens in a new tab';
+---
+{links.length>0&&<div class:list={['social-group',`social-${variant}`]}>{variant==='labeled'&&<h2 class="contact-group-heading">{heading}</h2>}<nav class="social-links" aria-label={heading}>{links.map(link=><a class="social-link" href={link.href} target={link.external?'_blank':undefined} rel={link.external?'noopener noreferrer':undefined}><ContactIcon name={link.id}/><span class={variant==='icons'?'visually-hidden':undefined}>{link.label}{link.external&&<span class="visually-hidden"> ({newTab})</span>}</span></a>)}</nav></div>}
