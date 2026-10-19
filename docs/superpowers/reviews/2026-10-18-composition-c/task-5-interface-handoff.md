@@ -1,0 +1,7 @@
+# Task 5 interface handoff
+
+Accepted generic domain projection lives in packages/content/domain-publication.mjs; getDomainRecords(content,key,registry?) gives typed localized public records. ContentSnapshot.domains and LocalizedContent.domains contain keyed registered datasets. DomainDefinition.enquiry boolean marks contributions; domainRegistry/getActiveDomains are browser-safe. Localized Rooms records already reflect modules.rooms, per-locale Room status/schedule and published Rooms index dependency. Never reimplement that eligibility.
+
+Rooms domain now registered under rooms; static routes kind domain with domain rooms. RoomDetail CTA uses /LOCALE/contact?contextId=CONTENT_ID (verify current consumer wire rather than assuming). Default modules.rooms=false; canonical Rooms index draft and no Room records. Task4 native proof restored exact config/index/media/record bytes and stopped own stack; no running launcher currently. No generic enquiry functions/manifest/Worker consumers have been implemented yet. Task5 owns them per common-context interfaces; preserve existing manifest offerings/articles/campaigns/routes and scalar D1 contextId.
+
+Read AGENTS and current source. Do not edit unrelated source/reference repositories or replay native UI proof. Retain raw actual Worker acceptance/DB/no-send evidence and exact fixture/process ownership. Raise concrete interface gaps to controller.

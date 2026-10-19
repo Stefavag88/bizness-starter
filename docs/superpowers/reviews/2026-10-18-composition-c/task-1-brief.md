@@ -1,0 +1,11 @@
+## Task 1: Generic registration and dormant discovery
+
+**Files:** Create domain-contracts.ts and domain-registry runtime/declarations; modify config declarations/parser, content read/types and CMS descriptor; tests/domain-registry.test.ts and tests/domain-discovery.test.ts. Update docs/ARCHITECTURE.md and docs/CONTENT_MODEL.md with the registration boundary. No Rooms production registration yet.
+
+**Interfaces:** Produce DomainDefinition, DomainRegistry, defineDomain, createDomainRegistry, getActiveDomains and typed domains containers from the shared interface block. Add an empty strict modules object now; Task 3 adds its explicit rooms field with default false. Preserve existing readContent(root,project,{now}) call compatibility; readContent options gains registry?:DomainRegistry for isolated tests; localizeContent(source,locale,project,registry?:DomainRegistry) and validateCatalog(source,project,registry?:DomainRegistry) receive that same test registry. Production callers omit it and use the static registry. publicRoutes(content) remains unchanged because it consumes finalized localized records.
+
+- [ ] Write tests using a small test-only domain: duplicate keys/native aliases/directories/owned filenames throw; active flat folder loads; disabled malformed folder/index is never parsed; sibling active malformed JSON still fails with its filename. Verify unknown module keys rejected and descriptor contains no infrastructure secrets or record/item IDs.
+- [ ] Run pnpm exec vitest run tests/domain-registry.test.ts tests/domain-discovery.test.ts; confirm failure identifies the absent registration/discovery behavior.
+- [ ] Implement registry validation and generic active folder discovery. Determine excluded Page filenames from all disabled registrations before opening Page JSON. Descriptor consumes declarations, not reparsed disabled Pages; keep legacy articles exclusion compatible. Validate collection/folder aliases against built-in collections too.
+- [ ] Run the focused tests plus tests/project-config.test.ts, tests/cms-metadata.test.ts and tests/cms-articles-disabled.test.ts. Expected: pass, with no schema/configuration generated from instance IDs.
+- [ ] Commit as feat: add static domain registration and dormant discovery; request independent task review. Resolve findings before Task 2.

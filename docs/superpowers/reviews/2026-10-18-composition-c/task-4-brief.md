@@ -1,0 +1,11 @@
+## Task 4: Native CMS creation, validation and recovery proof
+
+**Files:** Add e2e/composition-c-cms.spec.ts and helpers/composition-c-fixture.ts; reuse helpers/native-document.ts, cms-source-ownership.ts and owned-media.ts. Extend tests/domain-native.test.ts and tests/rooms-items.test.ts where actual installed schema/serializer exposes a narrow compatibility gap. Update docs/COMPOSITION_AUTHORING.md.
+
+**Interfaces:** Consume active native adapters and Rooms controls. Collection discovery uses active registrations; index file guards and draft identity apply before mutation. No raw write mutation substitutes for actual editor interaction.
+
+- [ ] Add failing native/contract tests for edit-only index filename/template, immutable saved Room filename/contentId/slug, flat paths, draft-only create, disabled Delete and invalid nested copy. Add a disabled-mode query test proving no roomConnection request occurs; malformed dormant files remain byte-identical.
+- [ ] Establish an owned indexed dev:cms stack and known exclusive image bytes using existing ownership helpers. Capture active schema and installed serializer expectations before each UI mutation. Use browser-driven draft creation, EN/EL rich edits, image/amenity add/reorder/remove, explicit translated initialization, save/reload and publish.
+- [ ] Prove invalid save attempts cause zero mutations and exact unchanged disk bytes; correct nested controls and then save successfully. Preserve unrelated opaque AST identity. Verify actual Cancel changes no disk/request. Reference removal preserves physical uploads and removes only matching localized copy. Any compatibility correction returns to the owning implementer and gets focused regression tests; no broadened HTML/AST allowances.
+- [ ] Restore the owned Page/Room records before owned image deletion; independently restore project bytes. Preserve conflicts and backups. Record mutation counts, no-op attempts, recovery and exact restoration; confirm focused tests and native proof pass, or leave the gate explicitly incomplete.
+- [ ] Commit as test: verify native rooms authoring and recovery; independent review must assess evidence and ownership, not replay all UI work merely to reconfirm green.
