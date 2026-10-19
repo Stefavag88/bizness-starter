@@ -12,7 +12,7 @@ const cmsBuild=process.argv.includes('--cms-build');
     if(!cmsBuild){
       const prepare=promisify(execFile);
       const env={...process.env,XDG_CONFIG_HOME:resolve('.wrangler/config'),WRANGLER_LOG_PATH:resolve('.wrangler/logs'),WRANGLER_SEND_METRICS:'false',ASTRO_TELEMETRY_DISABLED:'1'};
-      await prepare(process.execPath,[resolve('apps/site/node_modules/astro/bin/astro.mjs'),'build'],{cwd:resolve('apps/site'),env});
+      await prepare(process.execPath,[resolve('apps/site/scripts/build.mjs')],{cwd:resolve('apps/site'),env});
       const migrated=await prepare(process.execPath,[resolve('node_modules/wrangler/bin/wrangler.js'),'d1','migrations','apply','DB','--local','--config',resolve('wrangler.generated.json')],{env});
       console.log(migrated.stdout);
     }

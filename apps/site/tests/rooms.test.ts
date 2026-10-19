@@ -1,3 +1,8 @@
+import {beforeEach,afterEach} from 'vitest';
+import {beginMediaSession,endMediaSession} from '../../../packages/media/session.mjs';
+const mediaRoot=fileURLToPath(new URL('../../../',import.meta.url));
+beforeEach(()=>{beginMediaSession({root:mediaRoot,policy:{enabled:true,widths:[320,640,960,1440,1920],quality:80},mode:'dev'});});
+afterEach(async()=>{await endMediaSession(mediaRoot);});
 import {it,expect} from 'vitest';
 import {experimental_AstroContainer as AstroContainer} from 'astro/container';
 import RoomDetail from '../src/templates/domains/rooms/RoomDetail.astro';

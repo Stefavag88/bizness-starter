@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import mediaIntegration from './src/integrations/media.mjs';
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
 import { readFileSync } from 'node:fs';
@@ -51,4 +52,4 @@ const localizedNotFound={
  }},
 };
 const target=`http://127.0.0.1:${ports.worker}`;
-export default defineConfig({site:project.siteUrl,output:'static',integrations:[localShowcase,localizedNotFound],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh,uploadRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});
+export default defineConfig({site:project.siteUrl,output:'static',integrations:[mediaIntegration({root:projectRoot,policy:project.media.optimization}),localShowcase,localizedNotFound],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh,uploadRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});

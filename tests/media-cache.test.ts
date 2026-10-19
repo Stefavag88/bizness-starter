@@ -48,8 +48,8 @@ it('does not publish a partial manifest after an interrupted atomic write and re
  const {open}=await import('node:fs/promises');const probe=await open(join(root,'probe'),'w');const proto=Object.getPrototypeOf(probe);const original=proto.writeFile;await probe.close();
  const boundary=vi.spyOn(proto,'writeFile').mockImplementation(async function(this:any,data:any,...args:any[]){if(typeof data==='string' && data.startsWith('{"identity":')){throw new Error('Controlled interrupted manifest write');}return original.call(this,data,...args);});
  const s=await snapshot();await expect(resolveCachedMedia(root,s,{...policy,widths:[160]})).rejects.toThrow(/interrupted/);
- // Promise.all rejects early: allow both independent format jobs to finish cleanup.
- await new Promise(resolve=>setTimeout(resolve,50));boundary.mockRestore();
+ // Rejection now drains every sibling format job before returning.
+ boundary.mockRestore();
  expect((await readdir(cache)).filter(name=>name.endsWith('.json')||name.endsWith('.tmp'))).toEqual([]);
  const r=await resolveCachedMedia(root,s,{...policy,widths:[160]});for(const c of [...r.webp,...r.fallback])expect((await readCachedCandidate(root,c)).bytes.length).toBeGreaterThan(0);
 });

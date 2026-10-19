@@ -135,7 +135,18 @@ export async function resolveCachedMedia(root,snapshot,policy) {
   const dir=await cacheDirectory(root,true);
   const widths=candidateWidths(snapshot.media.width,policy.widths);
   const formats=snapshot.media.format==='webp'?['webp']:['webp',snapshot.media.format];
-  const families=await Promise.all(formats.map(async format=>[format,await Promise.all(widths.map(width=>cachedCandidate(root,dir,snapshot,width,format,policy.quality)))]));
-  for(const [format,candidates] of families)base[format==='webp'?'webp':'fallback']=candidates;
+  // Rejection must not leave sibling writes/native jobs alive after session close.
+  let firstFailure;
+  const jobs=formats.flatMap(format=>widths.map(width=>
+    cachedCandidate(root,dir,snapshot,width,format,policy.quality)
+      .then(candidate=>({format,candidate}),error=>{firstFailure??=error;throw error;})
+  ));
+  const completed=await Promise.allSettled(jobs);
+  if(firstFailure)throw firstFailure;
+  for(const result of completed){
+    if(result.status==='rejected')throw result.reason;
+    const {format,candidate}=result.value;
+    base[format==='webp'?'webp':'fallback'].push(candidate);
+  }
   return base;
 }

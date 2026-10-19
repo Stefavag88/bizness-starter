@@ -115,7 +115,7 @@ export async function verifyShowcaseBuilds({
   };
   const build = async () => {
     await command(['scripts/configure.mjs']);
-    await command([join(root, 'apps/site/node_modules/astro/bin/astro.mjs'), 'build'], join(root, 'apps/site'));
+    await command([join(root, 'apps/site/scripts/build.mjs')], join(root, 'apps/site'));
   };
 
   // Build each nonlocal environment under a separate exact-byte owner.

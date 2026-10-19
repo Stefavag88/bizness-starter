@@ -1,10 +1,10 @@
 import {
-  resolveSourceMedia,
-  type SourceMedia,
-} from '../../../../packages/media/source.mjs';
+  getMediaSession,
+} from '../../../../packages/media/session.mjs';
 import type { MediaReference } from '../../../../packages/content/media.mjs';
 declare const __PROJECT_ROOT__: string;
-export type ResolvedMedia = SourceMedia;
+import type { ResponsiveMedia } from '../../../../packages/media/optimization.mjs';
+export type ResolvedMedia = ResponsiveMedia;
 export type Crop = MediaReference['crop'];
 /** Imported only by server-rendered components. Never expose the repository root. */
 export async function resolveSectionMedia(
@@ -13,7 +13,7 @@ export async function resolveSectionMedia(
 ): Promise<ResolvedMedia | undefined> {
   if (!media) return undefined;
   try {
-    return await resolveSourceMedia(__PROJECT_ROOT__, media.src);
+    return await getMediaSession(__PROJECT_ROOT__).resolve(media.src);
   } catch (error) {
     throw Error(
       `Page ${context.pageId}, section ${context.sectionId}${context.itemId ? ', item ' + context.itemId : ''}: cannot render image ${media.src}. Choose an existing valid local upload. ${error instanceof Error ? error.message : String(error)}`,

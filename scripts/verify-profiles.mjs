@@ -33,7 +33,7 @@ async function runProfile(profile,articles){
  console.log('Verifying '+profile+', articles='+articles);
  await command(['scripts/configure.mjs']);
  await command(['scripts/dev.mjs','--cms-build']);
- await command([resolve('apps/site/node_modules/astro/bin/astro.mjs'),'build'],{},resolve('apps/site'));
+ await command([resolve('apps/site/scripts/build.mjs')],{},resolve('apps/site'));
  await command(['scripts/wrangler.mjs','deploy','--dry-run','--config','wrangler.generated.json']);
  if(!articles)for(const lang of ['en','el'])if(existsSync(`apps/site/dist/${lang}/insights`)||existsSync(`apps/site/dist/${lang}/feed.xml`))throw Error('Disabled article outputs leaked');
  await command(['scripts/wrangler.mjs','d1','migrations','apply','DB','--local','--config','wrangler.generated.json']);

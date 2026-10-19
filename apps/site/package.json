@@ -1,1 +1,1 @@
-{ "name": "@starter/site", "private": true, "type": "module", "scripts": { "dev": "astro dev --host 127.0.0.1", "build": "astro build", "check": "astro check" }, "dependencies": { "astro": "7.3.6" }, "devDependencies": { "@astrojs/check": "0.9.10", "typescript": "5.9.3" } }
+{ "name": "@starter/site", "private": true, "type": "module", "scripts": { "dev": "astro dev --host 127.0.0.1", "build": "node scripts/build.mjs", "check": "astro check" }, "dependencies": { "astro": "7.3.6" }, "devDependencies": { "@astrojs/check": "0.9.10", "typescript": "5.9.3" } }
