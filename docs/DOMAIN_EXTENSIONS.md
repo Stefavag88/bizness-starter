@@ -1,6 +1,6 @@
 # Developer domain extensions
 
-Composition C uses static developer registrations. Rooms is the only shipped business extension and is disabled by default. Existing offerings, people and articles retain their named arrays. This recipe describes the accepted interfaces at runtime commit `2c451d0`; whole-branch review is pending. See [architecture](ARCHITECTURE.md), [Rooms authoring](ROOMS_AUTHORING.md) and [acceptance evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md).
+Composition C uses static developer registrations. Rooms is the only shipped business extension and is disabled by default. Existing offerings, people and articles retain their named arrays. This recipe describes the accepted interfaces at runtime commit `2c451d0`; whole-branch review approved candidate `7a12969`; final documentation scoped rereview and controller closeout remain pending. See [architecture](ARCHITECTURE.md), [Rooms authoring](ROOMS_AUTHORING.md) and [acceptance evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md).
 
 ## Registration recipe
 

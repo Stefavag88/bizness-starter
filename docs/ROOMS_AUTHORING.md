@@ -24,7 +24,7 @@ Nested copy controls render native fields directly so corrections remain reachab
 
 Publish the Rooms index and each Room independently for each locale. A Room appears only when both are published at the same captured publication clock. Scheduled or missing translations omit the Room and locale alternative; no language or item fallback is used. An empty published index displays its localized room-list emptyMessage. The index shared slug owns `/LOCALE/INDEX_SLUG/ROOM_SLUG`.
 
-The detail CTA targets the existing localized contact page with `contextId`. The localized form uses public Room/Offering choices; the Worker accepts the deduplicated configured-locale union through manifest.enquiryContexts. Unknown, draft and disabled IDs reject; no new D1 schema or booking flow exists. Accepted Task 4 native recovery, Task 5 local capture-only Worker and Task 6 public/build evidence are [recorded separately](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md). Final whole-branch review remains pending; this module does not enable real sending.
+The detail CTA targets the existing localized contact page with `contextId`. The localized form uses public Room/Offering choices; the Worker accepts the deduplicated configured-locale union through manifest.enquiryContexts. Unknown, draft and disabled IDs reject; no new D1 schema or booking flow exists. Accepted Task 4 native recovery, Task 5 local capture-only Worker and Task 6 public/build evidence are [recorded separately](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md). Whole-branch review approved candidate `7a12969`; controller closeout remains pending; this module does not enable real sending.
 
 ## Developer registrations
 

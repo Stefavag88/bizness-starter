@@ -1,6 +1,6 @@
 # Composition C chronological execution ledger and rulings
 
-Snapshot through Task 7 documentation dispatch, 2026-10-19. The complete ledger below preserves chronology, interface clarifications, repairs, controller decisions and their recorded costs; earlier pending statements are historical and later entries supersede them. The concise ruling extract is retained separately in `rulings-to-date.md`. No final review or closeout is implied.
+Snapshot through final whole-branch approval and final-review dispositions, 2026-10-19. The complete ledger below preserves chronology, all controller rulings/costs, interface clarifications, repairs and nonblocking follow-ups. Earlier pending entries are historical and superseded only by later entries. Scoped final documentation rereview and controller closeout remain pending.
 
 # SDD ledger — plan: docs/superpowers/plans/2026-10-18-starter-v2-composition-c.md
 
@@ -124,3 +124,21 @@ Task6implemented2c451d0. Reportread: finalpublicstatic6passedwithfivefullmodes; 
 Task6: complete (commitsdca3e14..2c451d0, reviewclean/noImportantCritical). Reviewer accepted segmented finalsource6full/public +pure1focused and7globalgates; native/clockunchangedtaskdependencies resolved by acceptedTasks2-5. Task 6: minor (deferred): explicit localized body/title visibility assertions in noJS loop; compressed newharness statements readability; baselineSQLite/colorclassification. Finalwholebranchreviewtriage. Task7base2c451d0.
 
 Task7documentation dispatched /root/c_task7medium, base2c451d0; no product changes or finalreviewdispatch/cleanup by worker. Controller owns subsequent taskreview7, most-capable-medium wholebranchreview, final archive/verified scratchcleanup and localrestart.
+
+Task7docsimplemented7a1296971154c0452381bc3fc6247f658cd56e7e. Reportread:42MD/55locallinks/30archiveequivalence checked, docsonly/clean, finalreviewsunchecked. Fullreviewpackage316KBincludes copied previously reviewed records; authored-docs slice supplied plus archive equivalence check to avoid redundant historical prose reread.
+
+Task7documentation gate approved /root/c_review7, noImportantCritical. Task 7: minor (deferred): plancheckedline111 no-core-edits wording should explicitly acknowledge two approved Task3frameworkexceptions. Task7finalwholebranchreview/closeout notcomplete; no Task7 complete line yet. Finalcandidate7a1296971154c0452381bc3fc6247f658cd56e7e, baseline9ad9d86, 14commits. Fullpackage631KBplus primaryproduct/docs430KB excluding historicalarchive copies. Finalreview next most-capable available gpt-6-astra/medium.
+
+Final wholebranchreview /root/c_final_review gpt-6-astra medium APPROVED candidate7a12969; noCritical/Important. Reportread; gitstatusclean atrequestedHEAD. Prior closeout read command was not executed because automaticapprovalreview hit accountusage limit (not unsafe determination); usercontinued, retry succeeded.
+
+## Final review dispositions
+
+Ruling: Keep final review minor items 1-3 (native-control readability, harness formatting, explicit no-JS prose assertions) as documented follow-ups, and fix minor 4 in final documentation only — reviewer approved current behavior and evidence; avoid a new runtime/harness change after acceptance — cost if wrong: future maintenance remains harder and a future hidden-prose regression lacks that extra explicit assertion.
+
+Declined-to-judge items individually accepted: (1) bookings/inventory/prices/accounts/presets excluded by spec; (2) hosted providers/delivery/deployment unconfigured and unauthorized; (3) derivatives/loading budget deferred with original-image limits; (4) certification/exhaustive browsers/payload decoding not claimed; (5) atomic multi-editor locking outside best-effort ownership contract; (6) add-only dev freshness/skip-link active focus disclosed inherited limits; (7) unavailable historical Task2 stdout cannot be independently certified; (8) final cleanup/cleanliness/archive/restart remain controller actions to verify now. These exclusions are not claims of readiness for those capabilities.
+
+Fresh controller finishing verification: pnpm test exit0,640root+21site passed,1conditionalnativequeryskip. Raw .generated/composition-c-final-test.log. No projectNodeleft by test lifecycle. Finaldocminor fix delegated originalc_task7, no runtimechanges; scoped docreview tofollow.
+
+Root localrestart: pnpm dev:cms session67522, raw .generated/composition-c-final-dev.log; exact createdprocess inventory/endpoints pending. Keep live stack for user, no further conflictingbuilds/tests.
+
+Root restart verified: content18524/Tina29448/Worker30216/site1256 from owned session67522; commands/creationtimes .generated/composition-c-final-runtime.json. EN/EL/showcase/CMS/Workerhealth/WorkerELcontact200, Greekmissing404, GraphQLQuery. CMS_QUERY_URL live native-query test1/1passed (.generated/composition-c-final-query.log). Live stack retained; no further conflicting configure/build/fulltests. Finaldocsminor/archive writer notified; scoped docreview pending.

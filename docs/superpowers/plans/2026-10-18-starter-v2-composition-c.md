@@ -8,7 +8,7 @@
 
 **Tech Stack:** Existing Node 22.x/24.x, pnpm 10.13.1, Astro, TinaCMS, Zod, TypeScript, Vitest, Playwright and Cloudflare Worker/D1; no dependency changes.
 
-**Spec:** [Approved Composition C design](../specs/2026-10-18-starter-v2-composition-c-design.md). Written-spec approval received on 2026-10-18. Written-plan approval received on 2026-10-18; execution is in progress. Tasks 1–6 are accepted; Task 7 final review/closeout remains pending.
+**Spec:** [Approved Composition C design](../specs/2026-10-18-starter-v2-composition-c-design.md). Written-spec approval received on 2026-10-18. Written-plan approval received on 2026-10-18; execution is in progress. Tasks 1–6 are accepted; Task 7 whole-branch review is approved at `7a12969`; documentation scoped rereview and controller closeout remain pending.
 
 ## Global Constraints
 
@@ -54,7 +54,7 @@ Rooms-owned units introduced in Task 3:
 - apps/site/src/templates/domains/rooms/{RoomDetail.astro,RoomList.astro}.
 - content/pages/rooms.json: declared dormant draft index. content/rooms/.gitkeep: no public sample records.
 
-Public extension registration seams are domain-registry.mjs and its declaration imports, tina/domains/index.ts, templates/domains/index.ts and the existing content/Tina/Astro section registration tables. Adding a Page-template/section map entry is registration; adding a rooms conditional to a generic algorithm is not. Developer module flags are explicit schema keys, not arbitrary strings. Task 3 may add the rooms flag and map declarations at these seams; no core algorithm edits.
+Public extension registration seams are domain-registry.mjs and its declaration imports, tina/domains/index.ts, templates/domains/index.ts and the existing content/Tina/Astro section registration tables. Adding a Page-template/section map entry is registration; adding a rooms conditional to a generic algorithm is not. Developer module flags are explicit schema keys, not arbitrary strings. Task 3 may add the rooms flag and map declarations at these seams; the original no-core-edits constraint was later qualified by the two approved Task 3 helper exceptions recorded in the [ruling ledger](../reviews/2026-10-18-composition-c/RULINGS.md).
 
 Tests are named below; introduce focused files rather than burying C assertions in B harnesses. Update the existing documentation in the task that changes its contract, then consolidate acceptance evidence in Task 7.
 
@@ -108,7 +108,7 @@ Bounds: maxGuests is an integer 1-100; images 0-20; amenities 0-40; IDs use the 
 - [x] Write boundary tests for numeric/list limits, duplicate/stale/missing item IDs, reordering, no fallback, original AST identity, safe image syntax and translated publication. Test no-image Room, first-image thumbnail, unpublished index, missing locale, reserved slug, one H1, empty list and safe CTA. Pin intrinsic image dimensions and existing crop classes through the source adapter.
 - [x] Run focused root and site tests; confirm expected failures before implementation.
 - [x] Implement Room contract, default-locale item/source operations, explicit translation initialization and recoverable native controls; reuse existing field plugins and source adapter. Draft creation requires unique flat filename/contentId/slug; saved identity is read-only and save-validated; native Delete is disabled. Add dormant bilingual draft index with required hero and room-list; no Room records or navigation/Home edits. Render guest/bed/amenities/body/images with existing design tokens and localized copy, no new palette or effects.
-- [x] Run focused tests and check. Inspect diff: no core algorithm edits or unrelated template changes. Disabled default site remains unchanged. Expected native schema stable under record/item changes and disabled collection absent.
+- [x] Run focused tests and check. Inspect diff: no domain-specific core algorithm branches or unrelated template changes; acknowledge the two approved generic-helper corrections: renderer-coverage relocation to getStaticPaths and registered translation initialization through defaultCopy/richFields. See the [chronological rulings](../reviews/2026-10-18-composition-c/RULINGS.md). Disabled default site remains unchanged. Expected native schema stable under record/item changes and disabled collection absent.
 - [x] Commit as feat: add optional rooms authoring and presentation; obtain independent review before connecting enquiry behavior.
 
 ## Task 4: Native CMS creation, validation and recovery proof
@@ -156,7 +156,7 @@ Bounds: maxGuests is an integer 1-100; images 0-20; amenities 0-40; IDs use the 
 
 - [x] Cross-check the extension recipe against the second-domain test and Rooms diff: use the final seams; disclose the two reviewed Task 3 generic-helper exceptions after Task 2. Document module enablement/restart, draft creation/index publication dependency, immutable URLs, EN/EL copy, source bounds, disabled dormant behavior and known original-image performance limits.
 - [x] Fill evidence with actual commands/results, narrow browser/native scopes, owned cleanup, source-repo read-only snapshots and limits; mark this plan's boxes only from recorded evidence. Document all controller rulings with the associated cost/tradeoff. Do not label local tests hosted readiness or accessibility certification.
-- [ ] Request one whole-branch review on the most capable available model at medium reasoning, with accepted spec, plan, baseline diff, task reviews and evidence. Review is read-only; no automatic broad test replay. Batch legitimate final findings into one owned fix wave and one scoped re-review, with verification appropriate to changed boundaries.
+- [x] Request one whole-branch review on the most capable available model at medium reasoning (gpt-6-astra, approved candidate `7a12969` with no Critical/Important findings; [report](../reviews/2026-10-18-composition-c/final-review.md)), with accepted spec, plan, baseline diff, task reviews and evidence. Review is read-only; no automatic broad test replay. Batch legitimate final findings into one owned fix wave and one scoped re-review, with verification appropriate to changed boundaries.
 - [ ] Commit final documentation/evidence. Preserve permanent reviews/rulings before removing only the verified C-owned scratch workspace. Keep branch local; no release operation. Restart the exact owned local stack if it was stopped, verify site/CMS/query/Worker endpoints, and report HEAD, acceptance evidence and any remaining limitations.
 
 ## Execution and review protocol

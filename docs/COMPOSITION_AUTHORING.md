@@ -1,6 +1,6 @@
 # Composition A, B and C authoring
 
-This local branch implements Composition A, B and C on the neutral Foundation. It uses project schemaVersion 2 and one persisted JSON format. It does not enable sending, hosted providers, deployment or release tagging. Composition C adds optional Rooms and registered domains; stages 3/4 remain deferred. Read [Rooms authoring](ROOMS_AUTHORING.md) and [developer extensions](DOMAIN_EXTENSIONS.md). Final whole-branch acceptance remains pending; [C evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md) records accepted task scopes.
+This local branch implements Composition A, B and C on the neutral Foundation. It uses project schemaVersion 2 and one persisted JSON format. It does not enable sending, hosted providers, deployment or release tagging. Composition C adds optional Rooms and registered domains; stages 3/4 remain deferred. Read [Rooms authoring](ROOMS_AUTHORING.md) and [developer extensions](DOMAIN_EXTENSIONS.md). Whole-branch review approved candidate `7a12969`; controller closeout remains pending; [C evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md) records accepted task scopes.
 
 ## Create a Standard page
 
