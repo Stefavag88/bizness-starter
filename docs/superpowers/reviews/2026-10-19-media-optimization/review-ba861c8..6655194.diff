@@ -1,0 +1,404 @@
+# Review package: ba861c8..6655194
+
+## Commits
+6655194 feat: cache bounded responsive image variants
+
+## Files changed
+ packages/media/cache.d.mts                        |   9 ++
+ packages/media/cache.mjs                          | 138 ++++++++++++++++++++++
+ packages/media/optimization.d.mts                 |   9 ++
+ packages/media/optimization.mjs                   |  27 +++++
+ tests/fixtures/media-optimization/README.md       |  13 ++
+ tests/fixtures/media-optimization/alpha.png       | Bin 0 -> 2291 bytes
+ tests/fixtures/media-optimization/animated.webp   | Bin 0 -> 202 bytes
+ tests/fixtures/media-optimization/large-photo.jpg | Bin 0 -> 1610954 bytes
+ tests/fixtures/media-optimization/portrait.jpg    | Bin 0 -> 2039 bytes
+ tests/fixtures/media-optimization/small.png       | Bin 0 -> 238 bytes
+ tests/media-cache.test.ts                         |  77 ++++++++++++
+ tests/media-optimization.test.ts                  |  48 ++++++++
+ 12 files changed, 321 insertions(+)
+
+## Diff
+diff --git a/packages/media/cache.d.mts b/packages/media/cache.d.mts
+new file mode 100644
+index 0000000..acef078
+--- /dev/null
++++ b/packages/media/cache.d.mts
+@@ -0,0 +1,9 @@
++import type { MediaOptimization } from '../config/project.mjs';
++import type { readValidatedSource } from './source-reader.mjs';
++import type { ImageCandidate, ResponsiveMedia } from './optimization.mjs';
++export type { ImageCandidate, ResponsiveMedia } from './optimization.mjs';
++export { candidateWidths } from './optimization.mjs';
++/** Server-only. root is a repository root with its own marked cache. */
++export function resolveCachedMedia(root: string, snapshot: Awaited<ReturnType<typeof readValidatedSource>>, policy: MediaOptimization): Promise<ResponsiveMedia>;
++/** Verify exact URL identity, containment, marker, manifest, hash and decoded output. Throws on invalid/missing entries. */
++export function readCachedCandidate(root: string, candidate: ImageCandidate): Promise<{bytes: Buffer; contentType: string}>;
+diff --git a/packages/media/cache.mjs b/packages/media/cache.mjs
+new file mode 100644
+index 0000000..b1a6410
+--- /dev/null
++++ b/packages/media/cache.mjs
+@@ -0,0 +1,138 @@
++// Server-only cache. URLs and manifest names never supply filesystem paths.
++import sharp from 'sharp';
++import { createHash, randomUUID } from 'node:crypto';
++import { lstat, mkdir, open, realpath, rename, unlink, link } from 'node:fs/promises';
++import { join, resolve, relative, isAbsolute } from 'node:path';
++import { candidateWidths, encodeCandidate, PIPELINE_VERSION, ENCODING_POLICY, SHARP_VERSION } from './optimization.mjs';
++export { candidateWidths } from './optimization.mjs';
++const MARKER = 'starter-media-optimization-cache-v1\n';
++const CACHE_PARTS = ['.generated','media-optimization','cache','v1'];
++const URL = /^\/_media\/v1\/([a-f0-9]{64})\.(png|jpeg|webp)$/;
++const inFlight = new Map();
++const hash = bytes => createHash('sha256').update(bytes).digest('hex');
++const identityHash = identity => hash(JSON.stringify(identity));
++function identity(source, width, format, quality) {
++  return {source,width,format,quality,sharp:SHARP_VERSION,pipeline:PIPELINE_VERSION,policy:ENCODING_POLICY};
++}
++function contained(root, path) {
++  const rel = relative(root,path);
++  if (!rel || rel === '..' || rel.startsWith('..\\') || rel.startsWith('../') || isAbsolute(rel)) throw new Error('Media cache destination escapes its root');
++}
++async function regular(path, directory = false, optional = false) {
++  let stat;
++  try { stat = await lstat(path); } catch (error) { if (optional && error.code === 'ENOENT') return false; throw error; }
++  if (stat.isSymbolicLink() || (directory ? !stat.isDirectory() : !stat.isFile())) throw new Error(`Unsafe media cache symlink/reparse destination: ${path}`);
++  return true;
++}
++async function readRegular(path) {
++  await regular(path);
++  const handle = await open(path,'r');
++  try {
++    const before = await handle.stat();
++    const named = await lstat(path);
++    if (!before.isFile() || named.isSymbolicLink() || before.ino !== named.ino || before.dev !== named.dev) throw new Error('Unsafe replaced media cache destination');
++    return await handle.readFile();
++  } finally { await handle.close(); }
++}
++async function cacheDirectory(root, create) {
++  const realRoot = await realpath(resolve(root));
++  let dir = realRoot;
++  for (const part of CACHE_PARTS) {
++    dir = join(dir,part);contained(realRoot,dir);
++    if (create) await mkdir(dir).catch(error => {if(error.code !== 'EEXIST') throw error;});
++    await regular(dir,true);
++  }
++  const marker = join(dir,'.pipeline');
++  if (create) {
++    // Install complete ownership bytes atomically without replacing foreign markers.
++    const temp = join(dir,`.pipeline.${randomUUID()}.tmp`);
++    let handle;
++    try {
++      handle = await open(temp,'wx');await handle.writeFile(MARKER);await handle.sync();await handle.close();handle=undefined;
++      try {await link(temp,marker);} catch(error) {if(error.code !== 'EEXIST') throw error;}
++    } finally {await handle?.close();await unlink(temp).catch(error=>{if(error.code!=='ENOENT') throw error;});}
++  }
++  if ((await readRegular(marker)).toString() !== MARKER) throw new Error('Foreign media cache pipeline marker');
++  return dir;
++}
++function candidateIdentity(candidate) {
++  const parsed = URL.exec(candidate.src);
++  if (!parsed || parsed[2] !== candidate.format) throw new Error('Invalid media cache candidate URL identity');
++  return parsed[1];
++}
++async function validate(dir, candidate, expectedIdentity) {
++  const id = candidateIdentity(candidate);
++  const file = join(dir,`${id}.${candidate.format}`);
++  const manifest = JSON.parse((await readRegular(file+'.json')).toString());
++  const i = manifest.identity;
++  if (!i || typeof i.source !== 'string' || !/^[a-f0-9]{64}$/.test(i.source) || !Number.isInteger(i.width) || i.width < 1 || i.width > 2560 || !Number.isInteger(i.quality) || i.quality < 40 || i.quality > 95) throw new Error('Invalid media cache manifest identity');
++  const canonical = identity(i.source,i.width,i.format,i.quality);
++  if (JSON.stringify(i) !== JSON.stringify(canonical) || identityHash(canonical) !== id || (expectedIdentity && JSON.stringify(i) !== JSON.stringify(expectedIdentity)) || i.format !== candidate.format || i.width !== candidate.width) throw new Error('Invalid media cache manifest identity');
++  if (manifest.width !== candidate.width || manifest.height !== candidate.height || manifest.bytes !== candidate.bytes || manifest.file !== `${id}.${candidate.format}`) throw new Error('Invalid media cache manifest metadata');
++  const bytes = await readRegular(file);
++  if (bytes.length !== candidate.bytes || hash(bytes) !== manifest.sha256) throw new Error('Invalid media cache output hash');
++  const decoder = sharp(bytes,{limitInputPixels:40000000,failOn:'warning'});
++  const m = await decoder.metadata();
++  if (m.format !== candidate.format || m.width !== candidate.width || m.height !== candidate.height || (m.pages ?? 1) !== 1 || m.orientation) throw new Error('Invalid media cache decoded dimensions');
++  await decoder.raw().toBuffer();
++  return {bytes,contentType:`image/${candidate.format}`};
++}
++/** Reads only a strictly identified, verified candidate; session demand is owned by the caller. */
++export async function readCachedCandidate(root,candidate) {
++  candidateIdentity(candidate);
++  return validate(await cacheDirectory(root,false),candidate);
++}
++async function atomicWrite(root,dir,name,bytes) {
++  await cacheDirectory(root,false);
++  const destination = join(dir,name);
++  await regular(destination,false,true);
++  const temp = join(dir,`${name}.${randomUUID()}.tmp`);
++  let handle;
++  try {
++    handle = await open(temp,'wx');await handle.writeFile(bytes);await handle.sync();await handle.close();handle=undefined;
++    await cacheDirectory(root,false);await regular(destination,false,true);
++    await rename(temp,destination);
++  } finally {await handle?.close();await unlink(temp).catch(error=>{if(error.code!=='ENOENT') throw error;});}
++}
++async function cachedCandidate(root,dir,snapshot,width,format,quality) {
++  const i=identity(snapshot.media.fingerprint,width,format,quality);
++  const id=identityHash(i), name=`${id}.${format}`;
++  const key=`${dir}/${id}`;
++  if(inFlight.has(key)) return {...await inFlight.get(key)};
++  const work=(async()=>{
++    const file=join(dir,name);
++    // Unsafe destinations are errors; ordinary incomplete/corrupt entries regenerate.
++    await regular(file,false,true);await regular(file+'.json',false,true);
++    try {
++      const m=JSON.parse((await readRegular(file+'.json')).toString());
++      // JPEG shrink-on-load can round one pixel differently from ratio arithmetic.
++      // Bound that difference; decoded dimensions must still match the manifest exactly.
++      const expectedHeight=Math.max(1,Math.round(snapshot.media.height*width/snapshot.media.width));
++      if(!Number.isInteger(m.height) || m.height < 1 || Math.abs(m.height-expectedHeight)>1) throw new Error('Invalid media cache source aspect ratio');
++      const candidate={src:`/_media/v1/${name}`,width,height:m.height,format,bytes:m.bytes};
++      await validate(dir,candidate,i);return candidate;
++    } catch(error) {if (/symlink|reparse|destination/.test(error.message)) throw error;}
++    const output=await encodeCandidate(snapshot.bytes,width,format,quality);
++    const candidate={src:`/_media/v1/${name}`,width:output.width,height:output.height,format,bytes:output.bytes.length};
++    const manifest={identity:i,file:name,width:output.width,height:output.height,bytes:output.bytes.length,sha256:hash(output.bytes)};
++    await atomicWrite(root,dir,name,output.bytes);
++    // The manifest is the commit record and is always renamed last.
++    await atomicWrite(root,dir,name+'.json',JSON.stringify(manifest));
++    return candidate;
++  })();
++  inFlight.set(key,work);
++  try{return {...await work};}finally{inFlight.delete(key);}
++}
++export async function resolveCachedMedia(root,snapshot,policy) {
++  const base={...snapshot.media,fallback:[],webp:[]};
++  if (!policy.enabled) return {...base,passthroughReason:'disabled'};
++  if (snapshot.pages > 1) return {...base,passthroughReason:'animated-or-multipage'};
++  // Refuse mismatched private snapshots; never use a second source pathname read.
++  if(hash(snapshot.bytes)!==snapshot.media.fingerprint) throw new Error('Media snapshot fingerprint mismatch');
++  const dir=await cacheDirectory(root,true);
++  const widths=candidateWidths(snapshot.media.width,policy.widths);
++  const formats=snapshot.media.format==='webp'?['webp']:['webp',snapshot.media.format];
++  const families=await Promise.all(formats.map(async format=>[format,await Promise.all(widths.map(width=>cachedCandidate(root,dir,snapshot,width,format,policy.quality)))]));
++  for(const [format,candidates] of families)base[format==='webp'?'webp':'fallback']=candidates;
++  return base;
++}
+diff --git a/packages/media/optimization.d.mts b/packages/media/optimization.d.mts
+new file mode 100644
+index 0000000..23bd4d2
+--- /dev/null
++++ b/packages/media/optimization.d.mts
+@@ -0,0 +1,9 @@
++import type { SourceMedia } from './source.mjs';
++export interface ImageCandidate { src: string; width: number; height: number; format: 'png' | 'jpeg' | 'webp'; bytes: number }
++export interface ResponsiveMedia extends SourceMedia { fallback: ImageCandidate[]; webp: ImageCandidate[]; passthroughReason?: 'disabled' | 'animated-or-multipage' }
++export function candidateWidths(sourceWidth: number, widths: number[]): number[];
++export const PIPELINE_VERSION: string;
++export const ENCODING_POLICY: string;
++export const SHARP_VERSION: string;
++/** Server-only bounded encoder; consumes validated bytes. */
++export function encodeCandidate(bytes: Buffer, width: number, format: ImageCandidate['format'], quality: number): Promise<{bytes: Buffer; width: number; height: number}>;
+diff --git a/packages/media/optimization.mjs b/packages/media/optimization.mjs
+new file mode 100644
+index 0000000..4716ba6
+--- /dev/null
++++ b/packages/media/optimization.mjs
+@@ -0,0 +1,27 @@
++// Server-only bounded encoder. All callers share these two transformation slots.
++import sharp from 'sharp';
++export const PIPELINE_VERSION = 'v1-rotate-resize-lossless-png-1';
++export const ENCODING_POLICY = 'auto-orient;inside;without-enlargement;strip-metadata;png-lossless';
++export const SHARP_VERSION = sharp.versions.sharp;
++let active = 0;
++const waiting = [];
++async function transformSlot(job) {
++  if (active >= 2) await new Promise(resolve => waiting.push(resolve));
++  else active++;
++  try { return await job(); }
++  finally { const next = waiting.shift(); if (next) next(); else active--; }
++}
++export function candidateWidths(sourceWidth, widths) {
++  return [...new Set([...widths.filter(width => width <= sourceWidth), Math.min(sourceWidth, widths.at(-1))])].sort((a,b) => a-b);
++}
++export async function encodeCandidate(bytes, width, format, quality) {
++  return transformSlot(async () => {
++    let image = sharp(bytes, { limitInputPixels: 40000000, failOn: 'warning' }).rotate().resize({width,withoutEnlargement:true});
++    if (format === 'png') image = image.png();
++    else if (format === 'jpeg') image = image.jpeg({quality});
++    else if (format === 'webp') image = image.webp({quality});
++    else throw new Error(`Unsupported media output format: ${format}`);
++    const {data,info} = await image.toBuffer({resolveWithObject:true});
++    return {bytes:data,width:info.width,height:info.height};
++  });
++}
+diff --git a/tests/fixtures/media-optimization/README.md b/tests/fixtures/media-optimization/README.md
+new file mode 100644
+index 0000000..672b53d
+--- /dev/null
++++ b/tests/fixtures/media-optimization/README.md
+@@ -0,0 +1,13 @@
++# Media optimization fixtures
++
++large-photo.jpg: Fronalpstock, Switzerland, by Hannes Röst. Source verified 2026-10-19: https://commons.wikimedia.org/wiki/File:Fronalpstock_big.jpg . Licensed CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/). This checked-in derivative is Wikimedia's 3840 × 1725 thumbnail, downloaded from https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Fronalpstock_big.jpg/3840px-Fronalpstock_big.jpg ; resizing is the modification. Distributed under CC BY-SA 3.0. Original panorama is 10109 × 4542 and exceeds the pipeline pixel bound; it is not used.
++
++Other fixtures are original synthetic pixels authored for these tests and available under CC0 (https://creativecommons.org/publicdomain/zero/1.0/). Recipe with Sharp 0.35.5: portrait = 600×300 RGB #b45a17 JPEG with EXIF orientation 6; alpha = 400×200 RGBA (20,90,150,0.3) PNG; small = 100×50 RGB #29a PNG; animated = stacked 3×2 solid red/blue frames encoded WebP loop 0 delay [100,100]. No business-reference media used.
++
++SHA-256 recorded before test use:
++
++- large-photo.jpg: 35f5cbcf42337206c818cf8c17f2bbeb309add5b8d4579b3432acedc6304e6c7 (1610954 bytes)
++- portrait.jpg: 9440615bb4677d38e6a12a6a8993d6b04954af81a3bd8cda275f4e6cc9b34a36 (2039 bytes)
++- alpha.png: 0bd1c66e11cdfdcc8a2dba39b4f40ab5693b657ad4c5f3e4e5af11cdcdf965c0 (2291 bytes)
++- small.png: 7758a0a9c96ee74654871281d12e2ec3c78a803cfca4cff14667a6e82653ac5c (238 bytes)
++- animated.webp: 7e637503f94678635fc536ce61cc553520eb7d51678a3a4ae452756fdc3bb431 (202 bytes)
+diff --git a/tests/fixtures/media-optimization/alpha.png b/tests/fixtures/media-optimization/alpha.png
+new file mode 100644
+index 0000000..1168659
+Binary files /dev/null and b/tests/fixtures/media-optimization/alpha.png differ
+diff --git a/tests/fixtures/media-optimization/animated.webp b/tests/fixtures/media-optimization/animated.webp
+new file mode 100644
+index 0000000..92ab128
+Binary files /dev/null and b/tests/fixtures/media-optimization/animated.webp differ
+diff --git a/tests/fixtures/media-optimization/large-photo.jpg b/tests/fixtures/media-optimization/large-photo.jpg
+new file mode 100644
+index 0000000..9c55203
+Binary files /dev/null and b/tests/fixtures/media-optimization/large-photo.jpg differ
+diff --git a/tests/fixtures/media-optimization/portrait.jpg b/tests/fixtures/media-optimization/portrait.jpg
+new file mode 100644
+index 0000000..a33cc7f
+Binary files /dev/null and b/tests/fixtures/media-optimization/portrait.jpg differ
+diff --git a/tests/fixtures/media-optimization/small.png b/tests/fixtures/media-optimization/small.png
+new file mode 100644
+index 0000000..a3d0e4c
+Binary files /dev/null and b/tests/fixtures/media-optimization/small.png differ
+diff --git a/tests/media-cache.test.ts b/tests/media-cache.test.ts
+new file mode 100644
+index 0000000..c3ee0af
+--- /dev/null
++++ b/tests/media-cache.test.ts
+@@ -0,0 +1,77 @@
++import { afterEach, beforeEach, expect, it, vi } from 'vitest';
++import sharp from 'sharp';
++import { mkdtemp, mkdir, readFile, readdir, rm, writeFile, symlink, stat } from 'node:fs/promises';
++import { tmpdir } from 'node:os';
++import { join, basename } from 'node:path';
++import { resolveCachedMedia, readCachedCandidate } from '../packages/media/cache.mjs';
++import { readValidatedSource } from '../packages/media/source-reader.mjs';
++let root:string,uploads:string,cache:string;
++const policy={enabled:true,widths:[160,320],quality:80};
++beforeEach(async()=>{root=await mkdtemp(join(tmpdir(),'media-cache-'));uploads=join(root,'apps/site/public/uploads');cache=join(root,'.generated/media-optimization/cache/v1');await mkdir(uploads,{recursive:true});await writeFile(join(uploads,'a.png'),await sharp({create:{width:400,height:200,channels:4,background:'#a85'}}).png().toBuffer());});
++afterEach(async()=>{vi.restoreAllMocks();await rm(root,{recursive:true,force:true});});
++const snapshot=()=>readValidatedSource(root,'/uploads/a.png');
++const file=(src:string)=>join(cache,basename(src));
++it('reuses identical bytes across source paths and locales without writes',async()=>{
++ const s=await snapshot();const a=await resolveCachedMedia(root,s,policy);const c=a.webp[0];const first=(await stat(file(c.src))).mtimeMs;
++ const b=await resolveCachedMedia(root,{...s,media:{...s.media,src:'/uploads/el/alias.png'}},policy);expect(b.webp).toEqual(a.webp);expect(b.src).toBe('/uploads/el/alias.png');expect((await stat(file(c.src))).mtimeMs).toBe(first);
++});
++it('uses the validated snapshot after the pathname is replaced and invalidates changed bytes',async()=>{
++ const old=await snapshot();await writeFile(join(uploads,'a.png'),await sharp({create:{width:200,height:300,channels:3,background:'blue'}}).png().toBuffer());
++ const a=await resolveCachedMedia(root,old,policy);expect((await sharp((await readCachedCandidate(root,a.fallback[0])).bytes).metadata()).height).toBe(80);
++ const b=await resolveCachedMedia(root,await snapshot(),policy);expect(b.webp[0].src).not.toBe(a.webp[0].src);expect(b.height).toBe(300);
++});
++it('quality and forged pipeline identities cannot reuse stale cache entries',async()=>{
++ const s=await snapshot();const a=await resolveCachedMedia(root,s,policy);const b=await resolveCachedMedia(root,s,{...policy,quality:90});expect(b.webp[0].src).not.toBe(a.webp[0].src);
++ const path=file(a.webp[0].src)+'.json';const m=JSON.parse(await readFile(path,'utf8'));m.identity.pipeline='obsolete';await writeFile(path,JSON.stringify(m));
++ await expect(readCachedCandidate(root,a.webp[0])).rejects.toThrow();const repaired=await resolveCachedMedia(root,s,policy);expect((await readCachedCandidate(root,repaired.webp[0])).bytes.length).toBeGreaterThan(0);
++});
++it('regenerates missing output, corrupt bytes, forged metadata and incomplete temporary writes',async()=>{
++ const s=await snapshot();const a=await resolveCachedMedia(root,s,policy);const c=a.webp[0];const original=(await readCachedCandidate(root,c)).bytes;
++ await rm(file(c.src));await writeFile(join(cache,'interrupted.tmp'),'partial');await resolveCachedMedia(root,s,policy);expect((await readCachedCandidate(root,c)).bytes).toEqual(original);
++ await writeFile(file(c.src),'broken');await expect(readCachedCandidate(root,c)).rejects.toThrow();await resolveCachedMedia(root,s,policy);expect((await readCachedCandidate(root,c)).bytes).toEqual(original);
++ const path=file(c.src)+'.json';const m=JSON.parse(await readFile(path,'utf8'));m.width=999;m.file='../../escape';await writeFile(path,JSON.stringify(m));await expect(readCachedCandidate(root,c)).rejects.toThrow();await resolveCachedMedia(root,s,policy);expect((await readCachedCandidate(root,c)).bytes).toEqual(original);
++ expect(await readFile(join(cache,'interrupted.tmp'),'utf8')).toBe('partial');
++});
++it('deduplicates concurrent requests and limits real Sharp transforms to two globally',async()=>{
++ const proto=Object.getPrototypeOf(sharp());const original=proto.toBuffer;let active=0,max=0,encodes=0;
++ vi.spyOn(proto,'toBuffer').mockImplementation(async function(this:any,...args:any[]){const transform=this.options.width>0;if(transform){active++;max=Math.max(max,active);encodes++;}try{return await original.apply(this,args);}finally{if(transform)active--;}});
++ const s=await snapshot();const results=await Promise.all(Array.from({length:10},()=>resolveCachedMedia(root,s,policy)));expect(results.every(r=>r.webp[0].src===results[0].webp[0].src)).toBe(true);expect(encodes).toBe(4);expect(max).toBe(2);
++ for(const c of [...results[0].webp,...results[0].fallback])await sharp((await readCachedCandidate(root,c)).bytes).raw().toBuffer();
++});
++it('rejects unowned markers, cache-directory junctions, output symlinks and forged URL escapes',async()=>{
++ const s=await snapshot();await mkdir(cache,{recursive:true});await writeFile(join(cache,'.pipeline'),'foreign');await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow(/marker|owner|pipeline/i);
++ await rm(join(root,'.generated'),{recursive:true});const outside=join(root,'outside');await mkdir(outside);await symlink(outside,join(root,'.generated'),'junction');await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow(/symlink|reparse|destination/i);expect(await readdir(outside)).toEqual([]);
++ await rm(join(root,'.generated'));const a=await resolveCachedMedia(root,s,policy);const c=a.webp[0];const target=join(outside,'keep');await writeFile(target,'untouched');await rm(file(c.src));await symlink(target,file(c.src),'file');await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow(/symlink|reparse|destination/i);expect(await readFile(target,'utf8')).toBe('untouched');
++ await expect(readCachedCandidate(root,{...c,src:'/_media/v1/../../escape.webp'})).rejects.toThrow();
++});
++it('does not publish a partial manifest after an interrupted atomic write and recovers on retry',async()=>{
++ const {open}=await import('node:fs/promises');const probe=await open(join(root,'probe'),'w');const proto=Object.getPrototypeOf(probe);const original=proto.writeFile;await probe.close();
++ const boundary=vi.spyOn(proto,'writeFile').mockImplementation(async function(this:any,data:any,...args:any[]){if(typeof data==='string' && data.startsWith('{"identity":')){throw new Error('Controlled interrupted manifest write');}return original.call(this,data,...args);});
++ const s=await snapshot();await expect(resolveCachedMedia(root,s,{...policy,widths:[160]})).rejects.toThrow(/interrupted/);
++ // Promise.all rejects early: allow both independent format jobs to finish cleanup.
++ await new Promise(resolve=>setTimeout(resolve,50));boundary.mockRestore();
++ expect((await readdir(cache)).filter(name=>name.endsWith('.json')||name.endsWith('.tmp'))).toEqual([]);
++ const r=await resolveCachedMedia(root,s,{...policy,widths:[160]});for(const c of [...r.webp,...r.fallback])expect((await readCachedCandidate(root,c)).bytes.length).toBeGreaterThan(0);
++});
++it('rejects symlinked manifests and parent namespaces before modifying their targets',async()=>{
++ const s=await snapshot();const a=await resolveCachedMedia(root,s,policy);const c=a.webp[0];const outside=join(root,'outside-json');await writeFile(outside,'untouched');await rm(file(c.src)+'.json');await symlink(outside,file(c.src)+'.json','file');
++ await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow(/symlink|reparse|destination/i);expect(await readFile(outside,'utf8')).toBe('untouched');await expect(readCachedCandidate(root,c)).rejects.toThrow();
++});
++it('shares its two-job transform ceiling across different repository roots',async()=>{
++ const other=await mkdtemp(join(tmpdir(),'media-second-'));const proto=Object.getPrototypeOf(sharp());const original=proto.toBuffer;let active=0,max=0;
++ vi.spyOn(proto,'toBuffer').mockImplementation(async function(this:any,...args:any[]){const transform=this.options.width>0;if(transform){active++;max=Math.max(max,active);}try{return await original.apply(this,args);}finally{if(transform)active--;}});
++ try{const s=await snapshot();const results=await Promise.all([resolveCachedMedia(root,s,policy),resolveCachedMedia(other,s,policy)]);expect(max).toBe(2);for(let index=0;index<2;index++)for(const c of results[index].webp)expect((await readCachedCandidate(index?other:root,c)).bytes.length).toBeGreaterThan(0);}finally{await rm(other,{recursive:true,force:true});}
++});
++it('commits the pipeline marker atomically for concurrent first requests',async()=>{
++ const {open}=await import('node:fs/promises');const probe=await open(join(root,'probe'),'w');const proto=Object.getPrototypeOf(probe);const original=proto.writeFile;await probe.close();
++ vi.spyOn(proto,'writeFile').mockImplementation(async function(this:any,data:any,...args:any[]){if(data==='starter-media-optimization-cache-v1\n')await new Promise(resolve=>setTimeout(resolve,50));return original.call(this,data,...args);});
++ const s=await snapshot();const results=await Promise.all([resolveCachedMedia(root,s,policy),resolveCachedMedia(root,s,policy)]);expect(results[0].webp).toEqual(results[1].webp);
++});
++it('does not trust forged manifest dimensions even when a replacement output has a matching hash',async()=>{
++ const {createHash}=await import('node:crypto');const s=await snapshot();const r=await resolveCachedMedia(root,s,policy);const c=r.webp[0];const bytes=await sharp({create:{width:160,height:78,channels:3,background:'red'}}).webp().toBuffer();const m=JSON.parse(await readFile(file(c.src)+'.json','utf8'));m.height=78;m.bytes=bytes.length;m.sha256=createHash('sha256').update(bytes).digest('hex');await writeFile(file(c.src),bytes);await writeFile(file(c.src)+'.json',JSON.stringify(m));
++ const repaired=await resolveCachedMedia(root,s,policy);expect(repaired.webp[0].height).toBe(80);expect((await sharp((await readCachedCandidate(root,repaired.webp[0])).bytes).metadata()).height).toBe(80);
++});
++it('reuses photographic output despite Sharp shrink-on-load height rounding',async()=>{
++ await writeFile(join(uploads,'photo.jpg'),await readFile(new URL('./fixtures/media-optimization/large-photo.jpg',import.meta.url)));const s=await readValidatedSource(root,'/uploads/photo.jpg');const r=await resolveCachedMedia(root,s,{...policy,widths:[320]});const before=await Promise.all([...r.webp,...r.fallback].map(c=>stat(file(c.src))));
++ const again=await resolveCachedMedia(root,s,{...policy,widths:[320]});expect(again.webp).toEqual(r.webp);expect(again.fallback).toEqual(r.fallback);const after=await Promise.all([...r.webp,...r.fallback].map(c=>stat(file(c.src))));expect(after.map(x=>x.mtimeMs)).toEqual(before.map(x=>x.mtimeMs));
++});
+diff --git a/tests/media-optimization.test.ts b/tests/media-optimization.test.ts
+new file mode 100644
+index 0000000..12f5ecb
+--- /dev/null
++++ b/tests/media-optimization.test.ts
+@@ -0,0 +1,48 @@
++import { afterEach, beforeEach, expect, it } from 'vitest';
++import sharp from 'sharp';
++import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
++import { tmpdir } from 'node:os';
++import { join } from 'node:path';
++import { candidateWidths, resolveCachedMedia, readCachedCandidate } from '../packages/media/cache.mjs';
++import { readValidatedSource } from '../packages/media/source-reader.mjs';
++let root:string;
++const policy={enabled:true,widths:[160,320,640,960,1440,1920],quality:80};
++beforeEach(async()=>{root=await mkdtemp(join(tmpdir(),'media-opt-'));await mkdir(join(root,'apps/site/public/uploads'),{recursive:true});});
++afterEach(async()=>{await rm(root,{recursive:true,force:true});});
++async function fixture(name:string){await writeFile(join(root,'apps/site/public/uploads',name),await readFile(new URL('./fixtures/media-optimization/'+name,import.meta.url)));return readValidatedSource(root,'/uploads/'+name);}
++it('candidateWidths caps without upscaling',()=>{
++ expect(candidateWidths(1000,[320,640,960,1440,1920])).toEqual([320,640,960,1000]);
++ expect(candidateWidths(200,[320,640])).toEqual([200]);
++ expect(candidateWidths(4000,[320,640,960,1440,1920])).toEqual([320,640,960,1440,1920]);
++});
++it('encodes a real large photo into at most twelve correctly decoded smaller candidates',async()=>{
++ const source=await fixture('large-photo.jpg');const result=await resolveCachedMedia(root,source,policy);
++ expect(result.webp).toHaveLength(6);expect(result.fallback).toHaveLength(6);
++ for(const c of [...result.webp,...result.fallback]){const {bytes}=await readCachedCandidate(root,c);const m=await sharp(bytes).metadata();await sharp(bytes).raw().toBuffer();expect(m.width).toBe(c.width);expect(m.height).toBe(c.height);expect(m.format).toBe(c.format);expect(c.bytes).toBe(bytes.length);expect(bytes.length).toBeLessThan(source.bytes.length);}
++});
++it('normalizes EXIF orientation without changing the original snapshot',async()=>{
++ const source=await fixture('portrait.jpg');const result=await resolveCachedMedia(root,source,policy);expect(result.width).toBe(300);expect(result.height).toBe(600);
++ for(const c of [...result.fallback,...result.webp]){const {bytes}=await readCachedCandidate(root,c);const m=await sharp(bytes).metadata();expect(m.orientation).toBeUndefined();expect(m.height).toBe(c.width*2);}
++ expect((await sharp(source.bytes).metadata()).orientation).toBe(6);
++});
++it('preserves transparency and lossless PNG fallback pixels at original size',async()=>{
++ const source=await fixture('alpha.png');const result=await resolveCachedMedia(root,source,policy);
++ const c=result.fallback.at(-1)!;expect(c.width).toBe(400);expect(c.format).toBe('png');
++ const {bytes}=await readCachedCandidate(root,c);expect(await sharp(bytes).raw().toBuffer()).toEqual(await sharp(source.bytes).raw().toBuffer());
++ for(const c of result.webp){const {bytes}=await readCachedCandidate(root,c);expect((await sharp(bytes).metadata()).hasAlpha).toBe(true);}
++});
++it('does not upscale small images and uses only one WebP family',async()=>{
++ const s=await fixture('small.png');const a=await resolveCachedMedia(root,s,policy);expect(a.fallback.map(c=>c.width)).toEqual([100]);
++ const b=await sharp(s.bytes).webp().toBuffer();await writeFile(join(root,'apps/site/public/uploads/static.webp'),b);
++ const r=await resolveCachedMedia(root,await readValidatedSource(root,'/uploads/static.webp'),policy);expect(r.fallback).toEqual([]);expect(r.webp.map(c=>c.width)).toEqual([100]);
++});
++it('passes disabled and multipage sources through without creating a cache',async()=>{
++ for(const [name,p,reason] of [['small.png',{...policy,enabled:false},'disabled'],['animated.webp',policy,'animated-or-multipage']] as const){const r=await resolveCachedMedia(root,await fixture(name),p);expect(r.fallback).toEqual([]);expect(r.webp).toEqual([]);expect(r.passthroughReason).toBe(reason);}
++ await expect(readFile(join(root,'.generated/media-optimization/cache/v1/.pipeline'))).rejects.toThrow();
++});
++it('propagates compressed-payload corruption instead of silently passing through',async()=>{
++ const s=await fixture('large-photo.jpg');s.bytes=s.bytes.subarray(0,Math.floor(s.bytes.length/2));
++ // Metadata still decodes; the full transform must reject incomplete pixels.
++ const {createHash}=await import('node:crypto');s.media.fingerprint=createHash('sha256').update(s.bytes).digest('hex');
++ await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow();
++});

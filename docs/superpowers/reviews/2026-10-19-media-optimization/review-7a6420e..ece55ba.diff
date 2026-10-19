@@ -1,0 +1,822 @@
+# Review package: 7a6420ea5faee7dd317b0fcd12bc4d9011032b8d..ece55ba92d658de1c552f35d546fd9a0d5f988b2
+
+## Commits
+ece55ba fix: serve static WebP families and bound cache reads
+
+## Files changed
+ apps/site/src/components/ui/SectionImage.astro     |   5 +-
+ apps/site/tests/media-optimization.test.ts         |  20 ++++-
+ docs/MEDIA_OPTIMIZATION.md                         |   4 +-
+ ...10-19-starter-v2-media-optimization-evidence.md |  13 +++-
+ e2e/helpers/media-optimization-acceptance.ts       |   2 +-
+ e2e/helpers/media-optimization-fixture.ts          |  26 ++++++-
+ e2e/media-optimization.spec.ts                     |  82 ++++++++++++++++++++-
+ packages/media/cache.mjs                           |  37 ++++++++--
+ tests/fixtures/media-optimization/README.md        |   2 +
+ tests/fixtures/media-optimization/static.webp      | Bin 0 -> 704 bytes
+ tests/helpers/owned-temp-roots.ts                  |  27 +++++++
+ tests/media-acceptance-harness.test.ts             |  13 +++-
+ tests/media-cache.test.ts                          |  60 ++++++++++++++-
+ tests/media-native-admission.test.ts               |  10 ++-
+ tests/media-optimization.test.ts                   |  14 ++++
+ tests/media-runtime.test.ts                        |  23 ++++--
+ 16 files changed, 306 insertions(+), 32 deletions(-)
+
+## Diff
+diff --git a/apps/site/src/components/ui/SectionImage.astro b/apps/site/src/components/ui/SectionImage.astro
+index 9e0ed29..4a5080c 100644
+--- a/apps/site/src/components/ui/SectionImage.astro
++++ b/apps/site/src/components/ui/SectionImage.astro
+@@ -1,12 +1,13 @@
+ ---
+ import {rich} from '../../lib/content';
+ import type {ResolvedMedia,Crop} from '../../lib/section-media';
+ import {imageSizes,type ImageLayout} from '../../../../../packages/media/layout.mjs';
+ import type {ImageCandidate} from '../../../../../packages/media/optimization.mjs';
+ interface Props {media:ResolvedMedia;layout:ImageLayout;itemCount?:number;alt:string;caption?:string;crop:Crop;ratio:'landscape'|'gallery';locale:string}
+ const {media,layout,itemCount=1,alt,caption,crop,ratio,locale}=Astro.props;
+-const fallback=media.fallback.at(-1);
++const imgFamily=media.format==='webp'?media.webp:media.fallback;
++const fallback=imgFamily.at(-1);
+ const sizes=imageSizes(layout,itemCount);
+ const srcset=(candidates:ImageCandidate[])=>candidates.map(image=>`${image.src} ${image.width}w`).join(', ');
+ ---
+-<figure class="section-image"><div class:list={['image-frame','frame-'+ratio]}>{fallback?<picture>{media.format!=='webp'&&media.webp.length>0&&<source type="image/webp" srcset={srcset(media.webp)} sizes={sizes}/>}<img src={fallback.src} srcset={srcset(media.fallback)} sizes={sizes} width={fallback.width} height={fallback.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/></picture>:<img src={media.src} width={media.width} height={media.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/>}</div>{caption&&<figcaption set:html={rich(caption,locale,true)}/>}</figure>
++<figure class="section-image"><div class:list={['image-frame','frame-'+ratio]}>{fallback?<picture>{media.format!=='webp'&&media.webp.length>0&&<source type="image/webp" srcset={srcset(media.webp)} sizes={sizes}/>}<img src={fallback.src} srcset={srcset(imgFamily)} sizes={sizes} width={fallback.width} height={fallback.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/></picture>:<img src={media.src} width={media.width} height={media.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/>}</div>{caption&&<figcaption set:html={rich(caption,locale,true)}/>}</figure>
+diff --git a/apps/site/tests/media-optimization.test.ts b/apps/site/tests/media-optimization.test.ts
+index ad523ef..d01a05c 100644
+--- a/apps/site/tests/media-optimization.test.ts
++++ b/apps/site/tests/media-optimization.test.ts
+@@ -1,18 +1,18 @@
+ import {it,expect,beforeEach,afterEach} from 'vitest';
+ import {experimental_AstroContainer as AstroContainer} from 'astro/container';
+ import SectionImage from '../src/components/ui/SectionImage.astro';
+ import Gallery from '../src/templates/sections/Gallery.astro';
+ import RoomList from '../src/templates/domains/rooms/RoomList.astro';
+ import RoomDetail from '../src/templates/domains/rooms/RoomDetail.astro';
+ import MediaText from '../src/templates/sections/MediaText.astro';
+-import {beginMediaSession,endMediaSession} from '../../../packages/media/session.mjs';
++import {beginMediaSession,endMediaSession,getMediaSession} from '../../../packages/media/session.mjs';
+ import {imageSizes} from '../../../packages/media/layout.mjs';
+ import {fileURLToPath} from 'node:url';
+ import {writeFileSync,readFileSync,unlinkSync} from 'node:fs';
+ import sharp from 'sharp';
+ const root=fileURLToPath(new URL('../../../',import.meta.url));
+ beforeEach(()=>{beginMediaSession({root,policy:{enabled:true,widths:[320,640],quality:80},mode:'dev'});});
+ afterEach(async()=>{await endMediaSession(root);});
+ const candidate=(format:'png'|'webp',width:number)=>({src:`/_media/v1/${format}${width}.${format}`,width,height:width/2,format,bytes:100});
+ const media={src:'/uploads/original.png',width:1600,height:800,format:'png',fingerprint:'fixture',fallback:[candidate('png',320),candidate('png',640)],webp:[candidate('webp',320),candidate('webp',640)]};
+ const props={media,layout:'gallery',itemCount:2,alt:'A & B',caption:'**Caption** [Contact](/contact) <script>bad()</script>',crop:'bottom',ratio:'gallery',locale:'el'};
+@@ -20,21 +20,37 @@ it('renders picture families with largest fallback, safe localized caption and r
+  const c=await AstroContainer.create(),html=await c.renderToString(SectionImage,{props});
+  expect(html).toContain('<picture>');expect(html).toContain('type="image/webp"');
+  expect(html).toContain('srcset="/_media/v1/webp320.webp 320w, /_media/v1/webp640.webp 640w"');
+  expect(html).toContain('src="/_media/v1/png640.png"');expect(html).toContain('srcset="/_media/v1/png320.png 320w, /_media/v1/png640.png 640w"');
+  expect(html).toContain(`sizes="${imageSizes('gallery',2)}"`);expect(html).toContain('width="640" height="320"');
+  expect(html).toContain('alt="A &amp; B"');expect(html).toContain('crop-bottom');expect(html).toContain('frame-gallery');expect(html).toContain('loading="lazy" decoding="async"');
+  expect(html).toContain('<strong>Caption</strong>');expect(html).toContain('href="/el/contact"');expect(html).not.toContain('<script>');
+ });
+ it('uses only one family for WebP originals and keeps passthrough original dimensions',async()=>{
+  const c=await AstroContainer.create();
+- const webp=await c.renderToString(SectionImage,{props:{...props,media:{...media,format:'webp',fallback:media.webp}}});expect(webp).not.toContain('<source');expect(webp).toContain('src="/_media/v1/webp640.webp"');
++ const name='final-fix-'+crypto.randomUUID()+'.webp';
++ const path=root+'apps/site/public/uploads/'+name;
++ const bytes=await sharp({create:{width:800,height:400,channels:4,background:'#33669980'}}).webp().toBuffer();
++ writeFileSync(path,bytes,{flag:'wx'});
++ try {
++  const actual=await getMediaSession(root).resolve('/uploads/'+name);
++  expect(actual.fallback).toEqual([]);
++  expect(actual.webp.map(c=>[c.width,c.height])).toEqual([[320,160],[640,320]]);
++  const webp=await c.renderToString(SectionImage,{props:{...props,media:actual}});
++  expect(webp).not.toContain('<source');
++  expect(webp).toContain('src="'+actual.webp[1].src+'"');
++  expect(webp).toContain('srcset="'+actual.webp.map(c=>c.src+' '+c.width+'w').join(', ')+'"');
++  expect(webp).toContain('width="640" height="320"');
++  expect(webp).toContain('sizes="'+imageSizes('gallery',2)+'"');
++ } finally {
++  if(readFileSync(path).equals(bytes))unlinkSync(path);else throw Error('Owned WebP fixture changed; preserved');
++ }
+  for(const reason of ['disabled','animated-or-multipage']){const html=await c.renderToString(SectionImage,{props:{...props,media:{...media,fallback:[],webp:[],passthroughReason:reason}}});expect(html).not.toMatch(/<picture|srcset=|sizes=/);expect(html).toContain('src="/uploads/original.png" width="1600" height="800"');}
+ });
+ it('actual section renderers pass exact roles and rendered counts, including text-only Room cards',async()=>{
+  const name=`task4_${crypto.randomUUID()}.png`,path=root+'apps/site/public/uploads/'+name,src='/uploads/'+name;
+  const bytes=await sharp({create:{width:8,height:4,channels:3,background:'#336699'}}).png().toBuffer();writeFileSync(path,bytes,{flag:'wx'});
+  try{
+  const c=await AstroContainer.create();const image={id:'one',media:{src,crop:'top'},alt:'Photo',caption:''};
+  for(const count of [1,2,3,4]){const items=Array.from({length:count},(_,i)=>({...image,id:'image_'+i}));
+  for(const variant of ['default','featured']){const html=await c.renderToString(Gallery,{props:{section:{id:'gallery',variant,appearance:{surface:'default'},items,copy:{title:'Gallery',description:'',items}},locale:'en'}});const sizes=[...html.matchAll(/<img[^>]+sizes="([^"]+)"/g)].map(m=>m[1]);expect(sizes).toEqual(items.map((_,i)=>imageSizes(variant==='default'?'gallery':i===0?'gallery-featured-lead':'gallery-featured-item',count)));}
+  const rooms=items.map((_,i)=>({contentId:'room-'+i,path:'/en/rooms/'+i,title:'Room',description:'',maxGuests:2,images:i===0?[image]:[]}));
+diff --git a/docs/MEDIA_OPTIMIZATION.md b/docs/MEDIA_OPTIMIZATION.md
+index 3fbf527..5d90fda 100644
+--- a/docs/MEDIA_OPTIMIZATION.md
++++ b/docs/MEDIA_OPTIMIZATION.md
+@@ -19,36 +19,38 @@ Stage 3A generates static responsive images for media/text, normal and featured
+ Omitting the object uses these defaults. Widths must be ascending unique integers between 160 and 2560, with one through six entries. Quality must be an integer between 40 and 95. Unknown keys reject. These are developer configuration, outside the structural CMS descriptor. Stop the exact owned launcher before changing policy, run `pnpm configure`, then restart the launcher; deployed static output requires a new build. `enabled:false` preserves source safety checks and uses the original-image presentation without derivatives.
+ 
+ ## Formats, dimensions and limits
+ 
+ The pinned Sharp 0.35.5 pipeline produces WebP plus original-format JPEG/PNG fallback; a WebP original uses one family. PNG fallback remains lossless with alpha. AVIF is deferred to avoid adding encoding cost without benchmarking. Animated/multipage files pass through unchanged with reason `animated-or-multipage`; this does not certify animation accessibility.
+ 
+ Source bounds remain 20 MiB, 20,000 pixels per side and 40 million pixels. Only contained regular PNG/JPEG/WebP files under `/uploads/` are accepted; one-decode path and symlink/reparse checks apply. The encoder consumes the exact validated Buffer snapshot. Corrupt referenced payloads fail with page/section/item/source context instead of silently substituting an original. Original files remain unchanged and public.
+ 
+ Widths are capped at the oriented source width and the largest configured width, deduplicated and sorted. There is no upscaling, at most six candidates per family/twelve outputs per source, and two concurrent transform jobs. Orientation is normalized before resizing. Heights are integer encoder dimensions, so aspect-ratio calculations can differ by a pixel after rounding. Crop remains CSS `object-fit:cover` and center/top/bottom positioning inside the existing fixed frames. Intrinsic dimensions, lazy loading, async decoding, alt and safe localized captions are retained. Room listing cards intentionally omit captions; Room detail figures retain them.
+ 
+-Small files and lossless fallback are exceptions to universal savings claims. Equal-dimension fallback can reuse original bytes when re-encoding would be larger. Browsers choose a candidate using viewport, DPR, format support and their own resource selection behavior; tests do not require an exact filename for every browser heuristic.
++Small files and lossless fallback are exceptions to universal savings claims. All enabled static candidates are encoded, including equal-dimension fallback, and may be larger than the original. Browsers choose a candidate using viewport, DPR, format support and their own resource selection behavior; tests do not require an exact filename for every browser heuristic.
+ 
+ ## Layout sizing is coupled to CSS
+ 
+ `packages/media/layout.mjs` derives `sizes` from the current 72rem wrap, symmetric `clamp(1.25rem,4vw,3rem)` padding, 17rem auto-fit minimum tracks and 2rem gaps. Media/text uses half the available width from 768px. Normal galleries and Room cards bound auto-fit columns by actual rendered item count. Featured galleries use the same auto-fit behavior below 768px, including at 640px; at 768px and above, the lead spans the full width and later items occupy half-width tracks. Room detail uses the 58rem editorial wrap. Density changes vertical spacing.
+ 
+ Changing those CSS widths/gaps/breakpoints requires updating the sizing policy and browser geometry assertions together. Acceptance compares actual frame width with the browser-evaluated `sizes` length within 1.1 CSS pixels, including neighbors around the two-column and featured breakpoints.
+ 
+ ## Cache, delivery and ownership
+ 
+ The ignored `.generated/media-optimization/cache/v1` namespace is pipeline-owned cache, independent of canonical uploads and acceptance artifacts. Identities include validated source bytes, width/format/quality, Sharp/pipeline version and orientation/encoding policy. Cache reuse verifies identity, output hash and decoded dimensions; writes are atomic. Missing/corrupt entries can be regenerated by rendering/building the source again. Never clean original uploads to recover a cache, and never treat cache inventory as publication authority. Remove only the verified marked pipeline cache while the owned stack is stopped if a clean regeneration is needed.
+ 
+ Every build has its own demand session. Only variants requested by actual renderers are published into `apps/site/dist/_media/v1/`, even when a warm local cache contains showcase variants. Original starter-sample uploads are legitimate reusable business assets and remain public in staging/production. Local-only showcase route and dedicated preview code remain excluded outside local builds.
+ 
+ Astro development creates derivatives while rendering known content and serves only exact already-demanded identities through its contained adapter. Same-path changed bytes produce new identities. Upload add/change/unlink retains existing live behavior; a referenced missing source fails visibly. Static production delivery is ordinary built Worker assets under existing CSP. There is no Worker encoder, remote fetch or visitor-controlled width/quality endpoint. Unknown `/_media/` paths cannot generate files.
+ 
++Cache reads cap pipeline markers at 256 bytes and manifests at 4 KiB. Derivative byte counts must be positive safe integers at most 160 MiB before any output read. Pinned Sharp 0.35.5 defaults produce at most 8-bit RGBA PNG (also from 16-bit alpha PNG inputs; this is existing normalization, not preserved 16-bit precision). The cap accommodates the supported 40 million pixels at 8-bit RGBA plus lossless PNG filter/deflate/chunk overhead with stripped metadata. Opened-handle reads enforce these caps even after file growth, and refuse initial output sizes differing from the manifest. Corrupt entries regenerate; foreign/oversized pipeline markers refuse ownership.
++
+ Storage and build work can grow: originals remain, fallback and WebP variants coexist, and the persistent cache survives builds. Smaller visitor transfers do not imply a smaller deployment or a faster cold build. A warm cache reduces repeated encoding, not the source safety checks.
+ 
+ ## Verification and recovery
+ 
+ Use the installed browsers under `.generated/browsers`; these commands do not download browsers:
+ 
+ ```powershell
+ pnpm test:media-optimization -- --pure
+ pnpm test:media-optimization -- --static
+ pnpm test:media-optimization -- --native
+diff --git a/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md b/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md
+index 17bce5b..89b525c 100644
+--- a/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md
++++ b/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md
+@@ -40,21 +40,21 @@ Large photo: 3840×1725 JPEG, 1,610,954 bytes, SHA-256 `35f5cbcf42337206c818cf8c
+ 
+ Across 720 gallery observations, browser-selected static files range from 8,940 to 275,784 bytes, 82.88%–99.45% below this original. `selected-transfer.json` maps each actual currentSrc to the served artifact byte length and original byte length. These are selected resource payload bytes, not a universal network timing/compression benchmark.
+ 
+ | Fixture | Original bytes | Actual fallback candidates (dimensions: bytes) | Actual WebP candidates (dimensions: bytes) |
+ | --- | ---: | --- | --- |
+ | Oriented portrait JPEG | 2,039 | 300×600: 1,351 | 300×600: 416 |
+ | Transparent PNG | 2,291 | 320×160: 1,394; 400×200: 2,291 | 320×160: 222; 400×200: 280 |
+ | Small PNG | 238 | 100×50: 238 | 100×50: 94 |
+ | Animated WebP | 202 | none | none |
+ 
+-The portrait's stored 600×300 metadata is oriented to 300×600. Alpha/PNG fallback is lossless; equal-dimension PNG fallback retains original bytes here, demonstrating that savings are not universal. Animation retains its original 3×2 two-frame source with `animated-or-multipage`; no flattening/animation processing or AVIF claim is made.
++The portrait's stored 600×300 metadata is oriented to 300×600. Alpha/PNG fallback is lossless; equal-dimension PNG fallback has observed equal-size/lossless output here, demonstrating that savings are not universal. Every static candidate is encoded; this is not an original-byte substitution. Animation retains its original 3×2 two-frame source with `animated-or-multipage`; no flattening/animation processing or AVIF claim is made.
+ 
+ ## Native and live proof
+ 
+ Native acceptance owns one `createCmsSources` record owner, excluded from the static fixture's documents. Actual Tina select/clear requests are intercepted before dispatch; `expectedNativeDocument` uses installed schema/rich-text serialization, and the installed GraphQL `stringifyFile` establishes complete expected JSON bytes before dispatch. The canonical snapshot advances from that known hash, never observed disk adoption. `captureNative` verifies the same complete document through the same owner. Body AST equality is checked across select/clear. Generated URLs never persist, and selected original uploads remain owned/present.
+ 
+ The final public native phase passed in `.generated/media-optimization/acceptance-SADg9D`; actual UI/schema/serializer/runtime evidence is `.generated/media-optimization/acceptance-fixture-QzojLe` (19 successful UI queries). Evidence includes installed schema/serializer paths and hashes, pre-dispatch requests/full expectations/bytes/hashes, successful UI read queries, save/clear screenshot, same-path responsive URL change, upload add/change/unlink observations, referenced missing-source visible error/recovery, separate Tina/Astro process identities/close records and dependent cleanup ledger. Astro development can retain an already-streamed HTTP 200 while displaying its actionable error page; the contract is the visible contextual source error, not a new HTTP-status guarantee.
+ 
+ ## Failure preservation, commands and cleanup
+ 
+ `task-6-red-phases.log` records the intentional phase-dispatch RED assertions. `task-6-green-phases.log` records their GREEN. The final-source focused pure phase records 134 passing tests in 10 files, including reviewed ownership faults, media source/config/encoder/cache/session/integration/layout and exact owned runtime shutdown.
+@@ -81,10 +81,21 @@ All seven checkout gates for candidate `01504ed` passed sequentially in `.genera
+ 
+ ## Task 6 fix round 1 — native target admission
+ 
+ The independent Task 6 review found that exact native target equality was only checked after dispatch by captureNative. The fix adds an admission helper used before the route constructs any pending expectation: exactly one updateDocument operation, collection `page`, and nativeDocumentPath equal to the resolved backed-up fixture path are required. Create/delete/multiple writes, another target or another collection are refused. The route aborts before writing refusal diagnostics, clears pending expectations and never continues a rejected write. The touched handler is expanded into readable blocks; deferred crop/dimension assertions and other formatting are unchanged.
+ 
+ `task-6-fix1-red.log`: 5 expected failures / 1 pass with admission guards absent. `task-6-fix1-green.log`: all 6 passing after implementation. Tests exercise the actual admission helper used by the route, including a same-directory wrong collection, and assert zero dispatch, no pending expectation/hash advancement, and exact unchanged owned/unrelated source bytes.
+ 
+ At this fix's code source, the real native phase passed in `.generated/media-optimization/acceptance-6HyVRJ` (1 test, 43.7 seconds). `.generated/media-optimization/acceptance-fixture-jA1YvL` retains two admitted update/Page/media_native_acceptance.json save expectations, installed serializer/schema proof, 19 successful UI read queries, source restoration and separate positive Tina/Astro shutdown records. Final-source `pnpm check` and `pnpm test` each ran once and passed through complete stopped-stack snapshots in `acceptance-mkR7p6`: 743 root tests passed / 1 opt-in skipped, plus 24 site tests passed. Pinned Node SQLite ExperimentalWarning diagnostics remain visible and do not fail the suites.
+ 
+ The seven-gate run in `acceptance-u70xHM` remains evidence for `01504ed`; static/five-mode/seven-gate suites were not repeated for this admission-only fix. The real native rerun plus focused refusal tests and final check/full test cover the changed boundary. Controller-owned scoped re-review and whole-branch review remain pending.
++
++
++## Final review batched fixes — 2026-10-19
++
++Static WebP now consumes its actual session/cache WebP family in the img, with no duplicate source family; empty passthrough arrays retain original URLs. Cache marker/manifest/output reads are capped at 256 bytes / 4 KiB / 160 MiB using opened-handle bounded chunks and growth detection. Manifest bytes must be positive bounded safe integers, and initial output size mismatches refuse before payload reads. The cap includes 40 million RGBA8 pixels plus PNG framing/deflate overhead. A pinned Sharp characterization verifies 16-bit RGBA PNG input becomes the existing RGBA8/sRGB PNG output; no new precision policy was added.
++
++Raw RED/GREEN remain under .superpowers/sdd/2026-10-19-starter-v2-media-optimization/final-fix-*.log: WebP component 1 expected failure then 3 passes; cache 12 expected failures / 14 passes then 26 passes. Focused covering set: 65 passed. Final complete gates in .generated/media-optimization/acceptance-GYhZrX: explicit pnpm check and pnpm test exit 0, 756 root passed / 1 conditional query skip and 24 site passed. The first full attempt in acceptance-7oV0k7 failed only dev-lifecycle.test.ts when Astro could not bind random port 65329 (EACCES); 755 passed / 1 skipped / 1 failed, and the owned children closed. Its failure evidence is retained, not suppressed.
++
++Scoped real built-browser proof: .generated/media-optimization/acceptance-QtKi8z outer command ledger, acceptance-R9pvlK fixture run and acceptance-fixture-lFAEgA restoration. One Chromium test passed with EN 375px/DPR2 and EL 1440px/DPR1, 52 inspected images. Expected item copy/crop, intrinsic bytes/dimensions and candidate dimensions (one-pixel ratio rounding tolerance) are checked. Static WebP has only its img family at 320/640/800 widths; actual selected responses decoded to 800×400 and 640×320. All 27 HTML-demanded derivative identities equal publication exactly. Worker shutdown is confirmed; exact 16-file original snapshot restored; canonical 23-page local output rebuilt afterward. Temporary roots in the three reviewed tests now have guarded exact-root ownership, no reparse traversal and child shutdown in finally; unexpected failed-test evidence remains deliberately retained.
++
++This is scoped final-fix evidence. The earlier seven gates remain at 01504ed, the broad 44-context/128-route matrix remains at its documented prior source, and the native boundary was unchanged and not broadly rerun. Existing SQLite/performance/toolchain notices remain visible. Controller owns independent scoped review, scratch archival and restoring the original stopped launcher. No hosted acceptance or source .wrangler byte-equivalence claim is added.
+diff --git a/e2e/helpers/media-optimization-acceptance.ts b/e2e/helpers/media-optimization-acceptance.ts
+index 8f8c54f..d5b4b77 100644
+--- a/e2e/helpers/media-optimization-acceptance.ts
++++ b/e2e/helpers/media-optimization-acceptance.ts
+@@ -1,17 +1,17 @@
+ import {readFileSync,readdirSync,existsSync,writeFileSync} from 'node:fs';
+ import {join,resolve} from 'node:path';
+ import {createHash} from 'node:crypto';
+ import {createMediaOptimizationFixture} from './media-optimization-fixture';
+ import {createMediaAcceptanceRun} from '../../scripts/media-optimization-acceptance.mjs';
+ import {publicIndex,publicRoom} from './composition-c-acceptance';
+-export const photoNames=['large-photo.jpg','portrait.jpg','alpha.png','small.png','animated.webp'];
++export const photoNames=['large-photo.jpg','portrait.jpg','alpha.png','small.png','animated.webp','static.webp'];
+ export const upload=(name:string)=>'/uploads/media-acceptance-'+name;
+ export const hash=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex');
+ export const walk=(path:string):string[]=>existsSync(path)?readdirSync(path,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(join(path,e.name)):[join(path,e.name)]):[];
+ export function writeEvidence(directory:string,name:string,value:unknown){writeFileSync(join(directory,name),JSON.stringify(value,null,2)+'\n');}
+ export function mediaPage(){
+  const sections:any[]=[{id:'intro',_template:'hero',variant:'default',enabled:true,appearance:{surface:'default'}}];
+  for(const variant of ['default','featured'])for(let count=1;count<=4;count++)sections.push({id:'gallery_'+variant+'_'+count,_template:'gallery',variant,enabled:true,appearance:{surface:'default'},items:Array.from({length:count},(_,i)=>({id:'image_'+i,media:{src:upload('large-photo.jpg'),crop:['center','top','bottom'][i%3]}}))});
+  for(const [i,name]of photoNames.entries())sections.push({id:'media_'+i,_template:'media-text',variant:i%2?'reversed':'default',enabled:true,appearance:{surface:'default'},media:{src:upload(name),crop:['center','top','bottom'][i%3]}});
+  const copy=(el=false)=>({sections:sections.map(s=>({id:s.id,_template:s._template,...(s._template==='hero'?{title:el?'Δοκιμή εικόνων':'Media acceptance',description:''}:s._template==='gallery'?{title:s.id,description:'',items:s.items.map((item:any)=>({id:item.id,alt:(el?'Εικόνα ':'Photo ')+item.id,caption:el?'Λεζάντα **εικόνας**':'Photo **caption**'}))}:{title:s.id,body:el?'Κείμενο **δοκιμής**.':'Retained **body**.',image:{alt:(el?'Εικόνα ':'Photo ')+s.id,caption:el?'Λεζάντα **εικόνας**':'Photo **caption**'}})}))});
+  return {contentId:'media_acceptance',_template:'standard',slug:'media-acceptance',status:'published',meta:{title:'Media acceptance',seoDescription:''},sections,copy:copy(),translations:{el:{status:'published',meta:{title:'Δοκιμή εικόνων',seoDescription:''},copy:copy(true)}}};
+diff --git a/e2e/helpers/media-optimization-fixture.ts b/e2e/helpers/media-optimization-fixture.ts
+index b767429..97372d1 100644
+--- a/e2e/helpers/media-optimization-fixture.ts
++++ b/e2e/helpers/media-optimization-fixture.ts
+@@ -9,32 +9,52 @@ import {canonicalSnapshot,assertCanonicalSnapshot} from '../../scripts/compositi
+ import {cleanupMediaOptimization,type MediaRestore} from './media-optimization-cleanup';
+ /** Static fixture writes use caller-known bytes. Native saves remain captureNative/request-schema-serializer owned. */
+ export function createMediaOptimizationFixture(options:{root?:string;documents?:string[];media?:{path:string;documents:string[]}[]}){
+  const root=resolve(options.root??process.cwd()),before=canonicalSnapshot(root);
+  const parent=join(root,'.generated/media-optimization');mkdirSync(parent,{recursive:true});
+  const directory=mkdtempSync(join(parent,'acceptance-fixture-'));
+  const log=(name:string,data:unknown)=>writeFileSync(join(directory,name),JSON.stringify(data,null,2)+'\n');
+  log('canonical-before.json',before);
+  let expected={...before};
+  const check=()=>assertCanonicalSnapshot(expected,root);
+- function contained(path:string,prefix:string){const full=resolve(root,path),r=relative(join(root,prefix),full);if(!r||r==='..'||r.startsWith('..'+sep)||isAbsolute(r))throw Error('Fixture path outside '+prefix);return full;}
++ function contained(path:string,prefix:string){
++  const full=resolve(root,path);
++  const relativePath=relative(join(root,prefix),full);
++  if(!relativePath||relativePath==='..'||relativePath.startsWith('..'+sep)||isAbsolute(relativePath)){
++   throw Error('Fixture path outside '+prefix);
++  }
++  return full;
++ }
+  const documents=new Map((options.documents??[]).map(path=>[path,createCmsSources([contained(path,'content')],directory,{allowCreate:true})]));
+  const documentEdits=new Map(Array.from(documents,([path,source])=>{const full=resolve(root,path);return [path,source.originalState(full).exists?createWorkerEdit(createOwnedFileEdit(full,directory),()=>readFileSync(full)):undefined];}));
+  const media=new Map((options.media??[]).map(({path,documents:dependencies})=>{
+   for(const dependency of dependencies)if(!documents.has(dependency))throw Error('Unknown media document dependency: '+dependency);
+   return [path,{owner:createOwnedMedia(contained(path,'apps/site/public/uploads'),directory,{uploadsRoot:join(root,'apps/site/public/uploads')}),dependencies}];
+  }));
+  const projectPath=join(root,'project.json'),project=createWorkerEdit(createOwnedFileEdit(projectPath,directory),()=>readFileSync(projectPath));
+- function update(path:string,bytes:Uint8Array|string){expected={...expected,[path]:createHash('sha256').update(bytes).digest('hex')};log('canonical-expected.json',expected);check();}
++ function update(path:string,bytes:Uint8Array|string){
++  expected={...expected,[path]:createHash('sha256').update(bytes).digest('hex')};
++  log('canonical-expected.json',expected);
++  check();
++ }
+  return {
+   directory,before,assertInputs:check,expectedSnapshot:()=>({...expected}),
+   replaceProject(bytes:string){check();project.replace(bytes);update('project.json',bytes);},
+   createDocument(path:string,value:unknown){check();const source=documents.get(path);if(!source)throw Error('Unregistered fixture document');const bytes=JSON.stringify(value,null,2)+'\n';source.createAbsent(resolve(root,path),value,()=>true);update(path,bytes);},
+   replaceDocument(path:string,bytes:string){check();const edit=documentEdits.get(path);if(!edit)throw Error('Static replacement requires registered existing document');edit.replace(bytes);update(path,bytes);},
+   createMedia(path:string,bytes:Buffer){check();const item=media.get(path);if(!item)throw Error('Unregistered fixture media');item.owner.create(bytes);update(path,bytes);},
+   replaceMedia(path:string,bytes:Buffer){check();const item=media.get(path);if(!item)throw Error('Unregistered fixture media');item.owner.replace(bytes);update(path,bytes);},
+   async cleanup(options:{stops?:{id:string;stop:()=>unknown|Promise<unknown>}[];regenerate?:{id:string;run:()=>unknown|Promise<unknown>}[]}={}){
+-   const restores:MediaRestore[]=[{id:'project.json',restore:()=>project.restore()},...Array.from(documents,([id,source])=>({id,restore:async()=>{documentEdits.get(id)?.restore();await source.restore();}})),...Array.from(media,([id,{owner,dependencies}])=>({id,restore:()=>owner.restore(),dependsOn:dependencies}))];
++   const restores:MediaRestore[]=[
++    {id:'project.json',restore:()=>project.restore()},
++    ...Array.from(documents,([id,source])=>({id,restore:async()=>{
++     documentEdits.get(id)?.restore();
++     await source.restore();
++    }})),
++    ...Array.from(media,([id,{owner,dependencies}])=>({
++     id,restore:()=>owner.restore(),dependsOn:dependencies,
++    })),
++   ];
+    return cleanupMediaOptimization({stops:options.stops??[],restores,assertInputs:()=>{assertCanonicalSnapshot(before,root);expected={...before};},regenerate:options.regenerate??[],record:ledger=>{log('cleanup.json',ledger);log('restoration.json',{before,after:canonicalSnapshot(root)});}});
+   },
+  };
+ }
+diff --git a/e2e/media-optimization.spec.ts b/e2e/media-optimization.spec.ts
+index 486a88b..8ff58d5 100644
+--- a/e2e/media-optimization.spec.ts
++++ b/e2e/media-optimization.spec.ts
+@@ -9,31 +9,64 @@ import {createMediaSession} from '../packages/media/session.mjs';
+ test.describe.configure({timeout:900000});
+ const modes=[
+  {environment:'local',theme:'neutral',density:'comfortable',rooms:4,profile:'enquiries',articles:true,enabled:true},
+  {environment:'staging',theme:'accommodation',density:'compact',rooms:1,profile:'newsletter',articles:false,enabled:true},
+  {environment:'production',theme:'trades',density:'spacious',rooms:2,profile:'nurture',articles:true,enabled:true},
+  {environment:'local',theme:'wellness',density:'compact',rooms:3,profile:'enquiries',articles:false,enabled:true},
+  {environment:'production',theme:'neutral',density:'spacious',rooms:0,profile:'enquiries',articles:false,enabled:false},
+ ];
+ async function inspect(page:Page,enabled:boolean,locale:string){
+  const rows:any[]=[];
++ const itemCounts=new Map<string,number>();
+  for(const image of await page.locator('main .section-image img').all()){
+   await image.scrollIntoViewIfNeeded();await expect.poll(()=>image.evaluate((e:HTMLImageElement)=>e.complete&&e.naturalWidth>0)).toBe(true);
+   const row=await image.evaluate((e:HTMLImageElement)=>{
+    const source=e.parentElement?.querySelector('source');const sizes=source?.sizes||e.sizes;
+    // Split only top-level commas: min()/clamp() contain their own delimiters.
+    const rules:string[]=[];let depth=0,start=0;for(let i=0;i<sizes.length;i++){if(sizes[i]==='(')depth++;if(sizes[i]===')')depth--;if(sizes[i]===','&&depth===0){rules.push(sizes.slice(start,i).trim());start=i+1;}}rules.push(sizes.slice(start).trim());
+    let expression='';for(const rule of rules){const m=rule.match(/^(\([^)]*\))\s+(.+)$/);if(!m||matchMedia(m[1]).matches){expression=m?m[2]:rule;break;}}
+    const ruler=document.createElement('div');ruler.style.cssText='position:fixed;visibility:hidden;box-sizing:content-box;padding:0;border:0;width:'+expression;document.body.append(ruler);const expected=ruler.getBoundingClientRect().width;ruler.remove();
+-   return {alt:e.alt,caption:e.closest('figure')?.querySelector('figcaption')?.textContent||'',currentSrc:e.currentSrc,srcset:e.srcset,sizes,expected,frame:e.closest('.image-frame')!.getBoundingClientRect().width,width:e.getAttribute('width'),height:e.getAttribute('height'),naturalWidth:e.naturalWidth,fit:getComputedStyle(e).objectFit,crop:getComputedStyle(e).objectPosition,loading:e.loading,decoding:e.decoding,section:e.closest('section')?.getAttribute('aria-labelledby')||'room-detail'};
++   return {alt:e.alt,caption:e.closest('figure')?.querySelector('figcaption')?.textContent||'',src:e.getAttribute('src'),currentSrc:e.currentSrc,srcset:e.srcset,selectedSrcset:source?.srcset||e.srcset,sizes,expected,frame:e.closest('.image-frame')!.getBoundingClientRect().width,width:e.getAttribute('width'),height:e.getAttribute('height'),naturalWidth:e.naturalWidth,fit:getComputedStyle(e).objectFit,crop:getComputedStyle(e).objectPosition,loading:e.loading,decoding:e.decoding,section:e.closest('section')?.getAttribute('aria-labelledby')||'room-detail'};
+   });
+-  expect(row.alt).toMatch(locale==='el'?/Εικόνα|Αφηρημένο/:/Photo|Abstract/);if(row.section==='room_list')expect(row.caption).toBe('');else expect(row.caption).toMatch(locale==='el'?/Λεζάντα/:/caption|Caption/);expect(row.fit).toBe('cover');expect(['50% 50%','50% 0%','50% 100%']).toContain(row.crop);expect(Number(row.width)).toBeGreaterThan(0);expect(Number(row.height)).toBeGreaterThan(0);expect(row.loading).toBe('lazy');expect(row.decoding).toBe('async');
++  const itemIndex=itemCounts.get(row.section)??0;
++  itemCounts.set(row.section,itemIndex+1);
++  const gallery=row.section.startsWith('gallery_');
++  const mediaIndex=row.section.startsWith('media_')?Number(row.section.slice(6)):undefined;
++  const room=mediaIndex===undefined&&!gallery;
++  const identity=gallery?'image_'+itemIndex:row.section;
++  expect(row.alt).toBe(room?(locale==='el'?'Αφηρημένο τοπίο':'Abstract landscape'):(locale==='el'?'Εικόνα ':'Photo ')+identity);
++  expect(row.caption).toBe(row.section==='room_list'?'':room?(locale==='el'?'Λεζάντα':'Caption'):(locale==='el'?'Λεζάντα εικόνας':'Photo caption'));
++  const crop=room?'50% 0%':['50% 50%','50% 0%','50% 100%'][(gallery?itemIndex:mediaIndex!)%3];
++  expect(row.crop).toBe(crop);
++  const dimensions=mediaIndex===undefined?[3840,1725]:[[3840,1725],[300,600],[400,200],[100,50],[3,2],[800,400]][mediaIndex];
++  const optimized=enabled&&mediaIndex!==4;
++  const width=optimized?Math.min(dimensions[0],1920):dimensions[0];
++  const height=Math.round(dimensions[1]*width/dimensions[0]);
++  expect(Number(row.width)).toBe(width);
++  expect(Math.abs(Number(row.height)-height)).toBeLessThanOrEqual(optimized?1:0);
++  if(optimized){
++   const selected=new URL(row.currentSrc).pathname;
++   const entries=row.selectedSrcset.split(', ').map((entry:string)=>entry.split(' '));
++   const candidate=entries.find(([url]:string[])=>url===selected);
++   expect(candidate).toBeDefined();
++   const selectedWidth=Number(candidate![1].slice(0,-1));
++   const metadata=await sharp(readFileSync('apps/site/dist'+selected)).metadata();
++   expect(metadata.width).toBe(selectedWidth);
++   const intrinsic=await sharp(readFileSync('apps/site/dist'+row.src)).metadata();
++   expect(Number(row.width)).toBe(intrinsic.width);
++   expect(Number(row.height)).toBe(intrinsic.height);
++   expect([320,640,960,1440,1920].filter(w=>w<=dimensions[0]).concat(Math.min(dimensions[0],1920))).toContain(metadata.width);
++   expect(Math.abs(metadata.height!-Math.round(dimensions[1]*metadata.width!/dimensions[0]))).toBeLessThanOrEqual(1);
++  }
++  expect(row.fit).toBe('cover');
++  expect(row.loading).toBe('lazy');
++  expect(row.decoding).toBe('async');
+   const animation=row.section==='media_4';if(enabled&&!animation){expect(row.currentSrc).toContain('/_media/v1/');expect(row.srcset).toContain('w');expect(Math.abs(row.expected-row.frame),JSON.stringify(row)).toBeLessThanOrEqual(1.1);}else {expect(row.currentSrc).toContain('/uploads/');expect(row.srcset).toBe('');}
+   rows.push(row);
+  }
+  expect(rows.length).toBeGreaterThan(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);return rows;
+ }
+ for(const [index,mode]of modes.entries())test('real static '+JSON.stringify(mode),async({browser})=>{
+  const owner=staticOwner(mode),{fixture,run}=owner;let runtime:Awaited<ReturnType<typeof workerFor>>|undefined;
+  try{
+   owner.setup();await run.configure();await run.build();
+   const inventory=outputDemand();expect(inventory.published).toEqual(inventory.demanded);expect(inventory.published.length>0).toBe(mode.enabled);writeEvidence(run.directory,'publication.json',{mode,...inventory,originals:photoNames.map(name=>({name,persisted:existsSync('apps/site/dist'+upload(name))}))});
+@@ -54,10 +87,55 @@ for(const [index,mode]of modes.entries())test('real static '+JSON.stringify(mode
+     if(index>0&&scenario.width===1440&&route==='/media-acceptance')await page.screenshot({path:join(run.directory,mode.theme+'-1440.png'),fullPage:true});
+    }
+    if(!mode.rooms)expect((await page.goto('/'+scenario.locale+'/rooms'))!.status()).toBe(404);
+    if(!mode.articles)expect((await page.goto('/'+scenario.locale+'/insights'))!.status()).toBe(404);
+    expect(requests.filter(r=>r.type==='image').every(r=>/^https?:\/\/127\.0\.0\.1:\d+\/(?:_media\/v1\/[a-f0-9]+\.(?:webp|png|jpg|jpeg)|uploads\/[^?]+)$/.test(r.url))).toBe(true);writeEvidence(run.directory,'requests-'+scenario.locale+'-'+scenario.width+'-'+scenario.dpr+'-'+scenario.js+'.json',requests);
+   }finally{await context.close();}}
+   writeEvidence(run.directory,'browser-matrix.json',evidence);
+   if(index===0){const session=createMediaSession({root:process.cwd(),policy:{enabled:true,widths:[320,640,960,1440,1920],quality:80},mode:'build'});try{const table=[];for(const name of photoNames){const media=await session.resolve(upload(name));const source=await sharp(readFileSync('tests/fixtures/media-optimization/'+name)).metadata();table.push({name,source:{bytes:statSync('tests/fixtures/media-optimization/'+name).size,width:source.width,height:source.height,sha256:hash(readFileSync('tests/fixtures/media-optimization/'+name))},...media});}writeEvidence(run.directory,'candidate-table.json',table);const photo=table[0];expect(photo.webp.every(c=>c.bytes<photo.source.bytes)).toBe(true);expect(table[4].passthroughReason).toBe('animated-or-multipage');const selected=evidence.flatMap(e=>e.images.filter((i:any)=>i.section.startsWith('gallery_')).map((i:any)=>({src:i.currentSrc,bytes:statSync('apps/site/dist'+new URL(i.currentSrc).pathname).size,original:photo.source.bytes})));expect(selected.every(s=>s.bytes<s.original)).toBe(true);writeEvidence(run.directory,'selected-transfer.json',selected);}finally{await session.close();}}
+  }finally{await fixture.cleanup({stops:[{id:'built-worker',stop:async()=>{await runtime?.stop();owner.stopped();writeEvidence(run.directory,'shutdown.json',{confirmed:true,ended:new Date().toISOString()});}}],regenerate:[{id:'configure-restored',run:()=>run.configure()}]});run.finish();}
+ });
++
++// Scoped final-fix proof: one build and two representative bilingual contexts.
++// The historical broad matrix remains attributed to its original source.
++test('scoped static WebP responsive preservation and demand equality',async({browser})=>{
++ const owner=staticOwner(modes[0]),{fixture,run}=owner;
++ let runtime:Awaited<ReturnType<typeof workerFor>>|undefined;
++ try {
++  owner.setup();
++  await run.configure();
++  await run.build();
++  const inventory=outputDemand();
++  expect(inventory.published).toEqual(inventory.demanded);
++  writeEvidence(run.directory,'publication.json',inventory);
++  runtime=await workerFor(run.directory);
++  owner.started();
++  for(const scenario of [{locale:'en',width:375,dpr:2},{locale:'el',width:1440,dpr:1}]){
++   const context=await browser.newContext({viewport:{width:scenario.width,height:900},deviceScaleFactor:scenario.dpr,baseURL:'http://127.0.0.1:'+runtime.port});
++   try {
++    const page=await context.newPage();
++    expect((await page.goto('/'+scenario.locale+'/media-acceptance'))!.status()).toBe(200);
++    const rows=await inspect(page,true,scenario.locale);
++    const webp=page.locator('section[aria-labelledby="media_5"] picture');
++    await expect(webp).toHaveCount(1);
++    await expect(webp.locator('source')).toHaveCount(0);
++    await expect(webp.locator('img')).toHaveAttribute('srcset',/320w, .*640w, .*800w/);
++    await expect(webp.locator('img')).toHaveAttribute('width','800');
++    await expect(webp.locator('img')).toHaveAttribute('height','400');
++    const selected=rows.find(row=>row.section==='media_5')!.currentSrc;
++    const response=await page.request.get(selected);
++    expect(response.status()).toBe(200);
++    expect(response.headers()['content-type']).toContain('image/webp');
++    const decoded=await sharp(await response.body()).metadata();
++    expect(decoded.format).toBe('webp');
++    writeEvidence(run.directory,'scoped-'+scenario.locale+'.json',{scenario,rows,selected,decoded});
++   } finally {await context.close();}
++  }
++  expect(outputDemand()).toEqual(inventory);
++ } finally {
++  await fixture.cleanup({stops:[{id:'built-worker',stop:async()=>{
++   await runtime?.stop();owner.stopped();
++   writeEvidence(run.directory,'shutdown.json',{confirmed:true,ended:new Date().toISOString()});
++  }}],regenerate:[{id:'configure-restored',run:()=>run.configure()}]});
++  run.finish();
++ }
++});
+diff --git a/packages/media/cache.mjs b/packages/media/cache.mjs
+index 4de4c37..239b78b 100644
+--- a/packages/media/cache.mjs
++++ b/packages/media/cache.mjs
+@@ -1,82 +1,106 @@
+ // Server-only cache. URLs and manifest names never supply filesystem paths.
+ import sharp from 'sharp';
+ import { createHash, randomUUID } from 'node:crypto';
+ import { lstat, mkdir, open, realpath, rename, unlink, link } from 'node:fs/promises';
+ import { join, resolve, relative, isAbsolute } from 'node:path';
+ import { candidateWidths, encodeCandidate, withNativeImageWork, PIPELINE_VERSION, ENCODING_POLICY, SHARP_VERSION } from './optimization.mjs';
+ export { candidateWidths } from './optimization.mjs';
+ const MARKER = 'starter-media-optimization-cache-v1\n';
++// Small metadata envelopes; 160 MiB covers 40M 8-bit RGBA pixels plus PNG
++// row filters, deflate expansion and chunk overhead. Outputs strip metadata.
++const MARKER_BYTES = 256;
++const MANIFEST_BYTES = 4096;
++const OUTPUT_BYTES = 160 * 1024 * 1024;
+ const CACHE_PARTS = ['.generated','media-optimization','cache','v1'];
+ const URL = /^\/_media\/v1\/([a-f0-9]{64})\.(png|jpeg|webp)$/;
+ const inFlight = new Map();
+ const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+ const identityHash = identity => hash(JSON.stringify(identity));
+ function identity(source, width, format, quality) {
+   return {source,width,format,quality,sharp:SHARP_VERSION,pipeline:PIPELINE_VERSION,policy:ENCODING_POLICY};
+ }
+ function contained(root, path) {
+   const rel = relative(root,path);
+   if (!rel || rel === '..' || rel.startsWith('..\\') || rel.startsWith('../') || isAbsolute(rel)) throw new Error('Media cache destination escapes its root');
+ }
+ async function regular(path, directory = false, optional = false) {
+   let stat;
+   try { stat = await lstat(path); } catch (error) { if (optional && error.code === 'ENOENT') return false; throw error; }
+   if (stat.isSymbolicLink() || (directory ? !stat.isDirectory() : !stat.isFile())) throw new Error(`Unsafe media cache symlink/reparse destination: ${path}`);
+   return true;
+ }
+-async function readRegular(path) {
++async function readRegular(path, limit, expectedBytes) {
+   await regular(path);
+   const handle = await open(path,'r');
+   try {
+     const before = await handle.stat();
+     const named = await lstat(path);
+     if (!before.isFile() || named.isSymbolicLink() || before.ino !== named.ino || before.dev !== named.dev) throw new Error('Unsafe replaced media cache destination');
+-    return await handle.readFile();
++    if (before.size > limit || (expectedBytes !== undefined && before.size !== expectedBytes)) throw new Error('Invalid media cache byte length');
++    // Never use readFile: stat is only an early refusal, not a bound on a file
++    // that grows while this handle is open. Read at most the envelope plus one.
++    const bound = expectedBytes ?? limit;
++    const chunks = [];
++    let total = 0;
++    for (;;) {
++      const buffer = Buffer.alloc(Math.min(64 * 1024, bound + 1 - total));
++      const {bytesRead} = await handle.read(buffer,0,buffer.length,null);
++      if (!bytesRead) break;
++      total += bytesRead;
++      if (total > bound) throw new Error('Media cache byte limit exceeded');
++      chunks.push(buffer.subarray(0,bytesRead));
++    }
++    if (expectedBytes !== undefined && total !== expectedBytes) throw new Error('Invalid media cache byte length');
++    return Buffer.concat(chunks,total);
+   } finally { await handle.close(); }
+ }
++function validateByteLength(bytes) {
++  if (!Number.isSafeInteger(bytes) || bytes < 1 || bytes > OUTPUT_BYTES) throw new Error('Invalid media cache output byte limit');
++}
+ async function cacheDirectory(root, create) {
+   const realRoot = await realpath(resolve(root));
+   let dir = realRoot;
+   for (const part of CACHE_PARTS) {
+     dir = join(dir,part);contained(realRoot,dir);
+     if (create) await mkdir(dir).catch(error => {if(error.code !== 'EEXIST') throw error;});
+     await regular(dir,true);
+   }
+   const marker = join(dir,'.pipeline');
+   if (create) {
+     // Install complete ownership bytes atomically without replacing foreign markers.
+     const temp = join(dir,`.pipeline.${randomUUID()}.tmp`);
+     let handle;
+     try {
+       handle = await open(temp,'wx');await handle.writeFile(MARKER);await handle.sync();await handle.close();handle=undefined;
+       try {await link(temp,marker);} catch(error) {if(error.code !== 'EEXIST') throw error;}
+     } finally {await handle?.close();await unlink(temp).catch(error=>{if(error.code!=='ENOENT') throw error;});}
+   }
+-  if ((await readRegular(marker)).toString() !== MARKER) throw new Error('Foreign media cache pipeline marker');
++  if ((await readRegular(marker,MARKER_BYTES)).toString() !== MARKER) throw new Error('Foreign media cache pipeline marker');
+   return dir;
+ }
+ function candidateIdentity(candidate) {
+   const parsed = URL.exec(candidate.src);
+   if (!parsed || parsed[2] !== candidate.format) throw new Error('Invalid media cache candidate URL identity');
+   return parsed[1];
+ }
+ async function validate(dir, candidate, expectedIdentity) {
+   const id = candidateIdentity(candidate);
+   const file = join(dir,`${id}.${candidate.format}`);
+-  const manifest = JSON.parse((await readRegular(file+'.json')).toString());
++  const manifest = JSON.parse((await readRegular(file+'.json',MANIFEST_BYTES)).toString());
++  validateByteLength(manifest.bytes);
+   const i = manifest.identity;
+   if (!i || typeof i.source !== 'string' || !/^[a-f0-9]{64}$/.test(i.source) || !Number.isInteger(i.width) || i.width < 1 || i.width > 2560 || !Number.isInteger(i.quality) || i.quality < 40 || i.quality > 95) throw new Error('Invalid media cache manifest identity');
+   const canonical = identity(i.source,i.width,i.format,i.quality);
+   if (JSON.stringify(i) !== JSON.stringify(canonical) || identityHash(canonical) !== id || (expectedIdentity && JSON.stringify(i) !== JSON.stringify(expectedIdentity)) || i.format !== candidate.format || i.width !== candidate.width) throw new Error('Invalid media cache manifest identity');
+   if (manifest.width !== candidate.width || manifest.height !== candidate.height || manifest.bytes !== candidate.bytes || manifest.file !== `${id}.${candidate.format}`) throw new Error('Invalid media cache manifest metadata');
+-  const bytes = await readRegular(file);
++  const bytes = await readRegular(file,OUTPUT_BYTES,candidate.bytes);
+   if (bytes.length !== candidate.bytes || hash(bytes) !== manifest.sha256) throw new Error('Invalid media cache output hash');
+   // Acquire only for this decode, never around a cache resolution that may encode.
+   await withNativeImageWork(async () => {
+     const decoder = sharp(bytes,{limitInputPixels:40000000,failOn:'warning'});
+     const m = await decoder.metadata();
+     if (m.format !== candidate.format || m.width !== candidate.width || m.height !== candidate.height || (m.pages ?? 1) !== 1 || m.orientation) throw new Error('Invalid media cache decoded dimensions');
+     await decoder.raw().toBuffer();
+   });
+   return {bytes,contentType:`image/${candidate.format}`};
+ }
+@@ -100,21 +124,22 @@ async function atomicWrite(root,dir,name,bytes) {
+ async function cachedCandidate(root,dir,snapshot,width,format,quality) {
+   const i=identity(snapshot.media.fingerprint,width,format,quality);
+   const id=identityHash(i), name=`${id}.${format}`;
+   const key=`${dir}/${id}`;
+   if(inFlight.has(key)) return {...await inFlight.get(key)};
+   const work=(async()=>{
+     const file=join(dir,name);
+     // Unsafe destinations are errors; ordinary incomplete/corrupt entries regenerate.
+     await regular(file,false,true);await regular(file+'.json',false,true);
+     try {
+-      const m=JSON.parse((await readRegular(file+'.json')).toString());
++      const m=JSON.parse((await readRegular(file+'.json',MANIFEST_BYTES)).toString());
++      validateByteLength(m.bytes);
+       // JPEG shrink-on-load can round one pixel differently from ratio arithmetic.
+       // Bound that difference; decoded dimensions must still match the manifest exactly.
+       const expectedHeight=Math.max(1,Math.round(snapshot.media.height*width/snapshot.media.width));
+       if(!Number.isInteger(m.height) || m.height < 1 || Math.abs(m.height-expectedHeight)>1) throw new Error('Invalid media cache source aspect ratio');
+       const candidate={src:`/_media/v1/${name}`,width,height:m.height,format,bytes:m.bytes};
+       await validate(dir,candidate,i);return candidate;
+     } catch(error) {if (/symlink|reparse|destination/.test(error.message)) throw error;}
+     const output=await encodeCandidate(snapshot.bytes,width,format,quality);
+     const candidate={src:`/_media/v1/${name}`,width:output.width,height:output.height,format,bytes:output.bytes.length};
+     const manifest={identity:i,file:name,width:output.width,height:output.height,bytes:output.bytes.length,sha256:hash(output.bytes)};
+diff --git a/tests/fixtures/media-optimization/README.md b/tests/fixtures/media-optimization/README.md
+index 672b53d..fa029cc 100644
+--- a/tests/fixtures/media-optimization/README.md
++++ b/tests/fixtures/media-optimization/README.md
+@@ -4,10 +4,12 @@ large-photo.jpg: Fronalpstock, Switzerland, by Hannes Röst. Source verified 202
+ 
+ Other fixtures are original synthetic pixels authored for these tests and available under CC0 (https://creativecommons.org/publicdomain/zero/1.0/). Recipe with Sharp 0.35.5: portrait = 600×300 RGB #b45a17 JPEG with EXIF orientation 6; alpha = 400×200 RGBA (20,90,150,0.3) PNG; small = 100×50 RGB #29a PNG; animated = stacked 3×2 solid red/blue frames encoded WebP loop 0 delay [100,100]. No business-reference media used.
+ 
+ SHA-256 recorded before test use:
+ 
+ - large-photo.jpg: 35f5cbcf42337206c818cf8c17f2bbeb309add5b8d4579b3432acedc6304e6c7 (1610954 bytes)
+ - portrait.jpg: 9440615bb4677d38e6a12a6a8993d6b04954af81a3bd8cda275f4e6cc9b34a36 (2039 bytes)
+ - alpha.png: 0bd1c66e11cdfdcc8a2dba39b4f40ab5693b657ad4c5f3e4e5af11cdcdf965c0 (2291 bytes)
+ - small.png: 7758a0a9c96ee74654871281d12e2ec3c78a803cfca4cff14667a6e82653ac5c (238 bytes)
+ - animated.webp: 7e637503f94678635fc536ce61cc553520eb7d51678a3a4ae452756fdc3bb431 (202 bytes)
++
++static.webp: original CC0 synthetic 800×400 RGBA #33669980, Sharp 0.35.5 WebP default encoder. SHA-256 9e677bcf34d91c19980fddd6f8fd29af87528f10423ed257c1d3922d9798d3e9 (704 bytes). Added for the final-fix single-family static WebP regression.
+diff --git a/tests/fixtures/media-optimization/static.webp b/tests/fixtures/media-optimization/static.webp
+new file mode 100644
+index 0000000..ff82f80
+Binary files /dev/null and b/tests/fixtures/media-optimization/static.webp differ
+diff --git a/tests/helpers/owned-temp-roots.ts b/tests/helpers/owned-temp-roots.ts
+new file mode 100644
+index 0000000..c86295c
+--- /dev/null
++++ b/tests/helpers/owned-temp-roots.ts
+@@ -0,0 +1,27 @@
++import {mkdtempSync,lstatSync,readdirSync,realpathSync,rmSync} from 'node:fs';
++import {tmpdir} from 'node:os';
++import {basename,dirname,join,resolve} from 'node:path';
++/** Test-only roots: exact created paths, verified without following reparse entries. */
++export function ownedTempRoots(prefix:string){
++ const parent=realpathSync(tmpdir()),roots=new Map<string,{ino:number;dev:number}>();
++ return {
++  create(){const path=mkdtempSync(join(parent,prefix));roots.set(path,lstatSync(path));return path;},
++  cleanup(preserve=false){
++   for(const [path,identity] of roots){
++    if(preserve){console.error('Preserved failed-test evidence: '+path);continue;}
++    if(resolve(path)!==path||dirname(path)!==parent||!basename(path).startsWith(prefix))throw Error('Unowned temporary root refused');
++    const current=lstatSync(path);
++    if(!current.isDirectory()||current.isSymbolicLink()||current.ino!==identity.ino||current.dev!==identity.dev)throw Error('Replaced temporary root preserved');
++    const verify=(entry:string)=>{
++     const stat=lstatSync(entry);
++     if(stat.isSymbolicLink())throw Error('Temporary reparse entry preserved: '+entry);
++     if(stat.isDirectory())for(const child of readdirSync(entry))verify(join(entry,child));
++    };
++    verify(path);
++    if(realpathSync(path)!==path)throw Error('Replaced temporary root preserved');
++    rmSync(path,{recursive:true});
++   }
++   roots.clear();
++  },
++ };
++}
+diff --git a/tests/media-acceptance-harness.test.ts b/tests/media-acceptance-harness.test.ts
+index 9a0d4dc..0013377 100644
+--- a/tests/media-acceptance-harness.test.ts
++++ b/tests/media-acceptance-harness.test.ts
+@@ -1,23 +1,28 @@
+-import {it,expect,vi} from 'vitest';
+-import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,existsSync} from 'node:fs';
+-import {tmpdir} from 'node:os';
++import {ownedTempRoots} from './helpers/owned-temp-roots';
++import {it,expect,vi,afterEach} from 'vitest';
++import {mkdirSync,readFileSync,writeFileSync,existsSync} from 'node:fs';
+ import {join} from 'node:path';
+ import {staticOwner} from '../e2e/helpers/media-optimization-acceptance';
+ import {createMediaOptimizationFixture} from '../e2e/helpers/media-optimization-fixture';
+ import {cleanupMediaOptimization} from '../e2e/helpers/media-optimization-cleanup';
+ import {mediaRuntime,cleanupMediaBrowser} from '../e2e/helpers/media-optimization-runtime';
+ import {canonicalSnapshot,assertCanonicalSnapshot} from '../scripts/composition-c-snapshot.mjs';
+-function root(){const path=mkdtempSync(join(tmpdir(),'media-harness-fault-'));for(const p of ['content/pages','content/rooms','apps/site/public/uploads'])mkdirSync(join(path,p),{recursive:true});writeFileSync(join(path,'project.json'),readFileSync('project.json'));writeFileSync(join(path,'content/pages/rooms.json'),readFileSync('content/pages/rooms.json'));return path;}
++function root(){const path=tempRoots.create();for(const p of ['content/pages','content/rooms','apps/site/public/uploads'])mkdirSync(join(path,p),{recursive:true});writeFileSync(join(path,'project.json'),readFileSync('project.json'));writeFileSync(join(path,'content/pages/rooms.json'),readFileSync('content/pages/rooms.json'));return path;}
++const tempRoots=ownedTempRoots('media-harness-fault-');
++afterEach(({task})=>{tempRoots.cleanup(task.result?.state==='fail');});
+ it('restores partially acquired static setup when setup rejects before returning to browser work',async()=>{
+  const path=root(),before=canonicalSnapshot(path);const owner=staticOwner({environment:'local',theme:'neutral',density:'comfortable',rooms:1,profile:'enquiries',articles:true,enabled:true},{root:path});
+  vi.spyOn(owner.fixture,'createDocument').mockImplementationOnce(()=>{throw Error('setup failed after binary acquisition');});
+  expect(()=>owner.setup()).toThrow(/setup failed/);expect(existsSync(join(path,'apps/site/public/uploads/media-acceptance-large-photo.jpg'))).toBe(true);
+  await owner.fixture.cleanup();expect(canonicalSnapshot(path)).toEqual(before);expect(owner.run.finish().unchanged).toBe(true);
+ });
+ it('rejecting browser close still confirms exact runtime shutdown and restores sources while refusing regeneration',async()=>{
+  const path=root(),before=canonicalSnapshot(path),f=createMediaOptimizationFixture({root:path,documents:['content/pages/proof.json'],media:[{path:'apps/site/public/uploads/proof.png',documents:['content/pages/proof.json']}]});
+  f.createMedia('apps/site/public/uploads/proof.png',Buffer.from('owned'));f.createDocument('content/pages/proof.json',{src:'/uploads/proof.png'});
+  const runtime=mediaRuntime(f.directory,'actual-child',['-e','setInterval(()=>{},1000)']);let regenerated=false,ledger:any;
++ try {
+  await expect(cleanupMediaBrowser({closeBrowser:async()=>{throw Error('browser close rejected');},stops:[{id:'owned-runtime',stop:()=>runtime.stop()}],restores:[{id:'fixture-sources',restore:()=>f.cleanup()}],assertInputs:()=>assertCanonicalSnapshot(before,path),regenerate:[{id:'configure',run:()=>{regenerated=true;}}],record:state=>{ledger=state;}})).rejects.toThrow();
+  expect(runtime.closed()).toBe(true);expect(canonicalSnapshot(path)).toEqual(before);expect(ledger.stops.map((r:any)=>r.status)).toEqual(['failed','stopped']);expect(ledger.actions[0].status).toBe('restored');expect(regenerated).toBe(false);expect(ledger.regeneration[0].status).toBe('skipped');
++ } finally {await runtime.stop();}
++
+ });
+diff --git a/tests/media-cache.test.ts b/tests/media-cache.test.ts
+index 5771c0d..e0c2d38 100644
+--- a/tests/media-cache.test.ts
++++ b/tests/media-cache.test.ts
+@@ -1,13 +1,13 @@
+ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+ import sharp from 'sharp';
+-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile, symlink, stat } from 'node:fs/promises';
++import { mkdtemp, mkdir, readFile, readdir, rm, writeFile, symlink, stat, open, truncate, appendFile } from 'node:fs/promises';
+ import { tmpdir } from 'node:os';
+ import { join, basename } from 'node:path';
+ import { resolveCachedMedia, readCachedCandidate } from '../packages/media/cache.mjs';
+ import { readValidatedSource } from '../packages/media/source-reader.mjs';
+ let root:string,uploads:string,cache:string;
+ const policy={enabled:true,widths:[160,320],quality:80};
+ beforeEach(async()=>{root=await mkdtemp(join(tmpdir(),'media-cache-'));uploads=join(root,'apps/site/public/uploads');cache=join(root,'.generated/media-optimization/cache/v1');await mkdir(uploads,{recursive:true});await writeFile(join(uploads,'a.png'),await sharp({create:{width:400,height:200,channels:4,background:'#a85'}}).png().toBuffer());});
+ afterEach(async()=>{vi.restoreAllMocks();await rm(root,{recursive:true,force:true});});
+ const snapshot=()=>readValidatedSource(root,'/uploads/a.png');
+ const file=(src:string)=>join(cache,basename(src));
+@@ -114,10 +114,68 @@ it('shares two native slots between direct cached reads and cold transforms acro
+   const results=await Promise.all([
+    ...candidatesA.map(c=>readCachedCandidate(root,c)),
+    ...candidatesB.map(c=>readCachedCandidate(other,c)),
+    resolveCachedMedia(other,s,{...policy,quality:90})
+   ]);
+   for(const result of results.slice(0,8))expect('bytes' in result && result.bytes.length).toBeGreaterThan(0);
+   expect(work.decodes).toBe(8);expect(work.transforms).toBe(4);
+   expect(work.max).toBe(2);expect(work.active).toBe(0);
+  } finally {await rm(other,{recursive:true,force:true});}
+ });
++
++// A sparse file plus a tripwire catches unbounded allocation without ever reading it.
++it.each([
++ ['marker',257],['manifest',4097],['output',160*1024*1024+1]
++])('refuses oversized %s before any whole-file allocation',async(kind,size)=>{
++ const r=await resolveCachedMedia(root,await snapshot(),policy),candidate=r.webp[0];
++ const path=kind==='marker'?join(cache,'.pipeline'):file(candidate.src)+(kind==='manifest'?'.json':'');
++ await truncate(path,size);
++ const target=await stat(path),probe=await open(path,'r'),proto=Object.getPrototypeOf(probe);await probe.close();
++ const original=proto.readFile;let unbounded=0;
++ vi.spyOn(proto,'readFile').mockImplementation(async function(this:any,...args:any[]){
++  if((await this.stat()).ino===target.ino){unbounded++;throw Error('Unbounded allocation tripwire');}
++  return original.apply(this,args);
++ });
++ await expect(readCachedCandidate(root,candidate)).rejects.toThrow(/byte|size|length|limit/i);
++ expect(unbounded).toBe(0);
++ if(kind!=='marker'){
++  const repaired=await resolveCachedMedia(root,await snapshot(),policy);
++  expect((await readCachedCandidate(root,repaired.webp[0])).bytes.length).toBe(candidate.bytes);
++ }
++});
++it.each(['marker','manifest','output'])('bounds opened-handle %s reads when it grows after stat',async kind=>{
++ const r=await resolveCachedMedia(root,await snapshot(),policy),candidate=r.webp[0];
++ const path=kind==='marker'?join(cache,'.pipeline'):file(candidate.src)+(kind==='manifest'?'.json':'');
++ const target=await stat(path),probe=await open(path,'r'),proto=Object.getPrototypeOf(probe);await probe.close();
++ const originalStat=proto.stat,originalReadFile=proto.readFile;let grew=false,unbounded=0;
++ vi.spyOn(proto,'stat').mockImplementation(async function(this:any,...args:any[]){
++  const value=await originalStat.apply(this,args);
++  if(value.ino===target.ino&&!grew){grew=true;await appendFile(path,Buffer.alloc(kind==='manifest'?4097:257,32));}
++  return value;
++ });
++ vi.spyOn(proto,'readFile').mockImplementation(async function(this:any,...args:any[]){
++  const value=await originalStat.call(this);
++  if(value.ino===target.ino){unbounded++;throw Error('Unbounded allocation tripwire');}
++  return originalReadFile.apply(this,args);
++ });
++ await expect(readCachedCandidate(root,candidate)).rejects.toThrow(/byte|size|length|limit/i);
++ expect(grew).toBe(true);expect(unbounded).toBe(0);
++});
++it.each([0,-1,1.5,160*1024*1024+1,'100'])('regenerates unbounded/invalid manifest byte field %s before reading output',async bytes=>{
++ const source=await snapshot(),r=await resolveCachedMedia(root,source,policy),candidate=r.webp[0];
++ const path=file(candidate.src)+'.json';const manifest=JSON.parse(await readFile(path,'utf8'));
++ manifest.bytes=bytes;await writeFile(path,JSON.stringify(manifest));
++ await expect(readCachedCandidate(root,{...candidate,bytes:bytes as number})).rejects.toThrow(/byte|size|length|limit/i);
++ const repaired=await resolveCachedMedia(root,source,policy);
++ expect((await readCachedCandidate(root,repaired.webp[0])).bytes.length).toBe(candidate.bytes);
++});
++it('refuses an initial output length mismatch before reading output bytes',async()=>{
++ const r=await resolveCachedMedia(root,await snapshot(),policy),candidate=r.webp[0];
++ const path=file(candidate.src);await appendFile(path,'extra');
++ const target=await stat(path),probe=await open(path,'r'),proto=Object.getPrototypeOf(probe);await probe.close();
++ const original=proto.readFile;let unbounded=0;
++ vi.spyOn(proto,'readFile').mockImplementation(async function(this:any,...args:any[]){
++  if((await this.stat()).ino===target.ino){unbounded++;throw Error('Unbounded allocation tripwire');}
++  return original.apply(this,args);
++ });
++ await expect(readCachedCandidate(root,candidate)).rejects.toThrow(/byte|size|length|limit/i);expect(unbounded).toBe(0);
++});
+diff --git a/tests/media-native-admission.test.ts b/tests/media-native-admission.test.ts
+index 231600c..8748b8c 100644
+--- a/tests/media-native-admission.test.ts
++++ b/tests/media-native-admission.test.ts
+@@ -1,20 +1,22 @@
+-import {it,expect} from 'vitest';
+-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync} from 'node:fs';
+-import {tmpdir} from 'node:os';
++import {ownedTempRoots} from './helpers/owned-temp-roots';
++import {it,expect,afterEach} from 'vitest';
++import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
+ import {join,resolve} from 'node:path';
+ import {createHash} from 'node:crypto';
+ import {admitMediaNativeWrite} from '../e2e/helpers/media-optimization-native-admission';
+ import {nativeDocumentPath,type Schema} from '../e2e/helpers/native-document';
++const tempRoots=ownedTempRoots('media-native-admission-');
++afterEach(({task})=>{tempRoots.cleanup(task.result?.state==='fail');});
+ const hash=(bytes:string)=>createHash('sha256').update(bytes).digest('hex');
+ function fixture(){
+- const directory=mkdtempSync(join(tmpdir(),'media-native-admission-'));
++ const directory=tempRoots.create();
+  const pages=join(directory,'pages');mkdirSync(pages);
+  const path=join(pages,'owned.json'),other=join(pages,'other.json');
+  writeFileSync(path,'owned original');writeFileSync(other,'unrelated original');
+  // Same directory deliberately proves collection admission independently from path equality.
+  const schema:Schema={collections:[{name:'page',path:pages,fields:[]},{name:'settings',path:pages,fields:[]}]};
+  return {path,other,schema};
+ }
+ it.each([
+  ['wrong-target','updateDocument','page','other.json'],
+  ['wrong-collection','updateDocument','settings','owned.json'],
+diff --git a/tests/media-optimization.test.ts b/tests/media-optimization.test.ts
+index 12f5ecb..42d7a68 100644
+--- a/tests/media-optimization.test.ts
++++ b/tests/media-optimization.test.ts
+@@ -39,10 +39,24 @@ it('does not upscale small images and uses only one WebP family',async()=>{
+ it('passes disabled and multipage sources through without creating a cache',async()=>{
+  for(const [name,p,reason] of [['small.png',{...policy,enabled:false},'disabled'],['animated.webp',policy,'animated-or-multipage']] as const){const r=await resolveCachedMedia(root,await fixture(name),p);expect(r.fallback).toEqual([]);expect(r.webp).toEqual([]);expect(r.passthroughReason).toBe(reason);}
+  await expect(readFile(join(root,'.generated/media-optimization/cache/v1/.pipeline'))).rejects.toThrow();
+ });
+ it('propagates compressed-payload corruption instead of silently passing through',async()=>{
+  const s=await fixture('large-photo.jpg');s.bytes=s.bytes.subarray(0,Math.floor(s.bytes.length/2));
+  // Metadata still decodes; the full transform must reject incomplete pixels.
+  const {createHash}=await import('node:crypto');s.media.fingerprint=createHash('sha256').update(s.bytes).digest('hex');
+  await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow();
+ });
++
++it('characterizes pinned PNG output as at most RGBA8 even for a 16-bit alpha source',async()=>{
++ const input=await sharp({create:{width:8,height:4,channels:4,background:'#33669980'}}).toColourspace('rgb16').png().toBuffer();
++ expect((await sharp(input).metadata()).bitsPerSample).toBe(16);
++ await writeFile(join(root,'apps/site/public/uploads/deep.png'),input);
++ const source=await readValidatedSource(root,'/uploads/deep.png');
++ const result=await resolveCachedMedia(root,source,policy);
++ for(const candidate of result.fallback){
++  const {bytes}=await readCachedCandidate(root,candidate);
++  const metadata=await sharp(bytes).metadata();
++  expect(metadata.bitsPerSample).toBe(8);expect(metadata.channels).toBe(4);
++  expect(metadata.hasAlpha).toBe(true);expect(metadata.hasProfile).toBe(false);
++ }
++});
+diff --git a/tests/media-runtime.test.ts b/tests/media-runtime.test.ts
+index 7e70b4b..8d301b2 100644
+--- a/tests/media-runtime.test.ts
++++ b/tests/media-runtime.test.ts
+@@ -1,9 +1,22 @@
+-import {it,expect} from 'vitest';
+-import {mkdtempSync,readFileSync} from 'node:fs';
+-import {tmpdir} from 'node:os';
++import {ownedTempRoots} from './helpers/owned-temp-roots';
++import {it,expect,afterEach} from 'vitest';
++import {readFileSync} from 'node:fs';
+ import {join} from 'node:path';
+ import {mediaRuntime} from '../e2e/helpers/media-optimization-runtime';
++const tempRoots=ownedTempRoots('media-owned-runtime-');
++afterEach(({task})=>{tempRoots.cleanup(task.result?.state==='fail');});
+ it('confirms close of only its actual owned long-lived child before admitting regeneration',async()=>{
+- const directory=mkdtempSync(join(tmpdir(),'media-owned-runtime-'));const runtime=mediaRuntime(directory,'proof',['-e',"console.log('owned runtime');setInterval(()=>{},1000)"]);
+- expect(runtime.pid).toBeGreaterThan(0);expect(runtime.closed()).toBe(false);await runtime.stop();expect(runtime.closed()).toBe(true);const proof=JSON.parse(readFileSync(join(directory,'runtime-proof.json'),'utf8'));expect(proof.shutdownConfirmed).toBe(true);expect(proof.pid).toBe(runtime.pid);expect(proof.ended).toBeTruthy();await runtime.stop();
++ const directory=tempRoots.create();const runtime=mediaRuntime(directory,'proof',['-e',"console.log('owned runtime');setInterval(()=>{},1000)"]);
++ try {
++  expect(runtime.pid).toBeGreaterThan(0);
++  expect(runtime.closed()).toBe(false);
++  await runtime.stop();
++  expect(runtime.closed()).toBe(true);
++  const proof=JSON.parse(readFileSync(join(directory,'runtime-proof.json'),'utf8'));
++  expect(proof.shutdownConfirmed).toBe(true);
++  expect(proof.pid).toBe(runtime.pid);
++  expect(proof.ended).toBeTruthy();
++  await runtime.stop();
++ } finally {await runtime.stop();}
++
+ });

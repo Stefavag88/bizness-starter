@@ -1,0 +1,9 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  16:15:24
+   Duration  5.52s (tests 85%, import 11%, transform 3%)
+

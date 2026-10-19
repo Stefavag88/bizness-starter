@@ -1,0 +1,307 @@
+# Review package: d141651..1ea8f2e
+
+## Commits
+1ea8f2e feat: render layout-aware responsive images
+
+## Files changed
+ apps/site/src/components/ui/SectionImage.astro     | 11 +++--
+ apps/site/src/styles/global.css                    |  2 +-
+ .../src/templates/domains/rooms/RoomDetail.astro   |  2 +-
+ .../src/templates/domains/rooms/RoomList.astro     |  2 +-
+ apps/site/src/templates/sections/Gallery.astro     |  2 +-
+ apps/site/src/templates/sections/MediaText.astro   |  2 +-
+ apps/site/tests/composition-b-media.test.ts        |  2 +-
+ apps/site/tests/media-optimization.test.ts         | 49 ++++++++++++++++++++++
+ apps/site/tests/rooms.test.ts                      |  2 +-
+ apps/site/vitest.config.ts                         |  2 +-
+ packages/media/layout.d.mts                        |  2 +
+ packages/media/layout.mjs                          | 23 ++++++++++
+ tests/media-layout.test.ts                         | 29 +++++++++++++
+ 13 files changed, 119 insertions(+), 11 deletions(-)
+
+## Diff
+diff --git a/apps/site/src/components/ui/SectionImage.astro b/apps/site/src/components/ui/SectionImage.astro
+index cd8331c..9e0ed29 100644
+--- a/apps/site/src/components/ui/SectionImage.astro
++++ b/apps/site/src/components/ui/SectionImage.astro
+@@ -1,7 +1,12 @@
+ ---
+ import {rich} from '../../lib/content';
+ import type {ResolvedMedia,Crop} from '../../lib/section-media';
+-interface Props {media:ResolvedMedia;alt:string;caption?:string;crop:Crop;ratio:'landscape'|'gallery';locale:string}
+-const {media,alt,caption,crop,ratio,locale}=Astro.props;
++import {imageSizes,type ImageLayout} from '../../../../../packages/media/layout.mjs';
++import type {ImageCandidate} from '../../../../../packages/media/optimization.mjs';
++interface Props {media:ResolvedMedia;layout:ImageLayout;itemCount?:number;alt:string;caption?:string;crop:Crop;ratio:'landscape'|'gallery';locale:string}
++const {media,layout,itemCount=1,alt,caption,crop,ratio,locale}=Astro.props;
++const fallback=media.fallback.at(-1);
++const sizes=imageSizes(layout,itemCount);
++const srcset=(candidates:ImageCandidate[])=>candidates.map(image=>`${image.src} ${image.width}w`).join(', ');
+ ---
+-<figure class="section-image"><div class:list={['image-frame','frame-'+ratio]}><img src={media.src} width={media.width} height={media.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/></div>{caption&&<figcaption set:html={rich(caption,locale,true)}/>}</figure>
++<figure class="section-image"><div class:list={['image-frame','frame-'+ratio]}>{fallback?<picture>{media.format!=='webp'&&media.webp.length>0&&<source type="image/webp" srcset={srcset(media.webp)} sizes={sizes}/>}<img src={fallback.src} srcset={srcset(media.fallback)} sizes={sizes} width={fallback.width} height={fallback.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/></picture>:<img src={media.src} width={media.width} height={media.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/>}</div>{caption&&<figcaption set:html={rich(caption,locale,true)}/>}</figure>
+diff --git a/apps/site/src/styles/global.css b/apps/site/src/styles/global.css
+index 69ab5a6..d2523ce 100644
+--- a/apps/site/src/styles/global.css
++++ b/apps/site/src/styles/global.css
+@@ -1,8 +1,8 @@
+ :root{--density-factor:1;--section-space-effective:calc(var(--section-space) * var(--density-factor))}html[data-density="compact"]{--density-factor:.75}html[data-density="spacious"]{--density-factor:1.25}
+ body{background:var(--color-surface);color:var(--color-text-primary);font:1.0625rem/1.65 var(--font-body)}h1,h2,h3{font-family:var(--font-heading);font-weight:600;line-height:1.2;letter-spacing:-.025em}h1{font-size:clamp(2.3rem,5.5vw,4.5rem);max-width:20ch;margin:0 0 var(--space-6)}h2{font-size:clamp(1.65rem,3vw,2.5rem);max-width:32ch;margin:0 0 var(--space-6)}h3{font-size:1.35rem}a{color:var(--color-brand-accent);text-underline-offset:.2em}a:hover{text-decoration-thickness:2px}:focus-visible{outline:3px solid var(--color-focus);outline-offset:4px}.wrap{max-width:var(--content-width);padding-inline:clamp(1.25rem,4vw,3rem);margin-inline:auto}header{display:flex;align-items:center;flex-wrap:wrap;gap:1rem 2rem;padding-block:1.4rem;border-bottom:1px solid var(--color-border)}.brand{font-weight:600;text-decoration:none;color:var(--color-text-primary);margin-right:auto}nav{display:flex;gap:.5rem 1rem;flex-wrap:wrap}nav a{padding:.5rem 0;min-height:44px;display:inline-flex;align-items:center}nav [aria-current]{font-weight:600}section{padding-block:var(--section-space-effective)}[data-surface="muted"]{background:var(--color-surface-muted)}[data-surface="accent"]{background:var(--color-notice-surface)}.description{max-width:var(--reading-width);color:var(--color-text-muted);margin-block:0 var(--space-6)}.hero{padding-block:clamp(4rem,9vw,8rem)}.hero .description{font-size:1.2rem;max-width:52ch}.button,button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.7rem 1.2rem;color:var(--color-on-action);background:var(--color-action-primary);border:1px solid transparent;border-radius:var(--radius-control);font-weight:600;text-decoration:none;cursor:pointer}.button:hover,button:hover{background:var(--color-action-hover)}button:disabled{opacity:.7;cursor:wait}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:var(--space-8)}.card{border-top:1px solid var(--color-border);padding-block:var(--space-4)}.card h3 a{color:var(--color-text-primary)}.prose{max-width:var(--reading-width)}.prose h2,.prose h3{margin-top:2rem}.prose p,.prose ul,.prose ol{margin-block:1.2rem}.editorial,.page-title{padding-block:4rem}.editorial{max-width:58rem}footer{padding-block:3rem;border-top:1px solid var(--color-border);color:var(--color-text-muted)}form{max-width:38rem}.field{display:grid;gap:.4rem;margin-block:1rem}.field label{font-weight:600}input:not([type="checkbox"]),select,textarea{width:100%;min-height:48px;background:var(--color-surface);color:var(--color-text-primary);border:1px solid var(--color-control-border);border-radius:var(--radius-control);padding:.65rem}.check{display:flex;align-items:baseline;gap:.5rem;margin-block:1.25rem}.check input{width:1.2rem;height:1.2rem;flex-shrink:0}.field-error{color:var(--color-feedback-error)}.skip{position:absolute;top:-10rem;left:1rem;padding:1rem;background:var(--color-surface);z-index:2}.skip:focus{top:1rem}@media(max-width:640px){header{align-items:flex-start}header nav{width:100%}:root{--section-space-effective:calc(var(--section-space-mobile) * var(--density-factor))}.check{flex-wrap:wrap}.editorial{padding-block:3rem}}
+ 
+ html[lang="el"] body{font-family:var(--font-greek-body)}html[lang="el"] h1,html[lang="el"] h2,html[lang="el"] h3{font-family:var(--font-greek-heading)}footer>a,.brand{display:inline-flex;align-items:center;min-height:44px}.card h3 a{display:inline-flex;align-items:center;min-height:44px}
+ 
+ .faq-items{max-width:var(--reading-width)}.faq-item{border-top:1px solid var(--color-border);padding-block:var(--space-6)}.faq-item summary{font-family:var(--font-heading);font-weight:600;font-size:1.2rem;cursor:pointer;padding-block:var(--space-4);overflow-wrap:anywhere}.faq-item h3{margin-top:0}.steps{display:grid;gap:var(--space-8);padding-inline-start:1.8rem}.steps>li{padding-inline-start:var(--space-4);overflow-wrap:anywhere}.steps h3{margin-top:0}.steps-cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}.steps-cards>li{border:1px solid var(--color-border);border-radius:var(--radius-control);padding:var(--space-6);margin-inline-start:var(--space-4)}
+ 
+-.section-image{margin:0;min-width:0}.image-frame{overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted)}.frame-landscape{aspect-ratio:3/2}.frame-gallery{aspect-ratio:4/3}.image-frame img{display:block;width:100%;height:100%;object-fit:cover}.crop-center{object-position:center}.crop-top{object-position:center top}.crop-bottom{object-position:center bottom}.section-image figcaption{color:var(--color-text-muted);font-size:.95rem;margin-top:var(--space-4);overflow-wrap:anywhere}.media-text{display:grid;gap:var(--space-8);align-items:start}.media-text-copy{min-width:0;overflow-wrap:anywhere}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:var(--space-8);list-style:none;padding:0;margin:0}.gallery>li{min-width:0}@media(min-width:768px){.media-text-with-image{grid-template-columns:repeat(2,minmax(0,1fr));align-items:center}.media-text-reversed>.section-image{grid-column:2;grid-row:1}.media-text-reversed>.media-text-copy{grid-column:1;grid-row:1}.gallery-featured{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery-featured>li:first-child{grid-column:1/-1}}
++.section-image{margin:0;min-width:0}.image-frame{overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted)}.frame-landscape{aspect-ratio:3/2}.frame-gallery{aspect-ratio:4/3}.image-frame picture{display:block;width:100%;height:100%}.image-frame img{display:block;width:100%;height:100%;object-fit:cover}.crop-center{object-position:center}.crop-top{object-position:center top}.crop-bottom{object-position:center bottom}.section-image figcaption{color:var(--color-text-muted);font-size:.95rem;margin-top:var(--space-4);overflow-wrap:anywhere}.media-text{display:grid;gap:var(--space-8);align-items:start}.media-text-copy{min-width:0;overflow-wrap:anywhere}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:var(--space-8);list-style:none;padding:0;margin:0}.gallery>li{min-width:0}@media(min-width:768px){.media-text-with-image{grid-template-columns:repeat(2,minmax(0,1fr));align-items:center}.media-text-reversed>.section-image{grid-column:2;grid-row:1}.media-text-reversed>.media-text-copy{grid-column:1;grid-row:1}.gallery-featured{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery-featured>li:first-child{grid-column:1/-1}}
+diff --git a/apps/site/src/templates/domains/rooms/RoomDetail.astro b/apps/site/src/templates/domains/rooms/RoomDetail.astro
+index a4a1412..3d7d48a 100644
+--- a/apps/site/src/templates/domains/rooms/RoomDetail.astro
++++ b/apps/site/src/templates/domains/rooms/RoomDetail.astro
+@@ -4,11 +4,11 @@ import RichText from '../../../components/ui/RichText.astro';
+ import SectionImage from '../../../components/ui/SectionImage.astro';
+ import {resolveSectionMedia} from '../../../lib/section-media';
+ import type {LocalizedRoom} from '../../../../../../packages/domains/rooms/types';
+ import type {LocalizedContent} from '../../../../../../packages/content/types';
+ interface Props {record:LocalizedRoom;content:LocalizedContent}
+ const {record,content}=Astro.props;
+ const contact=content.pages.find(p=>p._template==='contact');
+ const images=await Promise.all(record.images.map(async image=>({...image,resolved:await resolveSectionMedia(image.media,{pageId:record.contentId,sectionId:'room_images',itemId:image.id})})));
+ const el=content.locale==='el';
+ ---
+-<article class="wrap editorial"><h1>{record.title}</h1><Description text={record.description} locale={content.locale}/><p>{el?'Έως':'Up to'} {record.maxGuests} {el?'επισκέπτες':'guests'}</p><p>{record.bedDescription}</p>{record.amenities.length>0&&<ul>{record.amenities.map(item=><li>{item.label}</li>)}</ul>}<RichText body={record.body} locale={content.locale}/>{images.map(image=><SectionImage media={image.resolved!} alt={image.alt} caption={image.caption} crop={image.media.crop} ratio="gallery" locale={content.locale}/>)}{contact&&<p><a class="button" href={contact.path+'?contextId='+encodeURIComponent(record.contentId)}>{el?'Ρωτήστε για αυτό το δωμάτιο':'Enquire about this room'}</a></p>}</article>
++<article class="wrap editorial"><h1>{record.title}</h1><Description text={record.description} locale={content.locale}/><p>{el?'Έως':'Up to'} {record.maxGuests} {el?'επισκέπτες':'guests'}</p><p>{record.bedDescription}</p>{record.amenities.length>0&&<ul>{record.amenities.map(item=><li>{item.label}</li>)}</ul>}<RichText body={record.body} locale={content.locale}/>{images.map(image=><SectionImage layout="room-detail" media={image.resolved!} alt={image.alt} caption={image.caption} crop={image.media.crop} ratio="gallery" locale={content.locale}/>)}{contact&&<p><a class="button" href={contact.path+'?contextId='+encodeURIComponent(record.contentId)}>{el?'Ρωτήστε για αυτό το δωμάτιο':'Enquire about this room'}</a></p>}</article>
+diff --git a/apps/site/src/templates/domains/rooms/RoomList.astro b/apps/site/src/templates/domains/rooms/RoomList.astro
+index 728fbc1..b40cb48 100644
+--- a/apps/site/src/templates/domains/rooms/RoomList.astro
++++ b/apps/site/src/templates/domains/rooms/RoomList.astro
+@@ -1,11 +1,11 @@
+ ---
+ import Description from '../../../components/ui/Description.astro';
+ import SectionImage from '../../../components/ui/SectionImage.astro';
+ import {resolveSectionMedia} from '../../../lib/section-media';
+ import {getDomainRecords} from '../../../../../../packages/content/domain-publication.mjs';
+ import type {LocalizedSection,LocalizedContent} from '../../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'room-list'}>;content:LocalizedContent;locale:string}
+ const {section,content,locale}=Astro.props;
+ const rooms=await Promise.all(getDomainRecords(content,'rooms').map(async record=>({record,image:record.images[0],media:await resolveSectionMedia(record.images[0]?.media,{pageId:record.contentId,sectionId:section.id,itemId:record.images[0]?.id})})));
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/>{rooms.length?<div class="cards">{rooms.map(({record,image,media})=><article class="card">{media&&<SectionImage media={media} alt={image.alt} crop={image.media.crop} ratio="landscape" locale={locale}/>}<h3><a href={record.path}>{record.title}</a></h3><Description text={record.description} locale={locale}/><p>{locale==='el'?'Έως':'Up to'} {record.maxGuests} {locale==='el'?'επισκέπτες':'guests'}</p></article>)}</div>:<p>{section.copy.emptyMessage}</p>}</div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/>{rooms.length?<div class="cards">{rooms.map(({record,image,media})=><article class="card">{media&&<SectionImage layout="room-card" itemCount={rooms.length} media={media} alt={image.alt} crop={image.media.crop} ratio="landscape" locale={locale}/>}<h3><a href={record.path}>{record.title}</a></h3><Description text={record.description} locale={locale}/><p>{locale==='el'?'Έως':'Up to'} {record.maxGuests} {locale==='el'?'επισκέπτες':'guests'}</p></article>)}</div>:<p>{section.copy.emptyMessage}</p>}</div></section>
+diff --git a/apps/site/src/templates/sections/Gallery.astro b/apps/site/src/templates/sections/Gallery.astro
+index bf06739..09b53c3 100644
+--- a/apps/site/src/templates/sections/Gallery.astro
++++ b/apps/site/src/templates/sections/Gallery.astro
+@@ -1,10 +1,10 @@
+ ---
+ import Description from '../../components/ui/Description.astro';
+ import SectionImage from '../../components/ui/SectionImage.astro';
+ import {resolveSectionMedia} from '../../lib/section-media';
+ import type {LocalizedSection} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'gallery'}>;locale:string;pageId?:string}
+ const {section,locale,pageId='unknown'}=Astro.props;
+ const items=section.enabled===false?[]:await Promise.all((section.items||[]).map(async item=>({id:item.id,media:await resolveSectionMedia(item.media,{pageId,sectionId:section.id,itemId:item.id}),crop:item.media!.crop,copy:section.copy.items.find(copy=>copy.id===item.id)!})));
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/><ul class:list={['gallery',{'gallery-featured':section.variant==='featured'}]}>{items.map(item=><li data-gallery-item={item.id}><SectionImage media={item.media!} alt={item.copy.alt} caption={item.copy.caption} crop={item.crop} ratio="gallery" locale={locale}/></li>)}</ul></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/><ul class:list={['gallery',{'gallery-featured':section.variant==='featured'}]}>{items.map((item,index)=><li data-gallery-item={item.id}><SectionImage layout={section.variant==='featured'?(index===0?'gallery-featured-lead':'gallery-featured-item'):'gallery'} itemCount={items.length} media={item.media!} alt={item.copy.alt} caption={item.copy.caption} crop={item.crop} ratio="gallery" locale={locale}/></li>)}</ul></div></section>
+diff --git a/apps/site/src/templates/sections/MediaText.astro b/apps/site/src/templates/sections/MediaText.astro
+index 93f7ac1..84b1fcd 100644
+--- a/apps/site/src/templates/sections/MediaText.astro
++++ b/apps/site/src/templates/sections/MediaText.astro
+@@ -1,11 +1,11 @@
+ ---
+ import RichText from '../../components/ui/RichText.astro';
+ import Button from '../../components/ui/Button.astro';
+ import SectionImage from '../../components/ui/SectionImage.astro';
+ import {resolveSectionMedia} from '../../lib/section-media';
+ import type {LocalizedSection} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'media-text'}>;locale:string;pageId?:string}
+ const {section,locale,pageId='unknown'}=Astro.props;
+ const media=section.enabled===false?undefined:await resolveSectionMedia(section.media,{pageId,sectionId:section.id});
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class:list={['wrap','media-text',{'media-text-reversed':section.variant==='reversed','media-text-with-image':!!media}]}>{media&&section.copy.image&&<SectionImage media={media} {...section.copy.image} crop={section.media!.crop} ratio="landscape" locale={locale}/>}<div class="media-text-copy"><h2 id={section.id}>{section.copy.title}</h2><RichText body={section.copy.body} locale={locale}/>{section.copy.link&&<Button {...section.copy.link} locale={locale}/>}</div></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class:list={['wrap','media-text',{'media-text-reversed':section.variant==='reversed','media-text-with-image':!!media}]}>{media&&section.copy.image&&<SectionImage layout="media-text" media={media} {...section.copy.image} crop={section.media!.crop} ratio="landscape" locale={locale}/>}<div class="media-text-copy"><h2 id={section.id}>{section.copy.title}</h2><RichText body={section.copy.body} locale={locale}/>{section.copy.link&&<Button {...section.copy.link} locale={locale}/>}</div></div></section>
+diff --git a/apps/site/tests/composition-b-media.test.ts b/apps/site/tests/composition-b-media.test.ts
+index 80385dd..3dc5b47 100644
+--- a/apps/site/tests/composition-b-media.test.ts
++++ b/apps/site/tests/composition-b-media.test.ts
+@@ -65,21 +65,21 @@ it.each([
+       expect(html).toContain('width="6"');
+       expect(html).toContain('height="4"');
+       expect(html).toContain('loading="lazy"');
+       expect(html).toContain('decoding="async"');
+       expect(html).toContain(type === 'gallery' ? 'crop-bottom' : 'crop-top');
+       expect(html).toContain(
+         type === 'gallery' ? 'frame-gallery' : 'frame-landscape',
+       );
+       expect(html).toContain('<strong>Caption</strong>');
+       expect(html).toContain('href="/el/contact"');
+-      expect(html).not.toMatch(/style=|srcset=|<script|<h1/);
++      expect(html).not.toMatch(/style=|<script|<h1/);
+       if (type === 'gallery') expect(html).toContain('alt="First image"');
+       else expect(html).toContain('alt="Localized image"');
+     } finally {
+       if (readFileSync(path).equals(bytes)) unlinkSync(path);
+       else throw Error('Owned image changed; preserved');
+     }
+   },
+ );
+ it('renders intentional text-only media and gives actionable errors for referenced missing files', async () => {
+   const container = await AstroContainer.create();
+diff --git a/apps/site/tests/media-optimization.test.ts b/apps/site/tests/media-optimization.test.ts
+new file mode 100644
+index 0000000..ad523ef
+--- /dev/null
++++ b/apps/site/tests/media-optimization.test.ts
+@@ -0,0 +1,49 @@
++import {it,expect,beforeEach,afterEach} from 'vitest';
++import {experimental_AstroContainer as AstroContainer} from 'astro/container';
++import SectionImage from '../src/components/ui/SectionImage.astro';
++import Gallery from '../src/templates/sections/Gallery.astro';
++import RoomList from '../src/templates/domains/rooms/RoomList.astro';
++import RoomDetail from '../src/templates/domains/rooms/RoomDetail.astro';
++import MediaText from '../src/templates/sections/MediaText.astro';
++import {beginMediaSession,endMediaSession} from '../../../packages/media/session.mjs';
++import {imageSizes} from '../../../packages/media/layout.mjs';
++import {fileURLToPath} from 'node:url';
++import {writeFileSync,readFileSync,unlinkSync} from 'node:fs';
++import sharp from 'sharp';
++const root=fileURLToPath(new URL('../../../',import.meta.url));
++beforeEach(()=>{beginMediaSession({root,policy:{enabled:true,widths:[320,640],quality:80},mode:'dev'});});
++afterEach(async()=>{await endMediaSession(root);});
++const candidate=(format:'png'|'webp',width:number)=>({src:`/_media/v1/${format}${width}.${format}`,width,height:width/2,format,bytes:100});
++const media={src:'/uploads/original.png',width:1600,height:800,format:'png',fingerprint:'fixture',fallback:[candidate('png',320),candidate('png',640)],webp:[candidate('webp',320),candidate('webp',640)]};
++const props={media,layout:'gallery',itemCount:2,alt:'A & B',caption:'**Caption** [Contact](/contact) <script>bad()</script>',crop:'bottom',ratio:'gallery',locale:'el'};
++it('renders picture families with largest fallback, safe localized caption and retained frame/crop/loading',async()=>{
++ const c=await AstroContainer.create(),html=await c.renderToString(SectionImage,{props});
++ expect(html).toContain('<picture>');expect(html).toContain('type="image/webp"');
++ expect(html).toContain('srcset="/_media/v1/webp320.webp 320w, /_media/v1/webp640.webp 640w"');
++ expect(html).toContain('src="/_media/v1/png640.png"');expect(html).toContain('srcset="/_media/v1/png320.png 320w, /_media/v1/png640.png 640w"');
++ expect(html).toContain(`sizes="${imageSizes('gallery',2)}"`);expect(html).toContain('width="640" height="320"');
++ expect(html).toContain('alt="A &amp; B"');expect(html).toContain('crop-bottom');expect(html).toContain('frame-gallery');expect(html).toContain('loading="lazy" decoding="async"');
++ expect(html).toContain('<strong>Caption</strong>');expect(html).toContain('href="/el/contact"');expect(html).not.toContain('<script>');
++});
++it('uses only one family for WebP originals and keeps passthrough original dimensions',async()=>{
++ const c=await AstroContainer.create();
++ const webp=await c.renderToString(SectionImage,{props:{...props,media:{...media,format:'webp',fallback:media.webp}}});expect(webp).not.toContain('<source');expect(webp).toContain('src="/_media/v1/webp640.webp"');
++ for(const reason of ['disabled','animated-or-multipage']){const html=await c.renderToString(SectionImage,{props:{...props,media:{...media,fallback:[],webp:[],passthroughReason:reason}}});expect(html).not.toMatch(/<picture|srcset=|sizes=/);expect(html).toContain('src="/uploads/original.png" width="1600" height="800"');}
++});
++it('actual section renderers pass exact roles and rendered counts, including text-only Room cards',async()=>{
++ const name=`task4_${crypto.randomUUID()}.png`,path=root+'apps/site/public/uploads/'+name,src='/uploads/'+name;
++ const bytes=await sharp({create:{width:8,height:4,channels:3,background:'#336699'}}).png().toBuffer();writeFileSync(path,bytes,{flag:'wx'});
++ try{
++ const c=await AstroContainer.create();const image={id:'one',media:{src,crop:'top'},alt:'Photo',caption:''};
++ for(const count of [1,2,3,4]){const items=Array.from({length:count},(_,i)=>({...image,id:'image_'+i}));
++ for(const variant of ['default','featured']){const html=await c.renderToString(Gallery,{props:{section:{id:'gallery',variant,appearance:{surface:'default'},items,copy:{title:'Gallery',description:'',items}},locale:'en'}});const sizes=[...html.matchAll(/<img[^>]+sizes="([^"]+)"/g)].map(m=>m[1]);expect(sizes).toEqual(items.map((_,i)=>imageSizes(variant==='default'?'gallery':i===0?'gallery-featured-lead':'gallery-featured-item',count)));}
++ const rooms=items.map((_,i)=>({contentId:'room-'+i,path:'/en/rooms/'+i,title:'Room',description:'',maxGuests:2,images:i===0?[image]:[]}));
++ const html=await c.renderToString(RoomList,{props:{section:{id:'rooms',appearance:{surface:'default'},copy:{title:'Rooms',description:'',emptyMessage:'Empty'}},content:{domains:{rooms}},locale:'en'}});expect(html).toContain(`sizes="${imageSizes('room-card',count)}"`);
++ }
++ const record={contentId:'suite',title:'Suite',description:'',body:'',maxGuests:2,bedDescription:'',amenities:[],images:[image]};const content={locale:'en',pages:[]};
++ expect(await c.renderToString(RoomDetail,{props:{record,content}})).toContain(`sizes="${imageSizes('room-detail',1)}"`);
++ const section={id:'media',appearance:{surface:'default'},variant:'default',media:image.media,copy:{title:'Media',body:'Body',image:{alt:'Photo'}}};
++ expect(await c.renderToString(MediaText,{props:{section,locale:'en'}})).toContain(`sizes="${imageSizes('media-text',1)}"`);
++ const text=await c.renderToString(MediaText,{props:{section:{...section,media:undefined},locale:'en'}});expect(text).not.toMatch(/<img|<picture/);
++ }finally{if(readFileSync(path).equals(bytes))unlinkSync(path);else throw Error('Owned Task4 image changed; preserved');}
++});
+diff --git a/apps/site/tests/rooms.test.ts b/apps/site/tests/rooms.test.ts
+index b5ef397..f2cb1da 100644
+--- a/apps/site/tests/rooms.test.ts
++++ b/apps/site/tests/rooms.test.ts
+@@ -23,13 +23,13 @@ it('registers initialized Rooms renderer without a content-adapter cycle and req
+  expect(domainRenderer('rooms')).toBe(RoomDetail);
+  expect(()=>assertDomainRendererCoverage({...project,modules:{rooms:true}},undefined,createDomainRendererRegistry([]))).toThrow(/rooms.*renderer|renderer.*rooms/i);
+  expect(()=>assertDomainRendererCoverage(project,undefined,createDomainRendererRegistry([]))).not.toThrow();
+ });
+ it('uses first shared image as thumbnail and source dimensions/crop for detail',async()=>{
+  const require=createRequire(import.meta.url),sharp=createRequire(require.resolve('astro/package.json'))('sharp');const dir=fileURLToPath(new URL('../public/uploads/',import.meta.url));mkdirSync(dir,{recursive:true});const name='rooms_'+crypto.randomUUID()+'.png',path=dir+name;const bytes=await sharp({create:{width:6,height:4,channels:3,background:'#336699'}}).png().toBuffer();writeFileSync(path,bytes,{flag:'wx'});
+  try{
+   const c=await AstroContainer.create(),src='/uploads/'+name;const first={id:'one',media:{src,crop:'bottom'},alt:'First image',caption:'**Caption**'},second={id:'two',media:{src,crop:'top'},alt:'Second image'};
+   const record={contentId:'suite',path:'/el/rooms/suite',title:'Suite',description:'Summary',body:'## Details',maxGuests:2,bedDescription:'',images:[first,second],amenities:[]};const content={locale:'el',pages:[],domains:{rooms:[record]}};
+   const detail=await c.renderToString(RoomDetail,{props:{record,content}});expect(detail).toContain('width="6"');expect(detail).toContain('height="4"');expect(detail).toContain('crop-bottom');expect(detail).toContain('crop-top');expect(detail).toContain('loading="lazy"');expect(detail).toContain('<strong>Caption</strong>');
+-  const list=await c.renderToString(RoomList,{props:{section:{id:'list',appearance:{surface:'default'},copy:{title:'Rooms',description:'',emptyMessage:'Empty'}},content,locale:'el'}});expect(list).toContain('alt="First image"');expect(list).not.toContain('alt="Second image"');expect(list).toContain('frame-landscape');expect(list).toContain('width="6"');expect(list).not.toMatch(/srcset=|style=/);
++  const list=await c.renderToString(RoomList,{props:{section:{id:'list',appearance:{surface:'default'},copy:{title:'Rooms',description:'',emptyMessage:'Empty'}},content,locale:'el'}});expect(list).toContain('alt="First image"');expect(list).not.toContain('alt="Second image"');expect(list).toContain('frame-landscape');expect(list).toContain('width="6"');expect(list).not.toMatch(/style=/);
+  }finally{if(readFileSync(path).equals(bytes))unlinkSync(path);else throw Error('Owned Room image changed; preserved');}
+ });
+diff --git a/apps/site/vitest.config.ts b/apps/site/vitest.config.ts
+index 1667ee4..30a2222 100644
+--- a/apps/site/vitest.config.ts
++++ b/apps/site/vitest.config.ts
+@@ -1,5 +1,5 @@
+ import {getViteConfig} from 'astro/config';
+ import {fileURLToPath} from 'node:url';
+ const root=fileURLToPath(new URL('./',import.meta.url));
+-const config={root,test:{include:['tests/footer.test.ts','tests/showcase.test.ts','tests/composition-b.test.ts','tests/composition-b-media.test.ts','tests/domain-rendering.test.ts','tests/rooms.test.ts']}};
++const config={root,test:{include:['tests/footer.test.ts','tests/showcase.test.ts','tests/composition-b.test.ts','tests/composition-b-media.test.ts','tests/domain-rendering.test.ts','tests/rooms.test.ts','tests/media-optimization.test.ts']}};
+ export default getViteConfig(config,{root});
+diff --git a/packages/media/layout.d.mts b/packages/media/layout.d.mts
+new file mode 100644
+index 0000000..8c91db2
+--- /dev/null
++++ b/packages/media/layout.d.mts
+@@ -0,0 +1,2 @@
++export type ImageLayout = 'media-text' | 'gallery' | 'gallery-featured-lead' | 'gallery-featured-item' | 'room-card' | 'room-detail';
++export function imageSizes(layout: ImageLayout, itemCount: number): string;
+diff --git a/packages/media/layout.mjs b/packages/media/layout.mjs
+new file mode 100644
+index 0000000..6dc9452
+--- /dev/null
++++ b/packages/media/layout.mjs
+@@ -0,0 +1,23 @@
++// Browser-safe geometry derived from global.css: 72rem wrap, symmetric padding,
++// 17rem auto-fit tracks and 2rem gaps. Density changes only vertical spacing.
++const width = 'min(100vw, 72rem) - clamp(2.5rem, 8vw, 6rem)';
++const full = `calc(${width})`;
++const half = `calc((${width} - 2rem) / 2)`;
++const third = `calc((${width} - 4rem) / 3)`;
++function autoFit(itemCount) {
++  const rules = [];
++  if (itemCount >= 3) rules.push(`(min-width: 59.782609rem) ${third}`);
++  if (itemCount >= 2) rules.push(`(min-width: 39.130435rem) ${half}`);
++  return [...rules, full].join(', ');
++}
++export function imageSizes(layout, itemCount = 1) {
++  switch (layout) {
++    case 'media-text': return `(min-width: 768px) ${half}, ${full}`;
++    case 'gallery':
++    case 'room-card': return autoFit(itemCount);
++    case 'gallery-featured-lead': return `(min-width: 768px) ${full}, ${autoFit(itemCount)}`;
++    case 'gallery-featured-item': return `(min-width: 768px) ${half}, ${autoFit(itemCount)}`;
++    case 'room-detail': return 'calc(min(100vw, 58rem) - clamp(2.5rem, 8vw, 6rem))';
++    default: throw new Error(`Unknown image layout: ${layout}`);
++  }
++}
+diff --git a/tests/media-layout.test.ts b/tests/media-layout.test.ts
+new file mode 100644
+index 0000000..c250e41
+--- /dev/null
++++ b/tests/media-layout.test.ts
+@@ -0,0 +1,29 @@
++import {describe,it,expect} from 'vitest';
++import {imageSizes,type ImageLayout} from '../packages/media/layout.mjs';
++// Evaluate emitted sizes at a 16px root; expected widths below are hand-derived from CSS.
++function slot(sizes:string,viewport:number):number {
++ let depth=0,start=0;const parts:string[]=[];
++ for(let i=0;i<sizes.length;i++){if(sizes[i]==='(')depth++;if(sizes[i]===')')depth--;if(sizes[i]===','&&depth===0){parts.push(sizes.slice(start,i).trim());start=i+1;}}
++ parts.push(sizes.slice(start).trim());
++ for(const part of parts){const match=part.match(/^\(min-width: ([\d.]+)(px|rem)\) (.+)$/);if(match&&viewport<Number(match[1])*(match[2]==='rem'?16:1))continue;
++ const expr=(match?match[3]:part).replace(/([\d.]+)rem/g,(_,n)=>String(Number(n)*16)).replace(/([\d.]+)vw/g,(_,n)=>String(Number(n)*viewport/100)).replace(/calc\(/g,'(').replace(/min\(/g,'Math.min(').replace(/clamp\(/g,'clamp(');
++ return Function('clamp',`return ${expr}`)((lo:number,v:number,hi:number)=>Math.max(lo,Math.min(v,hi)));
++ }throw Error('No matching sizes entry');
++}
++describe('CSS slot geometry',()=>{
++ it.each(['gallery','room-card'] as ImageLayout[])('%s caps auto-fit columns by actual item count',role=>{
++  for(const [vw,one,two,three] of [[375,335,335,335],[626.08,575.9936,575.9936,575.9936],[626.10,576.012,272.006,272.006],[640,588.8,278.4,278.4],[768,706.56,337.28,337.28],[956.51,879.9892,423.9946,423.9946],[956.53,880.0076,424.0038,272.002533],[1440,1056,512,330.666667]]){
++   for(const [count,want] of [[1,one],[2,two],[3,three],[4,three]])expect(slot(imageSizes(role,count),vw)).toBeCloseTo(want,3);
++  }
++ });
++ it.each(['gallery-featured-lead','gallery-featured-item'] as ImageLayout[])('%s uses auto-fit below768 and explicit featured geometry above',role=>{
++  for(const count of [1,2,3,4]){
++   for(const [vw,want] of [[375,335],[626.08,575.9936],[626.10,count===1?576.012:272.006],[640,count===1?588.8:278.4],[767.99,count===1?706.5508:337.2754],[768,role==='gallery-featured-lead'?706.56:337.28],[768.01,role==='gallery-featured-lead'?706.5692:337.2846],[1440,role==='gallery-featured-lead'?1056:512]])expect(slot(imageSizes(role,count),vw)).toBeCloseTo(want,3);
++  }
++ });
++ it('matches media/text split and narrower Room detail container',()=>{
++  for(const [vw,media,detail] of [[375,335,335],[640,588.8,588.8],[767.99,706.5508,706.5508],[768,337.28,706.56],[1440,512,832]]){
++   expect(slot(imageSizes('media-text',1),vw)).toBeCloseTo(media,3);expect(slot(imageSizes('room-detail',1),vw)).toBeCloseTo(detail,3);
++  }
++ });
++});

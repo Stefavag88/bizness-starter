@@ -1,0 +1,12 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+owned failure
+Media acceptance no-mutation smoke
+restored baseline command
+
+ Test Files  1 passed (1)
+      Tests  23 passed (23)
+   Start at  16:39:40
+   Duration  1.57s (tests 83%, transform 13%, import 4%, worker 1%)
+

@@ -1,0 +1,38 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-cache.test.ts (0 test)
+ ❯ tests/media-optimization.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-cache.test.ts [ tests/media-cache.test.ts ]
+Error: Cannot find module '../packages/media/cache.mjs' imported from C:/Projects/bizness-starter-v2/tests/media-cache.test.ts
+ ❯ tests/media-cache.test.ts:6:1
+      4| import { tmpdir } from 'node:os';
+      5| import { join, basename } from 'node:path';
+      6| import { resolveCachedMedia, readCachedCandidate } from '../packages/m…
+       | ^
+      7| import { readValidatedSource } from '../packages/media/source-reader.m…
+      8| let root:string,uploads:string,cache:string;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/media-optimization.test.ts [ tests/media-optimization.test.ts ]
+Error: Cannot find module '../packages/media/cache.mjs' imported from C:/Projects/bizness-starter-v2/tests/media-optimization.test.ts
+ ❯ tests/media-optimization.test.ts:6:1
+      4| import { tmpdir } from 'node:os';
+      5| import { join } from 'node:path';
+      6| import { candidateWidths, resolveCachedMedia, readCachedCandidate } fr…
+       | ^
+      7| import { readValidatedSource } from '../packages/media/source-reader.m…
+      8| let root:string;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  15:53:33
+   Duration  561ms (worker 97%, environment 3%)
+

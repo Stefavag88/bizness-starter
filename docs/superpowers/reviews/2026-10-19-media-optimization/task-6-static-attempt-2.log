@@ -1,0 +1,260 @@
+
+Running 5 tests using 1 worker
+
+(node:24416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Configured enquiries / local. No cloud resources were created.
+(node:29468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:56:58 [types] Generated 100ms
+16:56:58 [build] output: "static"
+16:56:58 [build] mode: "static"
+16:56:58 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:56:58 [build] Collecting build info...
+16:56:58 [build] ✓ Completed in 135ms.
+16:56:58 [build] Building static entrypoints...
+16:56:58 [vite] ✓ built in 331ms
+16:56:58 [vite] ✓ built in 138ms
+16:56:58 [build] Rearranging server assets...
+
+ generating static routes 
+16:56:58   ├─ /404.html (+17ms) 
+16:56:58   ├─ /design-system/index.html (+53ms) 
+16:56:58   ├─ /en/404/index.html (+4ms) 
+16:56:58   ├─ /el/404/index.html (+3ms) 
+16:56:58   ├─ /en/feed.xml (+3ms) 
+16:56:58   ├─ /el/feed.xml (+2ms) 
+16:56:58   ├─ /en/about/index.html (+4ms) 
+16:56:58   ├─ /en/contact/index.html (+4ms) 
+16:56:58   ├─ /en/index.html (+3ms) 
+16:56:58   ├─ /en/insights/index.html (+3ms) 
+16:56:58   ├─ /en/media-acceptance/index.html (+123ms) 
+16:56:59   ├─ /en/privacy/index.html (+3ms) 
+16:56:59   ├─ /en/rooms/index.html (+3ms) 
+16:56:59   ├─ /en/services/index.html (+2ms) 
+16:56:59   ├─ /en/services/planning-session/index.html (+2ms) 
+16:56:59   ├─ /en/insights/a-useful-first-question/index.html (+3ms) 
+16:56:59   ├─ /en/people/studio-guide/index.html (+3ms) 
+16:56:59   ├─ /en/rooms/media-acceptance-0/index.html (+3ms) 
+16:56:59   ├─ /en/rooms/media-acceptance-1/index.html (+3ms) 
+16:56:59   ├─ /en/rooms/media-acceptance-2/index.html (+2ms) 
+16:56:59   ├─ /en/rooms/media-acceptance-3/index.html (+2ms) 
+16:56:59   ├─ /el/about/index.html (+2ms) 
+16:56:59   ├─ /el/contact/index.html (+3ms) 
+16:56:59   ├─ /el/index.html (+2ms) 
+16:56:59   ├─ /el/insights/index.html (+3ms) 
+16:56:59   ├─ /el/media-acceptance/index.html (+5ms) 
+16:56:59   ├─ /el/privacy/index.html (+2ms) 
+16:56:59   ├─ /el/rooms/index.html (+2ms) 
+16:56:59   ├─ /el/services/index.html (+2ms) 
+16:56:59   ├─ /el/services/planning-session/index.html (+2ms) 
+16:56:59   ├─ /el/insights/a-useful-first-question/index.html (+3ms) 
+16:56:59   ├─ /el/people/studio-guide/index.html (+2ms) 
+16:56:59   ├─ /el/rooms/media-acceptance-0/index.html (+2ms) 
+16:56:59   ├─ /el/rooms/media-acceptance-1/index.html (+4ms) 
+16:56:59   ├─ /el/rooms/media-acceptance-2/index.html (+3ms) 
+16:56:59   ├─ /el/rooms/media-acceptance-3/index.html (+2ms) 
+16:56:59   ├─ /index.html (+3ms) 
+16:56:59 ✓ Completed in 470ms.
+
+16:56:59 [build] ✓ Completed in 1.03s.
+16:56:59 [build] 35 page(s) built in 1.70s
+16:56:59 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  ok 1 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"local","theme":"neutral","density":"comfortable","rooms":4,"profile":"enquiries","articles":true,"enabled":true} (1.7m)
+Configured newsletter / staging. No cloud resources were created.
+(node:28312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:58:41 [types] Generated 88ms
+16:58:41 [build] output: "static"
+16:58:41 [build] mode: "static"
+16:58:41 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:58:41 [build] Collecting build info...
+16:58:41 [build] ✓ Completed in 110ms.
+16:58:41 [build] Building static entrypoints...
+16:58:42 [vite] ✓ built in 318ms
+16:58:42 [vite] ✓ built in 120ms
+16:58:42 [build] Rearranging server assets...
+
+ generating static routes 
+16:58:42   ├─ /404.html (+14ms) 
+16:58:42   ├─ /en/404/index.html (+4ms) 
+16:58:42   ├─ /el/404/index.html (+3ms) 
+16:58:42   ├─ /en/about/index.html (+5ms) 
+16:58:42   ├─ /en/contact/index.html (+3ms) 
+16:58:42   ├─ /en/index.html (+3ms) 
+16:58:42   ├─ /en/media-acceptance/index.html (+124ms) 
+16:58:42   ├─ /en/privacy/index.html (+3ms) 
+16:58:42   ├─ /en/rooms/index.html (+3ms) 
+16:58:42   ├─ /en/services/index.html (+3ms) 
+16:58:42   ├─ /en/services/planning-session/index.html (+2ms) 
+16:58:42   ├─ /en/people/studio-guide/index.html (+3ms) 
+16:58:42   ├─ /en/rooms/media-acceptance-0/index.html (+3ms) 
+16:58:42   ├─ /el/about/index.html (+3ms) 
+16:58:42   ├─ /el/contact/index.html (+2ms) 
+16:58:42   ├─ /el/index.html (+2ms) 
+16:58:42   ├─ /el/media-acceptance/index.html (+5ms) 
+16:58:42   ├─ /el/privacy/index.html (+2ms) 
+16:58:42   ├─ /el/rooms/index.html (+2ms) 
+16:58:42   ├─ /el/services/index.html (+2ms) 
+16:58:42   ├─ /el/services/planning-session/index.html (+2ms) 
+16:58:42   ├─ /el/people/studio-guide/index.html (+2ms) 
+16:58:42   ├─ /el/rooms/media-acceptance-0/index.html (+2ms) 
+16:58:42   ├─ /index.html (+3ms) 
+16:58:42 ✓ Completed in 355ms.
+
+16:58:42 [build] ✓ Completed in 879ms.
+16:58:43 [build] 24 page(s) built in 1.46s
+16:58:43 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  ok 2 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"staging","theme":"accommodation","density":"compact","rooms":1,"profile":"newsletter","articles":false,"enabled":true} (12.7s)
+Configured nurture / production. No cloud resources were created.
+(node:10084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:58:54 [types] Generated 87ms
+16:58:54 [build] output: "static"
+16:58:54 [build] mode: "static"
+16:58:54 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:58:54 [build] Collecting build info...
+16:58:54 [build] ✓ Completed in 118ms.
+16:58:54 [build] Building static entrypoints...
+16:58:55 [vite] ✓ built in 343ms
+16:58:55 [vite] ✓ built in 121ms
+16:58:55 [build] Rearranging server assets...
+
+ generating static routes 
+16:58:55   ├─ /404.html (+18ms) 
+16:58:55   ├─ /en/404/index.html (+4ms) 
+16:58:55   ├─ /el/404/index.html (+3ms) 
+16:58:55   ├─ /en/feed.xml (+2ms) 
+16:58:55   ├─ /el/feed.xml (+2ms) 
+16:58:55   ├─ /en/about/index.html (+5ms) 
+16:58:55   ├─ /en/contact/index.html (+4ms) 
+16:58:55   ├─ /en/index.html (+3ms) 
+16:58:55   ├─ /en/insights/index.html (+3ms) 
+16:58:55   ├─ /en/media-acceptance/index.html (+127ms) 
+16:58:55   ├─ /en/privacy/index.html (+3ms) 
+16:58:55   ├─ /en/rooms/index.html (+3ms) 
+16:58:55   ├─ /en/services/index.html (+3ms) 
+16:58:55   ├─ /en/services/planning-session/index.html (+2ms) 
+16:58:55   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+16:58:55   ├─ /en/people/studio-guide/index.html (+3ms) 
+16:58:55   ├─ /en/rooms/media-acceptance-0/index.html (+3ms) 
+16:58:55   ├─ /en/rooms/media-acceptance-1/index.html (+2ms) 
+16:58:55   ├─ /el/about/index.html (+2ms) 
+16:58:55   ├─ /el/contact/index.html (+2ms) 
+16:58:55   ├─ /el/index.html (+2ms) 
+16:58:55   ├─ /el/insights/index.html (+2ms) 
+16:58:55   ├─ /el/media-acceptance/index.html (+4ms) 
+16:58:55   ├─ /el/privacy/index.html (+2ms) 
+16:58:55   ├─ /el/rooms/index.html (+2ms) 
+16:58:55   ├─ /el/services/index.html (+2ms) 
+16:58:55   ├─ /el/services/planning-session/index.html (+2ms) 
+16:58:55   ├─ /el/insights/a-useful-first-question/index.html (+3ms) 
+16:58:55   ├─ /el/people/studio-guide/index.html (+2ms) 
+16:58:55   ├─ /el/rooms/media-acceptance-0/index.html (+2ms) 
+16:58:55   ├─ /el/rooms/media-acceptance-1/index.html (+2ms) 
+16:58:55   ├─ /index.html (+3ms) 
+16:58:55 ✓ Completed in 405ms.
+
+16:58:55 [build] ✓ Completed in 1.16s.
+16:58:56 [build] 30 page(s) built in 1.68s
+16:58:56 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  ok 3 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"production","theme":"trades","density":"spacious","rooms":2,"profile":"nurture","articles":true,"enabled":true} (13.6s)
+Configured enquiries / local. No cloud resources were created.
+(node:40084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:59:08 [types] Generated 95ms
+16:59:08 [build] output: "static"
+16:59:08 [build] mode: "static"
+16:59:08 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:59:08 [build] Collecting build info...
+16:59:08 [build] ✓ Completed in 133ms.
+16:59:08 [build] Building static entrypoints...
+16:59:08 [vite] ✓ built in 353ms
+16:59:08 [vite] ✓ built in 205ms
+16:59:08 [build] Rearranging server assets...
+
+ generating static routes 
+16:59:09   ├─ /404.html (+16ms) 
+16:59:09   ├─ /design-system/index.html (+55ms) 
+16:59:09   ├─ /en/404/index.html (+4ms) 
+16:59:09   ├─ /el/404/index.html (+3ms) 
+16:59:09   ├─ /en/about/index.html (+3ms) 
+16:59:09   ├─ /en/contact/index.html (+3ms) 
+16:59:09   ├─ /en/index.html (+3ms) 
+16:59:09   ├─ /en/media-acceptance/index.html (+116ms) 
+16:59:09   ├─ /en/privacy/index.html (+3ms) 
+16:59:09   ├─ /en/rooms/index.html (+3ms) 
+16:59:09   ├─ /en/services/index.html (+2ms) 
+16:59:09   ├─ /en/services/planning-session/index.html (+2ms) 
+16:59:09   ├─ /en/people/studio-guide/index.html (+3ms) 
+16:59:09   ├─ /en/rooms/media-acceptance-0/index.html (+3ms) 
+16:59:09   ├─ /en/rooms/media-acceptance-1/index.html (+2ms) 
+16:59:09   ├─ /en/rooms/media-acceptance-2/index.html (+2ms) 
+16:59:09   ├─ /el/about/index.html (+2ms) 
+16:59:09   ├─ /el/contact/index.html (+2ms) 
+16:59:09   ├─ /el/index.html (+2ms) 
+16:59:09   ├─ /el/media-acceptance/index.html (+4ms) 
+16:59:09   ├─ /el/privacy/index.html (+2ms) 
+16:59:09   ├─ /el/rooms/index.html (+2ms) 
+16:59:09   ├─ /el/services/index.html (+2ms) 
+16:59:09   ├─ /el/services/planning-session/index.html (+2ms) 
+16:59:09   ├─ /el/people/studio-guide/index.html (+2ms) 
+16:59:09   ├─ /el/rooms/media-acceptance-0/index.html (+2ms) 
+16:59:09   ├─ /el/rooms/media-acceptance-1/index.html (+2ms) 
+16:59:09   ├─ /el/rooms/media-acceptance-2/index.html (+2ms) 
+16:59:09   ├─ /index.html (+3ms) 
+16:59:09 ✓ Completed in 429ms.
+
+16:59:09 [build] ✓ Completed in 1.26s.
+16:59:10 [build] 29 page(s) built in 1.93s
+16:59:10 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  ok 4 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"local","theme":"wellness","density":"compact","rooms":3,"profile":"enquiries","articles":false,"enabled":true} (13.4s)
+Configured enquiries / production. No cloud resources were created.
+(node:21940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:59:21 [types] Generated 102ms
+16:59:21 [build] output: "static"
+16:59:21 [build] mode: "static"
+16:59:21 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:59:21 [build] Collecting build info...
+16:59:21 [build] ✓ Completed in 141ms.
+16:59:21 [build] Building static entrypoints...
+16:59:22 [vite] ✓ built in 366ms
+16:59:22 [vite] ✓ built in 165ms
+16:59:22 [build] Rearranging server assets...
+
+ generating static routes 
+16:59:22   ├─ /404.html (+21ms) 
+16:59:22   ├─ /en/404/index.html (+5ms) 
+16:59:22   ├─ /el/404/index.html (+3ms) 
+16:59:22   ├─ /en/about/index.html (+6ms) 
+16:59:22   ├─ /en/contact/index.html (+4ms) 
+16:59:22   ├─ /en/index.html (+3ms) 
+16:59:22   ├─ /en/media-acceptance/index.html (+19ms) 
+16:59:22   ├─ /en/privacy/index.html (+4ms) 
+16:59:22   ├─ /en/services/index.html (+3ms) 
+16:59:22   ├─ /en/services/planning-session/index.html (+3ms) 
+16:59:22   ├─ /en/people/studio-guide/index.html (+3ms) 
+16:59:22   ├─ /el/about/index.html (+3ms) 
+16:59:22   ├─ /el/contact/index.html (+2ms) 
+16:59:22   ├─ /el/index.html (+3ms) 
+16:59:22   ├─ /el/media-acceptance/index.html (+4ms) 
+16:59:22   ├─ /el/privacy/index.html (+2ms) 
+16:59:22   ├─ /el/services/index.html (+2ms) 
+16:59:22   ├─ /el/services/planning-session/index.html (+2ms) 
+16:59:22   ├─ /el/people/studio-guide/index.html (+3ms) 
+16:59:22   ├─ /index.html (+4ms) 
+16:59:22 ✓ Completed in 285ms.
+
+16:59:23 [build] ✓ Completed in 1.13s.
+16:59:23 [build] 20 page(s) built in 1.33s
+16:59:23 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  ok 5 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"production","theme":"neutral","density":"spacious","rooms":0,"profile":"enquiries","articles":false,"enabled":false} (12.2s)
+
+  5 passed (2.6m)
+Media acceptance evidence: C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-WNkSNh

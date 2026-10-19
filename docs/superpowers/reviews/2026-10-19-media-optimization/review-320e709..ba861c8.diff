@@ -1,0 +1,437 @@
+# Review package: 320e709..ba861c8
+
+## Commits
+ba861c8 feat: define bounded media policy and source snapshots
+
+## Files changed
+ package.json                       |  1 +
+ packages/config/project.d.mts      |  2 ++
+ packages/config/project.mjs        |  8 ++++++
+ packages/media/source-reader.d.mts |  4 +++
+ packages/media/source-reader.mjs   | 52 ++++++++++++++++++++++++++++++++++++
+ packages/media/source.mjs          | 54 +++-----------------------------------
+ pnpm-lock.yaml                     |  4 ++-
+ tests/media-source.test.ts         | 48 +++++++++++++++++++++++++++++----
+ tests/project-config.test.ts       | 38 +++++++++++++++++++++++++++
+ 9 files changed, 154 insertions(+), 57 deletions(-)
+
+## Diff
+diff --git a/package.json b/package.json
+index 9fe9d98..fa7462e 100644
+--- a/package.json
++++ b/package.json
+@@ -25,20 +25,21 @@
+     "test:composition-c": "node scripts/verify-composition-c.mjs",
+     "test:profiles": "node scripts/verify-profiles.mjs",
+     "test:showcase-builds": "node scripts/verify-showcase-builds.mjs",
+     "test:static-routing": "pnpm build && node scripts/verify-static-routing.mjs"
+   },
+   "dependencies": {
+     "@fontsource/noto-sans": "5.2.8",
+     "aws4fetch": "1.0.20",
+     "jose": "6.2.12",
+     "markdown-it": "14.3.2",
++    "sharp": "0.35.5",
+     "zod": "4.6.5"
+   },
+   "devDependencies": {
+     "@axe-core/playwright": "4.13.0",
+     "@cloudflare/workers-types": "5.20261007.1",
+     "@playwright/test": "1.63.0",
+     "@tinacms/cli": "4.0.1",
+     "@tinacms/mdx": "2.3.0",
+     "@types/node": "24.0.0",
+     "@types/react": "18.3.1",
+diff --git a/packages/config/project.d.mts b/packages/config/project.d.mts
+index a3cf88c..e590b80 100644
+--- a/packages/config/project.d.mts
++++ b/packages/config/project.d.mts
+@@ -1,10 +1,12 @@
+ import type { ZodType } from 'zod';
++export interface MediaOptimization { enabled:boolean; widths:number[]; quality:number }
+ export interface ProjectConfig {
+   name:string; starterVersion:'2.0.0-dev'; schemaVersion:2; profile:'enquiries'|'newsletter'|'nurture'; articles:boolean; modules:{rooms:boolean};
+   locale:string; languages:{code:string;label:string}[]; siteUrl:string; environment:'local'|'staging'|'production';
+   design:{theme:string;density:'comfortable'|'compact'|'spacious'}; legalReviewed:boolean; contentReviewed:boolean;
+   interests:{id:string;label:string}[];
++  media:{optimization:MediaOptimization};
+   infrastructure:{databaseId:string;sesRegion:string;sender:string;notificationEmail:string;allowedRecipients:string[];sesConfigurationSet:string;snsTopicArn:string;accessIssuer:string;accessAudience:string;adminEmails:string[];editorEmails:string[];sendingEnabled:boolean;marketingEnabled:boolean;sendIntervalMs:number};
+ }
+ export const projectSchema: ZodType<ProjectConfig>;
+ export function parseProject(raw:unknown):ProjectConfig;
+diff --git a/packages/config/project.mjs b/packages/config/project.mjs
+index f593718..e1bffa9 100644
+--- a/packages/config/project.mjs
++++ b/packages/config/project.mjs
+@@ -8,25 +8,33 @@ const origin = z.string().refine(value => {
+   catch { return false; }
+ }, 'siteUrl must be an HTTPS origin without credentials, path, query or fragment');
+ const infrastructure = z.strictObject({
+   databaseId: z.uuid().default('00000000-0000-0000-0000-000000000000'),
+   sesRegion: text.default('eu-west-1'), sender: text.default('Example Studio <hello@example.com>'),
+   notificationEmail: z.email().default('owner@example.com'), allowedRecipients: z.array(z.email()).default([]),
+   sesConfigurationSet: z.string().default('starter-transactional'), snsTopicArn: z.string().default(''),
+   accessIssuer: z.string().default(''), accessAudience: z.string().default(''), adminEmails: accessEmails.default([]), editorEmails: accessEmails.default([]),
+   sendingEnabled: z.boolean().default(false), marketingEnabled: z.boolean().default(false), sendIntervalMs: z.number().int().min(1000).default(1000),
+ });
++const optimization = z.strictObject({
++  enabled: z.boolean().default(true),
++  widths: z.array(z.number().int().min(160).max(2560)).min(1).max(6)
++    .refine(widths => widths.every((width, index) => index === 0 || width > widths[index - 1]), 'Media widths must be ascending and unique')
++    .default([320, 640, 960, 1440, 1920]),
++  quality: z.number().int().min(40).max(95).default(80),
++});
+ export const projectSchema = z.strictObject({
+   name: z.string().regex(/^[a-z0-9-]{1,40}$/), starterVersion: z.literal('2.0.0-dev'), schemaVersion: z.literal(2),
+   profile: z.enum(['enquiries','newsletter','nurture']).default('enquiries'), articles: z.boolean().default(true),
+   modules: z.strictObject({rooms:z.boolean().default(false)}).prefault({}),
+   locale: code, languages: z.array(z.strictObject({code, label:text})).min(1), siteUrl: origin,
+   environment: z.enum(['local','staging','production']).default('local'),
+   design: z.strictObject({theme:z.string().regex(/^[a-z0-9-]+$/).default('neutral'),density:z.enum(['comfortable','compact','spacious']).default('comfortable')}).default({theme:'neutral',density:'comfortable'}),
++  media: z.strictObject({ optimization: optimization.prefault({}) }).prefault({}),
+   infrastructure: infrastructure.prefault({}), legalReviewed:z.boolean().default(false), contentReviewed:z.boolean().default(false),
+   interests:z.array(z.strictObject({id,label:text})).default([]),
+ }).superRefine((p,ctx) => {
+   if (new Set(p.languages.map(l=>l.code)).size !== p.languages.length) ctx.addIssue({code:'custom',path:['languages'],message:'Language codes must be unique'});
+   if (!p.languages.some(l=>l.code===p.locale)) ctx.addIssue({code:'custom',path:['locale'],message:'Default locale must be included in languages'});
+   if (new Set(p.interests.map(i=>i.id)).size !== p.interests.length) ctx.addIssue({code:'custom',path:['interests'],message:'Interest IDs must be unique'});
+ });
+ export function parseProject(raw) { return projectSchema.parse(raw); }
+diff --git a/packages/media/source-reader.d.mts b/packages/media/source-reader.d.mts
+new file mode 100644
+index 0000000..1287e50
+--- /dev/null
++++ b/packages/media/source-reader.d.mts
+@@ -0,0 +1,4 @@
++import type { Buffer } from 'node:buffer';
++import type { SourceMedia } from './source.mjs';
++/** Server-only. Bytes are the exact validated snapshot used for media metadata. */
++export function readValidatedSource(root: string, src: string): Promise<{media: SourceMedia; bytes: Buffer; pages: number}>;
+diff --git a/packages/media/source-reader.mjs b/packages/media/source-reader.mjs
+new file mode 100644
+index 0000000..e4138b5
+--- /dev/null
++++ b/packages/media/source-reader.mjs
+@@ -0,0 +1,52 @@
++// Server-only adapter: never import this module from editor/client code.
++import sharp from 'sharp';
++import { realpath, open } from 'node:fs/promises';
++import { resolve, relative, isAbsolute } from 'node:path';
++import { createHash } from 'node:crypto';
++import { parseMediaSource } from '../content/media.mjs';
++
++const MAX_BYTES = 20 * 1024 * 1024;
++const MAX_DIMENSION = 20000;
++const MAX_PIXELS = 40000000;
++// Bound process memory while sharing metadata only by content hash and format.
++const metadataCache = new Map();
++const MAX_CACHE_ENTRIES = 128;
++
++/** root is the repository root; uploads live at apps/site/public/uploads. */
++export async function readValidatedSource(root, src) {
++  const parsed = parseMediaSource(src);
++  const uploadRoot = await realpath(resolve(root, 'apps/site/public/uploads'));
++  const filePath = await realpath(resolve(uploadRoot, parsed.relativePath));
++  const containedPath = relative(uploadRoot, filePath);
++  if (!containedPath || containedPath === '..' || containedPath.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`) || isAbsolute(containedPath)) {
++    throw new Error(`Media source escapes the upload root: ${src}`);
++  }
++  const file = await open(filePath, 'r');
++  let bytes;
++  try {
++    const stat = await file.stat();
++    if (!stat.isFile()) throw new Error(`Media source must be a regular file: ${src}`);
++    if (stat.size > MAX_BYTES) throw new Error(`Media source exceeds the 20 MiB byte limit: ${src}`);
++    bytes = await file.readFile();
++  } finally { await file.close(); }
++  // A file can grow after stat. Bound the bytes actually read as well.
++  if (bytes.length > MAX_BYTES) throw new Error(`Media source exceeds the 20 MiB byte limit: ${src}`);
++  const fingerprint = createHash('sha256').update(bytes).digest('hex');
++  const key = `${fingerprint}:${parsed.extension}`;
++  let result = metadataCache.get(key);
++  if (!result) {
++    // This validates metadata/header bounds, not exhaustive compressed payloads.
++    const metadata = await sharp(bytes, { limitInputPixels: MAX_PIXELS, failOn: 'warning' }).metadata();
++    if (metadata.format !== parsed.extension) throw new Error(`Media format does not match its extension: ${src}`);
++    let { width, height } = metadata;
++    if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0 || width > MAX_DIMENSION || height > MAX_DIMENSION || width * height > MAX_PIXELS) {
++      throw new Error(`Media dimensions exceed the supported bounds: ${src}`);
++    }
++    if ([5, 6, 7, 8].includes(metadata.orientation)) [width, height] = [height, width];
++    result = { width, height, format: metadata.format, fingerprint, pages: metadata.pages ?? 1 };
++    if (metadataCache.size >= MAX_CACHE_ENTRIES) metadataCache.delete(metadataCache.keys().next().value);
++    metadataCache.set(key, result);
++  }
++  const { pages, ...metadata } = result;
++  return { media: { src, ...metadata }, bytes, pages };
++}
+diff --git a/packages/media/source.mjs b/packages/media/source.mjs
+index b9b5b42..67c0c78 100644
+--- a/packages/media/source.mjs
++++ b/packages/media/source.mjs
+@@ -1,55 +1,7 @@
+-// Server-only adapter: never import this module from editor/client code.
+-import { createRequire } from 'node:module';
+-import { realpath, open } from 'node:fs/promises';
+-import { resolve, relative, isAbsolute } from 'node:path';
+-import { createHash } from 'node:crypto';
+-import { parseMediaSource } from '../content/media.mjs';
+-
+-// Sharp is owned by the pinned Astro dependency, not a new direct dependency.
+-const siteRequire = createRequire(new URL('../../apps/site/package.json', import.meta.url));
+-const astroRequire = createRequire(siteRequire.resolve('astro/package.json'));
+-const sharp = astroRequire('sharp');
+-const MAX_BYTES = 20 * 1024 * 1024;
+-const MAX_DIMENSION = 20000;
+-const MAX_PIXELS = 40000000;
+-// Bound process memory while sharing metadata only by content hash and format.
+-const metadataCache = new Map();
+-const MAX_CACHE_ENTRIES = 128;
++// Server-only metadata facade: never import from editor/client code.
++import { readValidatedSource } from './source-reader.mjs';
+ 
+ /** root is the repository root; uploads live at apps/site/public/uploads. */
+ export async function resolveSourceMedia(root, src) {
+-  const parsed = parseMediaSource(src);
+-  const uploadRoot = await realpath(resolve(root, 'apps/site/public/uploads'));
+-  const filePath = await realpath(resolve(uploadRoot, parsed.relativePath));
+-  const containedPath = relative(uploadRoot, filePath);
+-  if (!containedPath || containedPath === '..' || containedPath.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`) || isAbsolute(containedPath)) {
+-    throw new Error(`Media source escapes the upload root: ${src}`);
+-  }
+-  const file = await open(filePath, 'r');
+-  let bytes;
+-  try {
+-    const stat = await file.stat();
+-    if (!stat.isFile()) throw new Error(`Media source must be a regular file: ${src}`);
+-    if (stat.size > MAX_BYTES) throw new Error(`Media source exceeds the 20 MiB byte limit: ${src}`);
+-    bytes = await file.readFile();
+-  } finally { await file.close(); }
+-  // A file can grow after stat. Bound the bytes actually read as well.
+-  if (bytes.length > MAX_BYTES) throw new Error(`Media source exceeds the 20 MiB byte limit: ${src}`);
+-  const fingerprint = createHash('sha256').update(bytes).digest('hex');
+-  const key = `${fingerprint}:${parsed.extension}`;
+-  let result = metadataCache.get(key);
+-  if (!result) {
+-    // This validates metadata/header bounds, not exhaustive compressed payloads.
+-    const metadata = await sharp(bytes, { limitInputPixels: MAX_PIXELS, failOn: 'warning' }).metadata();
+-    if (metadata.format !== parsed.extension) throw new Error(`Media format does not match its extension: ${src}`);
+-    let { width, height } = metadata;
+-    if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0 || width > MAX_DIMENSION || height > MAX_DIMENSION || width * height > MAX_PIXELS) {
+-      throw new Error(`Media dimensions exceed the supported bounds: ${src}`);
+-    }
+-    if ([5, 6, 7, 8].includes(metadata.orientation)) [width, height] = [height, width];
+-    result = { width, height, format: metadata.format, fingerprint };
+-    if (metadataCache.size >= MAX_CACHE_ENTRIES) metadataCache.delete(metadataCache.keys().next().value);
+-    metadataCache.set(key, result);
+-  }
+-  return { src, ...result };
++  return (await readValidatedSource(root, src)).media;
+ }
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+index 855c054..f897d0e 100644
+--- a/pnpm-lock.yaml
++++ b/pnpm-lock.yaml
+@@ -17,20 +17,23 @@ importers:
+         version: 5.2.8
+       aws4fetch:
+         specifier: 1.0.20
+         version: 1.0.20
+       jose:
+         specifier: 6.2.12
+         version: 6.2.12
+       markdown-it:
+         specifier: 14.3.2
+         version: 14.3.2
++      sharp:
++        specifier: 0.35.5
++        version: 0.35.5(@types/node@24.0.0)
+       zod:
+         specifier: 4.6.5
+         version: 4.6.5
+     devDependencies:
+       '@axe-core/playwright':
+         specifier: 4.13.0
+         version: 4.13.0(playwright-core@1.63.0)
+       '@cloudflare/workers-types':
+         specifier: 5.20261007.1
+         version: 5.20261007.1
+@@ -12477,21 +12480,20 @@ snapshots:
+       '@img/sharp-linux-riscv64': 0.35.5
+       '@img/sharp-linux-s390x': 0.35.5
+       '@img/sharp-linux-x64': 0.35.5
+       '@img/sharp-linuxmusl-arm64': 0.35.5
+       '@img/sharp-linuxmusl-x64': 0.35.5
+       '@img/sharp-webcontainers-wasm32': 0.35.5
+       '@img/sharp-win32-arm64': 0.35.5
+       '@img/sharp-win32-ia32': 0.35.5
+       '@img/sharp-win32-x64': 0.35.5
+       '@types/node': 24.0.0
+-    optional: true
+ 
+   shiki@1.29.2:
+     dependencies:
+       '@shikijs/core': 1.29.2
+       '@shikijs/engine-javascript': 1.29.2
+       '@shikijs/engine-oniguruma': 1.29.2
+       '@shikijs/langs': 1.29.2
+       '@shikijs/themes': 1.29.2
+       '@shikijs/types': 1.29.2
+       '@shikijs/vscode-textmate': 10.0.2
+diff --git a/tests/media-source.test.ts b/tests/media-source.test.ts
+index d7172c6..c6d90ed 100644
+--- a/tests/media-source.test.ts
++++ b/tests/media-source.test.ts
+@@ -1,23 +1,20 @@
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+-import { createRequire } from 'node:module';
++import sharp from 'sharp';
+ import { mkdtemp, mkdir, writeFile, rm, symlink, truncate, open } from 'node:fs/promises';
+ import type { FileHandle } from 'node:fs/promises';
+ import { tmpdir } from 'node:os';
+ import { join } from 'node:path';
+ import { createHash } from 'node:crypto';
+ import { crc32 } from 'node:zlib';
+ import { resolveSourceMedia } from '../packages/media/source.mjs';
+ 
+-const siteRequire = createRequire(new URL('../apps/site/package.json', import.meta.url));
+-const astroRequire = createRequire(siteRequire.resolve('astro/package.json'));
+-const sharp = astroRequire('sharp');
+ let root: string, uploads: string;
+ beforeEach(async () => { root = await mkdtemp(join(tmpdir(), 'starter-media-')); uploads = join(root, 'apps/site/public/uploads'); await mkdir(uploads, { recursive: true }); });
+ afterEach(async () => { await rm(root, { recursive: true, force: true }); });
+ const image = (width = 3, height = 2) => sharp({ create: { width, height, channels: 3, background: '#336699' } });
+ async function save(name: string, bytes: Buffer) { await writeFile(join(uploads, name), bytes); return `/uploads/${name}`; }
+ 
+ describe('server source metadata', () => {
+   it.each(['png', 'jpeg', 'webp'] as const)('reads real %s bytes and fingerprints their content', async format => {
+     const bytes = await image().toFormat(format).toBuffer();
+     const src = await save(`team photo.${format === 'jpeg' ? 'jpg' : format}`, bytes);
+@@ -61,21 +58,21 @@ describe('server source metadata', () => {
+     // to force the otherwise timing-dependent writer race deterministically.
+     const stat = vi.spyOn(prototype, 'stat').mockImplementationOnce(async function(this: FileHandle, ...args: unknown[]) {
+       const result = await originalStat.apply(this, args);
+       await truncate(path, 20 * 1024 * 1024 + 1);
+       return result;
+     });
+     try { await expect(resolveSourceMedia(root, src)).rejects.toThrow(/byte|size|20/i); }
+     finally { stat.mockRestore(); await handle.close(); }
+   });
+   it.each([[0, 2], [20001, 1], [10000, 4001]])('rejects invalid or excessive dimensions %i x %i', async (width, height) => {
+-    const bytes = await image().png().toBuffer();
++    const bytes = Buffer.from(await image().png().toBuffer());
+     bytes.writeUInt32BE(width, 16); bytes.writeUInt32BE(height, 20);
+     bytes.writeUInt32BE(crc32(bytes.subarray(12, 29)), 29);
+     const src = await save('dimensions.png', bytes);
+     await expect(resolveSourceMedia(root, src)).rejects.toThrow();
+   });
+   it.each([5, 6, 7, 8])('reports displayed dimensions for EXIF orientation %i', async orientation => {
+     const src = await save('oriented.jpg', await image(7, 3).jpeg().withMetadata({ orientation }).toBuffer());
+     expect(await resolveSourceMedia(root, src)).toMatchObject({ width: 3, height: 7, format: 'jpeg' });
+   });
+   it('does not swap EXIF orientation 3 dimensions', async () => {
+@@ -103,10 +100,51 @@ describe('server source metadata', () => {
+   });
+   it('accepts contained file symlinks and a realpath-resolved upload root', async () => {
+     const realUploads = join(root, 'real-uploads');
+     await rm(uploads, { recursive: true }); await mkdir(realUploads);
+     await symlink(realUploads, uploads, 'junction');
+     await writeFile(join(realUploads, 'real.png'), await image().png().toBuffer());
+     await symlink(join(realUploads, 'real.png'), join(realUploads, 'alias.png'), 'file');
+     expect((await resolveSourceMedia(root, '/uploads/alias.png')).width).toBe(3);
+   });
+ });
++
++// Snapshot assertions catch a second pathname read after validation. Only the
++// read boundary is intercepted; disk reads and Sharp metadata stay real.
++describe('validated source snapshots', () => {
++  it('returns the exact single read used for fingerprint and metadata despite a subsequent replacement', async () => {
++    const { readValidatedSource } = await import('../packages/media/source-reader.mjs');
++    const original = await image(11, 7).png().toBuffer();
++    const replacement = await image(4, 9).png().toBuffer();
++    const src = await save('snapshot.png', original);
++    const path = join(uploads, 'snapshot.png');
++    const handle = await open(path, 'r');
++    const prototype = Object.getPrototypeOf(handle);
++    const originalRead = prototype.readFile;
++    let reads = 0;
++    const read = vi.spyOn(prototype, 'readFile').mockImplementation(async function(this: FileHandle, ...args: unknown[]) {
++      reads++;
++      const bytes = await originalRead.apply(this, args);
++      await writeFile(path, replacement);
++      return bytes;
++    });
++    try {
++      const result = await readValidatedSource(root, src);
++      expect(result.bytes).toEqual(original);
++      expect(result.media).toEqual({ src, width: 11, height: 7, format: 'png', fingerprint: createHash('sha256').update(original).digest('hex') });
++      expect(result.pages).toBe(1);
++      expect(reads).toBe(1);
++    } finally { read.mockRestore(); await handle.close(); }
++  });
++  it('identifies animated WebP pages without adding private properties to public metadata', async () => {
++    const { readValidatedSource } = await import('../packages/media/source-reader.mjs');
++    // Two differently colored stacked frames, each 3 x 2.
++    const pixels = Buffer.from([...Array(6).fill([255, 0, 0]).flat(), ...Array(6).fill([0, 0, 255]).flat()]);
++    const bytes = await sharp(pixels, { raw: { width: 3, height: 4, channels: 3, pageHeight: 2 } }).webp({ loop: 0, delay: [100, 100] }).toBuffer();
++    const src = await save('animated.webp', bytes);
++    const result = await readValidatedSource(root, src);
++    expect(result.pages).toBe(2);
++    expect(result.bytes).toEqual(bytes);
++    expect(result.media).toEqual({ src, width: 3, height: 2, format: 'webp', fingerprint: createHash('sha256').update(bytes).digest('hex') });
++    expect(await resolveSourceMedia(root, src)).toEqual(result.media);
++  });
++});
+diff --git a/tests/project-config.test.ts b/tests/project-config.test.ts
+index 4fe7859..95bd2f7 100644
+--- a/tests/project-config.test.ts
++++ b/tests/project-config.test.ts
+@@ -25,10 +25,48 @@ it.each(['comfortable', 'compact', 'spacious'] as const)('accepts %s density wit
+ it.each(['dense', '', 'SPACIOUS', 1, null])('rejects unsupported density %s', (density) => {
+   expect(() => parseProject({ ...valid(), design: { theme: 'neutral', density } })).toThrow();
+ });
+ 
+ it('defaults role lists to empty and normalizes explicit identities without mutating input',()=>{
+  const defaults=parseProject(valid()).infrastructure;expect(defaults).toMatchObject({adminEmails:[],editorEmails:[]});
+  const raw={...valid(),infrastructure:{adminEmails:[' Admin1@Example.COM ','admin2@example.com'],editorEmails:['editor@example.com','admin1@example.com']}};
+  expect(parseProject(raw).infrastructure).toMatchObject({adminEmails:['admin1@example.com','admin2@example.com'],editorEmails:['editor@example.com','admin1@example.com']});expect(raw.infrastructure.adminEmails[0]).toBe(' Admin1@Example.COM ');
+ });
+ it.each([{adminEmail:''},{adminEmails:'admin@example.com'},{adminEmails:['']},{editorEmails:['*']},{adminEmails:['a@example.com',' A@EXAMPLE.COM ']},{editorEmails:['a@example.com','a@example.com']},{editorEmails:[2]}])('rejects malformed or legacy role configuration %j', infrastructure=>{expect(()=>parseProject({...valid(),infrastructure})).toThrow();});
++import { fixture } from './fixtures/content/factory';
++import { createCmsDescriptor } from '../scripts/cms-descriptor.mjs';
++
++describe('bounded developer media optimization policy', () => {
++  const defaults = { enabled: true, widths: [320, 640, 960, 1440, 1920], quality: 80 };
++  it.each([undefined, {}, { optimization: {} }])('defaults absent nested media policy %j', media => {
++    expect(parseProject({ ...valid(), ...(media === undefined ? {} : { media }) }).media.optimization).toEqual(defaults);
++  });
++  it('defaults partial settings and preserves disabled mode', () => {
++    expect(parseProject({ ...valid(), media: { optimization: { enabled: false } } }).media.optimization).toEqual({ ...defaults, enabled: false });
++    expect(parseProject({ ...valid(), media: { optimization: { quality: 95 } } }).media.optimization).toEqual({ ...defaults, quality: 95 });
++    expect(parseProject({ ...valid(), media: { optimization: { widths: [160, 2560] } } }).media.optimization).toEqual({ ...defaults, widths: [160, 2560] });
++  });
++  it('accepts a complete bounded policy without mutating it', () => {
++    const media = { optimization: { enabled: true, widths: [160, 320, 640, 960, 1920, 2560], quality: 40 } };
++    expect(parseProject({ ...valid(), media }).media).toEqual(media);
++    expect(media.optimization.widths).toEqual([160, 320, 640, 960, 1920, 2560]);
++  });
++  it.each([
++    { widths: [] }, { widths: [160, 320, 640, 960, 1440, 1920, 2560] },
++    { widths: [320, 320] }, { widths: [640, 320] }, { widths: [320.5] },
++    { widths: [159] }, { widths: [2561] }, { widths: ['320'] },
++    { quality: 39 }, { quality: 96 }, { quality: 80.5 }, { quality: '80' },
++    { enabled: 'false' }, { extra: true },
++  ])('rejects invalid policy %j even when disabled', optimization => {
++    expect(() => parseProject({ ...valid(), media: { optimization: { enabled: false, ...optimization } } })).toThrow();
++  });
++  it.each([{ extra: true }, { optimization: null }, null])('rejects unknown or malformed media settings %j', media => {
++    expect(() => parseProject({ ...valid(), media })).toThrow();
++  });
++  it('keeps developer optimization settings outside the CMS descriptor', () => {
++    const f = fixture();
++    const before = createCmsDescriptor(f.root, parseProject(valid()));
++    const after = createCmsDescriptor(f.root, parseProject({ ...valid(), media: { optimization: { enabled: false, widths: [2560], quality: 95 } } }));
++    expect(after).toEqual(before);
++    expect(after.project).not.toHaveProperty('media');
++  });
++});

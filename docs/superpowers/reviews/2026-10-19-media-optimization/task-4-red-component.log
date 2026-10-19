@@ -1,0 +1,63 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+ ❯ tests/media-optimization.test.ts (3 tests | 3 failed) 107ms
+   × renders picture families with largest fallback, safe localized caption and retained frame/crop/loading 50ms
+   × uses only one family for WebP originals and keeps passthrough original dimensions 6ms
+   × actual section renderers pass exact roles and rendered counts, including text-only Room cards 50ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-optimization.test.ts > renders picture families with largest fallback, safe localized caption and retained frame/crop/loading
+AssertionError: expected '<figure class="section-image"><div cl…' to contain '<picture>'
+
+Expected: "<picture>"
+Received: "<figure class="section-image"><div class="image-frame frame-gallery"><img src="/uploads/original.png" width="1600" height="800" alt="A &amp; B" loading="lazy" decoding="async" class="crop-bottom"></div><figcaption><strong>Caption</strong> <a href="/el/contact">Contact</a> &lt;script&gt;bad()&lt;/script&gt;</figcaption></figure>"
+
+ ❯ tests/media-optimization.test.ts:21:15
+     19| it('renders picture families with largest fallback, safe localized cap…
+     20|  const c=await AstroContainer.create(),html=await c.renderToString(Sec…
+     21|  expect(html).toContain('<picture>');expect(html).toContain('type="ima…
+       |               ^
+     22|  expect(html).toContain('srcset="/_media/v1/webp320.webp 320w, /_media…
+     23|  expect(html).toContain('src="/_media/v1/png640.png"');expect(html).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/media-optimization.test.ts > uses only one family for WebP originals and keeps passthrough original dimensions
+AssertionError: expected '<figure class="section-image"><div cl…' to contain 'src="/_media/v1/webp640.webp"'
+
+Expected: "src="/_media/v1/webp640.webp""
+Received: "<figure class="section-image"><div class="image-frame frame-gallery"><img src="/uploads/original.png" width="1600" height="800" alt="A &amp; B" loading="lazy" decoding="async" class="crop-bottom"></div><figcaption><strong>Caption</strong> <a href="/el/contact">Contact</a> &lt;script&gt;bad()&lt;/script&gt;</figcaption></figure>"
+
+ ❯ tests/media-optimization.test.ts:30:171
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/media-optimization.test.ts > actual section renderers pass exact roles and rendered counts, including text-only Room cards
+AssertionError: expected [] to deeply equal [ '100vw' ]
+
+- Expected
++ Received
+
+- [
+-   "100vw",
+- ]
++ []
+
+ ❯ tests/media-optimization.test.ts:39:311
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  3 failed | 21 passed (24)
+   Start at  16:26:09
+   Duration  2.92s (transform 58%, import 37%, tests 4%)
+
+  Transform  transforming modules took 10.20s · 58% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

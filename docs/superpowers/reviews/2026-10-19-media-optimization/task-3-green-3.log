@@ -1,0 +1,36 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-integration.test.ts (4 tests | 1 failed) 2623ms
+   × releases sessions after real prerender and compile failures, then builds fresh referenced assets 2465ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-integration.test.ts > releases sessions after real prerender and compile failures, then builds fresh referenced assets
+AssertionError: expected [Function] to throw error matching /Controlled unrelated/ but got 'Build failed with 1 error:\n\n\u001b[…'
+
+- Expected:
+/Controlled unrelated/
+
++ Received:
+"Build failed with 1 error:
+
+[UNRESOLVED_ENTRY] Cannot resolve entry module astro/entrypoints/prerender.
+"
+
+ ❯ tests/media-integration.test.ts:33:39
+     31|  const config=()=>({root:pathToFileURL(root+'/'),configFile:false,logL…
+     32|  await writeFile(join(pages,'index.astro'),'---\nthrow new Error("Cont…
+     33|  await expect(buildSite(config(),root)).rejects.toThrow(/Controlled un…
+       |                                       ^
+     34|  await writeFile(join(pages,'index.astro'),'---\nconst = invalid;\n---…
+     35|  await expect(buildSite(config(),root)).rejects.toThrow();expect(()=>g…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 9 passed (10)
+   Start at  16:13:49
+   Duration  3.30s (tests 79%, import 16%, transform 5%)
+

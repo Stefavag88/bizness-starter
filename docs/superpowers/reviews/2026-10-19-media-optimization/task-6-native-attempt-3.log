@@ -1,0 +1,105 @@
+
+Running 1 test using 1 worker
+
+(node:28820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Configured enquiries / local. No cloud resources were created.
+(node:20784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+17:03:27 [vite] Re-optimizing dependencies because vite config has changed
+17:03:27 [types] Generated 235ms
+17:03:27 [build] output: "static"
+17:03:27 [build] mode: "static"
+17:03:27 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+17:03:27 [build] Collecting build info...
+17:03:27 [build] ✓ Completed in 272ms.
+17:03:27 [build] Building static entrypoints...
+17:03:27 [vite] ✓ built in 319ms
+17:03:28 [vite] ✓ built in 131ms
+17:03:28 [build] Rearranging server assets...
+
+ generating static routes 
+17:03:28   ├─ /404.html (+17ms) 
+17:03:28   ├─ /design-system/index.html (+50ms) 
+17:03:28   ├─ /en/404/index.html (+4ms) 
+17:03:28   ├─ /el/404/index.html (+3ms) 
+17:03:28   ├─ /en/feed.xml (+3ms) 
+17:03:28   ├─ /el/feed.xml (+2ms) 
+17:03:28   ├─ /en/about/index.html (+3ms) 
+17:03:28   ├─ /en/contact/index.html (+4ms) 
+17:03:28   ├─ /en/index.html (+3ms) 
+17:03:28   ├─ /en/insights/index.html (+3ms) 
+17:03:28   ├─ /en/media-native-acceptance/index.html (+95ms) 
+17:03:28   ├─ /en/privacy/index.html (+3ms) 
+17:03:28   ├─ /en/services/index.html (+2ms) 
+17:03:28   ├─ /en/services/planning-session/index.html (+2ms) 
+17:03:28   ├─ /en/insights/a-useful-first-question/index.html (+3ms) 
+17:03:28   ├─ /en/people/studio-guide/index.html (+2ms) 
+17:03:28   ├─ /el/about/index.html (+2ms) 
+17:03:28   ├─ /el/contact/index.html (+2ms) 
+17:03:28   ├─ /el/index.html (+2ms) 
+17:03:28   ├─ /el/insights/index.html (+2ms) 
+17:03:28   ├─ /el/media-native-acceptance/index.html (+2ms) 
+17:03:28   ├─ /el/privacy/index.html (+2ms) 
+17:03:28   ├─ /el/services/index.html (+2ms) 
+17:03:28   ├─ /el/services/planning-session/index.html (+2ms) 
+17:03:28   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+17:03:28   ├─ /el/people/studio-guide/index.html (+3ms) 
+17:03:28   ├─ /index.html (+3ms) 
+17:03:28 ✓ Completed in 382ms.
+
+17:03:28 [build] ✓ Completed in 1.15s.
+17:03:29 [build] 25 page(s) built in 1.86s
+17:03:29 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  x  1 e2e\media-optimization-cms.spec.ts:18:1 › native original selection/clear and live upload lifecycle with pre-dispatch complete ownership (1.1m)
+
+
+  1) e2e\media-optimization-cms.spec.ts:18:1 › native original selection/clear and live upload lifecycle with pre-dispatch complete ownership 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 500
+    Received: 200
+
+    Call Log:
+    - Timeout 30000ms exceeded while waiting on the predicate
+
+      49 |   const replacement=await sharp({create:{width:800,height:500,channels:3,background:'#427'}}).jpeg().toBuffer();check();media[1].replace(replacement);expected['apps/site/public'+upload('portrait.jpg')]=hash(replacement);check();
+      50 |   await expect(async()=>{await publicPage.reload();await rendered.scrollIntoViewIfNeeded();await expect.poll(()=>rendered.evaluate((e:HTMLImageElement)=>e.complete&&e.naturalWidth>0)).toBe(true);expect(await rendered.evaluate((e:HTMLImageElement)=>e.currentSrc)).not.toBe(oldUrl);}).toPass({timeout:30000});const newUrl=await rendered.evaluate((e:HTMLImageElement)=>e.currentSrc);writeEvidence(directory,'responsive-same-path.json',{oldUrl,newUrl,replacementSha256:hash(replacement)});
+    > 51 |   check();media[1].restore();delete expected['apps/site/public'+upload('portrait.jpg')];check();await expect(async()=>{const response=await publicPage.reload();expect(response!.status()).toBe(500);expect(await publicPage.locator('body').innerText()).toContain('media_0');}).toPass({timeout:30000});writeEvidence(directory,'referenced-unlink.json',{status:500,contextualFailure:true,missingSource:upload('portrait.jpg')});media[1].create(replacement);expected['apps/site/public'+upload('portrait.jpg')]=hash(replacement);check();await expect(async()=>{expect((await publicPage.reload())!.status()).toBe(200);}).toPass({timeout:30000});
+         |                                                                                                                                                                                                                                                                                   ^
+      52 |   const astSelected=saves[0].request.params.page.standard.copy.sections.find((s:any)=>s.media_text)?.media_text?.body;
+      53 |   await open();writeEvidence(directory,'clear-controls.json',await control.locator('button').evaluateAll(es=>es.map(e=>({text:e.textContent,title:e.getAttribute('title'),'aria-label':e.getAttribute('aria-label')}))));
+      54 |   await control.locator('button').nth(1).click();
+        at C:\Projects\bizness-starter-v2\e2e\media-optimization-cms.spec.ts:51:275
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-NVXqhu\browser-results\media-optimization-cms-nat-cf5de-dispatch-complete-ownership\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-NVXqhu\browser-results\media-optimization-cms-nat-cf5de-dispatch-complete-ownership\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .generated\media-optimization\acceptance-NVXqhu\browser-results\media-optimization-cms-nat-cf5de-dispatch-complete-ownership\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-NVXqhu\browser-results\media-optimization-cms-nat-cf5de-dispatch-complete-ownership\trace.zip
+    Usage:
+
+        npx playwright show-trace .generated\media-optimization\acceptance-NVXqhu\browser-results\media-optimization-cms-nat-cf5de-dispatch-complete-ownership\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\media-optimization-cms.spec.ts:18:1 › native original selection/clear and live upload lifecycle with pre-dispatch complete ownership 
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: node_modules/@playwright/test/cli.js test e2e/media-optimization-cms.spec.ts --reporter=list --output=C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-NVXqhu\browser-results
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0

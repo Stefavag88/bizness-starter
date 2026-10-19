@@ -1,0 +1,569 @@
+# Review package: 4c51d0c..a317582
+
+## Commits
+a317582 feat: publish demanded media as static assets
+
+## Files changed
+ apps/site/astro.config.mjs                  |  3 +-
+ apps/site/package.json                      |  2 +-
+ apps/site/scripts/build.d.mts               |  3 ++
+ apps/site/scripts/build.mjs                 | 41 +++++++++++++++++++++++++
+ apps/site/src/integrations/media.d.mts      |  3 ++
+ apps/site/src/integrations/media.mjs        | 27 +++++++++++++++++
+ apps/site/src/lib/section-media.ts          | 10 +++----
+ apps/site/tests/composition-b-media.test.ts |  5 ++++
+ apps/site/tests/rooms.test.ts               |  5 ++++
+ apps/site/tests/showcase.test.ts            |  6 ++++
+ packages/media/cache.mjs                    | 15 ++++++++--
+ packages/media/session.d.mts                | 13 ++++++++
+ packages/media/session.mjs                  | 46 +++++++++++++++++++++++++++++
+ scripts/dev.mjs                             |  2 +-
+ scripts/verify-profiles.mjs                 |  2 +-
+ scripts/verify-showcase-builds.mjs          |  2 +-
+ tests/media-cache.test.ts                   |  4 +--
+ tests/media-integration.test.ts             | 45 ++++++++++++++++++++++++++++
+ tests/media-session.test.ts                 | 42 ++++++++++++++++++++++++++
+ 19 files changed, 262 insertions(+), 14 deletions(-)
+
+## Diff
+diff --git a/apps/site/astro.config.mjs b/apps/site/astro.config.mjs
+index 717802b..5bd7686 100644
+--- a/apps/site/astro.config.mjs
++++ b/apps/site/astro.config.mjs
+@@ -1,11 +1,12 @@
+ import { defineConfig } from 'astro/config';
++import mediaIntegration from './src/integrations/media.mjs';
+ import {fileURLToPath} from 'node:url';
+ import {resolve} from 'node:path';
+ import { readFileSync } from 'node:fs';
+ import { copyFile } from 'node:fs/promises';
+ import { parseProject } from '../../packages/config/project.mjs';
+ import { resolvePorts } from '../../scripts/ports.mjs';
+ const project=parseProject(JSON.parse(readFileSync(new URL('../../project.json',import.meta.url),'utf8')));
+ const ports=resolvePorts();
+ const projectRoot=fileURLToPath(new URL('../../',import.meta.url));
+ const normalize=path=>path.replaceAll('\\','/');
+@@ -44,11 +45,11 @@ const localShowcase={
+ // Astro's directory format otherwise emits locale/404/index.html.
+ const localizedNotFound={
+  name:'localized-static-not-found',
+  hooks:{'astro:build:done':async({dir})=>{
+   await Promise.all(project.languages.map(({code})=>copyFile(
+    new URL(code+'/404/index.html',dir),new URL(code+'/404.html',dir),
+   )));
+  }},
+ };
+ const target=`http://127.0.0.1:${ports.worker}`;
+-export default defineConfig({site:project.siteUrl,output:'static',integrations:[localShowcase,localizedNotFound],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh,uploadRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});
++export default defineConfig({site:project.siteUrl,output:'static',integrations:[mediaIntegration({root:projectRoot,policy:project.media.optimization}),localShowcase,localizedNotFound],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh,uploadRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});
+diff --git a/apps/site/package.json b/apps/site/package.json
+index dd08f23..819753f 100644
+--- a/apps/site/package.json
++++ b/apps/site/package.json
+@@ -1 +1 @@
+-{ "name": "@starter/site", "private": true, "type": "module", "scripts": { "dev": "astro dev --host 127.0.0.1", "build": "astro build", "check": "astro check" }, "dependencies": { "astro": "7.3.6" }, "devDependencies": { "@astrojs/check": "0.9.10", "typescript": "5.9.3" } }
++{ "name": "@starter/site", "private": true, "type": "module", "scripts": { "dev": "astro dev --host 127.0.0.1", "build": "node scripts/build.mjs", "check": "astro check" }, "dependencies": { "astro": "7.3.6" }, "devDependencies": { "@astrojs/check": "0.9.10", "typescript": "5.9.3" } }
+diff --git a/apps/site/scripts/build.d.mts b/apps/site/scripts/build.d.mts
+new file mode 100644
+index 0000000..c7e9f94
+--- /dev/null
++++ b/apps/site/scripts/build.d.mts
+@@ -0,0 +1,3 @@
++import type {AstroInlineConfig} from 'astro';
++export function buildSite(inlineConfig?:AstroInlineConfig,root?:string,options?:{devOutput?:boolean}):Promise<void>;
++export function parseBuildArgs(args:string[]):{config:AstroInlineConfig;options:{devOutput?:boolean};help:boolean};
+diff --git a/apps/site/scripts/build.mjs b/apps/site/scripts/build.mjs
+new file mode 100644
+index 0000000..497782d
+--- /dev/null
++++ b/apps/site/scripts/build.mjs
+@@ -0,0 +1,41 @@
++import {build} from 'astro';
++import {fileURLToPath,pathToFileURL} from 'node:url';
++import {resolve} from 'node:path';
++import {endMediaSession} from '../../../packages/media/session.mjs';
++const projectRoot=fileURLToPath(new URL('../../../',import.meta.url));
++const siteRoot=new URL('../',import.meta.url);
++/** Astro has no general build-error hook. This entry owns final cleanup. */
++export async function buildSite(inlineConfig={},root=projectRoot,options={}){
++ try {await build({root:siteRoot,...inlineConfig},options);}
++ finally {await endMediaSession(root);}
++}
++// Public CLI compatibility for the pinned Astro build command. Unknown arguments
++// fail explicitly; no option is silently discarded by the owned entry point.
++export function parseBuildArgs(args){
++ const config={},options={};let help=false;
++ const strings=new Set(['root','config','mode','site','base','outDir']);
++ const booleans=new Set(['force','devOutput','verbose','silent','json','help','h']);
++ for(let i=0;i<args.length;i++){
++  const match=/^--?([^=]+)(?:=(.*))?$/.exec(args[i]);if(!match)throw new Error(`Unsupported build argument: ${args[i]}`);
++  const [,name,inline]=match;let value=inline;
++  if(booleans.has(name)){
++   const enabled=value!=='false';
++   if(name==='devOutput')options.devOutput=enabled;
++   else if(name==='force')config.force=enabled;
++   else if(name==='verbose'&&enabled)config.logLevel='debug';
++   else if(name==='silent'&&enabled)config.logLevel='silent';
++   else if(name==='json'&&enabled)config.logger={entrypoint:'astro/logger/json'};
++   else if(name==='help'||name==='h')help=enabled;
++  }else if(strings.has(name)||['port','host','open','allowedHosts'].includes(name)){
++   if(value===undefined&&args[i+1]&&!args[i+1].startsWith('-'))value=args[++i];
++   if(strings.has(name)){if(!value)throw new Error(`Build --${name} requires a value`);config[name==='config'?'configFile':name]=value;}
++   else {config.server??={};if(name==='port'){const port=Number(value);if(!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid build port');config.server.port=port;}else config.server[name]=value===undefined||value==='true'?true:value==='false'?false:name==='allowedHosts'?value.split(','):value;}
++  }else throw new Error(`Unsupported build argument: ${args[i]}`);
++ }
++ return {config,options,help};
++}
++if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.url){
++ const {config,options,help}=parseBuildArgs(process.argv.slice(2));
++ if(help)console.log('Site build: --root --config --outDir --mode --site --base --force --devOutput --verbose --silent --json --port --host --open --allowedHosts');
++ else await buildSite(config,projectRoot,options);
++}
+diff --git a/apps/site/src/integrations/media.d.mts b/apps/site/src/integrations/media.d.mts
+new file mode 100644
+index 0000000..72963cf
+--- /dev/null
++++ b/apps/site/src/integrations/media.d.mts
+@@ -0,0 +1,3 @@
++import type {AstroIntegration} from 'astro';
++import type {MediaOptimization} from '../../../../packages/config/project.mjs';
++export default function mediaIntegration(options:{root:string;policy:MediaOptimization}):AstroIntegration;
+diff --git a/apps/site/src/integrations/media.mjs b/apps/site/src/integrations/media.mjs
+new file mode 100644
+index 0000000..b185a44
+--- /dev/null
++++ b/apps/site/src/integrations/media.mjs
+@@ -0,0 +1,27 @@
++import {fileURLToPath} from 'node:url';
++import {beginMediaSession,endMediaSession} from '../../../../packages/media/session.mjs';
++/** Policy is supplied only by the parsed developer project configuration. */
++export default function mediaIntegration({root,policy}){
++ let owned,command;
++ const close=async()=>{if(owned){try{await endMediaSession(root);}finally{owned=undefined;}}};
++ return {name:'static-demanded-media',hooks:{
++  'astro:config:setup':options=>{command=options.command;},
++  'astro:build:start':()=>{owned=beginMediaSession({root,policy,mode:'build'});},
++  'astro:build:done':async({dir})=>{try{await owned.publish(fileURLToPath(dir));}finally{await close();}},
++  'astro:server:setup':({server})=>{
++   // Astro can create a Vite container during builds; it is not a dev owner.
++   if(command==='build'||server.config?.mode==='test')return;
++   owned=beginMediaSession({root,policy,mode:'dev'});const session=owned;
++   server.middlewares.use(async(req,res,next)=>{
++    if(!req.url?.startsWith('/_media/'))return next();
++    if(req.method!=='GET'&&req.method!=='HEAD'){res.statusCode=405;res.setHeader('Allow','GET, HEAD');return res.end();}
++    try {
++     const asset=await session.asset(req.url);
++     if(!asset){res.statusCode=404;return res.end();}
++     res.statusCode=200;res.setHeader('Content-Type',asset.contentType);res.setHeader('Content-Length',String(asset.bytes.length));res.setHeader('Cache-Control','public, max-age=31536000, immutable');res.end(req.method==='HEAD'?undefined:asset.bytes);
++    }catch(error){next(error);}
++   });
++  },
++  'astro:server:done':close,
++ }};
++}
+diff --git a/apps/site/src/lib/section-media.ts b/apps/site/src/lib/section-media.ts
+index 16e2267..0293ea6 100644
+--- a/apps/site/src/lib/section-media.ts
++++ b/apps/site/src/lib/section-media.ts
+@@ -1,23 +1,23 @@
+ import {
+-  resolveSourceMedia,
+-  type SourceMedia,
+-} from '../../../../packages/media/source.mjs';
++  getMediaSession,
++} from '../../../../packages/media/session.mjs';
+ import type { MediaReference } from '../../../../packages/content/media.mjs';
+ declare const __PROJECT_ROOT__: string;
+-export type ResolvedMedia = SourceMedia;
++import type { ResponsiveMedia } from '../../../../packages/media/optimization.mjs';
++export type ResolvedMedia = ResponsiveMedia;
+ export type Crop = MediaReference['crop'];
+ /** Imported only by server-rendered components. Never expose the repository root. */
+ export async function resolveSectionMedia(
+   media: MediaReference | undefined,
+   context: { pageId: string; sectionId: string; itemId?: string },
+ ): Promise<ResolvedMedia | undefined> {
+   if (!media) return undefined;
+   try {
+-    return await resolveSourceMedia(__PROJECT_ROOT__, media.src);
++    return await getMediaSession(__PROJECT_ROOT__).resolve(media.src);
+   } catch (error) {
+     throw Error(
+       `Page ${context.pageId}, section ${context.sectionId}${context.itemId ? ', item ' + context.itemId : ''}: cannot render image ${media.src}. Choose an existing valid local upload. ${error instanceof Error ? error.message : String(error)}`,
+       { cause: error },
+     );
+   }
+ }
+diff --git a/apps/site/tests/composition-b-media.test.ts b/apps/site/tests/composition-b-media.test.ts
+index a625226..80385dd 100644
+--- a/apps/site/tests/composition-b-media.test.ts
++++ b/apps/site/tests/composition-b-media.test.ts
+@@ -1,10 +1,15 @@
++import {beforeEach,afterEach} from 'vitest';
++import {beginMediaSession,endMediaSession} from '../../../packages/media/session.mjs';
++const mediaRoot=fileURLToPath(new URL('../../../',import.meta.url));
++beforeEach(()=>{beginMediaSession({root:mediaRoot,policy:{enabled:true,widths:[320,640,960,1440,1920],quality:80},mode:'dev'});});
++afterEach(async()=>{await endMediaSession(mediaRoot);});
+ import { it, expect } from 'vitest';
+ import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+ import { createRequire } from 'node:module';
+ import { mkdirSync, writeFileSync, readFileSync, unlinkSync } from 'node:fs';
+ import { resolve } from 'node:path';
+ import { fileURLToPath } from 'node:url';
+ import { sectionRenderer } from '../src/templates/sections';
+ const require = createRequire(import.meta.url);
+ const sharp = createRequire(require.resolve('astro/package.json'))('sharp');
+ it.each([
+diff --git a/apps/site/tests/rooms.test.ts b/apps/site/tests/rooms.test.ts
+index 495f095..b5ef397 100644
+--- a/apps/site/tests/rooms.test.ts
++++ b/apps/site/tests/rooms.test.ts
+@@ -1,10 +1,15 @@
++import {beforeEach,afterEach} from 'vitest';
++import {beginMediaSession,endMediaSession} from '../../../packages/media/session.mjs';
++const mediaRoot=fileURLToPath(new URL('../../../',import.meta.url));
++beforeEach(()=>{beginMediaSession({root:mediaRoot,policy:{enabled:true,widths:[320,640,960,1440,1920],quality:80},mode:'dev'});});
++afterEach(async()=>{await endMediaSession(mediaRoot);});
+ import {it,expect} from 'vitest';
+ import {experimental_AstroContainer as AstroContainer} from 'astro/container';
+ import RoomDetail from '../src/templates/domains/rooms/RoomDetail.astro';
+ import RoomList from '../src/templates/domains/rooms/RoomList.astro';
+ it('renders text-only room with one H1, localized guest copy and safe contact CTA',async()=>{
+  const c=await AstroContainer.create();const record={contentId:'suite',title:'Σουίτα',description:'**Περιγραφή**',body:'## Λεπτομέρειες',maxGuests:2,bedDescription:'Διπλό κρεβάτι',amenities:[{id:'wifi',label:'Δίκτυο'}],images:[]};
+  const html=await c.renderToString(RoomDetail,{props:{record,content:{locale:'el',pages:[{_template:'contact',path:'/el/contact'}]}}});
+  expect(html.match(/<h1>/g)).toHaveLength(1);expect(html).toContain('Διπλό κρεβάτι');expect(html).toContain('Δίκτυο');expect(html).toContain('href="/el/contact?contextId=suite"');expect(html).not.toContain('<img');
+  const empty=await c.renderToString(RoomList,{props:{section:{id:'list',appearance:{surface:'default'},copy:{title:'Δωμάτια',description:'',emptyMessage:'Δεν υπάρχουν δωμάτια.'}},content:{domains:{rooms:[]}},locale:'el'}});expect(empty).toContain('Δεν υπάρχουν δωμάτια.');expect(empty).not.toContain('<h1');
+ });
+diff --git a/apps/site/tests/showcase.test.ts b/apps/site/tests/showcase.test.ts
+index da0a96e..f561821 100644
+--- a/apps/site/tests/showcase.test.ts
++++ b/apps/site/tests/showcase.test.ts
+@@ -1,10 +1,16 @@
++import {beforeEach,afterEach} from 'vitest';
++import {fileURLToPath} from 'node:url';
++import {beginMediaSession,endMediaSession} from '../../../packages/media/session.mjs';
++const mediaRoot=fileURLToPath(new URL('../../../',import.meta.url));
++beforeEach(()=>{beginMediaSession({root:mediaRoot,policy:{enabled:true,widths:[320,640,960,1440,1920],quality:80},mode:'dev'});});
++afterEach(async()=>{await endMediaSession(mediaRoot);});
+ import {it,expect} from 'vitest';
+ import {experimental_AstroContainer as AstroContainer} from 'astro/container';
+ import Field from '../src/components/ui/Field.astro';
+ import Showcase from '../src/components/showcase/Showcase.astro';
+ import {contents} from '../src/lib/content';
+ it('preserves default Field markup and renders explicit demo error/help/disabled state',async()=>{
+  const container=await AstroContainer.create();
+  const basic=await container.renderToString(Field,{props:{name:'ordinary',label:'Ordinary'}});
+  expect(basic).toContain('aria-describedby="ordinary-error"');expect(basic).not.toContain('aria-invalid');expect(basic).not.toContain(' disabled');
+  const demo=await container.renderToString(Field,{props:{name:'showcase-en-control-error',label:'Example',help:'Help example',error:'Error example',disabled:true}});
+diff --git a/packages/media/cache.mjs b/packages/media/cache.mjs
+index fc1c136..4de4c37 100644
+--- a/packages/media/cache.mjs
++++ b/packages/media/cache.mjs
+@@ -128,14 +128,25 @@ async function cachedCandidate(root,dir,snapshot,width,format,quality) {
+ }
+ export async function resolveCachedMedia(root,snapshot,policy) {
+   const base={...snapshot.media,fallback:[],webp:[]};
+   if (!policy.enabled) return {...base,passthroughReason:'disabled'};
+   if (snapshot.pages > 1) return {...base,passthroughReason:'animated-or-multipage'};
+   // Refuse mismatched private snapshots; never use a second source pathname read.
+   if(hash(snapshot.bytes)!==snapshot.media.fingerprint) throw new Error('Media snapshot fingerprint mismatch');
+   const dir=await cacheDirectory(root,true);
+   const widths=candidateWidths(snapshot.media.width,policy.widths);
+   const formats=snapshot.media.format==='webp'?['webp']:['webp',snapshot.media.format];
+-  const families=await Promise.all(formats.map(async format=>[format,await Promise.all(widths.map(width=>cachedCandidate(root,dir,snapshot,width,format,policy.quality)))]));
+-  for(const [format,candidates] of families)base[format==='webp'?'webp':'fallback']=candidates;
++  // Rejection must not leave sibling writes/native jobs alive after session close.
++  let firstFailure;
++  const jobs=formats.flatMap(format=>widths.map(width=>
++    cachedCandidate(root,dir,snapshot,width,format,policy.quality)
++      .then(candidate=>({format,candidate}),error=>{firstFailure??=error;throw error;})
++  ));
++  const completed=await Promise.allSettled(jobs);
++  if(firstFailure)throw firstFailure;
++  for(const result of completed){
++    if(result.status==='rejected')throw result.reason;
++    const {format,candidate}=result.value;
++    base[format==='webp'?'webp':'fallback'].push(candidate);
++  }
+   return base;
+ }
+diff --git a/packages/media/session.d.mts b/packages/media/session.d.mts
+new file mode 100644
+index 0000000..dfc2ae4
+--- /dev/null
++++ b/packages/media/session.d.mts
+@@ -0,0 +1,13 @@
++import type {MediaOptimization} from '../config/project.mjs';
++import type {ResponsiveMedia} from './optimization.mjs';
++export interface MediaSession {
++ resolve(src:string):Promise<ResponsiveMedia>;
++ publish(outDir:string):Promise<void>;
++ asset(urlPath:string):Promise<{bytes:Buffer;contentType:string}|undefined>;
++ close():Promise<void>;
++}
++export interface MediaSessionOptions {root:string;policy:MediaOptimization;mode:'build'|'dev'}
++export function createMediaSession(options:MediaSessionOptions):MediaSession;
++export function beginMediaSession(options:MediaSessionOptions):MediaSession;
++export function getMediaSession(root:string):MediaSession;
++export function endMediaSession(root:string):Promise<void>;
+diff --git a/packages/media/session.mjs b/packages/media/session.mjs
+new file mode 100644
+index 0000000..b06815f
+--- /dev/null
++++ b/packages/media/session.mjs
+@@ -0,0 +1,46 @@
++// Server-only demand ownership. No cache inventory is used to authorize publication.
++import {resolve,join,basename} from 'node:path';
++import {lstat,mkdir,readFile,writeFile,rename,unlink} from 'node:fs/promises';
++import {randomUUID} from 'node:crypto';
++import {readValidatedSource} from './source-reader.mjs';
++import {resolveCachedMedia,readCachedCandidate} from './cache.mjs';
++const URL_PATTERN=/^\/_media\/v1\/[a-f0-9]{64}\.(png|jpeg|webp)$/;
++const key=root=>{const path=resolve(root).replaceAll('\\','/').replace(/\/$/,'');return process.platform==='win32'?path.toLowerCase():path;};
++// Vite SSR and the integration can load distinct copies of this module in one
++// process. The registry shares only explicitly begun sessions across those copies.
++const registrySymbol=Symbol.for('starter.media.session.registry.v1');
++const registry=globalThis[registrySymbol] ??= new Map();
++async function safeDirectory(path){
++ try {await mkdir(path);}catch(error){if(error.code!=='EEXIST')throw error;}
++ const stat=await lstat(path);if(stat.isSymbolicLink()||!stat.isDirectory())throw new Error('Unsafe media publication symlink/reparse directory');
++}
++async function publishFile(outDir,candidate,bytes){
++ const root=resolve(outDir);await safeDirectory(root);const media=join(root,'_media');await safeDirectory(media);const dir=join(media,'v1');await safeDirectory(dir);
++ const file=join(dir,basename(candidate.src));
++ try {const stat=await lstat(file);if(stat.isSymbolicLink()||!stat.isFile())throw new Error('Unsafe media publication symlink/reparse file');if(!(await readFile(file)).equals(bytes))throw new Error('Conflicting media publication bytes');return;}catch(error){if(error.code!=='ENOENT')throw error;}
++ const temp=join(dir,`.${randomUUID()}.tmp`);
++ try {await writeFile(temp,bytes,{flag:'wx'});await rename(temp,file);}finally{await unlink(temp).catch(error=>{if(error.code!=='ENOENT')throw error;});}
++}
++export function createMediaSession({root,policy,mode}){
++ root=resolve(root);policy={...policy,widths:[...policy.widths]};
++ let closed=false;const demanded=new Map(),pending=new Set(),sources=new Map();let failure;
++ function assertOpen(){if(closed)throw new Error('Media session is closed');}
++ async function drain(){while(pending.size)await Promise.allSettled([...pending]);}
++ function track(work){pending.add(work);work.then(()=>pending.delete(work),error=>{failure??=error;pending.delete(work);});return work;}
++ const session={
++  async resolve(src){
++   assertOpen();
++   if(mode==='build'&&sources.has(src))return sources.get(src);
++   const work=(async()=>{const snapshot=await readValidatedSource(root,src);const result=await resolveCachedMedia(root,snapshot,policy);if(!closed)for(const c of [...result.fallback,...result.webp])demanded.set(c.src,{...c});return result;})();
++   if(mode==='build')sources.set(src,work);
++   return track(work);
++  },
++  async publish(outDir){assertOpen();await drain();if(failure)throw failure;await safeDirectory(resolve(outDir));for(const c of demanded.values()){const {bytes}=await readCachedCandidate(root,c);await publishFile(outDir,c,bytes);}},
++  async asset(urlPath){if(closed||!URL_PATTERN.test(urlPath))return undefined;const c=demanded.get(urlPath);if(!c)return undefined;return track(readCachedCandidate(root,c));},
++  async close(){closed=true;await drain();demanded.clear();sources.clear();},
++ };
++ return session;
++}
++export function beginMediaSession(options){const id=key(options.root);if(registry.has(id))throw new Error('An active media session already owns this root');const session=createMediaSession(options);registry.set(id,session);return session;}
++export function getMediaSession(root){const session=registry.get(key(root));if(!session)throw new Error('No active media session for this project root');return session;}
++export async function endMediaSession(root){const id=key(root),session=registry.get(id);if(session){try{await session.close();}finally{if(registry.get(id)===session)registry.delete(id);}}}
+diff --git a/scripts/dev.mjs b/scripts/dev.mjs
+index b75df4e..be1b7a9 100644
+--- a/scripts/dev.mjs
++++ b/scripts/dev.mjs
+@@ -5,21 +5,21 @@ import { resolvePorts, assertPortsFree } from './ports.mjs';
+ const cms=process.argv.includes('--cms');
+ const cmsBuild=process.argv.includes('--cms-build');
+ {
+   try {
+     const ports = resolvePorts();
+     await assertPortsFree(cmsBuild?{tina:ports.tina,datalayer:ports.datalayer}:cms?ports:{site: ports.site, worker: ports.worker});
+     await import('./configure.mjs');
+     if(!cmsBuild){
+       const prepare=promisify(execFile);
+       const env={...process.env,XDG_CONFIG_HOME:resolve('.wrangler/config'),WRANGLER_LOG_PATH:resolve('.wrangler/logs'),WRANGLER_SEND_METRICS:'false',ASTRO_TELEMETRY_DISABLED:'1'};
+-      await prepare(process.execPath,[resolve('apps/site/node_modules/astro/bin/astro.mjs'),'build'],{cwd:resolve('apps/site'),env});
++      await prepare(process.execPath,[resolve('apps/site/scripts/build.mjs')],{cwd:resolve('apps/site'),env});
+       const migrated=await prepare(process.execPath,[resolve('node_modules/wrangler/bin/wrangler.js'),'d1','migrations','apply','DB','--local','--config',resolve('wrangler.generated.json')],{env});
+       console.log(migrated.stdout);
+     }
+     const children = [];
+     let stopping = false;
+     const stop = async (code = 0) => {
+       if (stopping) return;
+       stopping = true;
+       process.exitCode = code;
+       if (process.stdin.isTTY) process.stdin.setRawMode(false);
+diff --git a/scripts/verify-profiles.mjs b/scripts/verify-profiles.mjs
+index 49bab0f..9dc9893 100644
+--- a/scripts/verify-profiles.mjs
++++ b/scripts/verify-profiles.mjs
+@@ -26,21 +26,21 @@ async function command(args,extra={},cwd=process.cwd()){
+  let indexing=false;
+  return runOwnedCommand(process.execPath,args,{cwd,timeoutMs,env:{...process.env,ASTRO_TELEMETRY_DISABLED:'1',WRANGLER_SEND_METRICS:'false',XDG_CONFIG_HOME:resolve('.wrangler/config'),WRANGLER_LOG_PATH:resolve('.wrangler/logs'),...extra},onOutput:text=>{
+   appendFileSync('.generated/evidence/profile-commands.log',text);
+   if(text.includes('Indexing local files')){if(!indexing)console.log('Native content indexing...');indexing=true;}else process.stdout.write(text);
+  }});
+ }
+ async function runProfile(profile,articles){
+  console.log('Verifying '+profile+', articles='+articles);
+  await command(['scripts/configure.mjs']);
+  await command(['scripts/dev.mjs','--cms-build']);
+- await command([resolve('apps/site/node_modules/astro/bin/astro.mjs'),'build'],{},resolve('apps/site'));
++ await command([resolve('apps/site/scripts/build.mjs')],{},resolve('apps/site'));
+  await command(['scripts/wrangler.mjs','deploy','--dry-run','--config','wrangler.generated.json']);
+  if(!articles)for(const lang of ['en','el'])if(existsSync(`apps/site/dist/${lang}/insights`)||existsSync(`apps/site/dist/${lang}/feed.xml`))throw Error('Disabled article outputs leaked');
+  await command(['scripts/wrangler.mjs','d1','migrations','apply','DB','--local','--config','wrangler.generated.json']);
+  const ports=resolvePorts();await assertPortsFree({worker:ports.worker});
+  const child=spawn(process.execPath,['scripts/wrangler.mjs','dev','--local','--ip','127.0.0.1','--port',String(ports.worker),'--inspector-port','0','--config','wrangler.generated.json'],{stdio:['ignore','pipe','pipe'],windowsHide:true,detached:process.platform!=='win32',env:{...process.env,WRANGLER_SEND_METRICS:'false',XDG_CONFIG_HOME:resolve('.wrangler/config'),WRANGLER_LOG_PATH:resolve('.wrangler/logs')}});
+  let output='';child.stdout.on('data',d=>output+=d);child.stderr.on('data',d=>output+=d);const exited=new Promise(r=>child.once('exit',r));
+  try{
+   const until=Date.now()+45000;let ready=false;while(Date.now()<until){if(child.exitCode!==null)throw Error(output);try{if((await fetch(`http://127.0.0.1:${ports.worker}/api/health`)).ok){ready=true;break;}}catch{}await delay(150);}if(!ready)throw Error('Profile Worker did not start: '+output);
+   await command([resolve('node_modules/@playwright/test/cli.js'),'test','e2e/foundation-profiles.spec.ts'],{E2E_BASE_URL:`http://127.0.0.1:${ports.worker}`,E2E_PROFILE:profile,E2E_ARTICLES:String(articles)});
+  }finally{
+diff --git a/scripts/verify-showcase-builds.mjs b/scripts/verify-showcase-builds.mjs
+index 00c4bc3..efe9309 100644
+--- a/scripts/verify-showcase-builds.mjs
++++ b/scripts/verify-showcase-builds.mjs
+@@ -108,21 +108,21 @@ export async function verifyShowcaseBuilds({
+       onOutput: text => {
+         appendFileSync(join(evidenceDirectory, 'commands.log'), text);
+         process.stdout.write(text);
+       },
+     });
+     record.passed = true;
+     proof();
+   };
+   const build = async () => {
+     await command(['scripts/configure.mjs']);
+-    await command([join(root, 'apps/site/node_modules/astro/bin/astro.mjs'), 'build'], join(root, 'apps/site'));
++    await command([join(root, 'apps/site/scripts/build.mjs')], join(root, 'apps/site'));
+   };
+ 
+   // Build each nonlocal environment under a separate exact-byte owner.
+   try {
+     for (const environment of ['staging', 'production']) {
+       if (!existsSync(path) || !readFileSync(path).equals(original) || !isDeepStrictEqual(canonicalSnapshot(root),canonicalBefore)) {
+         conflict = true;
+         throw Error('Showcase source ownership conflict before mutation; original backup: ' + join(evidenceDirectory, 'original.json'));
+       }
+       const edit = createOwnedFileEdit(path, backupRoot);
+diff --git a/tests/media-cache.test.ts b/tests/media-cache.test.ts
+index c14bfc9..5771c0d 100644
+--- a/tests/media-cache.test.ts
++++ b/tests/media-cache.test.ts
+@@ -41,22 +41,22 @@ it('deduplicates concurrent requests and limits real Sharp transforms to two glo
+ it('rejects unowned markers, cache-directory junctions, output symlinks and forged URL escapes',async()=>{
+  const s=await snapshot();await mkdir(cache,{recursive:true});await writeFile(join(cache,'.pipeline'),'foreign');await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow(/marker|owner|pipeline/i);
+  await rm(join(root,'.generated'),{recursive:true});const outside=join(root,'outside');await mkdir(outside);await symlink(outside,join(root,'.generated'),'junction');await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow(/symlink|reparse|destination/i);expect(await readdir(outside)).toEqual([]);
+  await rm(join(root,'.generated'));const a=await resolveCachedMedia(root,s,policy);const c=a.webp[0];const target=join(outside,'keep');await writeFile(target,'untouched');await rm(file(c.src));await symlink(target,file(c.src),'file');await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow(/symlink|reparse|destination/i);expect(await readFile(target,'utf8')).toBe('untouched');
+  await expect(readCachedCandidate(root,{...c,src:'/_media/v1/../../escape.webp'})).rejects.toThrow();
+ });
+ it('does not publish a partial manifest after an interrupted atomic write and recovers on retry',async()=>{
+  const {open}=await import('node:fs/promises');const probe=await open(join(root,'probe'),'w');const proto=Object.getPrototypeOf(probe);const original=proto.writeFile;await probe.close();
+  const boundary=vi.spyOn(proto,'writeFile').mockImplementation(async function(this:any,data:any,...args:any[]){if(typeof data==='string' && data.startsWith('{"identity":')){throw new Error('Controlled interrupted manifest write');}return original.call(this,data,...args);});
+  const s=await snapshot();await expect(resolveCachedMedia(root,s,{...policy,widths:[160]})).rejects.toThrow(/interrupted/);
+- // Promise.all rejects early: allow both independent format jobs to finish cleanup.
+- await new Promise(resolve=>setTimeout(resolve,50));boundary.mockRestore();
++ // Rejection now drains every sibling format job before returning.
++ boundary.mockRestore();
+  expect((await readdir(cache)).filter(name=>name.endsWith('.json')||name.endsWith('.tmp'))).toEqual([]);
+  const r=await resolveCachedMedia(root,s,{...policy,widths:[160]});for(const c of [...r.webp,...r.fallback])expect((await readCachedCandidate(root,c)).bytes.length).toBeGreaterThan(0);
+ });
+ it('rejects symlinked manifests and parent namespaces before modifying their targets',async()=>{
+  const s=await snapshot();const a=await resolveCachedMedia(root,s,policy);const c=a.webp[0];const outside=join(root,'outside-json');await writeFile(outside,'untouched');await rm(file(c.src)+'.json');await symlink(outside,file(c.src)+'.json','file');
+  await expect(resolveCachedMedia(root,s,policy)).rejects.toThrow(/symlink|reparse|destination/i);expect(await readFile(outside,'utf8')).toBe('untouched');await expect(readCachedCandidate(root,c)).rejects.toThrow();
+ });
+ it('shares its two-job transform ceiling across different repository roots',async()=>{
+  const other=await mkdtemp(join(tmpdir(),'media-second-'));const proto=Object.getPrototypeOf(sharp());const original=proto.toBuffer;let active=0,max=0;
+  vi.spyOn(proto,'toBuffer').mockImplementation(async function(this:any,...args:any[]){const transform=this.options.width>0;if(transform){active++;max=Math.max(max,active);}try{return await original.apply(this,args);}finally{if(transform)active--;}});
+diff --git a/tests/media-integration.test.ts b/tests/media-integration.test.ts
+new file mode 100644
+index 0000000..16d6de9
+--- /dev/null
++++ b/tests/media-integration.test.ts
+@@ -0,0 +1,45 @@
++import {afterEach,beforeEach,expect,it} from 'vitest';
++import {mkdtemp,mkdir,writeFile,readFile,rm,symlink} from 'node:fs/promises';
++import {tmpdir} from 'node:os';
++import {join} from 'node:path';
++import {pathToFileURL} from 'node:url';
++import sharp from 'sharp';
++import mediaIntegration from '../apps/site/src/integrations/media.mjs';
++import {getMediaSession,endMediaSession} from '../packages/media/session.mjs';
++let root:string;const policy={enabled:true,widths:[160],quality:80};
++beforeEach(async()=>{root=await mkdtemp(join(tmpdir(),'media-integration-'));await mkdir(join(root,'apps/site/public/uploads'),{recursive:true});await writeFile(join(root,'apps/site/public/uploads/a.png'),await sharp({create:{width:200,height:100,channels:3,background:'red'}}).png().toBuffer());});
++afterEach(async()=>{await endMediaSession(root);await rm(root,{recursive:true,force:true});});
++it('owns a fresh build session and publishes demanded bytes into actual build done dir',async()=>{
++ const integration=mediaIntegration({root,policy});await integration.hooks['astro:build:start']!({} as any);const r=await getMediaSession(root).resolve('/uploads/a.png');const out=join(root,'actual');await mkdir(out);await integration.hooks['astro:build:done']!({dir:pathToFileURL(out+'/')} as any);expect((await readFile(join(out,r.webp[0].src))).length).toBe(r.webp[0].bytes);expect(()=>getMediaSession(root)).toThrow(/active/);
++});
++it('serves GET and HEAD exactly, rejects query/traversal/unknown and cleans server sessions',async()=>{
++ const integration=mediaIntegration({root,policy});let handler:any;await integration.hooks['astro:server:setup']!({server:{middlewares:{use:(fn:any)=>handler=fn}}} as any);const r=await getMediaSession(root).resolve('/uploads/a.png');
++ async function request(url:string,method='GET'){const headers:any={};let body:any;let next=false;const response:any={setHeader:(k:string,v:any)=>headers[k]=v,end:(b:any)=>body=b};await handler({url,method},response,()=>{next=true;});return {headers,body,next,status:response.statusCode};}
++ const get=await request(r.webp[0].src);expect(get.headers['Content-Type']).toBe('image/webp');expect(Number(get.headers['Content-Length'])).toBe(r.webp[0].bytes);expect(get.headers['Cache-Control']).toContain('immutable');expect(get.body.length).toBe(r.webp[0].bytes);expect((await request(r.webp[0].src,'HEAD')).body).toBeUndefined();
++ for(const url of [r.webp[0].src+'?width=640','/_media/v1/../escape.webp','/_media/v1/'+'a'.repeat(64)+'.webp'])expect((await request(url)).status).toBe(404);expect((await request('/ordinary')).next).toBe(true);expect((await request(r.webp[0].src,'POST')).status).toBe(405);
++ await integration.hooks['astro:server:done']!({} as any);expect(()=>getMediaSession(root)).toThrow(/active/);
++});
++it('closes registration even when publication fails',async()=>{
++ const integration=mediaIntegration({root,policy});await integration.hooks['astro:build:start']!({} as any);await expect(getMediaSession(root).resolve('/uploads/missing.png')).rejects.toThrow();await expect(integration.hooks['astro:build:done']!({dir:pathToFileURL(join(root,'out')+'/')} as any)).rejects.toThrow();expect(()=>getMediaSession(root)).toThrow(/active/);
++});
++
++it('releases sessions after real prerender and compile failures, then builds fresh referenced assets',async()=>{
++ const {buildSite}=await import('../apps/site/scripts/build.mjs');
++ const {pathToFileURL}=await import('node:url');
++ const pages=join(root,'src/pages');await mkdir(pages,{recursive:true});await symlink(join(process.cwd(),'apps/site/node_modules'),join(root,'node_modules'),'junction');
++ const integration=()=>mediaIntegration({root,policy});
++ const config=()=>({root,configFile:false as const,logLevel:'silent' as const,integrations:[integration()]});
++ await writeFile(join(pages,'index.astro'),'---\nthrow new Error("Controlled unrelated prerender failure");\n---\n<p>Unreachable</p>');
++ await expect(buildSite(config(),root)).rejects.toThrow(/Controlled unrelated/);expect(()=>getMediaSession(root)).toThrow(/active/);
++ await writeFile(join(pages,'index.astro'),'---\nconst = invalid;\n---\n<p>Broken compiler</p>');
++ await expect(buildSite(config(),root)).rejects.toThrow();expect(()=>getMediaSession(root)).toThrow(/active/);
++ const sessionUrl=pathToFileURL(join(process.cwd(),'packages/media/session.mjs')).href;
++ await writeFile(join(pages,'index.astro'),`---\nimport {getMediaSession} from ${JSON.stringify(sessionUrl)};\nconst image=await getMediaSession(${JSON.stringify(root)}).resolve('/uploads/a.png');\n---\n<img src={image.webp[0].src} width={image.webp[0].width} height={image.webp[0].height} />`);
++ await buildSite(config(),root);expect(()=>getMediaSession(root)).toThrow(/active/);const html=await readFile(join(root,'dist/index.html'),'utf8');const src=html.match(/src="([^\"]+)"/)![1];expect(src).toMatch(/^\/_media\/v1\//);expect((await sharp(await readFile(join(root,'dist',src))).metadata()).width).toBe(160);
++},60000);
++
++it('preserves supported build options instead of silently discarding forwarded CLI flags',async()=>{
++ const {parseBuildArgs}=await import('../apps/site/scripts/build.mjs');
++ expect(parseBuildArgs(['--outDir','custom-dist','--mode=staging','--force','--devOutput','--silent','--base','/sample','--host','--port','4331'])).toEqual({config:{outDir:'custom-dist',mode:'staging',force:true,logLevel:'silent',base:'/sample',server:{host:true,port:4331}},options:{devOutput:true},help:false});
++ expect(()=>parseBuildArgs(['--unknown'])).toThrow(/Unsupported/);
++});
+diff --git a/tests/media-session.test.ts b/tests/media-session.test.ts
+new file mode 100644
+index 0000000..a08a228
+--- /dev/null
++++ b/tests/media-session.test.ts
+@@ -0,0 +1,42 @@
++import {afterEach,beforeEach,expect,it,vi} from 'vitest';
++import sharp from 'sharp';
++import {mkdtemp,mkdir,writeFile,readFile,readdir,rm,symlink} from 'node:fs/promises';
++import {tmpdir} from 'node:os';
++import {join,basename} from 'node:path';
++import {createMediaSession,beginMediaSession,getMediaSession,endMediaSession} from '../packages/media/session.mjs';
++let root:string;const policy={enabled:true,widths:[160,320],quality:80};
++beforeEach(async()=>{root=await mkdtemp(join(tmpdir(),'media-session-'));await mkdir(join(root,'apps/site/public/uploads'),{recursive:true});await writeFile(join(root,'apps/site/public/uploads/a.png'),await sharp({create:{width:400,height:200,channels:4,background:'red'}}).png().toBuffer());});
++afterEach(async()=>{vi.restoreAllMocks();await endMediaSession(root);await rm(root,{recursive:true,force:true});});
++it('deduplicates source demand, publishes only current rendered assets and starts empty after warm local demand',async()=>{
++ const local=createMediaSession({root,policy,mode:'build'});const [a,b]=await Promise.all([local.resolve('/uploads/a.png'),local.resolve('/uploads/a.png')]);expect(a.webp).toEqual(b.webp);await local.close();
++ const fresh=beginMediaSession({root,policy,mode:'build'});expect(await fresh.asset(a.webp[0].src)).toBeUndefined();const out=join(root,'dist');await fresh.publish(out);expect(await readdir(out)).toEqual([]);await endMediaSession(root);
++ const next=beginMediaSession({root,policy,mode:'build'});const r=await next.resolve('/uploads/a.png');await next.publish(out);const names=await readdir(join(out,'_media/v1'));expect(names.sort()).toEqual([...r.webp,...r.fallback].map(c=>basename(c.src)).sort());for(const c of r.webp)expect((await readFile(join(out,c.src))).length).toBe(c.bytes);
++});
++it('serves only exact demanded identities and never allows unknown cache URLs to authorize reads',async()=>{
++ const seed=createMediaSession({root,policy,mode:'build'});const a=await seed.resolve('/uploads/a.png');await seed.close();const s=createMediaSession({root,policy,mode:'dev'});
++ for(const url of [a.webp[0].src,a.webp[0].src+'?width=320','/_media/v1/../escape.webp'])expect(await s.asset(url)).toBeUndefined();
++ await s.resolve('/uploads/a.png');expect((await s.asset(a.webp[0].src))?.contentType).toBe('image/webp');expect((await s.asset(a.fallback[0].src))?.bytes.length).toBe(a.fallback[0].bytes);await s.close();expect(await s.asset(a.webp[0].src)).toBeUndefined();await expect(s.resolve('/uploads/a.png')).rejects.toThrow(/closed/);
++});
++it('re-reads changed original bytes in development and produces fresh dimensions and URLs',async()=>{
++ const s=createMediaSession({root,policy,mode:'dev'});const a=await s.resolve('/uploads/a.png');await writeFile(join(root,'apps/site/public/uploads/a.png'),await sharp({create:{width:200,height:300,channels:3,background:'blue'}}).png().toBuffer());const b=await s.resolve('/uploads/a.png');expect(b.width).toBe(200);expect(b.height).toBe(300);expect(b.webp[0].src).not.toBe(a.webp[0].src);await s.close();
++});
++it('does zero cache work when disabled or unused and drains in-flight jobs on close',async()=>{
++ const s=createMediaSession({root,policy:{...policy,enabled:false},mode:'build'});const r=await s.resolve('/uploads/a.png');expect(r.passthroughReason).toBe('disabled');await s.publish(join(root,'disabled'));await expect(readdir(join(root,'.generated'))).rejects.toThrow();await s.close();
++ const busy=createMediaSession({root,policy,mode:'build'});const work=busy.resolve('/uploads/a.png');await busy.close();await work;expect(await busy.asset((await work).webp[0].src)).toBeUndefined();
++});
++it('requires explicit root ownership, rejects overlapping owners and clears failed sessions',async()=>{
++ expect(()=>getMediaSession(root)).toThrow(/active/);const s=beginMediaSession({root,policy,mode:'build'});expect(getMediaSession(root)).toBe(s);expect(()=>beginMediaSession({root,policy,mode:'build'})).toThrow(/active/);await expect(s.resolve('/uploads/missing.png')).rejects.toThrow();await expect(s.publish(join(root,'bad'))).rejects.toThrow();await endMediaSession(root);expect(()=>getMediaSession(root)).toThrow(/active/);beginMediaSession({root,policy,mode:'build'});
++});
++it('refuses symlinked output namespaces without changing their targets',async()=>{
++ const s=createMediaSession({root,policy,mode:'build'});await s.resolve('/uploads/a.png');const out=join(root,'dist'),outside=join(root,'outside');await mkdir(out);await mkdir(outside);await symlink(outside,join(out,'_media'),'junction');await expect(s.publish(out)).rejects.toThrow(/symlink|reparse/);expect(await readdir(outside)).toEqual([]);await s.close();
++});
++
++it('drains delayed sibling cache work before rejection and session close',async()=>{
++ const {open}=await import('node:fs/promises');const probe=await open(join(root,'probe'),'w');const proto=Object.getPrototypeOf(probe);const original=proto.writeFile;await probe.close();let active=0,completed=0;
++ vi.spyOn(proto,'writeFile').mockImplementation(async function(this:any,data:any,...args:any[]){
++  if(typeof data==='string'&&data.startsWith('{"identity":')){
++   active++;try {if(data.includes('"format":"webp"'))throw new Error('Controlled cache failure');await new Promise(r=>setTimeout(r,100));completed++;return await original.call(this,data,...args);}finally{active--;}
++  }return original.call(this,data,...args);
++ });
++ const session=createMediaSession({root,policy,mode:'build'});await expect(session.resolve('/uploads/a.png')).rejects.toThrow(/Controlled cache failure/);await session.close();expect(active).toBe(0);expect(completed).toBe(2);
++});

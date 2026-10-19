@@ -1,0 +1,176 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-optimization-cleanup.test.ts (18 tests | 16 failed) 106ms
+   × gates every mutation against the complete snapshot: project.json 11ms
+   × gates every mutation against the complete snapshot: content/pages/base.json 6ms
+   × gates every mutation against the complete snapshot: apps/site/public/uploads/base.png 6ms
+   × gates every mutation against the complete snapshot: content/pages/new.json 6ms
+   × preserves prewrite project conflicts and restores independent documents 7ms
+   × restores exact bytes and original absence from known fixture bytes 6ms
+   × retains media dependent on a conflicted record while restoring independent media 6ms
+   × attempts sibling media restoration after one actual media owner conflict 7ms
+   × awaits failed independent siblings and records every cleanup outcome before refusing regeneration 6ms
+   × false restore result prevents regeneration 1ms
+   × false shutdown result prevents regeneration 0ms
+   × shutdown rejection does not detach independent cleanup or allow regeneration 1ms
+   × checks complete expected inputs again between configure and final build 9ms
+   × retains failed child command PID, end time, output and final canonical comparison 6ms
+   × refuses commands when owned runtime shutdown remains unconfirmed 6ms
+   × runs a no-mutation orchestration smoke with actual child ownership and snapshots 8ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > gates every mutation against the complete snapshot: project.json
+ FAIL  tests/media-optimization-cleanup.test.ts > gates every mutation against the complete snapshot: content/pages/base.json
+ FAIL  tests/media-optimization-cleanup.test.ts > gates every mutation against the complete snapshot: apps/site/public/uploads/base.png
+ FAIL  tests/media-optimization-cleanup.test.ts > gates every mutation against the complete snapshot: content/pages/new.json
+Error: not implemented
+ ❯ createMediaOptimizationFixture e2e/helpers/media-optimization-fixture.ts:1:72
+      1| export function createMediaOptimizationFixture(_options:any):any{throw…
+       |                                                                        ^
+      2|
+ ❯ fixture tests/media-optimization-cleanup.test.ts:12:49
+ ❯ tests/media-optimization-cleanup.test.ts:13:193
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > preserves prewrite project conflicts and restores independent documents
+Error: not implemented
+ ❯ createMediaOptimizationFixture e2e/helpers/media-optimization-fixture.ts:1:72
+      1| export function createMediaOptimizationFixture(_options:any):any{throw…
+       |                                                                        ^
+      2|
+ ❯ fixture tests/media-optimization-cleanup.test.ts:12:49
+ ❯ tests/media-optimization-cleanup.test.ts:14:103
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > restores exact bytes and original absence from known fixture bytes
+Error: not implemented
+ ❯ createMediaOptimizationFixture e2e/helpers/media-optimization-fixture.ts:1:72
+      1| export function createMediaOptimizationFixture(_options:any):any{throw…
+       |                                                                        ^
+      2|
+ ❯ fixture tests/media-optimization-cleanup.test.ts:12:49
+ ❯ tests/media-optimization-cleanup.test.ts:15:98
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > retains media dependent on a conflicted record while restoring independent media
+Error: not implemented
+ ❯ createMediaOptimizationFixture e2e/helpers/media-optimization-fixture.ts:1:72
+      1| export function createMediaOptimizationFixture(_options:any):any{throw…
+       |                                                                        ^
+      2|
+ ❯ fixture tests/media-optimization-cleanup.test.ts:12:49
+ ❯ tests/media-optimization-cleanup.test.ts:16:112
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > attempts sibling media restoration after one actual media owner conflict
+Error: not implemented
+ ❯ createMediaOptimizationFixture e2e/helpers/media-optimization-fixture.ts:1:72
+      1| export function createMediaOptimizationFixture(_options:any):any{throw…
+       |                                                                        ^
+      2|
+ ❯ fixture tests/media-optimization-cleanup.test.ts:12:49
+ ❯ tests/media-optimization-cleanup.test.ts:17:104
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > awaits failed independent siblings and records every cleanup outcome before refusing regeneration
+AssertionError: expected [] to deeply equal [ 'a', 'b', 'snapshot', 'ledger' ]
+
+- Expected
++ Received
+
+- [
+-   "a",
+-   "b",
+-   "snapshot",
+-   "ledger",
+- ]
++ []
+
+ ❯ tests/media-optimization-cleanup.test.ts:18:587
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > false restore result prevents regeneration
+ FAIL  tests/media-optimization-cleanup.test.ts > false shutdown result prevents regeneration
+TypeError: Cannot read properties of undefined (reading 'regeneration')
+ ❯ tests/media-optimization-cleanup.test.ts:19:437
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > shutdown rejection does not detach independent cleanup or allow regeneration
+AssertionError: expected [] to deeply equal [ 'worker', 'record', 'ledger' ]
+
+- Expected
++ Received
+
+- [
+-   "worker",
+-   "record",
+-   "ledger",
+- ]
++ []
+
+ ❯ tests/media-optimization-cleanup.test.ts:20:489
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > checks complete expected inputs again between configure and final build
+Error: not implemented
+ ❯ createMediaAcceptanceRun scripts/media-optimization-acceptance.mjs:1:50
+      1| export function createMediaAcceptanceRun(){throw Error('not implemente…
+       |                                                  ^
+      2| export async function verifyMediaOptimization(){throw Error('not imple…
+      3|
+ ❯ tests/media-optimization-cleanup.test.ts:21:168
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > retains failed child command PID, end time, output and final canonical comparison
+Error: not implemented
+ ❯ createMediaAcceptanceRun scripts/media-optimization-acceptance.mjs:1:50
+      1| export function createMediaAcceptanceRun(){throw Error('not implemente…
+       |                                                  ^
+      2| export async function verifyMediaOptimization(){throw Error('not imple…
+      3|
+ ❯ tests/media-optimization-cleanup.test.ts:22:129
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > refuses commands when owned runtime shutdown remains unconfirmed
+Error: not implemented
+ ❯ createMediaAcceptanceRun scripts/media-optimization-acceptance.mjs:1:50
+      1| export function createMediaAcceptanceRun(){throw Error('not implemente…
+       |                                                  ^
+      2| export async function verifyMediaOptimization(){throw Error('not imple…
+      3|
+ ❯ tests/media-optimization-cleanup.test.ts:23:112
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > runs a no-mutation orchestration smoke with actual child ownership and snapshots
+Error: not implemented
+ ❯ verifyMediaOptimization scripts/media-optimization-acceptance.mjs:2:55
+      1| export function createMediaAcceptanceRun(){throw Error('not implemente…
+      2| export async function verifyMediaOptimization(){throw Error('not imple…
+       |                                                       ^
+      3|
+ ❯ tests/media-optimization-cleanup.test.ts:25:168
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  16 failed | 2 passed (18)
+   Start at  16:36:42
+   Duration  458ms (tests 55%, transform 29%, import 13%, worker 3%)
+

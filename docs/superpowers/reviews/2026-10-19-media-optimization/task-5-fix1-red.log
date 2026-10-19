@@ -1,0 +1,53 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+owned failure
+Media acceptance no-mutation smoke
+restored baseline command
+sole child closed
+later eligible child
+later eligible child
+later eligible child
+ ❯ tests/media-optimization-cleanup.test.ts (29 tests | 2 failed) 1530ms
+   × reserves command admission while port checks await and until the sole child closes 148ms
+   × releases admission after a shutdown gate failure for a later eligible command 162ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > reserves command admission while port checks await and until the sole child closes
+AssertionError: expected 'launched' to match /shutdown unconfirmed/
+
+- Expected:
+/shutdown unconfirmed/
+
++ Received:
+"launched"
+
+ ❯ tests/media-optimization-cleanup.test.ts:54:18
+     52|  try { run.finish(); } catch (error) { childWaitFinish = error; }
+     53|  const [overlap] = await Promise.all([second, first]);
+     54|  expect(overlap).toMatch(/shutdown unconfirmed/);
+       |                  ^
+     55|  expect(portWaitFinish).toBeInstanceOf(Error);
+     56|  expect(childWaitFinish).toBeInstanceOf(Error);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > releases admission after a shutdown gate failure for a later eligible command
+AssertionError: expected undefined to be an instance of Error
+ ❯ tests/media-optimization-cleanup.test.ts:77:16
+     75|  writeFileSync(join(root,'project.json'),'{}\n');
+     76|  await run.command(['-e', "console.log('later eligible child')"]);
+     77|  expect(first).toBeInstanceOf(Error);
+       |                ^
+     78|  expect(existsSync(join(root,'.generated/forbidden'))).toBe(false);
+     79|  expect(JSON.parse(readFileSync(join(run.directory,'commands.json'),'u…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 27 passed (29)
+   Start at  16:48:43
+   Duration  1.95s (tests 88%, transform 9%, import 2%, worker 1%)
+

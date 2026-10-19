@@ -1,0 +1,50 @@
+
+> business-starter-v2@2.0.0-dev test C:\Projects\bizness-starter-v2
+> pnpm configure && vitest run && pnpm test:footer
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+(node:29324) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3024) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4152) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32044) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22044) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22436) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  69 passed | 1 skipped (70)
+      Tests  683 passed | 1 skipped (684)
+   Start at  15:57:03
+   Duration  15.47s (tests 59%, import 31%, transform 9%, worker 1%)
+
+    Isolate  70 workers spawned · ~451ms startup each (spawn + environment, per file)
+             at least ~1.21s faster with isolate: false — reuses workers across files instead of one per file
+
+
+> business-starter-v2@2.0.0-dev test:footer C:\Projects\bizness-starter-v2
+> vitest run --config apps/site/vitest.config.ts
+
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+
+ Test Files  6 passed (6)
+      Tests  21 passed (21)
+   Start at  15:57:22
+   Duration  3.06s (transform 60%, import 37%, tests 3%)
+
+  Transform  transforming modules took 9.34s · 60% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

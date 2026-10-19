@@ -1,0 +1,210 @@
+# Review package: 01504ed..7a6420e
+
+## Commits
+7a6420e test: admit only owned native media updates before dispatch
+
+## Files changed
+ docs/MEDIA_OPTIMIZATION.md                         |  2 +-
+ ...10-19-starter-v2-media-optimization-evidence.md | 12 ++++++-
+ e2e/helpers/media-optimization-native-admission.ts | 22 +++++++++++++
+ e2e/media-optimization-cms.spec.ts                 | 34 ++++++++++++++++---
+ tests/media-native-admission.test.ts               | 38 ++++++++++++++++++++++
+ 5 files changed, 102 insertions(+), 6 deletions(-)
+
+## Diff
+diff --git a/docs/MEDIA_OPTIMIZATION.md b/docs/MEDIA_OPTIMIZATION.md
+index cd316c7..3fbf527 100644
+--- a/docs/MEDIA_OPTIMIZATION.md
++++ b/docs/MEDIA_OPTIMIZATION.md
+@@ -47,13 +47,13 @@ Storage and build work can grow: originals remain, fallback and WebP variants co
+ ## Verification and recovery
+ 
+ Use the installed browsers under `.generated/browsers`; these commands do not download browsers:
+ 
+ ```powershell
+ pnpm test:media-optimization -- --pure
+ pnpm test:media-optimization -- --static
+ pnpm test:media-optimization -- --native
+ ```
+ 
+-Run with the owned launcher stopped. Each phase retains separate command/PID/time/log records and full canonical snapshots under unique `.generated/media-optimization/acceptance-*` directories. Static/browser and native results are independent. Native tests own their indexed Tina/Astro children, derive complete expected documents and serialized bytes from actual intercepted requests plus installed schema/serializer before dispatch, and restore the original bytes/absence. Documents restore before dependent media; conflicts preserve unknown edits and refuse regeneration. No source D1 migration or sending is part of media acceptance.
++Run with the owned launcher stopped. Each phase retains separate command/PID/time/log records and full canonical snapshots under unique `.generated/media-optimization/acceptance-*` directories. Static/browser and native results are independent. Native tests own their indexed Tina/Astro children, admit only the intended update operation, Page collection and exact backed-up fixture path before dispatch, derive complete expected documents and serialized bytes from actual intercepted requests plus installed schema/serializer before dispatch, and restore the original bytes/absence. Documents restore before dependent media; conflicts preserve unknown edits and refuse regeneration. No source D1 migration or sending is part of media acceptance.
+ 
+ The [acceptance evidence](superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md) records exact tested combinations, candidate tables, transfer evidence, raw paths, failures, cleanup and limits. These checks cover the changed boundary; they do not certify every theme/density combination, browser engine, hosted provider or general accessibility compliance.
+diff --git a/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md b/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md
+index 25affd3..17bce5b 100644
+--- a/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md
++++ b/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md
+@@ -70,11 +70,21 @@ The canonical baseline is `.superpowers/sdd/2026-10-19-starter-v2-media-optimiza
+ ## Harness source timing and persistence audit
+ 
+ The final public native invocation ran 14:07:01–14:07:46 UTC; the final full static invocation ran 14:07:46–14:10:25 UTC (`acceptance-Gj7Zeq`). Their product assertions were unchanged afterward. Two subsequent cleanup-only guards move static setup inside try/finally and make rejecting browser close an independent cleanup action. `task-6-red-cleanup-guards.log` proves both regressions fail with the guards removed; `task-6-green-cleanup-guards.log` proves 32 focused tests pass with the guards restored. These isolated faults use temporary roots and an actual owned long-lived child. Final-source public pure evidence is `acceptance-qJjQd0`, 134 tests. The earlier full native/static invocations are not described as running at final harness source.
+ 
+ Seven-gate attempt 1 (`acceptance-kvgUMD`) stopped at `pnpm check`, exit 2: newly reachable legacy acceptance port argument types and the new Worker's persistence option type. Earlier TypeScript diagnostics were retained in logs but trailing PowerShell reads masked their exit codes; previous pass statements were incorrect. `task-6-types-corrected.log` is the explicit exit-0 TypeScript rerun. The correction spreads the legacy port object and uses supported `persist:true,persistTo:<run>/runtime`. One focused real staging/static/browser case passed at the corrected harness source (`task-6-static-persist-focused.log`); no broad product matrix was repeated solely for cleanup/type changes.
+ 
+ The pinned Wrangler CLI forwards persist/persistTo separately, maps dev.persist to `args.persist === false ? false : args.persistTo`, and resolves a missing persistTo relative to `dirname(userConfigPath)/.wrangler/state`. Earlier absolute userConfigPath values already pointed inside unique acceptance directories. Actual private state file inventories corroborate that default location; final options name `<run>/runtime` explicitly. `task-6-persistence-audit.json` retains CLI hash/source lines, exact prior config paths/hashes, command cwd, state paths/metadata and removed source DB bindings for each static run. No source D1 migration ran in those phases, and no unknown source `.wrangler`/D1 files were removed or restored. Source `.wrangler` was outside the canonical hash baseline, so byte-for-byte absence of unrelated state changes there is not claimed.
+ 
+ ## Final checkout gates
+ 
+-All seven final-source checkout gates passed sequentially in `.generated/media-optimization/acceptance-u70xHM`; `commands.json` records each executable/arguments/cwd/PID/start/end/exit/log, and `restoration.json` confirms the complete baseline. Full tests: 737 passed / 1 opt-in skipped, with the separate site suite 24 passed. The live native run's 19 successful UI queries supply the explicit proof for the conditional query boundary. `task-6-canonical-final.json` confirms all 16 original hashes, and `task-6-process-final.json` is empty. First gate-attempt failure and successful retry remain separate; they are not presented as one uninterrupted green run. Task review and whole-branch review remain controller-owned and pending.
++All seven checkout gates for candidate `01504ed` passed sequentially in `.generated/media-optimization/acceptance-u70xHM`; `commands.json` records each executable/arguments/cwd/PID/start/end/exit/log, and `restoration.json` confirms the complete baseline. Full tests: 737 passed / 1 opt-in skipped, with the separate site suite 24 passed. The live native run's 19 successful UI queries supply the explicit proof for the conditional query boundary. `task-6-canonical-final.json` confirms all 16 original hashes, and `task-6-process-final.json` is empty. First gate-attempt failure and successful retry remain separate; they are not presented as one uninterrupted green run. Task review and whole-branch review remain controller-owned and pending.
++
++## Task 6 fix round 1 — native target admission
++
++The independent Task 6 review found that exact native target equality was only checked after dispatch by captureNative. The fix adds an admission helper used before the route constructs any pending expectation: exactly one updateDocument operation, collection `page`, and nativeDocumentPath equal to the resolved backed-up fixture path are required. Create/delete/multiple writes, another target or another collection are refused. The route aborts before writing refusal diagnostics, clears pending expectations and never continues a rejected write. The touched handler is expanded into readable blocks; deferred crop/dimension assertions and other formatting are unchanged.
++
++`task-6-fix1-red.log`: 5 expected failures / 1 pass with admission guards absent. `task-6-fix1-green.log`: all 6 passing after implementation. Tests exercise the actual admission helper used by the route, including a same-directory wrong collection, and assert zero dispatch, no pending expectation/hash advancement, and exact unchanged owned/unrelated source bytes.
++
++At this fix's code source, the real native phase passed in `.generated/media-optimization/acceptance-6HyVRJ` (1 test, 43.7 seconds). `.generated/media-optimization/acceptance-fixture-jA1YvL` retains two admitted update/Page/media_native_acceptance.json save expectations, installed serializer/schema proof, 19 successful UI read queries, source restoration and separate positive Tina/Astro shutdown records. Final-source `pnpm check` and `pnpm test` each ran once and passed through complete stopped-stack snapshots in `acceptance-mkR7p6`: 743 root tests passed / 1 opt-in skipped, plus 24 site tests passed. Pinned Node SQLite ExperimentalWarning diagnostics remain visible and do not fail the suites.
++
++The seven-gate run in `acceptance-u70xHM` remains evidence for `01504ed`; static/five-mode/seven-gate suites were not repeated for this admission-only fix. The real native rerun plus focused refusal tests and final check/full test cover the changed boundary. Controller-owned scoped re-review and whole-branch review remain pending.
+diff --git a/e2e/helpers/media-optimization-native-admission.ts b/e2e/helpers/media-optimization-native-admission.ts
+new file mode 100644
+index 0000000..d6fd64d
+--- /dev/null
++++ b/e2e/helpers/media-optimization-native-admission.ts
+@@ -0,0 +1,22 @@
++import {resolve} from 'node:path';
++import {nativeDocumentPath,type Mutation,type Schema} from './native-document';
++/** Admit only the exact Page update backed up by the native media fixture. */
++export function admitMediaNativeWrite(
++ query:string,
++ variables:Record<string,unknown>,
++ schema:Schema,
++ path:string,
++):Mutation {
++ const writes=query.match(/\b(?:create|update|delete)Document\b/g)??[];
++ if(writes.length!==1||writes[0]!=='updateDocument'){
++  throw Error('Native media write refused: expected one updateDocument operation');
++ }
++ const request={...variables,operation:'update'} as Mutation;
++ if(request.collection!=='page'){
++  throw Error('Native media write refused: expected the Page collection');
++ }
++ if(nativeDocumentPath(request,schema)!==resolve(path)){
++  throw Error('Native media write refused: target is outside the backed-up fixture');
++ }
++ return request;
++}
+diff --git a/e2e/media-optimization-cms.spec.ts b/e2e/media-optimization-cms.spec.ts
+index ab152d6..66467a8 100644
+--- a/e2e/media-optimization-cms.spec.ts
++++ b/e2e/media-optimization-cms.spec.ts
+@@ -1,19 +1,20 @@
+ import {test,expect} from '@playwright/test';
+ import {readFileSync,existsSync,writeFileSync,realpathSync} from 'node:fs';
+ import {join,resolve,dirname} from 'node:path';
+ import {createRequire} from 'node:module';
+ import {pathToFileURL} from 'node:url';
+ import sharp from 'sharp';
+ import {createCmsSources} from './helpers/cms-source-ownership';
+ import {createOwnedMedia} from './helpers/owned-media';
+-import {expectedNativeDocument,type Mutation,type Schema} from './helpers/native-document';
++import {expectedNativeDocument,type Schema} from './helpers/native-document';
++import {admitMediaNativeWrite} from './helpers/media-optimization-native-admission';
+ import {createMediaOptimizationFixture} from './helpers/media-optimization-fixture';
+ import {createMediaAcceptanceRun} from '../scripts/media-optimization-acceptance.mjs';
+ import {assertCanonicalSnapshot} from '../scripts/composition-c-snapshot.mjs';
+ import {resolvePorts,assertPortsFree} from '../scripts/ports.mjs';
+ import {mediaRuntime,cleanupMediaBrowser} from './helpers/media-optimization-runtime';
+ import {mediaPage,upload,hash,writeEvidence} from './helpers/media-optimization-acceptance';
+ 
+ test('native original selection/clear and live upload lifecycle with pre-dispatch complete ownership',async({browser})=>{
+  test.setTimeout(600000);
+  const config=createMediaOptimizationFixture({documents:[],media:[]});const directory=config.directory;const ports=resolvePorts();await assertPortsFree(ports);
+@@ -30,23 +31,48 @@ test('native original selection/clear and live upload lifecycle with pre-dispatc
+   await run.configure();await run.build();
+   runtimes.push(mediaRuntime(directory,'tina',[resolve('node_modules/@tinacms/cli/bin/tinacms'),'dev','--port',String(ports.tina),'--datalayer-port',String(ports.datalayer),'--noTelemetry']));
+   await expect.poll(()=>runtimes[0].output(),{timeout:120000}).toMatch(/TinaCMS Dev Server is active/);
+   runtimes.push(mediaRuntime(directory,'astro',[resolve('apps/site/node_modules/astro/bin/astro.mjs'),'dev','--host','127.0.0.1','--port',String(ports.site)],resolve('apps/site')));
+   await expect.poll(async()=>{try{return(await fetch('http://127.0.0.1:'+ports.site+'/en/media-native-acceptance')).status;}catch{return 0;}},{timeout:60000}).toBe(200);
+   schema=JSON.parse(readFileSync('tina/__generated__/_schema.json','utf8'));writeEvidence(directory,'installed-schema.json',schema);
+   const require=createRequire(import.meta.url);const graphqlPath=realpathSync(resolve(dirname(require.resolve('@tinacms/cli')),'../../graphql/dist/index.js'));const graphql=await import(pathToFileURL(graphqlPath).href);expect(typeof graphql.stringifyFile).toBe('function');
+   writeEvidence(directory,'installed-serializer.json',{path:graphqlPath,sha256:hash(readFileSync(graphqlPath)),format:'.json',keepTemplateKey:true,bridge:'installed FilesystemBridge.put writes serializer bytes without newline'});
+   context=await browser.newContext();const page=await context.newPage();const publicPage=await context.newPage();let liveQueries=0;
+   page.on('response',async r=>{if(r.url().endsWith('/graphql')&&r.request().method()==='POST'&&!/(?:create|update)Document/.test(r.request().postData()||'')){if(r.status()===200)liveQueries++;}});
+-  await page.route('**/graphql',async route=>{const data=route.request().postDataJSON();if(route.request().method()==='POST'&&/(?:create|update)Document/.test(data?.query||'')){
+-   check();sources.assertUnchanged();const request={...data.variables,operation:data.query.includes('createDocument')?'create':'update'} as Mutation;const complete=await expectedNativeDocument(request,schema,prior);const bytes=graphql.stringifyFile(complete,'.json',true);pending={request,complete,bytes,sha256:hash(bytes)};writeEvidence(directory,'pre-dispatch-'+saves.length+'.json',pending);
+-  }await route.continue();});
++  await page.route('**/graphql',async route=>{
++   const intercepted=route.request();
++   const data=intercepted.postDataJSON();
++   const isWrite=intercepted.method()==='POST'&&
++    /\b(?:create|update|delete)Document\b/.test(data?.query||'');
++   if(isWrite){
++    pending=undefined;
++    try{
++     const request=admitMediaNativeWrite(data.query,data.variables,schema,path);
++     check();
++     sources.assertUnchanged();
++     const complete=await expectedNativeDocument(request,schema,prior);
++     const bytes=graphql.stringifyFile(complete,'.json',true);
++     const expectation={request,complete,bytes,sha256:hash(bytes)};
++     writeEvidence(directory,'pre-dispatch-'+saves.length+'.json',expectation);
++     pending=expectation;
++    }catch(error){
++     // Abort first: diagnostic failure must never let an unowned write continue.
++     pending=undefined;
++     await route.abort('blockedbyclient');
++     writeEvidence(directory,'refused-native-write.json',{
++      query:data.query,variables:data.variables,reason:String(error),
++     });
++     return;
++    }
++   }
++   await route.continue();
++  });
+   async function open(){await page.goto('http://127.0.0.1:'+ports.site+'/cms/index.html?media='+Date.now()+'#/collections/edit/page/media_native_acceptance');const enter=page.getByRole('button',{name:'Enter Edit Mode',exact:true});await expect(enter.or(page.getByRole('button',{name:'Save',exact:true})).first()).toBeVisible({timeout:60000});if(await enter.isVisible())await enter.click();await expect(page.locator('[data-section-media=media_0]')).toBeVisible({timeout:30000});sources.assertUnchanged();check();}
+   async function save(predicate:(d:any)=>boolean){check();sources.assertUnchanged();pending=undefined;const response=page.waitForResponse(r=>r.request().method()==='POST'&&(r.request().postData()||'').includes('updateDocument'));await page.getByRole('button',{name:'Save',exact:true}).click();expect((await(await response).json()).errors||[]).toEqual([]);expect(pending).toBeTruthy();await sources.captureNative(path,pending.request,schema,predicate);expected[path]=pending.sha256;check();expect(readFileSync(path,'utf8')).toBe(pending.bytes);prior=pending.complete;saves.push(pending);writeEvidence(directory,'native-saves.json',saves);}
+   await open();const control=page.locator('[data-section-media=media_0]');await control.locator('button').first().click();await page.getByText('media-acceptance-portrait.jpg',{exact:true}).click();await page.getByRole('button',{name:'Insert',exact:true}).click();
+   await save(d=>d.sections.find((s:any)=>s.id==='media_0').media.src===upload('portrait.jpg')&&!JSON.stringify(d).includes('/_media/'));
+   await publicPage.goto('http://127.0.0.1:'+ports.site+'/en/media-native-acceptance');const rendered=publicPage.locator('[aria-labelledby=media_0] img');await rendered.scrollIntoViewIfNeeded();await expect.poll(()=>rendered.evaluate((e:HTMLImageElement)=>e.currentSrc)).toContain('/_media/v1/');const oldUrl=await rendered.evaluate((e:HTMLImageElement)=>e.currentSrc);
+   const replacement=await sharp({create:{width:800,height:500,channels:3,background:'#427'}}).jpeg().toBuffer();check();media[1].replace(replacement);expected['apps/site/public'+upload('portrait.jpg')]=hash(replacement);check();
+   await expect(async()=>{await publicPage.reload();await rendered.scrollIntoViewIfNeeded();await expect.poll(()=>rendered.evaluate((e:HTMLImageElement)=>e.complete&&e.naturalWidth>0)).toBe(true);expect(await rendered.evaluate((e:HTMLImageElement)=>e.currentSrc)).not.toBe(oldUrl);}).toPass({timeout:30000});const newUrl=await rendered.evaluate((e:HTMLImageElement)=>e.currentSrc);writeEvidence(directory,'responsive-same-path.json',{oldUrl,newUrl,replacementSha256:hash(replacement)});
+   check();media[1].restore();delete expected['apps/site/public'+upload('portrait.jpg')];check();await expect(async()=>{await publicPage.reload();await expect(publicPage.locator('body')).toContainText('Page media_native_acceptance, section media_0: cannot render image');}).toPass({timeout:30000});writeEvidence(directory,'referenced-unlink.json',{contextualVisibleFailure:true,missingSource:upload('portrait.jpg'),note:'Astro development error page can retain streamed HTTP 200; visible contextual failure is the contract'});media[1].create(replacement);expected['apps/site/public'+upload('portrait.jpg')]=hash(replacement);check();await expect(async()=>{expect((await publicPage.reload())!.status()).toBe(200);await rendered.scrollIntoViewIfNeeded();await expect.poll(()=>rendered.evaluate((e:HTMLImageElement)=>e.complete&&e.naturalWidth>0)).toBe(true);}).toPass({timeout:30000});
+   const astSelected=saves[0].request.params.page.standard.copy.sections.find((s:any)=>s.media_text)?.media_text?.body;
+   await open();writeEvidence(directory,'clear-controls.json',await control.locator('button').evaluateAll(es=>es.map(e=>({text:e.textContent,title:e.getAttribute('title'),'aria-label':e.getAttribute('aria-label')}))));
+diff --git a/tests/media-native-admission.test.ts b/tests/media-native-admission.test.ts
+new file mode 100644
+index 0000000..231600c
+--- /dev/null
++++ b/tests/media-native-admission.test.ts
+@@ -0,0 +1,38 @@
++import {it,expect} from 'vitest';
++import {mkdtempSync,mkdirSync,writeFileSync,readFileSync} from 'node:fs';
++import {tmpdir} from 'node:os';
++import {join,resolve} from 'node:path';
++import {createHash} from 'node:crypto';
++import {admitMediaNativeWrite} from '../e2e/helpers/media-optimization-native-admission';
++import {nativeDocumentPath,type Schema} from '../e2e/helpers/native-document';
++const hash=(bytes:string)=>createHash('sha256').update(bytes).digest('hex');
++function fixture(){
++ const directory=mkdtempSync(join(tmpdir(),'media-native-admission-'));
++ const pages=join(directory,'pages');mkdirSync(pages);
++ const path=join(pages,'owned.json'),other=join(pages,'other.json');
++ writeFileSync(path,'owned original');writeFileSync(other,'unrelated original');
++ // Same directory deliberately proves collection admission independently from path equality.
++ const schema:Schema={collections:[{name:'page',path:pages,fields:[]},{name:'settings',path:pages,fields:[]}]};
++ return {path,other,schema};
++}
++it.each([
++ ['wrong-target','updateDocument','page','other.json'],
++ ['wrong-collection','updateDocument','settings','owned.json'],
++ ['wrong-create','createDocument','page','owned.json'],
++ ['wrong-delete','deleteDocument','page','owned.json'],
++ ['multiple-writes','updateDocument createDocument','page','owned.json'],
++])('refuses %s before dispatch or pending/hash advancement',(_name,query,collection,relativePath)=>{
++ const {path,other,schema}=fixture();let dispatched=0,pending:unknown;let expectedHash=hash('owned original');
++ const beforeHash=expectedHash;
++ expect(()=>{
++  const request=admitMediaNativeWrite(query,{collection,relativePath,params:{}},schema,path);
++  pending={request,bytes:'unexpected write'};
++  dispatched++;writeFileSync(nativeDocumentPath(request,schema),'unexpected write');expectedHash=hash('unexpected write');
++ }).toThrow(/Native media write refused/);
++ expect(dispatched).toBe(0);expect(pending).toBeUndefined();expect(expectedHash).toBe(beforeHash);
++ expect(readFileSync(path,'utf8')).toBe('owned original');expect(readFileSync(other,'utf8')).toBe('unrelated original');
++});
++it('admits only the intended update operation/collection/exact backed-up target',()=>{
++ const {path,schema}=fixture();const request=admitMediaNativeWrite('mutation Update { updateDocument }',{collection:'page',relativePath:'owned.json',params:{page:{}}},schema,path);
++ expect(request.operation).toBe('update');expect(request.collection).toBe('page');expect(nativeDocumentPath(request,schema)).toBe(resolve(path));
++});

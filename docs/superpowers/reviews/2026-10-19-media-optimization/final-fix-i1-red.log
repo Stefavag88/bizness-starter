@@ -1,0 +1,30 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+ ❯ tests/media-optimization.test.ts (3 tests | 1 failed) 394ms
+   × uses only one family for WebP originals and keeps passthrough original dimensions 97ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-optimization.test.ts > uses only one family for WebP originals and keeps passthrough original dimensions
+AssertionError: expected '<figure class="section-image"><div cl…' to contain 'src="/_media/v1/38b3915630fc6031b4361…'
+
+Expected: "src="/_media/v1/38b3915630fc6031b43615e788058f07c954bf023d0898e548707437485a2697.webp""
+Received: "<figure class="section-image"><div class="image-frame frame-gallery"><img src="/uploads/final-fix-37e288d5-b777-451b-8fdb-f888e5d51c02.webp" width="800" height="400" alt="A &amp; B" loading="lazy" decoding="async" class="crop-bottom"></div><figcaption><strong>Caption</strong> <a href="/el/contact">Contact</a> &lt;script&gt;bad()&lt;/script&gt;</figcaption></figure>"
+
+ ❯ tests/media-optimization.test.ts:40:16
+     38|   const webp=await c.renderToString(SectionImage,{props:{...props,medi…
+     39|   expect(webp).not.toContain('<source');
+     40|   expect(webp).toContain('src="'+actual.webp[1].src+'"');
+       |                ^
+     41|   expect(webp).toContain('srcset="'+actual.webp.map(c=>c.src+' '+c.wid…
+     42|   expect(webp).toContain('width="640" height="320"');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  21:46:20
+   Duration  2.57s (transform 57%, import 26%, tests 17%)
+

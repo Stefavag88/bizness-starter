@@ -1,0 +1,50 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+owned failure
+Media acceptance no-mutation smoke
+restored baseline command
+sole child closed
+later eligible child
+later eligible child
+later eligible child
+ ❯ tests/media-optimization-cleanup.test.ts (29 tests | 2 failed) 1365ms
+   × records actual static phase failure without mutating canonical inputs 14ms
+   × records actual native phase failure without mutating canonical inputs 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > records actual static phase failure without mutating canonical inputs
+AssertionError: expected [Function] to throw error matching /Command exit/ but got 'Media acceptance phase static not imp…'
+
+- Expected:
+/Command exit/
+
++ Received:
+"Media acceptance phase static not implemented; refused before mutation"
+
+ ❯ tests/media-optimization-cleanup.test.ts:28:237
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > records actual native phase failure without mutating canonical inputs
+AssertionError: expected [Function] to throw error matching /Command exit/ but got 'Media acceptance phase native not imp…'
+
+- Expected:
+/Command exit/
+
++ Received:
+"Media acceptance phase native not implemented; refused before mutation"
+
+ ❯ tests/media-optimization-cleanup.test.ts:28:237
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 27 passed (29)
+   Start at  16:53:26
+   Duration  1.71s (tests 89%, transform 8%, import 2%)
+

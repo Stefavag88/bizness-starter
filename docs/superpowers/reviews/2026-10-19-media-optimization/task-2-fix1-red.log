@@ -1,0 +1,53 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-cache.test.ts (14 tests | 2 failed) 2246ms
+   × bounds full warm-cache validation to two native jobs across roots and six-width families 557ms
+   × shares two native slots between direct cached reads and cold transforms across roots 180ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-cache.test.ts > bounds full warm-cache validation to two native jobs across roots and six-width families
+AssertionError: expected 18 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 18
+
+ ❯ tests/media-cache.test.ts:104:20
+    102|   expect(results.map(r=>r.webp.length+r.fallback.length)).toEqual([12,…
+    103|   expect(work.decodes).toBe(24);expect(work.transforms).toBe(0);
+    104|   expect(work.max).toBe(2);expect(work.active).toBe(0);
+       |                    ^
+    105|  } finally {await rm(other,{recursive:true,force:true});}
+    106| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/media-cache.test.ts > shares two native slots between direct cached reads and cold transforms across roots
+AssertionError: expected 10 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 10
+
+ ❯ tests/media-cache.test.ts:121:20
+    119|   for(const result of results.slice(0,8))expect('bytes' in result && r…
+    120|   expect(work.decodes).toBe(8);expect(work.transforms).toBe(4);
+    121|   expect(work.max).toBe(2);expect(work.active).toBe(0);
+       |                    ^
+    122|  } finally {await rm(other,{recursive:true,force:true});}
+    123| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 19 passed (21)
+   Start at  16:07:01
+   Duration  3.31s (tests 86%, import 11%, transform 3%)
+

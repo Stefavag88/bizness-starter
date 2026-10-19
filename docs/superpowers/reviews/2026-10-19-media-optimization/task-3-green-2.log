@@ -1,0 +1,33 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-integration.test.ts (4 tests | 1 failed) 3359ms
+   × releases sessions after real prerender and compile failures, then builds fresh referenced assets 3188ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-integration.test.ts > releases sessions after real prerender and compile failures, then builds fresh referenced assets
+AssertionError: expected [Function] to throw error matching /Controlled unrelated/ but got 'An active media session already owns …'
+
+- Expected:
+/Controlled unrelated/
+
++ Received:
+"An active media session already owns this root"
+
+ ❯ tests/media-integration.test.ts:33:39
+     31|  const config=()=>({root:pathToFileURL(root+'/'),configFile:false,logL…
+     32|  await writeFile(join(pages,'index.astro'),'---\nthrow new Error("Cont…
+     33|  await expect(buildSite(config(),root)).rejects.toThrow(/Controlled un…
+       |                                       ^
+     34|  await writeFile(join(pages,'index.astro'),'---\nconst = invalid;\n---…
+     35|  await expect(buildSite(config(),root)).rejects.toThrow();expect(()=>g…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 9 passed (10)
+   Start at  16:13:14
+   Duration  4.10s (tests 82%, import 14%, transform 4%)
+

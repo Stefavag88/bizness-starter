@@ -1,0 +1,114 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-integration.test.ts (3 tests | 3 failed) 57ms
+   × owns a fresh build session and publishes demanded bytes into actual build done dir 27ms
+   × serves GET and HEAD exactly, rejects query/traversal/unknown and cleans server sessions 14ms
+   × closes registration even when publication fails 14ms
+ ❯ tests/media-session.test.ts (6 tests | 6 failed) 107ms
+   × deduplicates source demand, publishes only current rendered assets and starts empty after warm local demand 28ms
+   × serves only exact demanded identities and never allows unknown cache URLs to authorize reads 15ms
+   × re-reads changed original bytes in development and produces fresh dimensions and URLs 16ms
+   × does zero cache work when disabled or unused and drains in-flight jobs on close 15ms
+   × requires explicit root ownership, rejects overlapping owners and clears failed sessions 16ms
+   × refuses symlinked output namespaces without changing their targets 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-integration.test.ts > owns a fresh build session and publishes demanded bytes into actual build done dir
+Error: Build sessions not implemented
+ ❯ Object.astro:build:start apps/site/src/integrations/media.mjs:1:103
+
+ ❯ tests/media-integration.test.ts:13:95
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/media-integration.test.ts > serves GET and HEAD exactly, rejects query/traversal/unknown and cleans server sessions
+Error: Dev sessions not implemented
+ ❯ Object.astro:server:setup apps/site/src/integrations/media.mjs:1:181
+
+ ❯ tests/media-integration.test.ts:16:112
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/media-integration.test.ts > closes registration even when publication fails
+Error: Build sessions not implemented
+ ❯ Object.astro:build:start apps/site/src/integrations/media.mjs:1:103
+
+ ❯ tests/media-integration.test.ts:23:95
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/media-session.test.ts > deduplicates source demand, publishes only current rendered assets and starts empty after warm local demand
+Error: Media sessions not implemented
+ ❯ createMediaSession packages/media/session.mjs:1:44
+      1| export function createMediaSession(){throw new Error('Media sessions n…
+       |                                            ^
+      2| export function beginMediaSession(){throw new Error('Media sessions no…
+      3| export function getMediaSession(){throw new Error('No active media ses…
+ ❯ tests/media-session.test.ts:11:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/media-session.test.ts > serves only exact demanded identities and never allows unknown cache URLs to authorize reads
+Error: Media sessions not implemented
+ ❯ createMediaSession packages/media/session.mjs:1:44
+      1| export function createMediaSession(){throw new Error('Media sessions n…
+       |                                            ^
+      2| export function beginMediaSession(){throw new Error('Media sessions no…
+      3| export function getMediaSession(){throw new Error('No active media ses…
+ ❯ tests/media-session.test.ts:16:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/media-session.test.ts > re-reads changed original bytes in development and produces fresh dimensions and URLs
+Error: Media sessions not implemented
+ ❯ createMediaSession packages/media/session.mjs:1:44
+      1| export function createMediaSession(){throw new Error('Media sessions n…
+       |                                            ^
+      2| export function beginMediaSession(){throw new Error('Media sessions no…
+      3| export function getMediaSession(){throw new Error('No active media ses…
+ ❯ tests/media-session.test.ts:21:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  tests/media-session.test.ts > does zero cache work when disabled or unused and drains in-flight jobs on close
+Error: Media sessions not implemented
+ ❯ createMediaSession packages/media/session.mjs:1:44
+      1| export function createMediaSession(){throw new Error('Media sessions n…
+       |                                            ^
+      2| export function beginMediaSession(){throw new Error('Media sessions no…
+      3| export function getMediaSession(){throw new Error('No active media ses…
+ ❯ tests/media-session.test.ts:24:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  tests/media-session.test.ts > requires explicit root ownership, rejects overlapping owners and clears failed sessions
+Error: Media sessions not implemented
+ ❯ beginMediaSession packages/media/session.mjs:2:43
+      1| export function createMediaSession(){throw new Error('Media sessions n…
+      2| export function beginMediaSession(){throw new Error('Media sessions no…
+       |                                           ^
+      3| export function getMediaSession(){throw new Error('No active media ses…
+      4| export async function endMediaSession(){}
+ ❯ tests/media-session.test.ts:28:62
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  tests/media-session.test.ts > refuses symlinked output namespaces without changing their targets
+Error: Media sessions not implemented
+ ❯ createMediaSession packages/media/session.mjs:1:44
+      1| export function createMediaSession(){throw new Error('Media sessions n…
+       |                                            ^
+      2| export function beginMediaSession(){throw new Error('Media sessions no…
+      3| export function getMediaSession(){throw new Error('No active media ses…
+ ❯ tests/media-session.test.ts:31:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  9 failed (9)
+   Start at  16:11:40
+   Duration  778ms (import 59%, tests 21%, transform 17%, worker 3%)
+

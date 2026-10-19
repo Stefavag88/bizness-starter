@@ -1,0 +1,64 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-acceptance-harness.test.ts (2 tests | 2 failed) 413ms
+   × restores partially acquired static setup when setup rejects before returning to browser work 207ms
+   × rejecting browser close still confirms exact runtime shutdown and restores sources while refusing regeneration 204ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-acceptance-harness.test.ts > restores partially acquired static setup when setup rejects before returning to browser work
+AssertionError: expected [Function] to throw error matching /setup failed/ but got 'Media ownership conflict; claim perma…'
+
+- Expected:
+/setup failed/
+
++ Received:
+"Media ownership conflict; claim permanently revoked: C:\\Users\\Vag\\AppData\\Local\\Temp\\media-harness-fault-v7kIKj\\apps\\site\\public\\uploads\\media-acceptance-large-photo.jpg; evidence C:\\Users\\Vag\\AppData\\Local\\Temp\\media-harness-fault-v7kIKj\\.generated\\media-optimization\\acceptance-fixture-HHk8Kf\\media-CPfQvY"
+
+ ❯ tests/media-acceptance-harness.test.ts:14:28
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/media-acceptance-harness.test.ts > rejecting browser close still confirms exact runtime shutdown and restores sources while refusing regeneration
+AssertionError: promise resolved "{ stops: [ { …(2) } ], …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "actions": [
++     {
++       "id": "fixture-sources",
++       "status": "restored",
++     },
++   ],
++   "regeneration": [
++     {
++       "id": "configure",
++       "status": "completed",
++     },
++   ],
++   "snapshot": "matched",
++   "stops": [
++     {
++       "id": "owned-runtime",
++       "status": "stopped",
++     },
++   ],
+  }
+
+ ❯ tests/media-acceptance-harness.test.ts:21:353
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  17:11:00
+   Duration  848ms (tests 64%, transform 28%, import 7%, worker 1%)
+

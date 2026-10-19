@@ -1,0 +1,56 @@
+[
+  {
+    "command": "pnpm exec vitest run tests/media-cache.test.ts",
+    "log": "final-fix-i2-red.log",
+    "exit": 1,
+    "result": "12 expected failures; 14 passed"
+  },
+  {
+    "command": "pnpm exec vitest run --config apps/site/vitest.config.ts apps/site/tests/media-optimization.test.ts",
+    "log": "final-fix-i1-red.log",
+    "exit": 1,
+    "result": "1 expected failure; 2 passed"
+  },
+  {
+    "command": "pnpm exec vitest run tests/media-cache.test.ts",
+    "log": "final-fix-i2-green.log",
+    "exit": 0,
+    "result": "26 passed"
+  },
+  {
+    "command": "pnpm exec vitest run --config apps/site/vitest.config.ts apps/site/tests/media-optimization.test.ts",
+    "log": "final-fix-i1-green.log",
+    "exit": 0,
+    "result": "3 passed"
+  },
+  {
+    "command": "pnpm exec vitest run tests/media-cache.test.ts tests/media-optimization.test.ts tests/media-source.test.ts tests/media-native-admission.test.ts tests/media-acceptance-harness.test.ts tests/media-runtime.test.ts",
+    "log": "final-fix-focused.log",
+    "exit": 0,
+    "result": "65 passed"
+  },
+  {
+    "command": "node .superpowers/sdd/2026-10-19-starter-v2-media-optimization/final-fix-gates.mjs",
+    "log": "final-fix-check-test.log",
+    "exit": 1,
+    "result": "check 0; test 1 (dev-lifecycle EACCES)"
+  },
+  {
+    "command": "node .superpowers/sdd/2026-10-19-starter-v2-media-optimization/final-fix-gates.mjs",
+    "log": "final-fix-check-test-retry.log",
+    "exit": 0,
+    "result": "check 0; test 0; root 756 passed / 1 skipped; site 24 passed"
+  },
+  {
+    "command": "node .superpowers/sdd/2026-10-19-starter-v2-media-optimization/final-fix-browser.mjs",
+    "log": "final-fix-browser.log",
+    "exit": 0,
+    "result": "scoped browser 1 passed; fixture and canonical builds exit 0"
+  },
+  {
+    "command": "git diff --check",
+    "log": "final-fix-diff-check.log",
+    "exit": 0,
+    "result": "no whitespace errors"
+  }
+]

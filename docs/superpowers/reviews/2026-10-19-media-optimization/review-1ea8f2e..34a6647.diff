@@ -1,0 +1,272 @@
+# Review package: 1ea8f2e..34a6647
+
+## Commits
+34a6647 test: guard media acceptance lifecycle
+
+## Files changed
+ e2e/helpers/media-optimization-cleanup.ts   | 40 +++++++++++++++++++++++++++++
+ e2e/helpers/media-optimization-fixture.ts   | 40 +++++++++++++++++++++++++++++
+ package.json                                |  1 +
+ scripts/composition-c-snapshot.d.mts        |  2 +-
+ scripts/composition-c-snapshot.mjs          |  2 +-
+ scripts/media-optimization-acceptance.d.mts | 15 +++++++++++
+ scripts/media-optimization-acceptance.mjs   | 32 +++++++++++++++++++++++
+ scripts/verify-media-optimization.mjs       |  5 ++++
+ tests/media-optimization-cleanup.test.ts    | 37 ++++++++++++++++++++++++++
+ 9 files changed, 172 insertions(+), 2 deletions(-)
+
+## Diff
+diff --git a/e2e/helpers/media-optimization-cleanup.ts b/e2e/helpers/media-optimization-cleanup.ts
+new file mode 100644
+index 0000000..f3e44dd
+--- /dev/null
++++ b/e2e/helpers/media-optimization-cleanup.ts
+@@ -0,0 +1,40 @@
++import {cleanupCompositionPublic} from './composition-b-cleanup.ts';
++type Action=()=>unknown|Promise<unknown>;
++export interface MediaRestore {id:string; restore:Action; dependsOn?:string[]}
++export interface MediaCleanupLedger {
++ stops:{id:string;status:'stopped'|'failed';error?:string}[];
++ actions:{id:string;status:'restored'|'failed'|'retained';error?:string}[];
++ snapshot:'unchecked'|'matched'|'failed';
++ regeneration:{id:string;status:'completed'|'failed'|'skipped';error?:string}[];
++}
++/** Independent actions are awaited even after failure; dependent media stays with conflicted records. */
++export async function cleanupMediaOptimization(options:{stops:{id:string;stop:Action}[];restores:MediaRestore[];assertInputs:Action;regenerate:{id:string;run:Action}[];record:(ledger:MediaCleanupLedger)=>unknown|Promise<unknown>}){
++ const ids=[...options.stops,...options.restores].map(action=>action.id);
++ if(new Set(ids).size!==ids.length)throw Error('Duplicate acceptance cleanup owner');
++ const seen=new Set<string>();
++ for(const action of options.restores){for(const id of action.dependsOn??[])if(!seen.has(id))throw Error('Cleanup dependency must precede its dependent: '+id);seen.add(action.id);}
++ const ledger:MediaCleanupLedger={stops:[],actions:[],snapshot:'unchecked',regeneration:options.regenerate.map(({id})=>({id,status:'skipped'}))};
++ const safe=()=>ledger.stops.every(row=>row.status==='stopped')&&ledger.actions.every(row=>row.status==='restored')&&ledger.snapshot==='matched';
++ const restored=new Set<string>();
++ async function confirmed(action:Action){if(await action()===false)throw Error('Acceptance owner returned false; restoration/shutdown unconfirmed');}
++ await cleanupCompositionPublic([
++  ...options.stops.map(({id,stop})=>async()=>{const row:MediaCleanupLedger['stops'][number]={id,status:'failed'};ledger.stops.push(row);try{await confirmed(stop);row.status='stopped';}catch(error){row.error=String(error);throw error;}}),
++  ...options.restores.map(({id,restore,dependsOn=[]})=>async()=>{
++   const row:MediaCleanupLedger['actions'][number]={id,status:'retained'};ledger.actions.push(row);
++   if(dependsOn.some(dependency=>!restored.has(dependency))){row.error='Dependent record restoration unconfirmed';return;}
++   row.status='failed';try{await confirmed(restore);row.status='restored';restored.add(id);}catch(error){row.error=String(error);throw error;}
++  }),
++  async()=>{ledger.snapshot='failed';await confirmed(options.assertInputs);ledger.snapshot='matched';},
++  async()=>{
++   if(!safe())return;
++   for(const [index,{run}] of options.regenerate.entries()){
++    const row=ledger.regeneration[index];
++    try{ledger.snapshot='failed';await confirmed(options.assertInputs);ledger.snapshot='matched';await confirmed(run);ledger.snapshot='failed';await confirmed(options.assertInputs);ledger.snapshot='matched';row.status='completed';}
++    catch(error){row.status='failed';row.error=String(error);throw error;}
++   }
++  },
++  ()=>options.record(ledger),
++ ]);
++ if(!safe())throw Error('Acceptance cleanup unsafe; regeneration refused');
++ return ledger;
++}
+diff --git a/e2e/helpers/media-optimization-fixture.ts b/e2e/helpers/media-optimization-fixture.ts
+new file mode 100644
+index 0000000..b767429
+--- /dev/null
++++ b/e2e/helpers/media-optimization-fixture.ts
+@@ -0,0 +1,40 @@
++import {mkdirSync,mkdtempSync,readFileSync,writeFileSync} from 'node:fs';
++import {createHash} from 'node:crypto';
++import {isAbsolute,join,relative,resolve,sep} from 'node:path';
++import {createOwnedFileEdit} from '../../scripts/owned-file-edit.mjs';
++import {createWorkerEdit} from './composition-c-worker-lifecycle';
++import {createCmsSources} from './cms-source-ownership';
++import {createOwnedMedia} from './owned-media';
++import {canonicalSnapshot,assertCanonicalSnapshot} from '../../scripts/composition-c-snapshot.mjs';
++import {cleanupMediaOptimization,type MediaRestore} from './media-optimization-cleanup';
++/** Static fixture writes use caller-known bytes. Native saves remain captureNative/request-schema-serializer owned. */
++export function createMediaOptimizationFixture(options:{root?:string;documents?:string[];media?:{path:string;documents:string[]}[]}){
++ const root=resolve(options.root??process.cwd()),before=canonicalSnapshot(root);
++ const parent=join(root,'.generated/media-optimization');mkdirSync(parent,{recursive:true});
++ const directory=mkdtempSync(join(parent,'acceptance-fixture-'));
++ const log=(name:string,data:unknown)=>writeFileSync(join(directory,name),JSON.stringify(data,null,2)+'\n');
++ log('canonical-before.json',before);
++ let expected={...before};
++ const check=()=>assertCanonicalSnapshot(expected,root);
++ function contained(path:string,prefix:string){const full=resolve(root,path),r=relative(join(root,prefix),full);if(!r||r==='..'||r.startsWith('..'+sep)||isAbsolute(r))throw Error('Fixture path outside '+prefix);return full;}
++ const documents=new Map((options.documents??[]).map(path=>[path,createCmsSources([contained(path,'content')],directory,{allowCreate:true})]));
++ const documentEdits=new Map(Array.from(documents,([path,source])=>{const full=resolve(root,path);return [path,source.originalState(full).exists?createWorkerEdit(createOwnedFileEdit(full,directory),()=>readFileSync(full)):undefined];}));
++ const media=new Map((options.media??[]).map(({path,documents:dependencies})=>{
++  for(const dependency of dependencies)if(!documents.has(dependency))throw Error('Unknown media document dependency: '+dependency);
++  return [path,{owner:createOwnedMedia(contained(path,'apps/site/public/uploads'),directory,{uploadsRoot:join(root,'apps/site/public/uploads')}),dependencies}];
++ }));
++ const projectPath=join(root,'project.json'),project=createWorkerEdit(createOwnedFileEdit(projectPath,directory),()=>readFileSync(projectPath));
++ function update(path:string,bytes:Uint8Array|string){expected={...expected,[path]:createHash('sha256').update(bytes).digest('hex')};log('canonical-expected.json',expected);check();}
++ return {
++  directory,before,assertInputs:check,expectedSnapshot:()=>({...expected}),
++  replaceProject(bytes:string){check();project.replace(bytes);update('project.json',bytes);},
++  createDocument(path:string,value:unknown){check();const source=documents.get(path);if(!source)throw Error('Unregistered fixture document');const bytes=JSON.stringify(value,null,2)+'\n';source.createAbsent(resolve(root,path),value,()=>true);update(path,bytes);},
++  replaceDocument(path:string,bytes:string){check();const edit=documentEdits.get(path);if(!edit)throw Error('Static replacement requires registered existing document');edit.replace(bytes);update(path,bytes);},
++  createMedia(path:string,bytes:Buffer){check();const item=media.get(path);if(!item)throw Error('Unregistered fixture media');item.owner.create(bytes);update(path,bytes);},
++  replaceMedia(path:string,bytes:Buffer){check();const item=media.get(path);if(!item)throw Error('Unregistered fixture media');item.owner.replace(bytes);update(path,bytes);},
++  async cleanup(options:{stops?:{id:string;stop:()=>unknown|Promise<unknown>}[];regenerate?:{id:string;run:()=>unknown|Promise<unknown>}[]}={}){
++   const restores:MediaRestore[]=[{id:'project.json',restore:()=>project.restore()},...Array.from(documents,([id,source])=>({id,restore:async()=>{documentEdits.get(id)?.restore();await source.restore();}})),...Array.from(media,([id,{owner,dependencies}])=>({id,restore:()=>owner.restore(),dependsOn:dependencies}))];
++   return cleanupMediaOptimization({stops:options.stops??[],restores,assertInputs:()=>{assertCanonicalSnapshot(before,root);expected={...before};},regenerate:options.regenerate??[],record:ledger=>{log('cleanup.json',ledger);log('restoration.json',{before,after:canonicalSnapshot(root)});}});
++  },
++ };
++}
+diff --git a/package.json b/package.json
+index fa7462e..35025a8 100644
+--- a/package.json
++++ b/package.json
+@@ -16,20 +16,21 @@
+     "dev": "node scripts/dev.mjs",
+     "dev:cms": "node scripts/dev.mjs --cms",
+     "cms:local-build": "node scripts/dev.mjs --cms-build",
+     "worker:check": "pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json",
+     "db:local": "pnpm configure && node scripts/wrangler.mjs d1 migrations apply DB --local --config wrangler.generated.json",
+     "doctor": "node scripts/doctor.mjs",
+     "deploy:check": "node scripts/doctor.mjs --production",
+     "smoke:local": "node scripts/smoke-local.mjs",
+     "test:e2e": "playwright test",
+     "test:composition-c": "node scripts/verify-composition-c.mjs",
++    "test:media-optimization": "node scripts/verify-media-optimization.mjs",
+     "test:profiles": "node scripts/verify-profiles.mjs",
+     "test:showcase-builds": "node scripts/verify-showcase-builds.mjs",
+     "test:static-routing": "pnpm build && node scripts/verify-static-routing.mjs"
+   },
+   "dependencies": {
+     "@fontsource/noto-sans": "5.2.8",
+     "aws4fetch": "1.0.20",
+     "jose": "6.2.12",
+     "markdown-it": "14.3.2",
+     "sharp": "0.35.5",
+diff --git a/scripts/composition-c-snapshot.d.mts b/scripts/composition-c-snapshot.d.mts
+index 654fbd3..385c854 100644
+--- a/scripts/composition-c-snapshot.d.mts
++++ b/scripts/composition-c-snapshot.d.mts
+@@ -1,2 +1,2 @@
+ export function canonicalSnapshot(root?:string):Record<string,string>;
+-export function assertCanonicalSnapshot(expected:Record<string,string>):void;
++export function assertCanonicalSnapshot(expected:Record<string,string>,root?:string):void;
+diff --git a/scripts/composition-c-snapshot.mjs b/scripts/composition-c-snapshot.mjs
+index 401e564..f58af37 100644
+--- a/scripts/composition-c-snapshot.mjs
++++ b/scripts/composition-c-snapshot.mjs
+@@ -1,9 +1,9 @@
+ import {readFileSync,readdirSync,existsSync} from 'node:fs';
+ import {join,relative} from 'node:path';
+ import {createHash} from 'node:crypto';
+ import {isDeepStrictEqual} from 'node:util';
+ export function canonicalSnapshot(root=process.cwd()) {
+  const walk=path=>existsSync(path)?readdirSync(path,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(join(path,e.name)):[join(path,e.name)]):[];
+  return Object.fromEntries([join(root,'project.json'),...walk(join(root,'content')),...walk(join(root,'apps/site/public/uploads'))].sort().map(path=>[relative(root,path).replaceAll('\\','/'),createHash('sha256').update(readFileSync(path)).digest('hex')]));
+ }
+-export function assertCanonicalSnapshot(expected){if(!isDeepStrictEqual(canonicalSnapshot(),expected))throw Error('Full canonical project/content/uploads snapshot conflict; regeneration refused');}
++export function assertCanonicalSnapshot(expected,root=process.cwd()){if(!isDeepStrictEqual(canonicalSnapshot(root),expected))throw Error('Full canonical project/content/uploads snapshot conflict; regeneration refused');}
+diff --git a/scripts/media-optimization-acceptance.d.mts b/scripts/media-optimization-acceptance.d.mts
+new file mode 100644
+index 0000000..bbe2aca
+--- /dev/null
++++ b/scripts/media-optimization-acceptance.d.mts
+@@ -0,0 +1,15 @@
++export interface MediaAcceptanceRunOptions {
++ root?:string;
++ expected?:()=>Record<string,string>;
++ isStopped?:()=>boolean;
++ checkPorts?:()=>Promise<void>;
++}
++export function createMediaAcceptanceRun(options?:MediaAcceptanceRunOptions):{
++ directory:string;
++ assertInputs():void;
++ command(args:string[],options?:{cwd?:string;timeoutMs?:number;env?:Record<string,string>}):Promise<void>;
++ configure():Promise<void>;
++ build(args?:string[]):Promise<void>;
++ finish():{directory:string;unchanged:boolean};
++};
++export function verifyMediaOptimization(options?:{phase?:string;root?:string;checkPorts?:()=>Promise<void>}):Promise<{directory:string;unchanged:boolean}>;
+diff --git a/scripts/media-optimization-acceptance.mjs b/scripts/media-optimization-acceptance.mjs
+new file mode 100644
+index 0000000..951145f
+--- /dev/null
++++ b/scripts/media-optimization-acceptance.mjs
+@@ -0,0 +1,32 @@
++import {appendFileSync,mkdirSync,mkdtempSync,writeFileSync} from 'node:fs';
++import {join,resolve} from 'node:path';
++import {isDeepStrictEqual} from 'node:util';
++import {canonicalSnapshot,assertCanonicalSnapshot} from './composition-c-snapshot.mjs';
++import {runOwnedCommand} from './owned-command.mjs';
++import {assertPortsFree,resolvePorts} from './ports.mjs';
++/** Owns only subprocesses created here, with timeout cleanup delegated to runOwnedCommand. */
++export function createMediaAcceptanceRun({root=process.cwd(),expected,isStopped=()=>true,checkPorts=()=>assertPortsFree(resolvePorts())}={}){
++ root=resolve(root);const before=canonicalSnapshot(root);expected??=()=>before;
++ const parent=join(root,'.generated/media-optimization');mkdirSync(parent,{recursive:true});const directory=mkdtempSync(join(parent,'acceptance-'));
++ const commands=[],log=(name,value)=>writeFileSync(join(directory,name),JSON.stringify(value,null,2)+'\n');
++ log('canonical-before.json',before);log('commands.json',commands);
++ const assertInputs=()=>assertCanonicalSnapshot(expected(),root);
++ let active=false;
++ async function command(args,{cwd=root,timeoutMs=1800000,env={}}={}){
++  if(active||!isStopped())throw Error('Owned runtime shutdown unconfirmed; command refused');
++  assertInputs();await checkPorts();assertInputs();
++  const row={executable:process.execPath,args,cwd,started:new Date().toISOString(),ended:null,pid:null,passed:false,log:`command-${commands.length+1}.log`};commands.push(row);log('commands.json',commands);active=true;
++  try{await runOwnedCommand(process.execPath,args,{cwd,timeoutMs,env:{...process.env,ASTRO_TELEMETRY_DISABLED:'1',WRANGLER_SEND_METRICS:'false',XDG_CONFIG_HOME:join(directory,'config'),WRANGLER_LOG_PATH:join(directory,'wrangler-logs'),...env},onStart:pid=>{row.pid=pid;log('commands.json',commands);},onOutput:text=>{appendFileSync(join(directory,row.log),text);process.stdout.write(text);}});assertInputs();row.passed=true;}
++  catch(error){row.error=String(error);throw error;}
++  finally{active=false;row.ended=new Date().toISOString();log('commands.json',commands);}
++ }
++ return {directory,assertInputs,command,configure:()=>command(['scripts/configure.mjs']),build:(args=[])=>command(['apps/site/scripts/build.mjs',...args]),finish(){const after=canonicalSnapshot(root),unchanged=isDeepStrictEqual(before,after);log('restoration.json',{before,after,unchanged,commands});if(active||!isStopped())throw Error('Owned runtime shutdown unconfirmed');if(!unchanged)throw Error('Full canonical project/content/uploads snapshot conflict; acceptance failed');return {directory,unchanged};}};
++}
++/** Task 6 supplies real static/native matrix implementations; unavailable phases cannot false-pass. */
++export async function verifyMediaOptimization({phase='pure',root=process.cwd(),checkPorts}={}){
++ if(!['pure','smoke'].includes(phase))throw Error(`Media acceptance phase ${phase} not implemented; refused before mutation`);
++ const run=createMediaAcceptanceRun({root,checkPorts});let failure;
++ try{if(phase==='pure')await run.command(['node_modules/vitest/vitest.mjs','run','tests/media-optimization-cleanup.test.ts']);else await run.command(['-e',"console.log('Media acceptance no-mutation smoke')"]);}
++ catch(error){failure=error;}
++ const result=run.finish();if(failure)throw failure;return result;
++}
+diff --git a/scripts/verify-media-optimization.mjs b/scripts/verify-media-optimization.mjs
+new file mode 100644
+index 0000000..e1b23de
+--- /dev/null
++++ b/scripts/verify-media-optimization.mjs
+@@ -0,0 +1,5 @@
++import {verifyMediaOptimization} from './media-optimization-acceptance.mjs';
++const args=process.argv.slice(2);if(args[0]==='--')args.shift();
++if(args.length>1||args[0]&&!['--pure','--smoke','--static','--native'].includes(args[0]))throw Error('Usage: test:media-optimization [--pure|--smoke|--static|--native]');
++const result=await verifyMediaOptimization({phase:args[0]?.slice(2)??'pure'});
++console.log('Media acceptance evidence: '+result.directory);
+diff --git a/tests/media-optimization-cleanup.test.ts b/tests/media-optimization-cleanup.test.ts
+new file mode 100644
+index 0000000..d39ecfb
+--- /dev/null
++++ b/tests/media-optimization-cleanup.test.ts
+@@ -0,0 +1,37 @@
++import {afterEach, expect, it} from 'vitest';
++import {execFileSync} from 'node:child_process';
++import {resolve} from 'node:path';
++import {createOwnedFileEdit} from '../scripts/owned-file-edit.mjs';
++import {createWorkerEdit} from '../e2e/helpers/composition-c-worker-lifecycle';
++import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
++import {tmpdir} from 'node:os';
++import {join} from 'node:path';
++import {cleanupMediaOptimization} from '../e2e/helpers/media-optimization-cleanup';
++import {createMediaOptimizationFixture} from '../e2e/helpers/media-optimization-fixture';
++import {createMediaAcceptanceRun, verifyMediaOptimization} from '../scripts/media-optimization-acceptance.mjs';
++import {canonicalSnapshot} from '../scripts/composition-c-snapshot.mjs';
++const roots:string[]=[];
++afterEach(()=>{for(const root of roots.splice(0))rmSync(root,{recursive:true,force:true});});
++function project(){const root=mkdtempSync(join(tmpdir(),'media-acceptance-'));roots.push(root);for(const path of ['content/pages','apps/site/public/uploads'])mkdirSync(join(root,path),{recursive:true});writeFileSync(join(root,'project.json'),'{}\n');writeFileSync(join(root,'content/pages/base.json'),'base\n');writeFileSync(join(root,'apps/site/public/uploads/base.png'),'base image');return root;}
++function fixture(){const root=project();const f=createMediaOptimizationFixture({root,documents:['content/pages/proof.json'],media:[{path:'apps/site/public/uploads/proof.png',documents:['content/pages/proof.json']},{path:'apps/site/public/uploads/independent.png',documents:[]}]});return {root,f};}
++it.each(['project.json','content/pages/base.json','apps/site/public/uploads/base.png','content/pages/new.json'])('gates every mutation against the complete snapshot: %s',path=>{const {root,f}=fixture();writeFileSync(join(root,path),'external');expect(()=>f.createDocument('content/pages/proof.json',{id:'proof'})).toThrow(/snapshot conflict/);expect(existsSync(join(root,'content/pages/proof.json'))).toBe(false);});
++it('preserves prewrite project conflicts and restores independent documents',async()=>{const {root,f}=fixture();f.createDocument('content/pages/proof.json',{id:'proof'});writeFileSync(join(root,'project.json'),'external');expect(()=>f.replaceProject('{}')).toThrow();await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'project.json'),'utf8')).toBe('external');expect(existsSync(join(root,'content/pages/proof.json'))).toBe(false);});
++it('restores exact bytes and original absence from known fixture bytes',async()=>{const {root,f}=fixture();const before=canonicalSnapshot(root);f.replaceProject('{"media":{}}\n');f.createMedia('apps/site/public/uploads/proof.png',Buffer.from('owned'));f.createDocument('content/pages/proof.json',{id:'proof'});await f.cleanup();expect(canonicalSnapshot(root)).toEqual(before);});
++it('retains media dependent on a conflicted record while restoring independent media',async()=>{const {root,f}=fixture();f.createMedia('apps/site/public/uploads/proof.png',Buffer.from('dependent'));f.createMedia('apps/site/public/uploads/independent.png',Buffer.from('independent'));f.createDocument('content/pages/proof.json',{image:'/uploads/proof.png'});writeFileSync(join(root,'content/pages/proof.json'),'external record');await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'apps/site/public/uploads/proof.png'),'utf8')).toBe('dependent');expect(existsSync(join(root,'apps/site/public/uploads/independent.png'))).toBe(false);const ledger=JSON.parse(readFileSync(join(f.directory,'cleanup.json'),'utf8'));expect(ledger.actions.find((a:any)=>a.id==='apps/site/public/uploads/proof.png').status).toBe('retained');});
++it('attempts sibling media restoration after one actual media owner conflict',async()=>{const {root,f}=fixture();f.createMedia('apps/site/public/uploads/proof.png',Buffer.from('owned'));f.createMedia('apps/site/public/uploads/independent.png',Buffer.from('owned'));writeFileSync(join(root,'apps/site/public/uploads/proof.png'),'external');await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'apps/site/public/uploads/proof.png'),'utf8')).toBe('external');expect(existsSync(join(root,'apps/site/public/uploads/independent.png'))).toBe(false);});
++it('awaits failed independent siblings and records every cleanup outcome before refusing regeneration',async()=>{const order:string[]=[];let ledger:any;await expect(cleanupMediaOptimization({stops:[],restores:[{id:'a',restore:async()=>{await Promise.resolve();order.push('a');throw Error('a conflict');}},{id:'b',restore:async()=>{await Promise.resolve();order.push('b');return true;}}],assertInputs:()=>{order.push('snapshot');},regenerate:[{id:'configure',run:async()=>{order.push('configure');}}],record:state=>{ledger=state;order.push('ledger');}})).rejects.toThrow();expect(order).toEqual(['a','b','snapshot','ledger']);expect(ledger.actions.map((a:any)=>[a.id,a.status])).toEqual([['a','failed'],['b','restored']]);expect(ledger.regeneration[0].status).toBe('skipped');});
++it.each(['restore','shutdown'])('false %s result prevents regeneration',async kind=>{let built=false;let ledger:any;await expect(cleanupMediaOptimization({stops:kind==='shutdown'?[{id:'owned',stop:()=>false}]:[],restores:[{id:'record',restore:()=>kind==='restore'?false:true}],assertInputs:()=>{},regenerate:[{id:'build',run:()=>{built=true;}}],record:state=>{ledger=state;}})).rejects.toThrow();expect(built).toBe(false);expect(ledger.regeneration[0].status).toBe('skipped');});
++it('shutdown rejection does not detach independent cleanup or allow regeneration',async()=>{const order:string[]=[];await expect(cleanupMediaOptimization({stops:[{id:'site',stop:async()=>{throw Error('shutdown failed');}},{id:'worker',stop:async()=>{order.push('worker');}}],restores:[{id:'record',restore:async()=>{order.push('record');}}],assertInputs:()=>{},regenerate:[{id:'build',run:()=>{order.push('build');}}],record:()=>{order.push('ledger');}})).rejects.toThrow();expect(order).toEqual(['worker','record','ledger']);});
++it('checks complete expected inputs again between configure and final build',async()=>{const root=project(),before=canonicalSnapshot(root),order:string[]=[];const run=createMediaAcceptanceRun({root,expected:()=>before,checkPorts:async()=>{}});await expect(cleanupMediaOptimization({stops:[],restores:[],assertInputs:()=>run.assertInputs(),regenerate:[{id:'configure',run:()=>{order.push('configure');writeFileSync(join(root,'content/pages/base.json'),'external');}},{id:'build',run:()=>{order.push('build');}}],record:()=>{}})).rejects.toThrow();expect(order).toEqual(['configure']);});
++it('retains failed child command PID, end time, output and final canonical comparison',async()=>{const root=project();const run=createMediaAcceptanceRun({root,checkPorts:async()=>{}});await expect(run.command(['-e',"console.log('owned failure');process.exit(3)"])).rejects.toThrow(/exit 3/);const row=JSON.parse(readFileSync(join(run.directory,'commands.json'),'utf8'))[0];expect(row.pid).toBeGreaterThan(0);expect(row.ended).toBeTruthy();expect(row.passed).toBe(false);expect(readFileSync(join(run.directory,row.log),'utf8')).toContain('owned failure');expect(run.finish().unchanged).toBe(true);});
++it('refuses commands when owned runtime shutdown remains unconfirmed',async()=>{const root=project();const run=createMediaAcceptanceRun({root,isStopped:()=>false,checkPorts:async()=>{}});await expect(run.command(['-e',"require('fs').writeFileSync('unexpected','bad')"])).rejects.toThrow(/shutdown/);expect(existsSync(join(root,'unexpected'))).toBe(false);});
++it.each(['static','native'])('fails incomplete %s phase before creating acceptance state or commands',async phase=>{const root=project();await expect(verifyMediaOptimization({root,phase})).rejects.toThrow(/not implemented/);expect(existsSync(join(root,'.generated'))).toBe(false);});
++it('runs a no-mutation orchestration smoke with actual child ownership and snapshots',async()=>{const root=project(),before=canonicalSnapshot(root);const result=await verifyMediaOptimization({root,phase:'smoke',checkPorts:async()=>{}});expect(result.unchanged).toBe(true);expect(canonicalSnapshot(root)).toEqual(before);expect(JSON.parse(readFileSync(join(result.directory,'commands.json'),'utf8'))[0].passed).toBe(true);});
++
++it('switches expected snapshots back to baseline before safe final regeneration',async()=>{const {root,f}=fixture();f.replaceProject('{"owned":true}');const run=createMediaAcceptanceRun({root,expected:f.expectedSnapshot,checkPorts:async()=>{}});await f.cleanup({regenerate:[{id:'final-command',run:()=>run.command(['-e',"console.log('restored baseline command')"])}]});expect(canonicalSnapshot(root)).toEqual(f.before);});
++it('rejects final regeneration that changes canonical inputs',async()=>{const root=project(),before=canonicalSnapshot(root);let ledger:any;const run=createMediaAcceptanceRun({root,expected:()=>before,checkPorts:async()=>{}});await expect(cleanupMediaOptimization({stops:[],restores:[],assertInputs:()=>run.assertInputs(),regenerate:[{id:'last',run:()=>{writeFileSync(join(root,'project.json'),'external');}}],record:state=>{ledger=state;}})).rejects.toThrow();expect(ledger.snapshot).toBe('failed');expect(ledger.regeneration[0].status).toBe('failed');});
++it('accepts pnpm forwarded option delimiters for the no-mutation smoke',()=>{const root=project();expect(()=>execFileSync(process.execPath,[resolve('scripts/verify-media-optimization.mjs'),'--','--smoke'],{cwd:root,stdio:'pipe'})).not.toThrow();});
++it('preserves external bytes after the actual pre-write owner revokes its claim',async()=>{const root=project(),path=join(root,'project.json'),owner=createWorkerEdit(createOwnedFileEdit(path,join(root,'backup')),()=>readFileSync(path));writeFileSync(path,'external after gate');expect(()=>owner.replace('owned')).toThrow(/ownership conflict/);let sibling=false,built=false,ledger:any;await expect(cleanupMediaOptimization({stops:[],restores:[{id:'project',restore:()=>owner.restore()},{id:'sibling',restore:async()=>{await Promise.resolve();sibling=true;}}],assertInputs:()=>{},regenerate:[{id:'build',run:()=>{built=true;}}],record:state=>{ledger=state;}})).rejects.toThrow();expect(readFileSync(path,'utf8')).toBe('external after gate');expect(sibling).toBe(true);expect(built).toBe(false);expect(ledger.actions.map((row:any)=>row.status)).toEqual(['failed','restored']);});
++it('uses the supported site build entry and refuses a second command after canonical drift',async()=>{const root=project(),marker=join(root,'.generated/build-entry');mkdirSync(join(root,'apps/site/scripts'),{recursive:true});writeFileSync(join(root,'apps/site/scripts/build.mjs'),"import{writeFileSync}from'node:fs';writeFileSync('.generated/build-entry','public build');");const run=createMediaAcceptanceRun({root,checkPorts:async()=>{}});await run.build();expect(readFileSync(marker,'utf8')).toBe('public build');writeFileSync(join(root,'content/pages/base.json'),'external');await expect(run.build()).rejects.toThrow(/snapshot conflict/);});
++it('restores an existing static document through exact owned-file bytes',async()=>{const root=project(),f=createMediaOptimizationFixture({root,documents:['content/pages/base.json']});f.replaceDocument('content/pages/base.json','{"owned":true}\n');expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('{"owned":true}\n');await f.cleanup();expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('base\n');});
++it('preserves a conflicted existing document and restores its independent sibling',async()=>{const root=project(),f=createMediaOptimizationFixture({root,documents:['content/pages/base.json','content/pages/proof.json']});f.replaceDocument('content/pages/base.json','owned');f.createDocument('content/pages/proof.json',{id:'proof'});writeFileSync(join(root,'content/pages/base.json'),'external');await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('external');expect(existsSync(join(root,'content/pages/proof.json'))).toBe(false);});

@@ -1,0 +1,15 @@
+# Final batched fix requirements
+
+Read this first: requirements for the single final fix wave after whole-branch review. Base 7a6420ea5faee7dd317b0fcd12bc4d9011032b8d. Read final-review.md for exact findings and contracts.md for binding constraints. Do not reread the full implementation plan. No subagents.
+
+Implement both Important findings I1 and I2 exactly as described in final-review.md. Preserve public candidate-family contract, original uploads, design, policy, source snapshots, sessions, cache atomicity/containment, native work ceiling and ownership. Static WebP must consume the actual cache/session result, single family only, passthrough stays original. Add actual WebP regression and scoped built-browser proof with demand/publication equality.
+
+For I2 choose and explain finite marker/manifest/output byte caps compatible with supported lossless source geometry; ensure expected manifest bytes validated before read, bounded opened-handle reads even on growth after stat, initial stat mismatch refusal when possible. Avoid a huge synthetic allocation in tests. Cover marker/manifest/output oversize and growth deterministically. Prove ordinary photo/alpha/orientation/warm-cache cases still pass.
+
+Minor triage: fix M3 inaccurate original-byte substitution wording. Address M1 exact expected item crop, copy and intrinsic/candidate dimensions in the touched browser fixture; do not broaden matrix gratuitously. Address M2 readability in touched paths only, no broad formatting. Address M4 owned temp-root cleanup in the three named tests (guarded exact owned roots, no reparse traversal, real child shutdown in finally); preserve deliberate failure artifacts where evidence requires them. If a minor cannot be addressed safely in this wave, explicitly report why and residual risk, never silently omit it.
+
+Use TDD for behavior fixes and retain raw RED/GREEN. Run focused covering tests, explicit pnpm check/test and appropriate build/browser proof for product changes. All canonical commands sequential/stopped-stack; preserve exact owned snapshots and cleanup helper rules. Existing seven gates and matrix timing must remain accurately attributed; do not claim old evidence at new source. No unnecessary broad native rerun if native path unchanged. No dependency upgrades or source/reference repo edits. Markdown English.
+
+Read AGENTS.md and required ownership docs before touching boundaries. Work only C:/Projects/bizness-starter-v2 on current branch. User authorizes implementation and local commits, no merge/push/tag/deploy/sending. Original launcher remains stopped until controller closeout. C: writes require escalated tool invocation.
+
+Write complete report at final-fix-report.md in this same directory: changes per finding, exact commands/logs/exits/counts, failure attempts, source timing, canonical snapshot proof, no remaining owned processes, self-review and residuals. Update permanent runtime/evidence docs only where relevant. Commit verified candidate for immutable scoped review, return only status/commit/tests/concerns. Do not clean plan scratch or restart launcher; controller owns closeout.

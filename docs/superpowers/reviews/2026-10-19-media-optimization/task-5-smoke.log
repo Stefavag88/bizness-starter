@@ -1,0 +1,6 @@
+
+> business-starter-v2@2.0.0-dev test:media-optimization C:\Projects\bizness-starter-v2
+> node scripts/verify-media-optimization.mjs "--smoke"
+
+Media acceptance no-mutation smoke
+Media acceptance evidence: C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-IPNOcU

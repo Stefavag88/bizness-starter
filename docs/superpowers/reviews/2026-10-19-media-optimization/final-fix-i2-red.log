@@ -1,0 +1,109 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-cache.test.ts (26 tests | 12 failed) 3034ms
+   × refuses oversized marker before any whole-file allocation 61ms
+   × refuses oversized manifest before any whole-file allocation 57ms
+   × refuses oversized output before any whole-file allocation 56ms
+   × bounds opened-handle marker reads when it grows after stat 57ms
+   × bounds opened-handle manifest reads when it grows after stat 57ms
+   × bounds opened-handle output reads when it grows after stat 53ms
+   × regenerates unbounded/invalid manifest byte field 0 before reading output 55ms
+   × regenerates unbounded/invalid manifest byte field -1 before reading output 57ms
+   × regenerates unbounded/invalid manifest byte field 1.5 before reading output 57ms
+   × regenerates unbounded/invalid manifest byte field 167772161 before reading output 55ms
+   × regenerates unbounded/invalid manifest byte field 100 before reading output 56ms
+   × refuses an initial output length mismatch before reading output bytes 132ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-cache.test.ts > refuses oversized marker before any whole-file allocation
+ FAIL  tests/media-cache.test.ts > refuses oversized manifest before any whole-file allocation
+ FAIL  tests/media-cache.test.ts > refuses oversized output before any whole-file allocation
+AssertionError: expected [Function] to throw error matching /byte|size|length|limit/i but got 'Unbounded allocation tripwire'
+
+- Expected:
+/byte|size|length|limit/i
+
++ Received:
+"Unbounded allocation tripwire"
+
+ ❯ tests/media-cache.test.ts:138:50
+    136|   return original.apply(this,args);
+    137|  });
+    138|  await expect(readCachedCandidate(root,candidate)).rejects.toThrow(/by…
+       |                                                  ^
+    139|  expect(unbounded).toBe(0);
+    140| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/media-cache.test.ts > bounds opened-handle marker reads when it grows after stat
+ FAIL  tests/media-cache.test.ts > bounds opened-handle manifest reads when it grows after stat
+ FAIL  tests/media-cache.test.ts > bounds opened-handle output reads when it grows after stat
+AssertionError: expected [Function] to throw error matching /byte|size|length|limit/i but got 'Unbounded allocation tripwire'
+
+- Expected:
+/byte|size|length|limit/i
+
++ Received:
+"Unbounded allocation tripwire"
+
+ ❯ tests/media-cache.test.ts:156:50
+    154|   return originalReadFile.apply(this,args);
+    155|  });
+    156|  await expect(readCachedCandidate(root,candidate)).rejects.toThrow(/by…
+       |                                                  ^
+    157|  expect(grew).toBe(true);expect(unbounded).toBe(0);
+    158| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/media-cache.test.ts > regenerates unbounded/invalid manifest byte field 0 before reading output
+ FAIL  tests/media-cache.test.ts > regenerates unbounded/invalid manifest byte field -1 before reading output
+ FAIL  tests/media-cache.test.ts > regenerates unbounded/invalid manifest byte field 1.5 before reading output
+ FAIL  tests/media-cache.test.ts > regenerates unbounded/invalid manifest byte field 167772161 before reading output
+ FAIL  tests/media-cache.test.ts > regenerates unbounded/invalid manifest byte field 100 before reading output
+AssertionError: expected [Function] to throw error matching /byte|size|length|limit/i but got 'Invalid media cache output hash'
+
+- Expected:
+/byte|size|length|limit/i
+
++ Received:
+"Invalid media cache output hash"
+
+ ❯ tests/media-cache.test.ts:163:77
+    161|  const path=file(candidate.src)+'.json';const manifest=JSON.parse(awai…
+    162|  manifest.bytes=bytes;await writeFile(path,JSON.stringify(manifest));
+    163|  await expect(readCachedCandidate(root,{...candidate,bytes:bytes as nu…
+       |                                                                             ^
+    164|  const repaired=await resolveCachedMedia(root,source,policy);
+    165|  expect((await readCachedCandidate(root,repaired.webp[0])).bytes.lengt…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/media-cache.test.ts > refuses an initial output length mismatch before reading output bytes
+AssertionError: expected [Function] to throw error matching /byte|size|length|limit/i but got 'Unbounded allocation tripwire'
+
+- Expected:
+/byte|size|length|limit/i
+
++ Received:
+"Unbounded allocation tripwire"
+
+ ❯ tests/media-cache.test.ts:176:50
+    174|   return original.apply(this,args);
+    175|  });
+    176|  await expect(readCachedCandidate(root,candidate)).rejects.toThrow(/by…
+       |                                                  ^
+    177| });
+    178|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed | 14 passed (26)
+   Start at  21:46:13
+   Duration  3.67s (tests 88%, import 9%, transform 3%)
+

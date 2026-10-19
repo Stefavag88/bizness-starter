@@ -1,0 +1,72 @@
+[
+  {
+    "width": 320,
+    "height": 143,
+    "format": "webp",
+    "bytes": 8940,
+    "originalBytes": 1610954
+  },
+  {
+    "width": 640,
+    "height": 287,
+    "format": "webp",
+    "bytes": 31722,
+    "originalBytes": 1610954
+  },
+  {
+    "width": 960,
+    "height": 431,
+    "format": "webp",
+    "bytes": 69668,
+    "originalBytes": 1610954
+  },
+  {
+    "width": 1440,
+    "height": 647,
+    "format": "webp",
+    "bytes": 155210,
+    "originalBytes": 1610954
+  },
+  {
+    "width": 1920,
+    "height": 863,
+    "format": "webp",
+    "bytes": 275784,
+    "originalBytes": 1610954
+  },
+  {
+    "width": 320,
+    "height": 143,
+    "format": "jpeg",
+    "bytes": 10205,
+    "originalBytes": 1610954
+  },
+  {
+    "width": 640,
+    "height": 287,
+    "format": "jpeg",
+    "bytes": 36702,
+    "originalBytes": 1610954
+  },
+  {
+    "width": 960,
+    "height": 431,
+    "format": "jpeg",
+    "bytes": 80283,
+    "originalBytes": 1610954
+  },
+  {
+    "width": 1440,
+    "height": 647,
+    "format": "jpeg",
+    "bytes": 178379,
+    "originalBytes": 1610954
+  },
+  {
+    "width": 1920,
+    "height": 863,
+    "format": "jpeg",
+    "bytes": 314123,
+    "originalBytes": 1610954
+  }
+]

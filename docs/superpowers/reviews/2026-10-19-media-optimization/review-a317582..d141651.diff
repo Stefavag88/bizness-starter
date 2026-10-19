@@ -1,0 +1,94 @@
+# Review package: a317582..d141651
+
+## Commits
+d141651 fix: reject media output ancestor junctions
+
+## Files changed
+ packages/media/session.mjs  | 24 +++++++++++++++++++++---
+ tests/media-session.test.ts | 10 ++++++++++
+ 2 files changed, 31 insertions(+), 3 deletions(-)
+
+## Diff
+diff --git a/packages/media/session.mjs b/packages/media/session.mjs
+index b06815f..00b442b 100644
+--- a/packages/media/session.mjs
++++ b/packages/media/session.mjs
+@@ -1,32 +1,50 @@
+ // Server-only demand ownership. No cache inventory is used to authorize publication.
+-import {resolve,join,basename} from 'node:path';
++import {resolve,join,basename,dirname} from 'node:path';
+ import {lstat,mkdir,readFile,writeFile,rename,unlink} from 'node:fs/promises';
+ import {randomUUID} from 'node:crypto';
+ import {readValidatedSource} from './source-reader.mjs';
+ import {resolveCachedMedia,readCachedCandidate} from './cache.mjs';
+ const URL_PATTERN=/^\/_media\/v1\/[a-f0-9]{64}\.(png|jpeg|webp)$/;
+ const key=root=>{const path=resolve(root).replaceAll('\\','/').replace(/\/$/,'');return process.platform==='win32'?path.toLowerCase():path;};
+ // Vite SSR and the integration can load distinct copies of this module in one
+ // process. The registry shares only explicitly begun sessions across those copies.
+ const registrySymbol=Symbol.for('starter.media.session.registry.v1');
+ const registry=globalThis[registrySymbol] ??= new Map();
++// Check from the filesystem anchor down, before creating any output. Checking
++// only the leaf follows a junction in an ancestor before lstat can reject it.
++async function validateDirectoryChain(path,allowMissing=false){
++ const chain=[];let cursor=resolve(path);
++ for(;;){chain.push(cursor);const parent=dirname(cursor);if(parent===cursor)break;cursor=parent;}
++ for(const directory of chain.reverse()){
++  let stat;
++  try {stat=await lstat(directory);}catch(error){if(allowMissing&&error.code==='ENOENT')return;throw error;}
++  if(stat.isSymbolicLink()||!stat.isDirectory())throw new Error('Unsafe media publication symlink/reparse directory');
++ }
++}
+ async function safeDirectory(path){
++ await validateDirectoryChain(path,true);
+  try {await mkdir(path);}catch(error){if(error.code!=='EEXIST')throw error;}
+- const stat=await lstat(path);if(stat.isSymbolicLink()||!stat.isDirectory())throw new Error('Unsafe media publication symlink/reparse directory');
++ await validateDirectoryChain(path);
+ }
+ async function publishFile(outDir,candidate,bytes){
+  const root=resolve(outDir);await safeDirectory(root);const media=join(root,'_media');await safeDirectory(media);const dir=join(media,'v1');await safeDirectory(dir);
+  const file=join(dir,basename(candidate.src));
+  try {const stat=await lstat(file);if(stat.isSymbolicLink()||!stat.isFile())throw new Error('Unsafe media publication symlink/reparse file');if(!(await readFile(file)).equals(bytes))throw new Error('Conflicting media publication bytes');return;}catch(error){if(error.code!=='ENOENT')throw error;}
+  const temp=join(dir,`.${randomUUID()}.tmp`);
+- try {await writeFile(temp,bytes,{flag:'wx'});await rename(temp,file);}finally{await unlink(temp).catch(error=>{if(error.code!=='ENOENT')throw error;});}
++ try {
++  await validateDirectoryChain(dir);await writeFile(temp,bytes,{flag:'wx'});
++  await validateDirectoryChain(dir);await rename(temp,file);
++ }finally{
++  await validateDirectoryChain(dir);
++  await unlink(temp).catch(error=>{if(error.code!=='ENOENT')throw error;});
++ }
+ }
+ export function createMediaSession({root,policy,mode}){
+  root=resolve(root);policy={...policy,widths:[...policy.widths]};
+  let closed=false;const demanded=new Map(),pending=new Set(),sources=new Map();let failure;
+  function assertOpen(){if(closed)throw new Error('Media session is closed');}
+  async function drain(){while(pending.size)await Promise.allSettled([...pending]);}
+  function track(work){pending.add(work);work.then(()=>pending.delete(work),error=>{failure??=error;pending.delete(work);});return work;}
+  const session={
+   async resolve(src){
+    assertOpen();
+diff --git a/tests/media-session.test.ts b/tests/media-session.test.ts
+index a08a228..26732c8 100644
+--- a/tests/media-session.test.ts
++++ b/tests/media-session.test.ts
+@@ -33,10 +33,20 @@ it('refuses symlinked output namespaces without changing their targets',async()=
+ 
+ it('drains delayed sibling cache work before rejection and session close',async()=>{
+  const {open}=await import('node:fs/promises');const probe=await open(join(root,'probe'),'w');const proto=Object.getPrototypeOf(probe);const original=proto.writeFile;await probe.close();let active=0,completed=0;
+  vi.spyOn(proto,'writeFile').mockImplementation(async function(this:any,data:any,...args:any[]){
+   if(typeof data==='string'&&data.startsWith('{"identity":')){
+    active++;try {if(data.includes('"format":"webp"'))throw new Error('Controlled cache failure');await new Promise(r=>setTimeout(r,100));completed++;return await original.call(this,data,...args);}finally{active--;}
+   }return original.call(this,data,...args);
+  });
+  const session=createMediaSession({root,policy,mode:'build'});await expect(session.resolve('/uploads/a.png')).rejects.toThrow(/Controlled cache failure/);await session.close();expect(active).toBe(0);expect(completed).toBe(2);
+ });
++
++it.each([false,true])('rejects junction ancestors before creating output for demanded=%s',async(demanded)=>{
++ const outside=join(root,'outside'),redirect=join(root,'redirect');await mkdir(outside);await writeFile(join(outside,'keep'),'unchanged');await symlink(outside,redirect,'junction');
++ const session=createMediaSession({root,policy:{...policy,enabled:demanded},mode:'build'});
++ try {
++  if(demanded)await session.resolve('/uploads/a.png');
++  await expect(session.publish(join(redirect,'dist'))).rejects.toThrow(/symlink|reparse/);
++  expect(await readdir(outside)).toEqual(['keep']);expect(await readFile(join(outside,'keep'),'utf8')).toBe('unchanged');
++ }finally{await session.close();}
++});

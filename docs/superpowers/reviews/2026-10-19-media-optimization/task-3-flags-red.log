@@ -1,0 +1,21 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-integration.test.ts (5 tests | 1 failed) 3953ms
+   × preserves supported build options instead of silently discarding forwarded CLI flags 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-integration.test.ts > preserves supported build options instead of silently discarding forwarded CLI flags
+TypeError: parseBuildArgs is not a function
+ ❯ tests/media-integration.test.ts:43:9
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  16:15:56
+   Duration  4.57s (tests 91%, import 6%, transform 2%)
+

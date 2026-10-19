@@ -1,0 +1,75 @@
+
+> business-starter-v2@2.0.0-dev test:footer C:\Projects\bizness-starter-v2
+> vitest run --config apps/site/vitest.config.ts
+
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+ ❯ tests/composition-b-media.test.ts (0 test)
+ ❯ tests/showcase.test.ts (3 tests | 1 failed) 67ms
+   × renders real bilingual sample groups with unique IDs, one H1 and disabled toolbar 24ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/composition-b-media.test.ts [ tests/composition-b-media.test.ts ]
+Error: Transform failed with 1 error:
+C:/Projects/bizness-starter-v2/apps/site/tests/composition-b-media.test.ts:8:6: ERROR: The symbol "mediaRoot" has already been declared
+  Plugin: vite:esbuild
+  File: C:/Projects/bizness-starter-v2/apps/site/tests/composition-b-media.test.ts:8:6
+  
+  The symbol "mediaRoot" has already been declared
+  6  |  import {beforeEach,afterEach} from 'vitest';
+  7  |  import {beginMediaSession,endMediaSession} from '../../../packages/media/session.mjs';
+  8  |  const mediaRoot=fileURLToPath(new URL('../../../',import.meta.url));
+     |        ^
+  9  |  beforeEach(()=>{beginMediaSession({root:mediaRoot,policy:{enabled:true,widths:[320,640,960,1440,1920],quality:80},mod...
+  10 |  afterEach(async()=>{await endMediaSession(mediaRoot);});
+  
+ ❯ failureErrorWithLog ../../node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1752:15
+ ❯ ../../node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1019:50
+ ❯ responseCallbacks.<computed> ../../node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:886:9
+ ❯ handleIncomingPacket ../../node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:941:12
+ ❯ Socket.readFromStdout ../../node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/showcase.test.ts > renders real bilingual sample groups with unique IDs, one H1 and disabled toolbar
+Error: Page unknown, section showcase-en-media-text-default: cannot render image /uploads/starter-samples/abstract-landscape.png. Choose an existing valid local upload. No active media session for this project root
+ ❯ resolveSectionMedia src/lib/section-media.ts:18:11
+
+ ❯ src/templates/sections/MediaText.astro:9:1
+ ❯ AstroComponentInstance.MediaText [as factory] ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/astro-component.js:16:12
+ ❯ AstroComponentInstance.init ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/astro/instance.js:41:29
+ ❯ renderStreaming ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/streaming.js:231:32
+ ❯ renderStreamToString ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/astro/render.js:34:24
+ ❯ renderToString ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/astro/render.js:212:10
+ ❯ renderPage ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/page.js:60:12
+ ❯ handlePages ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/core/pages/handler.js:33:20
+
+Caused by: Error: No active media session for this project root
+ ❯ getMediaSession ../../packages/media/session.mjs:45:95
+ ❯ resolveSectionMedia src/lib/section-media.ts:16:18
+ ❯ src/templates/sections/MediaText.astro:9:1
+ ❯ AstroComponentInstance.MediaText [as factory] ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/astro-component.js:16:12
+ ❯ AstroComponentInstance.init ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/astro/instance.js:41:29
+ ❯ renderStreaming ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/streaming.js:231:32
+ ❯ renderStreamToString ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/astro/render.js:34:24
+ ❯ renderToString ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/astro/render.js:212:10
+ ❯ renderPage ../../node_modules/.pnpm/astro@7.3.6_@types+node@24._3135dd05f63e5a3c767651870f2e3b37/node_modules/astro/dist/runtime/server/render/page.js:60:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 4 passed (6)
+      Tests  1 failed | 13 passed (14)
+   Start at  16:14:16
+   Duration  2.83s (transform 61%, import 35%, tests 3%)
+
+  Transform  transforming modules took 7.37s · 61% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+
+ ELIFECYCLE  Command failed with exit code 1.

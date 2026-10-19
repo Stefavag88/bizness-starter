@@ -1,0 +1,114 @@
+
+> business-starter-v2@2.0.0-dev check C:\Projects\bizness-starter-v2
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\bizness-starter-v2\apps\site
+> astro check
+
+17:25:15 [vite] Re-optimizing dependencies because vite config has changed
+17:25:16 [types] Generated 259ms
+17:25:16 [check] Getting diagnostics for Astro files in C:\Projects\bizness-starter-v2\apps\site...
+Result (53 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+
+> business-starter-v2@2.0.0-dev test C:\Projects\bizness-starter-v2
+> pnpm configure && vitest run && pnpm test:footer
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+owned failure
+node:internal/modules/cjs/loader:1424
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\Vag\AppData\Local\Temp\media-acceptance-y05YXX\node_modules\@playwright\test\cli.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1064:22)
+    at Module._load (node:internal/modules/cjs/loader:1227:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v24.12.0
+node:internal/modules/cjs/loader:1424
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\Vag\AppData\Local\Temp\media-acceptance-HwOdG9\node_modules\@playwright\test\cli.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1064:22)
+    at Module._load (node:internal/modules/cjs/loader:1227:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v24.12.0
+Media acceptance no-mutation smoke
+restored baseline command
+(node:34592) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+sole child closed
+later eligible child
+later eligible child
+(node:1760) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+later eligible child
+(node:14488) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31284) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14412) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32996) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  76 passed | 1 skipped (77)
+      Tests  743 passed | 1 skipped (744)
+   Start at  17:25:23
+   Duration  14.47s (tests 65%, import 27%, transform 8%, worker 1%)
+
+    Isolate  77 workers spawned · ~347ms startup each (spawn + environment, per file)
+             at least ~1.06s faster with isolate: false — reuses workers across files instead of one per file
+
+
+> business-starter-v2@2.0.0-dev test:footer C:\Projects\bizness-starter-v2
+> vitest run --config apps/site/vitest.config.ts
+
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+
+ Test Files  7 passed (7)
+      Tests  24 passed (24)
+   Start at  17:25:41
+   Duration  2.80s (transform 56%, import 38%, tests 6%)
+
+  Transform  transforming modules took 8.88s · 56% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

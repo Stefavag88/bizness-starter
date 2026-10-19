@@ -1,0 +1,28 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-cache.test.ts (11 tests | 1 failed) 1314ms
+   × does not trust forged manifest dimensions even when a replacement output has a matching hash 85ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-cache.test.ts > does not trust forged manifest dimensions even when a replacement output has a matching hash
+AssertionError: expected 50 to be 80 // Object.is equality
+
+- Expected
++ Received
+
+- 80
++ 50
+
+ ❯ tests/media-cache.test.ts:72:89
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  15:56:37
+   Duration  1.93s (tests 77%, import 17%, transform 5%)
+

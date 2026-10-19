@@ -1,0 +1,28 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-cache.test.ts (10 tests | 1 failed) 992ms
+   × commits the pipeline marker atomically for concurrent first requests 22ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-cache.test.ts > commits the pipeline marker atomically for concurrent first requests
+Error: Foreign media cache pipeline marker
+ ❯ cacheDirectory packages/media/cache.mjs:53:64
+     51|     finally {await handle?.close();}
+     52|   }
+     53|   if ((await readRegular(marker)).toString() !== MARKER) throw new Err…
+       |                                                                ^
+     54|   return dir;
+     55| }
+ ❯ resolveCachedMedia packages/media/cache.mjs:126:13
+ ❯ tests/media-cache.test.ts:68:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  15:55:35
+   Duration  1.60s (tests 73%, import 20%, transform 6%, worker 1%)
+

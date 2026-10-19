@@ -1,0 +1,179 @@
+# Review package: 6655194..4c51d0c
+
+## Commits
+4c51d0c fix: bound native image cache validation work
+
+## Files changed
+ packages/media/cache.mjs          | 13 ++++++-----
+ packages/media/optimization.d.mts |  2 ++
+ packages/media/optimization.mjs   |  6 ++---
+ tests/media-cache.test.ts         | 46 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 59 insertions(+), 8 deletions(-)
+
+## Diff
+diff --git a/packages/media/cache.mjs b/packages/media/cache.mjs
+index b1a6410..fc1c136 100644
+--- a/packages/media/cache.mjs
++++ b/packages/media/cache.mjs
+@@ -1,16 +1,16 @@
+ // Server-only cache. URLs and manifest names never supply filesystem paths.
+ import sharp from 'sharp';
+ import { createHash, randomUUID } from 'node:crypto';
+ import { lstat, mkdir, open, realpath, rename, unlink, link } from 'node:fs/promises';
+ import { join, resolve, relative, isAbsolute } from 'node:path';
+-import { candidateWidths, encodeCandidate, PIPELINE_VERSION, ENCODING_POLICY, SHARP_VERSION } from './optimization.mjs';
++import { candidateWidths, encodeCandidate, withNativeImageWork, PIPELINE_VERSION, ENCODING_POLICY, SHARP_VERSION } from './optimization.mjs';
+ export { candidateWidths } from './optimization.mjs';
+ const MARKER = 'starter-media-optimization-cache-v1\n';
+ const CACHE_PARTS = ['.generated','media-optimization','cache','v1'];
+ const URL = /^\/_media\/v1\/([a-f0-9]{64})\.(png|jpeg|webp)$/;
+ const inFlight = new Map();
+ const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+ const identityHash = identity => hash(JSON.stringify(identity));
+ function identity(source, width, format, quality) {
+   return {source,width,format,quality,sharp:SHARP_VERSION,pipeline:PIPELINE_VERSION,policy:ENCODING_POLICY};
+ }
+@@ -64,24 +64,27 @@ async function validate(dir, candidate, expectedIdentity) {
+   const id = candidateIdentity(candidate);
+   const file = join(dir,`${id}.${candidate.format}`);
+   const manifest = JSON.parse((await readRegular(file+'.json')).toString());
+   const i = manifest.identity;
+   if (!i || typeof i.source !== 'string' || !/^[a-f0-9]{64}$/.test(i.source) || !Number.isInteger(i.width) || i.width < 1 || i.width > 2560 || !Number.isInteger(i.quality) || i.quality < 40 || i.quality > 95) throw new Error('Invalid media cache manifest identity');
+   const canonical = identity(i.source,i.width,i.format,i.quality);
+   if (JSON.stringify(i) !== JSON.stringify(canonical) || identityHash(canonical) !== id || (expectedIdentity && JSON.stringify(i) !== JSON.stringify(expectedIdentity)) || i.format !== candidate.format || i.width !== candidate.width) throw new Error('Invalid media cache manifest identity');
+   if (manifest.width !== candidate.width || manifest.height !== candidate.height || manifest.bytes !== candidate.bytes || manifest.file !== `${id}.${candidate.format}`) throw new Error('Invalid media cache manifest metadata');
+   const bytes = await readRegular(file);
+   if (bytes.length !== candidate.bytes || hash(bytes) !== manifest.sha256) throw new Error('Invalid media cache output hash');
+-  const decoder = sharp(bytes,{limitInputPixels:40000000,failOn:'warning'});
+-  const m = await decoder.metadata();
+-  if (m.format !== candidate.format || m.width !== candidate.width || m.height !== candidate.height || (m.pages ?? 1) !== 1 || m.orientation) throw new Error('Invalid media cache decoded dimensions');
+-  await decoder.raw().toBuffer();
++  // Acquire only for this decode, never around a cache resolution that may encode.
++  await withNativeImageWork(async () => {
++    const decoder = sharp(bytes,{limitInputPixels:40000000,failOn:'warning'});
++    const m = await decoder.metadata();
++    if (m.format !== candidate.format || m.width !== candidate.width || m.height !== candidate.height || (m.pages ?? 1) !== 1 || m.orientation) throw new Error('Invalid media cache decoded dimensions');
++    await decoder.raw().toBuffer();
++  });
+   return {bytes,contentType:`image/${candidate.format}`};
+ }
+ /** Reads only a strictly identified, verified candidate; session demand is owned by the caller. */
+ export async function readCachedCandidate(root,candidate) {
+   candidateIdentity(candidate);
+   return validate(await cacheDirectory(root,false),candidate);
+ }
+ async function atomicWrite(root,dir,name,bytes) {
+   await cacheDirectory(root,false);
+   const destination = join(dir,name);
+diff --git a/packages/media/optimization.d.mts b/packages/media/optimization.d.mts
+index 23bd4d2..502dce1 100644
+--- a/packages/media/optimization.d.mts
++++ b/packages/media/optimization.d.mts
+@@ -1,9 +1,11 @@
+ import type { SourceMedia } from './source.mjs';
+ export interface ImageCandidate { src: string; width: number; height: number; format: 'png' | 'jpeg' | 'webp'; bytes: number }
+ export interface ResponsiveMedia extends SourceMedia { fallback: ImageCandidate[]; webp: ImageCandidate[]; passthroughReason?: 'disabled' | 'animated-or-multipage' }
+ export function candidateWidths(sourceWidth: number, widths: number[]): number[];
+ export const PIPELINE_VERSION: string;
+ export const ENCODING_POLICY: string;
+ export const SHARP_VERSION: string;
+ /** Server-only bounded encoder; consumes validated bytes. */
+ export function encodeCandidate(bytes: Buffer, width: number, format: ImageCandidate['format'], quality: number): Promise<{bytes: Buffer; width: number; height: number}>;
++/** Server-only shared process-wide bound for encodes and full validation decodes. Call once per native job; do not nest acquisitions. */
++export function withNativeImageWork<T>(job: () => Promise<T>): Promise<T>;
+diff --git a/packages/media/optimization.mjs b/packages/media/optimization.mjs
+index 4716ba6..e8a7cb6 100644
+--- a/packages/media/optimization.mjs
++++ b/packages/media/optimization.mjs
+@@ -1,27 +1,27 @@
+-// Server-only bounded encoder. All callers share these two transformation slots.
++// Server-only encoder. Encodes and full cache validation share two native-work slots.
+ import sharp from 'sharp';
+ export const PIPELINE_VERSION = 'v1-rotate-resize-lossless-png-1';
+ export const ENCODING_POLICY = 'auto-orient;inside;without-enlargement;strip-metadata;png-lossless';
+ export const SHARP_VERSION = sharp.versions.sharp;
+ let active = 0;
+ const waiting = [];
+-async function transformSlot(job) {
++export async function withNativeImageWork(job) {
+   if (active >= 2) await new Promise(resolve => waiting.push(resolve));
+   else active++;
+   try { return await job(); }
+   finally { const next = waiting.shift(); if (next) next(); else active--; }
+ }
+ export function candidateWidths(sourceWidth, widths) {
+   return [...new Set([...widths.filter(width => width <= sourceWidth), Math.min(sourceWidth, widths.at(-1))])].sort((a,b) => a-b);
+ }
+ export async function encodeCandidate(bytes, width, format, quality) {
+-  return transformSlot(async () => {
++  return withNativeImageWork(async () => {
+     let image = sharp(bytes, { limitInputPixels: 40000000, failOn: 'warning' }).rotate().resize({width,withoutEnlargement:true});
+     if (format === 'png') image = image.png();
+     else if (format === 'jpeg') image = image.jpeg({quality});
+     else if (format === 'webp') image = image.webp({quality});
+     else throw new Error(`Unsupported media output format: ${format}`);
+     const {data,info} = await image.toBuffer({resolveWithObject:true});
+     return {bytes:data,width:info.width,height:info.height};
+   });
+ }
+diff --git a/tests/media-cache.test.ts b/tests/media-cache.test.ts
+index c3ee0af..c14bfc9 100644
+--- a/tests/media-cache.test.ts
++++ b/tests/media-cache.test.ts
+@@ -68,10 +68,56 @@ it('commits the pipeline marker atomically for concurrent first requests',async(
+  const s=await snapshot();const results=await Promise.all([resolveCachedMedia(root,s,policy),resolveCachedMedia(root,s,policy)]);expect(results[0].webp).toEqual(results[1].webp);
+ });
+ it('does not trust forged manifest dimensions even when a replacement output has a matching hash',async()=>{
+  const {createHash}=await import('node:crypto');const s=await snapshot();const r=await resolveCachedMedia(root,s,policy);const c=r.webp[0];const bytes=await sharp({create:{width:160,height:78,channels:3,background:'red'}}).webp().toBuffer();const m=JSON.parse(await readFile(file(c.src)+'.json','utf8'));m.height=78;m.bytes=bytes.length;m.sha256=createHash('sha256').update(bytes).digest('hex');await writeFile(file(c.src),bytes);await writeFile(file(c.src)+'.json',JSON.stringify(m));
+  const repaired=await resolveCachedMedia(root,s,policy);expect(repaired.webp[0].height).toBe(80);expect((await sharp((await readCachedCandidate(root,repaired.webp[0])).bytes).metadata()).height).toBe(80);
+ });
+ it('reuses photographic output despite Sharp shrink-on-load height rounding',async()=>{
+  await writeFile(join(uploads,'photo.jpg'),await readFile(new URL('./fixtures/media-optimization/large-photo.jpg',import.meta.url)));const s=await readValidatedSource(root,'/uploads/photo.jpg');const r=await resolveCachedMedia(root,s,{...policy,widths:[320]});const before=await Promise.all([...r.webp,...r.fallback].map(c=>stat(file(c.src))));
+  const again=await resolveCachedMedia(root,s,{...policy,widths:[320]});expect(again.webp).toEqual(r.webp);expect(again.fallback).toEqual(r.fallback);const after=await Promise.all([...r.webp,...r.fallback].map(c=>stat(file(c.src))));expect(after.map(x=>x.mtimeMs)).toEqual(before.map(x=>x.mtimeMs));
+ });
++
++// Observe both resized encodes and raw validation decodes. Keep real native work;
++// delay its completion briefly so independent requests overlap deterministically.
++function observeNativeImageWork() {
++ const state={active:0,max:0,decodes:0,transforms:0};
++ const proto=Object.getPrototypeOf(sharp());
++ const original=proto.toBuffer;
++ vi.spyOn(proto,'toBuffer').mockImplementation(async function(this:any,...args:any[]) {
++  state.active++;state.max=Math.max(state.max,state.active);
++  if(this.options.width>0)state.transforms++;else state.decodes++;
++  try {const result=await original.apply(this,args);await new Promise(resolve=>setTimeout(resolve,10));return result;}
++  finally {state.active--;}
++ });
++ return state;
++}
++
++it('bounds full warm-cache validation to two native jobs across roots and six-width families',async()=>{
++ const other=await mkdtemp(join(tmpdir(),'media-warm-bounded-'));
++ try {
++  await writeFile(join(uploads,'a.png'),await sharp({create:{width:1200,height:600,channels:4,background:'#a85'}}).png().toBuffer());
++  const s=await snapshot();const six={...policy,widths:[160,320,480,640,800,960]};
++  await resolveCachedMedia(root,s,six);await resolveCachedMedia(other,s,six);
++  const work=observeNativeImageWork();
++  const results=await Promise.all([resolveCachedMedia(root,s,six),resolveCachedMedia(other,s,six)]);
++  expect(results.map(r=>r.webp.length+r.fallback.length)).toEqual([12,12]);
++  expect(work.decodes).toBe(24);expect(work.transforms).toBe(0);
++  expect(work.max).toBe(2);expect(work.active).toBe(0);
++ } finally {await rm(other,{recursive:true,force:true});}
++});
++
++it('shares two native slots between direct cached reads and cold transforms across roots',async()=>{
++ const other=await mkdtemp(join(tmpdir(),'media-read-bounded-'));
++ try {
++  const s=await snapshot();const a=await resolveCachedMedia(root,s,policy);const b=await resolveCachedMedia(other,s,policy);
++  const candidatesA=[...a.webp,...a.fallback],candidatesB=[...b.webp,...b.fallback];
++  const work=observeNativeImageWork();
++  const results=await Promise.all([
++   ...candidatesA.map(c=>readCachedCandidate(root,c)),
++   ...candidatesB.map(c=>readCachedCandidate(other,c)),
++   resolveCachedMedia(other,s,{...policy,quality:90})
++  ]);
++  for(const result of results.slice(0,8))expect('bytes' in result && result.bytes.length).toBeGreaterThan(0);
++  expect(work.decodes).toBe(8);expect(work.transforms).toBe(4);
++  expect(work.max).toBe(2);expect(work.active).toBe(0);
++ } finally {await rm(other,{recursive:true,force:true});}
++});

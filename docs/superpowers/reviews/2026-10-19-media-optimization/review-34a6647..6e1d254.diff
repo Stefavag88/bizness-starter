@@ -1,0 +1,151 @@
+# Review package: 34a6647..6e1d254
+
+## Commits
+6e1d254 test: reserve media command admission before async gates
+
+## Files changed
+ scripts/media-optimization-acceptance.mjs | 56 +++++++++++++++++++++++++++----
+ tests/media-optimization-cleanup.test.ts  | 44 ++++++++++++++++++++++++
+ 2 files changed, 93 insertions(+), 7 deletions(-)
+
+## Diff
+diff --git a/scripts/media-optimization-acceptance.mjs b/scripts/media-optimization-acceptance.mjs
+index 951145f..bde8686 100644
+--- a/scripts/media-optimization-acceptance.mjs
++++ b/scripts/media-optimization-acceptance.mjs
+@@ -5,27 +5,69 @@ import {canonicalSnapshot,assertCanonicalSnapshot} from './composition-c-snapsho
+ import {runOwnedCommand} from './owned-command.mjs';
+ import {assertPortsFree,resolvePorts} from './ports.mjs';
+ /** Owns only subprocesses created here, with timeout cleanup delegated to runOwnedCommand. */
+ export function createMediaAcceptanceRun({root=process.cwd(),expected,isStopped=()=>true,checkPorts=()=>assertPortsFree(resolvePorts())}={}){
+  root=resolve(root);const before=canonicalSnapshot(root);expected??=()=>before;
+  const parent=join(root,'.generated/media-optimization');mkdirSync(parent,{recursive:true});const directory=mkdtempSync(join(parent,'acceptance-'));
+  const commands=[],log=(name,value)=>writeFileSync(join(directory,name),JSON.stringify(value,null,2)+'\n');
+  log('canonical-before.json',before);log('commands.json',commands);
+  const assertInputs=()=>assertCanonicalSnapshot(expected(),root);
+  let active=false;
+- async function command(args,{cwd=root,timeoutMs=1800000,env={}}={}){
+-  if(active||!isStopped())throw Error('Owned runtime shutdown unconfirmed; command refused');
+-  assertInputs();await checkPorts();assertInputs();
+-  const row={executable:process.execPath,args,cwd,started:new Date().toISOString(),ended:null,pid:null,passed:false,log:`command-${commands.length+1}.log`};commands.push(row);log('commands.json',commands);active=true;
+-  try{await runOwnedCommand(process.execPath,args,{cwd,timeoutMs,env:{...process.env,ASTRO_TELEMETRY_DISABLED:'1',WRANGLER_SEND_METRICS:'false',XDG_CONFIG_HOME:join(directory,'config'),WRANGLER_LOG_PATH:join(directory,'wrangler-logs'),...env},onStart:pid=>{row.pid=pid;log('commands.json',commands);},onOutput:text=>{appendFileSync(join(directory,row.log),text);process.stdout.write(text);}});assertInputs();row.passed=true;}
+-  catch(error){row.error=String(error);throw error;}
+-  finally{active=false;row.ended=new Date().toISOString();log('commands.json',commands);}
++ async function command(args, {cwd = root, timeoutMs = 1800000, env = {}} = {}) {
++  if (active) throw Error('Owned runtime shutdown unconfirmed; command refused');
++  // Admission includes asynchronous gates, not only the spawned child lifetime.
++  active = true;
++  let row;
++  try {
++   if (!isStopped()) throw Error('Owned runtime shutdown unconfirmed; command refused');
++   assertInputs();
++   await checkPorts();
++   if (!isStopped()) throw Error('Owned runtime shutdown unconfirmed; command refused');
++   assertInputs();
++   row = {
++    executable: process.execPath, args, cwd,
++    started: new Date().toISOString(), ended: null, pid: null, passed: false,
++    log: `command-${commands.length + 1}.log`,
++   };
++   commands.push(row);
++   log('commands.json', commands);
++   await runOwnedCommand(process.execPath, args, {
++    cwd, timeoutMs,
++    env: {
++     ...process.env, ASTRO_TELEMETRY_DISABLED: '1', WRANGLER_SEND_METRICS: 'false',
++     XDG_CONFIG_HOME: join(directory, 'config'),
++     WRANGLER_LOG_PATH: join(directory, 'wrangler-logs'), ...env,
++    },
++    onStart: pid => {
++     row.pid = pid;
++     log('commands.json', commands);
++    },
++    onOutput: text => {
++     appendFileSync(join(directory, row.log), text);
++     process.stdout.write(text);
++    },
++   });
++   assertInputs();
++   row.passed = true;
++  } catch (error) {
++   if (row) row.error = String(error);
++   throw error;
++  } finally {
++   try {
++    if (row) {
++     row.ended = new Date().toISOString();
++     log('commands.json', commands);
++    }
++   } finally {
++    active = false;
++   }
++  }
+  }
+  return {directory,assertInputs,command,configure:()=>command(['scripts/configure.mjs']),build:(args=[])=>command(['apps/site/scripts/build.mjs',...args]),finish(){const after=canonicalSnapshot(root),unchanged=isDeepStrictEqual(before,after);log('restoration.json',{before,after,unchanged,commands});if(active||!isStopped())throw Error('Owned runtime shutdown unconfirmed');if(!unchanged)throw Error('Full canonical project/content/uploads snapshot conflict; acceptance failed');return {directory,unchanged};}};
+ }
+ /** Task 6 supplies real static/native matrix implementations; unavailable phases cannot false-pass. */
+ export async function verifyMediaOptimization({phase='pure',root=process.cwd(),checkPorts}={}){
+  if(!['pure','smoke'].includes(phase))throw Error(`Media acceptance phase ${phase} not implemented; refused before mutation`);
+  const run=createMediaAcceptanceRun({root,checkPorts});let failure;
+  try{if(phase==='pure')await run.command(['node_modules/vitest/vitest.mjs','run','tests/media-optimization-cleanup.test.ts']);else await run.command(['-e',"console.log('Media acceptance no-mutation smoke')"]);}
+  catch(error){failure=error;}
+  const result=run.finish();if(failure)throw failure;return result;
+diff --git a/tests/media-optimization-cleanup.test.ts b/tests/media-optimization-cleanup.test.ts
+index d39ecfb..91bc08c 100644
+--- a/tests/media-optimization-cleanup.test.ts
++++ b/tests/media-optimization-cleanup.test.ts
+@@ -28,10 +28,54 @@ it('refuses commands when owned runtime shutdown remains unconfirmed',async()=>{
+ it.each(['static','native'])('fails incomplete %s phase before creating acceptance state or commands',async phase=>{const root=project();await expect(verifyMediaOptimization({root,phase})).rejects.toThrow(/not implemented/);expect(existsSync(join(root,'.generated'))).toBe(false);});
+ it('runs a no-mutation orchestration smoke with actual child ownership and snapshots',async()=>{const root=project(),before=canonicalSnapshot(root);const result=await verifyMediaOptimization({root,phase:'smoke',checkPorts:async()=>{}});expect(result.unchanged).toBe(true);expect(canonicalSnapshot(root)).toEqual(before);expect(JSON.parse(readFileSync(join(result.directory,'commands.json'),'utf8'))[0].passed).toBe(true);});
+ 
+ it('switches expected snapshots back to baseline before safe final regeneration',async()=>{const {root,f}=fixture();f.replaceProject('{"owned":true}');const run=createMediaAcceptanceRun({root,expected:f.expectedSnapshot,checkPorts:async()=>{}});await f.cleanup({regenerate:[{id:'final-command',run:()=>run.command(['-e',"console.log('restored baseline command')"])}]});expect(canonicalSnapshot(root)).toEqual(f.before);});
+ it('rejects final regeneration that changes canonical inputs',async()=>{const root=project(),before=canonicalSnapshot(root);let ledger:any;const run=createMediaAcceptanceRun({root,expected:()=>before,checkPorts:async()=>{}});await expect(cleanupMediaOptimization({stops:[],restores:[],assertInputs:()=>run.assertInputs(),regenerate:[{id:'last',run:()=>{writeFileSync(join(root,'project.json'),'external');}}],record:state=>{ledger=state;}})).rejects.toThrow();expect(ledger.snapshot).toBe('failed');expect(ledger.regeneration[0].status).toBe('failed');});
+ it('accepts pnpm forwarded option delimiters for the no-mutation smoke',()=>{const root=project();expect(()=>execFileSync(process.execPath,[resolve('scripts/verify-media-optimization.mjs'),'--','--smoke'],{cwd:root,stdio:'pipe'})).not.toThrow();});
+ it('preserves external bytes after the actual pre-write owner revokes its claim',async()=>{const root=project(),path=join(root,'project.json'),owner=createWorkerEdit(createOwnedFileEdit(path,join(root,'backup')),()=>readFileSync(path));writeFileSync(path,'external after gate');expect(()=>owner.replace('owned')).toThrow(/ownership conflict/);let sibling=false,built=false,ledger:any;await expect(cleanupMediaOptimization({stops:[],restores:[{id:'project',restore:()=>owner.restore()},{id:'sibling',restore:async()=>{await Promise.resolve();sibling=true;}}],assertInputs:()=>{},regenerate:[{id:'build',run:()=>{built=true;}}],record:state=>{ledger=state;}})).rejects.toThrow();expect(readFileSync(path,'utf8')).toBe('external after gate');expect(sibling).toBe(true);expect(built).toBe(false);expect(ledger.actions.map((row:any)=>row.status)).toEqual(['failed','restored']);});
+ it('uses the supported site build entry and refuses a second command after canonical drift',async()=>{const root=project(),marker=join(root,'.generated/build-entry');mkdirSync(join(root,'apps/site/scripts'),{recursive:true});writeFileSync(join(root,'apps/site/scripts/build.mjs'),"import{writeFileSync}from'node:fs';writeFileSync('.generated/build-entry','public build');");const run=createMediaAcceptanceRun({root,checkPorts:async()=>{}});await run.build();expect(readFileSync(marker,'utf8')).toBe('public build');writeFileSync(join(root,'content/pages/base.json'),'external');await expect(run.build()).rejects.toThrow(/snapshot conflict/);});
+ it('restores an existing static document through exact owned-file bytes',async()=>{const root=project(),f=createMediaOptimizationFixture({root,documents:['content/pages/base.json']});f.replaceDocument('content/pages/base.json','{"owned":true}\n');expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('{"owned":true}\n');await f.cleanup();expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('base\n');});
+ it('preserves a conflicted existing document and restores its independent sibling',async()=>{const root=project(),f=createMediaOptimizationFixture({root,documents:['content/pages/base.json','content/pages/proof.json']});f.replaceDocument('content/pages/base.json','owned');f.createDocument('content/pages/proof.json',{id:'proof'});writeFileSync(join(root,'content/pages/base.json'),'external');await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('external');expect(existsSync(join(root,'content/pages/proof.json'))).toBe(false);});
++
++it('reserves command admission while port checks await and until the sole child closes', async () => {
++ const root = project();
++ let releasePorts!: () => void;
++ const ports = new Promise<void>(resolve => { releasePorts = resolve; });
++ const run = createMediaAcceptanceRun({root, checkPorts: () => ports});
++ const first = run.command(['-e', "setTimeout(()=>console.log('sole child closed'),30)"]);
++ // Observe both outcomes immediately so a failing overlap assertion cannot detach a child.
++ const second = run.command(['-e', "require('fs').writeFileSync('.generated/overlap','unexpected')"]).then(() => 'launched', error => String(error));
++ let portWaitFinish: unknown;
++ try { run.finish(); } catch (error) { portWaitFinish = error; }
++ releasePorts();
++ await Promise.resolve();
++ let childWaitFinish: unknown;
++ try { run.finish(); } catch (error) { childWaitFinish = error; }
++ const [overlap] = await Promise.all([second, first]);
++ expect(overlap).toMatch(/shutdown unconfirmed/);
++ expect(portWaitFinish).toBeInstanceOf(Error);
++ expect(childWaitFinish).toBeInstanceOf(Error);
++ expect(existsSync(join(root,'.generated/overlap'))).toBe(false);
++ expect(JSON.parse(readFileSync(join(run.directory,'commands.json'),'utf8'))).toHaveLength(1);
++ expect(run.finish().unchanged).toBe(true);
++});
++
++it.each(['ports', 'snapshot', 'shutdown'] as const)('releases admission after a %s gate failure for a later eligible command', async failure => {
++ const root = project();
++ let stopped = true;
++ let failGate = true;
++ const run = createMediaAcceptanceRun({root, isStopped: () => stopped, checkPorts: async () => {
++  if (!failGate) return;
++  if (failure === 'ports') throw Error('ports failed');
++  if (failure === 'snapshot') writeFileSync(join(root,'project.json'),'external');
++  if (failure === 'shutdown') stopped = false;
++ }});
++ const first = await run.command(['-e', "require('fs').writeFileSync('.generated/forbidden','unexpected')"]).then(() => undefined, error => error);
++ failGate = false;
++ stopped = true;
++ writeFileSync(join(root,'project.json'),'{}\n');
++ await run.command(['-e', "console.log('later eligible child')"]);
++ expect(first).toBeInstanceOf(Error);
++ expect(existsSync(join(root,'.generated/forbidden'))).toBe(false);
++ expect(JSON.parse(readFileSync(join(run.directory,'commands.json'),'utf8'))).toHaveLength(1);
++ expect(run.finish().unchanged).toBe(true);
++});

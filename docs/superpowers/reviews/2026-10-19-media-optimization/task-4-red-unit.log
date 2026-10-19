@@ -1,0 +1,47 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-layout.test.ts (5 tests | 5 failed) 14ms
+   ❯ CSS slot geometry (5)
+     × gallery caps auto-fit columns by actual item count 8ms
+     × room-card caps auto-fit columns by actual item count 1ms
+     × gallery-featured-lead uses auto-fit below768 and explicit featured geometry above 1ms
+     × gallery-featured-item uses auto-fit below768 and explicit featured geometry above 1ms
+     × matches media/text split and narrower Room detail container 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-layout.test.ts > CSS slot geometry > gallery caps auto-fit columns by actual item count
+ FAIL  tests/media-layout.test.ts > CSS slot geometry > room-card caps auto-fit columns by actual item count
+AssertionError: expected 375 to be close to 335, received difference is 40, but expected 0.0005
+ ❯ tests/media-layout.test.ts:17:108
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/media-layout.test.ts > CSS slot geometry > gallery-featured-lead uses auto-fit below768 and explicit featured geometry above
+ FAIL  tests/media-layout.test.ts > CSS slot geometry > gallery-featured-item uses auto-fit below768 and explicit featured geometry above
+AssertionError: expected 375 to be close to 335, received difference is 40, but expected 0.0005
+ ❯ tests/media-layout.test.ts:22:353
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/media-layout.test.ts > CSS slot geometry > matches media/text split and narrower Room detail container
+AssertionError: expected 375 to be close to 335, received difference is 40, but expected 0.0005
+ ❯ tests/media-layout.test.ts:27:48
+     25|  it('matches media/text split and narrower Room detail container',()=>{
+     26|   for(const [vw,media,detail] of [[375,335,335],[640,588.8,588.8],[767…
+     27|    expect(slot(imageSizes('media-text',1),vw)).toBeCloseTo(media,3);ex…
+       |                                                ^
+     28|   }
+     29|  });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  16:26:05
+   Duration  394ms (transform 50%, import 24%, tests 15%, worker 11%)
+

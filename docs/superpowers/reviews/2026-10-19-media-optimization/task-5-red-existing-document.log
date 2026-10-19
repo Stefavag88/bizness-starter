@@ -1,0 +1,32 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+owned failure
+Media acceptance no-mutation smoke
+restored baseline command
+ ❯ tests/media-optimization-cleanup.test.ts (25 tests | 2 failed) 1121ms
+   × restores an existing static document through exact owned-file bytes 20ms
+   × preserves a conflicted existing document and restores its independent sibling 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > restores an existing static document through exact owned-file bytes
+TypeError: f.replaceDocument is not a function
+ ❯ tests/media-optimization-cleanup.test.ts:36:186
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > preserves a conflicted existing document and restores its independent sibling
+TypeError: f.replaceDocument is not a function
+ ❯ tests/media-optimization-cleanup.test.ts:37:223
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 23 passed (25)
+   Start at  16:41:40
+   Duration  1.58s (tests 84%, transform 12%, import 3%, worker 1%)
+

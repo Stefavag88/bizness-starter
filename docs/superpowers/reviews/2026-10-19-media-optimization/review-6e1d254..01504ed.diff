@@ -1,0 +1,820 @@
+# Review package: 6e1d254..01504ed
+
+## Commits
+01504ed test: verify responsive media delivery and document ownership
+
+## Files changed
+ docs/ARCHITECTURE.md                               |  6 +-
+ docs/COMPOSITION_AUTHORING.md                      |  2 +-
+ docs/CONTENT_MODEL.md                              |  8 +--
+ docs/DOMAIN_EXTENSIONS.md                          |  2 +-
+ docs/MEDIA_OPTIMIZATION.md                         | 59 ++++++++++++++++
+ docs/QUICKSTART.md                                 |  2 +-
+ docs/ROOMS_AUTHORING.md                            |  2 +-
+ ...10-19-starter-v2-media-optimization-evidence.md | 80 ++++++++++++++++++++++
+ e2e/helpers/composition-c-acceptance.ts            |  4 +-
+ e2e/helpers/media-optimization-acceptance.ts       | 41 +++++++++++
+ e2e/helpers/media-optimization-runtime.ts          | 20 ++++++
+ e2e/media-optimization-cms.spec.ts                 | 65 ++++++++++++++++++
+ e2e/media-optimization.spec.ts                     | 63 +++++++++++++++++
+ scripts/media-optimization-acceptance.d.mts        |  1 +
+ scripts/media-optimization-acceptance.mjs          | 17 +++--
+ tests/media-acceptance-harness.test.ts             | 23 +++++++
+ tests/media-optimization-cleanup.test.ts           |  7 +-
+ tests/media-runtime.test.ts                        |  9 +++
+ 18 files changed, 389 insertions(+), 22 deletions(-)
+
+## Diff
+diff --git a/docs/ARCHITECTURE.md b/docs/ARCHITECTURE.md
+index ec1453b..c010ad0 100644
+--- a/docs/ARCHITECTURE.md
++++ b/docs/ARCHITECTURE.md
+@@ -56,36 +56,36 @@ Local origin allowances are generated exact loopback origins for the configured
+ The configurable Playwright harness uses E2E_BASE_URL and explicitly opted-in E2E_CMS_URL. Public routes and native saves have separate tests. Native source ownership derives expected serialized content from the actual UI request, active generated schema and installed CLI serializer, then verifies the complete persisted record before claiming its bytes. Conflicts retain user edits and original backups. The profile verifier serially builds native/static outputs, exercises built Worker/browser boundaries, stops only its own Worker tree and restores exact owned configuration on failure. See QUICKSTART.md for commands and COMPOSITION_AUTHORING.md for current authoring limits.
+ 
+ Isolated local CMS builds use Tina CLI’s supported --skip-indexing after an observed intermittent Indexing-local-files stall; native dev keeps full indexing and its query/UI saves are verified. The exact local-build limitation and controller-approved boundary are in QUICKSTART.md. Profile stages are bounded by PROFILE_STAGE_TIMEOUT_MS (default120000); their command runner stops only its created process tree on timeout.
+ 
+ ## Composition A boundary
+ 
+ Project schemaVersion 2 selects one typed-list persisted document shape. Strict browser-safe document codecs produce detached normalized Page/Settings ID maps; public components, backend manifests and routes retain their semantic contracts. The static registry owns type/variant/copy definitions and does not import schemas back into itself. The CMS descriptor contains no page structure or navigation IDs. Static registered fields support new IDs and cross-page ID/type reuse without regenerating the schema.
+ 
+ Pure page/navigation operations copy changed containers while retaining opaque rich AST identity. Native custom controls batch shared/copy/translation changes in Final Form, permit incomplete editing states and validate a complete detached serialized candidate only at Save. Current catalog identity/path checks protect updates and flat Standard draft creation. No raw mutation service or custom persistence bypass is added. Native template creation permissions are collection-wide; visible special-template choices fail before disk writes. Settings exposes same-state direct locale labels so a rejected invalid form can be corrected before entering nested editors again.
+ 
+-Composition B adds FAQ/steps/media-text/gallery; Composition C adds static domains and optional Rooms. Stages 3/4 remain deferred. Historical Foundation evidence retains its schemaVersion 1 observations; current Composition evidence records schemaVersion 2. No deployment, sending or external resources are enabled.
++Composition B adds FAQ/steps/media-text/gallery; Composition C adds static domains and optional Rooms. Stage 3A adds responsive static media; remaining Stage 3 and Stage 4 work stays deferred. Historical Foundation evidence retains its schemaVersion 1 observations; current Composition evidence records schemaVersion 2. No deployment, sending or external resources are enabled.
+ 
+ A known development freshness limit remains: the current Vite plugin invalidates on input changes through handleHotUpdate, but an add-only externally written published file may leave the route module cached and return 404 until a later content change or launcher restart. The supported native flow creates a draft and explicitly publishes through an update; its actual native proofs passed. Task 6's separately Node-owned fixture models that same draft-create/publish-update sequence and does not claim the add-only behavior is fixed.
+ 
+ ## Showcase boundary
+ 
+ The local `/design-system` route uses a separate developer shell, actual registered renderers and detached localized fixtures. Its browser controller imports only pure preview state and generated theme metadata. Allowlisted URL values update document attributes and sample visibility without content/config/storage/API writes. Astro registers the route with its supported config-setup injectRoute hook only for local configuration; its entry lives outside src/pages. Staging/production never discover the showcase client graph, so dedicated preview JS/CSS and page HTML are absent. Shared business/theme/font assets and content-derived manifests/navigation/feeds retain their normal behavior. See DESIGN_SYSTEM_SHOWCASE.md.
+ 
+ Astro build.inlineStylesheets='never' and Vite build.assetsInlineLimit=0 keep emitted showcase styles/scripts external under the existing self-only asset CSP. These supported compiler settings affect asset packaging and request/performance costs across the site; they grant no new runtime permission. Shared component defaults and canonical content contracts remain unchanged.
+ 
+ 
+ ## Composition B boundaries
+ 
+-The section registry owns strict per-type reference fields, default references, copy/item schemas, variants and rich-text paths (including wildcard item answers/captions). Detached native projection follows those paths without rebuilding opaque ASTs; nested item operations preserve unrelated native identity. Default-language references own shared ordered item IDs, images and crops; localized copies attach by section/item ID. Browser-safe packages/content/media.mjs validates source syntax. Only server-rendered sections import packages/media/source.mjs, which checks physical containment and bounded original metadata using the pinned Astro Sharp dependency. No new dependency or migration was added.
++The section registry owns strict per-type reference fields, default references, copy/item schemas, variants and rich-text paths (including wildcard item answers/captions). Detached native projection follows those paths without rebuilding opaque ASTs; nested item operations preserve unrelated native identity. Default-language references own shared ordered item IDs, images and crops; localized copies attach by section/item ID. Browser-safe packages/content/media.mjs validates source syntax. Server-only media modules validate contained original byte snapshots and produce bounded content-addressed derivatives through an explicitly owned Sharp 0.35.5 dependency. Browser/editor imports retain syntax and layout policy only. No content migration is needed.
+ 
+-SectionImage emits intrinsic dimensions and fixed aspect/crop classes. Missing optional media/text is text-only; referenced failures throw with context. Vite's upload integration watches the stable public parent and invalidates on upload add/change/unlink/addDir; content JSON refresh remains separate. Metadata cache keys actual byte hashes, not paths. The public fixture exercises 480x320 to 320x480 replacement at one unchanged URL, then unlink/error, without schema regeneration.
++SectionImage emits layout-aware picture/srcset/sizes, intrinsic dimensions and fixed aspect/crop classes. A per-build/per-dev-root media session separates rendered demand from the persistent cache; built Worker delivery serves ordinary static files. See [media optimization](MEDIA_OPTIMIZATION.md) for policy, lifecycle and ownership. Missing optional media/text is text-only; referenced failures throw with context. Vite's upload integration watches the stable public parent and invalidates on upload add/change/unlink/addDir; content JSON refresh remains separate. Metadata cache keys actual byte hashes, not paths. The public fixture exercises 480x320 to 320x480 replacement at one unchanged URL, then unlink/error, without schema regeneration.
+ 
+ The local showcase renders fourteen real type/variant pairs per supported locale. Dedicated preview JS/CSS are excluded by local-only route registration before graph discovery. Ordinary original PNGs in public/uploads/starter-samples remain production-usable media; they are not dedicated preview code. [Composition B evidence](superpowers/plans/2026-10-18-starter-v2-composition-b-evidence.md) records local acceptance, exact restoration and separate native/public proof scopes. Hosted Access/Tina/provider limits remain as documented in AUTHENTICATION.md and STATIC_ASSET_ROUTING.md.
+ 
+ 
+ ## Composition C registration boundary
+ 
+ Browser-safe `packages/content/domain-contracts.ts` defines the augmentable `DomainRecordMap` and `LocalizedDomainRecordMap`, typed partial array containers, domain callbacks and registry interface. `domain-registry.mjs` owns static developer registrations; its production registry registers Rooms. `project.modules` is strict with explicit `rooms:boolean`, default false; unknown keys reject. Rooms remains independently optional from profile/articles and ships only a dormant draft index.
+ 
+ A domain declares a bounded key, GraphQL-safe collection alias, flat directory, record schema, owned Page filenames/templates/IDs, rich-text paths, enablement and projection/route/catalog callbacks. Registration rejects duplicate keys, collection aliases, directories and owned Page identities, plus collisions with built-in collections and Pages. Registry declarations are copied and frozen so later mutation of input arrays cannot change discovery. Content, native collection factories and Astro renderer registrations remain separate ownership boundaries; this registry imports neither Tina/Astro nor filesystem/image adapters.
+ 
+diff --git a/docs/COMPOSITION_AUTHORING.md b/docs/COMPOSITION_AUTHORING.md
+index 78b539e..d03d388 100644
+--- a/docs/COMPOSITION_AUTHORING.md
++++ b/docs/COMPOSITION_AUTHORING.md
+@@ -53,21 +53,21 @@ Development freshness note: directly adding an already-published JSON file outsi
+ 
+ ## Author FAQ, steps and content images
+ 
+ 1. In the default-language shared section editor, add a section; it starts hidden. Choose its registered variant and surface.
+ 2. For FAQ, steps or gallery, add items, then complete their default-language question/answer, title/body or image/alt/caption. Use the labelled item move buttons for shared order. Item IDs are generated once and are read-only; repeated IDs in another section remain separate identities.
+ 3. Explicitly initialize each desired section translation. Enter every item by its fixed shared ID. Locale list order never changes public shared order. Omit an optional section translation entirely to omit that whole public section; there is no per-item/default-language fallback.
+ 4. For media/text or a gallery item, open the actual native image picker, select an original PNG/JPEG/WebP under uploads and choose center/top/bottom crop. The two labelled abstract starter samples are reusable neutral illustrations, not client photographs. Enter nonempty alt in every supplied translation; captions may be blank. Media/text also owns body and optional CTA independently of its image.
+ 5. Complete the section, enable it, save and reload. Inspect both public locales. Invalid nested answers or missing translated alt block Save before mutations. Dismiss the actionable alert, reopen the same item/localized editors, correct the field and resubmit; current unrelated prose and rich ASTs remain in memory.
+ 6. To make media/text text-only, use the picker's clear button. Installed native blank/null states are normalized by the shared control operation: shared source and all localized image text are removed, body/CTA retained. Save/reload to verify. Removing gallery items or references also retains physical files. Cancel removal leaves the draft unchanged.
+ 
+-A selected missing, unsafe or broken source fails public rendering with an actionable error. Re-select a valid upload or clear optional media; do not use an arbitrary external URL or silently delete the erroring copy. See [source and metadata limits](CONTENT_MODEL.md#composition-b-nested-and-media-contracts). Original files are served directly, without optimized derivatives; choose small uploads rather than treating the safety bounds as a loading budget.
++A selected missing, unsafe or broken source fails public rendering with an actionable error. Re-select a valid upload or clear optional media; do not use an arbitrary external URL or silently delete the erroring copy. See [source and metadata limits](CONTENT_MODEL.md#composition-b-nested-and-media-contracts). Original uploads remain public and canonical. Stage 3A serves bounded responsive static derivatives through the shared renderer; see [media policy and rebuilds](MEDIA_OPTIMIZATION.md). Source safety bounds are not a loading budget.
+ 
+ Run the separate Node-owned public matrix with E2E_COMPOSITION_B_FIXTURE=1 and pnpm exec playwright test e2e/composition-b-content.spec.ts against this checkout's owned indexed dev:cms stack. It creates an initially absent page exclusively, compares complete expected documents before updates, preserves unknown bytes on conflicts and removes only owned fixtures. Binary sources use caller-known buffers, exclusive creation and permanent ownership revocation. This is public seed/render/watch proof, not native creation/upload proof. Task 4's actual UI save evidence remains separate.
+ 
+ ## Native Rooms proof and recovery
+ 
+ Rooms is enabled by a developer with `modules.rooms: true`; the starter default remains disabled. In the Room collection, use **Add File** to create a flat draft. Set a unique filename, contentId and slug before the first Save. Saved contentId and slug are read-only; native Delete and folder creation are disabled. Unpublish a saved Room to remove its public presentation.
+ 
+ Room image, amenity and translated copy controls render directly in the form. Use the installed image picker under **Add Room image**, **Add amenity**, and the stable item ID move/remove controls. Structure belongs to the default language. Initializing Ελληνικά Room translation deliberately supplies blank localized copy; complete every image alt and amenity label. Adding later items requires explicit **Initialize copy** for that locale. A rejected save leaves these same-state controls reachable, so correct the fields and retry. Cancel in the item removal confirmation preserves the draft and sends no mutation. Removing a reference removes only its matching localized copy and preserves the physical upload.
+ 
+ The index must be saved as the declared `rooms.json` Page with template/contentId `rooms`. Optional room-list sections need explicit translated copy initialization. Their blank translated empty message is an editing state and must be completed before Save. A Room appears publicly in a locale only when both the Room and its index are published in that locale.
+diff --git a/docs/CONTENT_MODEL.md b/docs/CONTENT_MODEL.md
+index a61d1d5..23665fc 100644
+--- a/docs/CONTENT_MODEL.md
++++ b/docs/CONTENT_MODEL.md
+@@ -47,40 +47,40 @@ Settings own shared identity, contact destinations and navigation structure:
+ - ordered navigation: [{ pageId, label }]
+ 
+ Settings translations contain exactly { brand: { tagline }, legal: { notice }, contact: { address }, navigation: { [pageId]: label } }. Every shared navigation ID requires a translated label; stale label IDs fail. Translations cannot override brand name, business identity, consent version, email/phone or navigation order/relationships. legal.privacyVersion is shared, nonempty and at most 80 characters; the seed value sample-v1 supplies consent provenance, with review flags still false. Page hero/About copy never belongs in settings.
+ 
+ Canonical locale keys use hyphens, for example en-US. Tina native field names encode regional locales with underscores (for example pt_BR), and Tina serializes that native key to JSON. readContent and native save validation normalize those keys to canonical pt-BR only on detached projections. Duplicate canonical/encoded aliases, unconfigured locales and default-language translation entries fail. The original editor values and ASTs remain unchanged. This is native integration, not a legacy content adapter.
+ 
+ ## Text and safe rendering
+ 
+ Exported LIMITS are title 200, SEO 300, Markdown summary 10,000, and Markdown body 100,000 characters. renderRichText escapes raw HTML, downgrades H1 to H2 and disables Markdown images. renderInlineRichText(body, { links: false }) retains emphasis while removing anchors for whole-card links. plainText(body, limit?) extracts text and truncates by Unicode code point without splitting surrogate pairs.
+ 
+-isSafeLink is shared with native link validation. HTTP(S), mailto, tel, internal relative paths, fragments and queries are supported. Unsafe schemes, controls, protocol-relative links, backslashes, encoded bypasses and credentialed HTTP URLs are rejected. Encoded spaces in paths/queries remain supported. Rich-text controls must not expose image/embed tools; Composition B media uses explicit shared source references with localized alt/caption. Stage 3 optimized media remains deferred. Safe rendering does not parse or mutate Tina ASTs.
++isSafeLink is shared with native link validation. HTTP(S), mailto, tel, internal relative paths, fragments and queries are supported. Unsafe schemes, controls, protocol-relative links, backslashes, encoded bypasses and credentialed HTTP URLs are rejected. Encoded spaces in paths/queries remain supported. Rich-text controls must not expose image/embed tools; Composition B media uses explicit shared source references with localized alt/caption. Stage 3A derives responsive static media without changing these canonical fields; see [media optimization](MEDIA_OPTIMIZATION.md). Safe rendering does not parse or mutate Tina ASTs.
+ 
+ ## Exports
+ 
+ Runtime schemas: pageSchema, offeringSchema, personSchema, articleSchema, settingsSchema, sectionSchema, sectionCopySchemas, metaSchema, linkSchema, plus PAGE_TEMPLATES, SECTION_TYPES, SURFACES, LIMITS. Rendering: isSafeLink, renderRichText, renderInlineRichText, plainText. Projection/routes: localizeContent, publicRoutes. Filesystem-only: readContent.
+ 
+ Shared declarations live in packages/content/types.ts, re-exported through schemas/barrel declarations. The small supporting publication.mjs isolates pure publication/URL helpers from the filesystem boundary; it is not a public collection registry. The modular CMS uses these pure contracts; filesystem loading remains outside its browser bundle. The public site and backend manifest consume these contracts; see ARCHITECTURE.md.
+ 
+ 
+ ## Draft campaign copy
+ 
+ ContentSnapshot additionally contains campaigns: Campaign[], loaded from the optional content/campaigns folder only for newsletter/nurture; enquiries ignores that folder and returns an empty array. Campaign is { contentId, subject, intro, articleId?, interest }. Subject is nonempty, at most 150 characters and cannot contain CR/LF; intro is plain text at most 2,000 characters; articleId blank/null normalizes to absent. Supplied articleId must identify a currently published default-locale article and interest must match project.interests. IDs are globally unique with other content records. Campaigns have no public route, translation/fallback, publication lifecycle or send operation. LocalizedContent does not expose them.
+ 
+ Schemas additionally export campaignSchema. catalog.mjs holds the browser-safe cross-record validator shared by readContent and CMS save validation. The canonical rich fields additionally reject raw HTML, images, unsupported Markdown nodes, unsafe link destinations and headings other than H2/H3 at validation; descriptions allow inline emphasis/links without headings. The renderer remains defensive when called directly with unvalidated strings.
+ 
+ ## Native authoring and Foundation boundary
+ 
+ Native UI roundtrips verify bilingual offering description/body Markdown, cleared optional SEO, editor reload and public output. A Pages save verifies optional visibility and protected hero controls. Native JSON serializes rich text through the installed CLI serializer; datetime mutation values follow the installed backend Date/ISO behavior. The test ownership helper uses the active generated schema and request inputs, never newly saved disk bytes as its expected model. Exact original bytes are restored only after complete-record ownership validation. See QUICKSTART.md for opt-in commands and conflicts.
+ 
+-The registry includes eleven section types: room-list plus hero, rich-text, offering-list, people-list, article-list, CTA, FAQ, steps, media-text and gallery. Composition A supports Standard draft creation and optional composition/navigation authoring; Composition B adds nested copy and original local images. Composition C adds optional Rooms (default disabled) and registered domain routes; stage 3 defers optimized media/social/motion/visitor controls and hosted-provider verification; stage 4 defers presets, safe initialization and releases. See COMPOSITION_AUTHORING.md for current editor limits.
++The registry includes eleven section types: room-list plus hero, rich-text, offering-list, people-list, article-list, CTA, FAQ, steps, media-text and gallery. Composition A supports Standard draft creation and optional composition/navigation authoring; Composition B adds nested copy and original local images. Composition C adds optional Rooms (default disabled) and registered domain routes; Stage 3A implements responsive static media; remaining Stage 3 defers social/motion/visitor controls and hosted-provider verification; stage 4 defers presets, safe initialization and releases. See COMPOSITION_AUTHORING.md for current editor limits.
+ 
+ ## Flat collections and protected relationship targets
+ 
+ Foundation documents live directly in their collection folders. Native folder and nested-folder creation are explicitly disabled on every collection, including protected Pages, and nested native save paths fail before data-layer queries or persistence. The filesystem loader rejects subfolders in active collections with an actionable path; it does not recursively publish documents. Dormant disabled articles and inactive campaign folders remain unread.
+ 
+ Offerings, People and Articles are protected from native Delete because canonical `offeringId`, `authorId` and campaign `articleId` remain stable scalar IDs. Native Delete bypasses `beforeSubmit`; the save catalog guard alone cannot protect references. Loader/catalog dangling-ID rejection remains mandatory. Stage 2 must provide relationship-aware authoring/deletion before enabling these deletes. No full CRUD engine or path-based relationship conversion is part of Foundation.
+ 
+ Published editorial slug changes require explicit redirects from previous published URLs before hosted release. This remains a mandatory stage 2 authoring and release-gate obligation; Foundation has no redirects subsystem. `404` is reserved alongside the other system prefixes. Settings `legal.notice` renders as localized safe rich-text blocks outside the business-name paragraph in both locales, using the same renderer/link localization as editorial bodies.
+ 
+ ## Composition A wire boundary
+@@ -89,23 +89,23 @@ The Page and Settings map shapes above are internal projections. Canonical PageD
+ 
+ Creation is limited to Standard drafts with unique flat filenames, IDs and potential routes; explicitly supplied complete draft translations are permitted. Saved filename/template/contentId/slug and retained section ID/type pairs are immutable. UI restrictions and current-catalog native validation enforce these policies independently. Structural operations preserve opaque existing native ASTs; only detached complete serialization is parsed on save.
+ 
+ 
+ ## Composition B nested and media contracts
+ 
+ Existing six types retain default-only variants. FAQ adds expanded; steps adds cards; media-text adds reversed; gallery adds featured. Shared FAQ/steps references own ordered items: [{ id }]; gallery items own [{ id, media: { src, crop } }]. Media/text owns optional media: { src, crop }. Crop is center, top or bottom. Default-language structure controls order, variants, visibility, sources and crops. Supplied locale item arrays are associated by stable ID within their section, never by list position or across section boundaries. Missing whole optional translated sections are omitted; supplied item sets must be complete, even while hidden. An enabled list section must have at least one item. IDs use lowercase field IDs and generated item_ UUID hex; retained identities cannot be edited.
+ 
+ Every supplied image translation requires nonempty alt text, maximum 200 characters; captions are optional safe inline Markdown, maximum 10,000. FAQ answers and step/media bodies require meaningful safe body Markdown, maximum 100,000. Clear optional media through the native control: the operation removes shared media and every locale's image text while preserving body and CTA. Physical uploads are retained. Unreferenced media/text renders as text-only. A referenced missing/broken source fails visibly with page/section/item context instead of silently omitting the image.
+ 
+-Sources are original PNG, JPEG or WebP under /uploads/, resolved to apps/site/public/uploads by the server-only packages/media/source.mjs adapter. Queries, fragments, remote URLs, encoded dots/separators, traversal, double decoding, generated/section-images destinations and symlink escapes are rejected. Bounds are 20 MiB, 20,000 pixels per side and 40 million pixels; format must match extension. Metadata reads headers, not an exhaustive compressed-payload decode. EXIF orientation swaps intrinsic dimensions when necessary. Each read hashes actual bytes; the bounded 128-entry metadata cache uses hash and format, so same-path replacement cannot retain stale dimensions. No decoder or filesystem code enters the CMS/browser bundle.
++Sources are original PNG, JPEG or WebP under /uploads/, resolved to apps/site/public/uploads by the server-only packages/media/source.mjs adapter. Queries, fragments, remote URLs, encoded dots/separators, traversal, double decoding, generated/section-images destinations and symlink escapes are rejected. Bounds are 20 MiB, 20,000 pixels per side and 40 million pixels; format must match extension. The metadata facade reads headers; enabled optimization additionally decodes/encodes the exact validated byte snapshot and reports corrupt payload failures. EXIF orientation swaps intrinsic dimensions when necessary. Each read hashes actual bytes; the bounded 128-entry metadata cache uses hash and format, so same-path replacement cannot retain stale dimensions. No decoder or filesystem code enters the CMS/browser bundle.
+ 
+-Images emit intrinsic width/height, lazy loading and fixed 3:2 media/text or 4:3 gallery frames with object-fit cover and fixed crop classes. These are original files with no derivative/srcset pipeline: upload appropriately small files. Header bounds are safety limits, not performance targets. Stage 3 owns optimized derivatives and further performance work. No schemaVersion change, JSON migration, remote media service or business-photo import is included.
++Images emit intrinsic width/height, lazy loading and fixed 3:2 media/text or 4:3 gallery frames with object-fit cover and fixed crop classes. Stage 3A supplies layout-aware responsive static derivatives while preserving original uploads. Header bounds are safety limits, not performance targets. See [media policy and rebuilds](MEDIA_OPTIMIZATION.md). No schemaVersion change, JSON migration, remote media service or business-photo import is included.
+ 
+ 
+ ## Additive domain discovery
+ 
+ `ContentSnapshot.domains` is a partial mapped array container keyed by the augmentable `DomainRecordMap`; `LocalizedContent.domains` uses `LocalizedDomainRecordMap`. Existing `offerings`, `people`, `articles` and campaign contracts retain their names and behavior. Domains augment both maps from their own type module. The production `domainRegistry` registers Rooms; its default-disabled flag omits its dataset/routes. Localized projection and catalog validation consume active definitions. See [the extension recipe](DOMAIN_EXTENSIONS.md).
+ 
+ Use `defineDomain` and `createDomainRegistry` to declare a domain with `key`, `collectionName`, `directory`, strict `schema`, `ownedPages`, `enabled`, `richFields`, `projectRecord`, `routePath`, `validate` and `enquiry`. Keys and flat directories are lowercase static identifiers of at most 64 characters; collection aliases are additionally GraphQL-safe. Owned filenames are explicit flat lowercase JSON filenames. Built-in collection aliases/directories and protected Page ownership are reserved. Duplicate keys, native aliases, directories, owned filenames, templates or owned content IDs fail registration, including for disabled definitions. These are developer declarations, never executable CMS values.
+ 
+ `getActiveDomains(project, registry?)` selects enabled declarations. `getDisabledDomainPages(project, registry?)` supplies owned Pages for exclusion before parsing; declaring a disabled module never opens its folder or owned Page JSON. Missing active directories produce empty arrays; nested active directories, malformed JSON and invalid active records fail with the offending path. Toggling discovery never modifies canonical content. Native Page indexing uses the same declared exclusions, while legacy disabled articles retain their canonical insights exclusion.
+ 
+diff --git a/docs/DOMAIN_EXTENSIONS.md b/docs/DOMAIN_EXTENSIONS.md
+index 1655aca..5350ad9 100644
+--- a/docs/DOMAIN_EXTENSIONS.md
++++ b/docs/DOMAIN_EXTENSIONS.md
+@@ -29,11 +29,11 @@ Use a path relative to your consumer. Registered absent/disabled datasets return
+ Set `enquiry:true` to contribute publicly eligible records to `getEnquiryContexts(content): {id,kind,title,path}[]`; offerings retain kind `offering`, extensions use their key. `getAcceptedEnquiryContexts(contents): {id,kind}[]` deduplicates the configured-locale union. `createManifest` exposes that union as `enquiryContexts` while retaining legacy arrays. The form uses localized options and its existing `contextId` query; the Worker validates the bounded scalar against the union. No client locale authority, new D1 schema or per-domain Worker branch is needed.
+ 
+ ## Proof and lifecycle
+ 
+ `tests/domain-projection.test.ts` registers test-only workshops through public APIs, augments keyed maps, and proves clock/index publication, no fallback, alternatives, collisions and typed access. `tests/domain-extension.test.ts` plus `tests/fixtures/content/domain.ts` exercise lesson template/section/native aliases, dormant copy and owned identity; `tests/domain-native.test.ts` and `apps/site/tests/domain-rendering.test.ts` cover static adapters. These fixtures do not ship another production module. Rooms shows the complete real integration.
+ 
+ The initial framework was accepted in Task 2. Task 3 needed two controller-approved generic corrections: move renderer coverage to `getStaticPaths` to avoid an actual Astro import cycle, and initialize translated section drafts from registered `defaultCopy`/`richFields`. Both were reviewed with regressions. Future modules should use the resulting seams; this history is not a claim of zero generic edits after Task 2. The [chronological ruling ledger](superpowers/reviews/2026-10-18-composition-c/RULINGS.md) preserves the costs.
+ 
+ Stop the exact owned launcher before changing module flags, running conflicting configure/build/full tests, or rebuilding CMS. Edit `project.json`, run `pnpm configure`, then restart the owned `pnpm dev:cms` stack so collections/indexing and schema agree. Ordinary validated copy saves use the content watcher; static publication still needs a new build. Disabled domain folders and declared owned Page files are excluded before parsing; unknown navigation IDs still reject, while known dormant destinations may remain stored and hidden. Toggle flags without deleting dormant bytes.
+ 
+-Create flat drafts, choose stable filename/contentId/slug before first Save, explicitly initialize EN/EL copy and publish each locale's index and record. URLs stay immutable; redirects and relationship-aware deletion are outside this increment. Original local PNG/JPEG/WebP sources are bounded at 20 MiB, 20,000 pixels per side and 40 million pixels. Metadata checks are not exhaustive payload verification or a loading budget. Original files are served directly with intrinsic dimensions/lazy loading/crop classes; no optimized derivatives/srcsets exist. Choose suitably small media. See the Rooms guide for item/text bounds and native recovery.
++Create flat drafts, choose stable filename/contentId/slug before first Save, explicitly initialize EN/EL copy and publish each locale's index and record. URLs stay immutable; redirects and relationship-aware deletion are outside this increment. Original local PNG/JPEG/WebP sources are bounded at 20 MiB, 20,000 pixels per side and 40 million pixels. Source bounds are not a loading budget; enabled optimization additionally decodes the validated payload. Stage 3A uses responsive static derivatives with intrinsic dimensions, lazy loading and the existing crop frames; originals remain canonical and public. See [media policy and rebuilds](MEDIA_OPTIMIZATION.md). See the Rooms guide for item/text bounds and native recovery.
+diff --git a/docs/MEDIA_OPTIMIZATION.md b/docs/MEDIA_OPTIMIZATION.md
+new file mode 100644
+index 0000000..cd316c7
+--- /dev/null
++++ b/docs/MEDIA_OPTIMIZATION.md
+@@ -0,0 +1,59 @@
++# Responsive media optimization
++
++Stage 3A generates static responsive images for media/text, normal and featured galleries, Room cards and Room detail figures. Editors continue to select original local `/uploads/` files. Canonical records contain only `{src,crop}` and localized alt/caption copy; generated `/_media/v1/` URLs belong to render output and must never be saved by Tina.
++
++## Developer policy and rebuilds
++
++`project.json` may contain:
++
++```json
++"media": {
++  "optimization": {
++    "enabled": true,
++    "widths": [320, 640, 960, 1440, 1920],
++    "quality": 80
++  }
++}
++```
++
++Omitting the object uses these defaults. Widths must be ascending unique integers between 160 and 2560, with one through six entries. Quality must be an integer between 40 and 95. Unknown keys reject. These are developer configuration, outside the structural CMS descriptor. Stop the exact owned launcher before changing policy, run `pnpm configure`, then restart the launcher; deployed static output requires a new build. `enabled:false` preserves source safety checks and uses the original-image presentation without derivatives.
++
++## Formats, dimensions and limits
++
++The pinned Sharp 0.35.5 pipeline produces WebP plus original-format JPEG/PNG fallback; a WebP original uses one family. PNG fallback remains lossless with alpha. AVIF is deferred to avoid adding encoding cost without benchmarking. Animated/multipage files pass through unchanged with reason `animated-or-multipage`; this does not certify animation accessibility.
++
++Source bounds remain 20 MiB, 20,000 pixels per side and 40 million pixels. Only contained regular PNG/JPEG/WebP files under `/uploads/` are accepted; one-decode path and symlink/reparse checks apply. The encoder consumes the exact validated Buffer snapshot. Corrupt referenced payloads fail with page/section/item/source context instead of silently substituting an original. Original files remain unchanged and public.
++
++Widths are capped at the oriented source width and the largest configured width, deduplicated and sorted. There is no upscaling, at most six candidates per family/twelve outputs per source, and two concurrent transform jobs. Orientation is normalized before resizing. Heights are integer encoder dimensions, so aspect-ratio calculations can differ by a pixel after rounding. Crop remains CSS `object-fit:cover` and center/top/bottom positioning inside the existing fixed frames. Intrinsic dimensions, lazy loading, async decoding, alt and safe localized captions are retained. Room listing cards intentionally omit captions; Room detail figures retain them.
++
++Small files and lossless fallback are exceptions to universal savings claims. Equal-dimension fallback can reuse original bytes when re-encoding would be larger. Browsers choose a candidate using viewport, DPR, format support and their own resource selection behavior; tests do not require an exact filename for every browser heuristic.
++
++## Layout sizing is coupled to CSS
++
++`packages/media/layout.mjs` derives `sizes` from the current 72rem wrap, symmetric `clamp(1.25rem,4vw,3rem)` padding, 17rem auto-fit minimum tracks and 2rem gaps. Media/text uses half the available width from 768px. Normal galleries and Room cards bound auto-fit columns by actual rendered item count. Featured galleries use the same auto-fit behavior below 768px, including at 640px; at 768px and above, the lead spans the full width and later items occupy half-width tracks. Room detail uses the 58rem editorial wrap. Density changes vertical spacing.
++
++Changing those CSS widths/gaps/breakpoints requires updating the sizing policy and browser geometry assertions together. Acceptance compares actual frame width with the browser-evaluated `sizes` length within 1.1 CSS pixels, including neighbors around the two-column and featured breakpoints.
++
++## Cache, delivery and ownership
++
++The ignored `.generated/media-optimization/cache/v1` namespace is pipeline-owned cache, independent of canonical uploads and acceptance artifacts. Identities include validated source bytes, width/format/quality, Sharp/pipeline version and orientation/encoding policy. Cache reuse verifies identity, output hash and decoded dimensions; writes are atomic. Missing/corrupt entries can be regenerated by rendering/building the source again. Never clean original uploads to recover a cache, and never treat cache inventory as publication authority. Remove only the verified marked pipeline cache while the owned stack is stopped if a clean regeneration is needed.
++
++Every build has its own demand session. Only variants requested by actual renderers are published into `apps/site/dist/_media/v1/`, even when a warm local cache contains showcase variants. Original starter-sample uploads are legitimate reusable business assets and remain public in staging/production. Local-only showcase route and dedicated preview code remain excluded outside local builds.
++
++Astro development creates derivatives while rendering known content and serves only exact already-demanded identities through its contained adapter. Same-path changed bytes produce new identities. Upload add/change/unlink retains existing live behavior; a referenced missing source fails visibly. Static production delivery is ordinary built Worker assets under existing CSP. There is no Worker encoder, remote fetch or visitor-controlled width/quality endpoint. Unknown `/_media/` paths cannot generate files.
++
++Storage and build work can grow: originals remain, fallback and WebP variants coexist, and the persistent cache survives builds. Smaller visitor transfers do not imply a smaller deployment or a faster cold build. A warm cache reduces repeated encoding, not the source safety checks.
++
++## Verification and recovery
++
++Use the installed browsers under `.generated/browsers`; these commands do not download browsers:
++
++```powershell
++pnpm test:media-optimization -- --pure
++pnpm test:media-optimization -- --static
++pnpm test:media-optimization -- --native
++```
++
++Run with the owned launcher stopped. Each phase retains separate command/PID/time/log records and full canonical snapshots under unique `.generated/media-optimization/acceptance-*` directories. Static/browser and native results are independent. Native tests own their indexed Tina/Astro children, derive complete expected documents and serialized bytes from actual intercepted requests plus installed schema/serializer before dispatch, and restore the original bytes/absence. Documents restore before dependent media; conflicts preserve unknown edits and refuse regeneration. No source D1 migration or sending is part of media acceptance.
++
++The [acceptance evidence](superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md) records exact tested combinations, candidate tables, transfer evidence, raw paths, failures, cleanup and limits. These checks cover the changed boundary; they do not certify every theme/density combination, browser engine, hosted provider or general accessibility compliance.
+diff --git a/docs/QUICKSTART.md b/docs/QUICKSTART.md
+index a15f413..afbb6a8 100644
+--- a/docs/QUICKSTART.md
++++ b/docs/QUICKSTART.md
+@@ -43,21 +43,21 @@ pnpm test:profiles
+ ```
+ 
+ Profile verification serially configures enquiries/newsletter/nurture and enquiries with articles disabled. It builds native CMS and static pages, dry-runs the Worker, migrates only local D1, starts its own Worker for browser/API checks and stops that exact process tree. It restores exact owned `project.json` bytes after success/failure, preserves external edits on conflict, and regenerates local configuration. Run `pnpm build` afterward to restore default static output, since the final profile has articles disabled. All local port overrides apply. Native CMS builds must not run beside a live watcher. Each profile command has a 120-second timeout, configurable with PROFILE_STAGE_TIMEOUT_MS, and retains stage output under .generated/evidence/profile-commands.log. Timeout kills only the process tree that command created.
+ 
+ The public suite covers EN/EL Home/About/Contact/offering/article at 375/768/1440px, focus, language targets, safe prose, overflow and form feedback. Representative axe scans and manual screenshots supplement this evidence; they do not certify complete accessibility compliance. Evidence lives in ignored `.generated/evidence` and the committed [Foundation evidence](superpowers/plans/2026-10-16-starter-v2-foundation-evidence.md).
+ 
+ ## Configuration and deferred work
+ 
+ `project.json` selects profile, independently optional articles, languages and design defaults. Theme JSON owns semantic brand tokens. Default sending and marketing are false, review flags are false, and all identities/addresses are honest sample placeholders. `pnpm doctor` validates local configuration; `pnpm deploy:check` intentionally reports hosted CMS, protection, account, secret, legal/content and sample nurture blockers.
+ 
+-Composition A completes the first stage 2 authoring slice. Composition B adds FAQ, steps, media/text and gallery. Composition C adds the optional Rooms extension and static domain registrations, with Tasks 1–7 and whole-branch review approved at `7a12969`; local closeout is complete. Stage 3 owns optimized media, social, motion, visitor controls and hosted-provider verification. Stage 4 owns business presets, safe destination initialization and release/tagging. No presets, initializer, migration guide, production delivery, deployment, tagging or remote setup is included here. See [content ownership](CONTENT_MODEL.md), [architecture](ARCHITECTURE.md) and [source provenance](SOURCE_INVENTORY.md).
++Composition A completes the first stage 2 authoring slice. Composition B adds FAQ, steps, media/text and gallery. Composition C adds the optional Rooms extension and static domain registrations, with Tasks 1–7 and whole-branch review approved at `7a12969`; local closeout is complete. Stage 3A implements responsive static media; see [media policy and rebuilds](MEDIA_OPTIMIZATION.md). Remaining Stage 3 work includes social, motion, visitor controls and hosted-provider verification. Stage 4 owns business presets, safe destination initialization and release/tagging. No presets, initializer, migration guide, production delivery, deployment, tagging or remote setup is included here. See [content ownership](CONTENT_MODEL.md), [architecture](ARCHITECTURE.md) and [source provenance](SOURCE_INVENTORY.md).
+ 
+ ## Local native build note
+ 
+ The pinned CLI 4.0.1 intermittently stalled at `Indexing local files` during repeated isolated local builds. Canonical configuration validation and generated schema/type output had completed. A datalayer startup/client connection race is an inference from installed CLI code, not a proven upstream diagnosis. The approved local workaround passes the supported `--skip-indexing` only in `--cms-build` mode. This still validates canonical content and builds the native schema/client/editor bundle; it has no local query consumer. `dev:cms` retains full indexing, proven native queries and real UI saves. No dependency upgrade, reconnect patch, hosted build change or production claim is included. Tina advertises its query endpoint as `http://localhost:4010/graphql`; use that host for CMS_QUERY_URL (the OS may bind IPv6). E2E_CMS_URL instead points to the public site origin serving /cms.
+ 
+ ## Foundation authoring safeguards
+ 
+ All native collections explicitly disable Create folder and Create nested folder. Store JSON documents directly in each collection folder; nested native save paths are rejected before validation queries or persistence. The public loader fails with the offending active subfolder and a move-to-collection instruction, rather than silently omitting nested documents. Disabled article folders and campaign folders outside newsletter/nurture remain unread.
+ 
+ Native Delete is disabled for Offerings, People and Articles because their stable scalar IDs are relationship targets. Native deletion does not run the save catalog guard. Foundation preserves those IDs and its dangling-relationship validation; stage 2 must add relationship-aware authoring/deletion before exposing deletion. Settings creation/deletion and Page deletion/rename remain protected; only Standard draft creation is enabled.
+diff --git a/docs/ROOMS_AUTHORING.md b/docs/ROOMS_AUTHORING.md
+index 8e30f45..f51ce21 100644
+--- a/docs/ROOMS_AUTHORING.md
++++ b/docs/ROOMS_AUTHORING.md
+@@ -5,21 +5,21 @@ Rooms market room types rather than physical inventory. They provide no reservat
+ A developer enables `modules.rooms` in `project.json` (default false). Stop the exact owned launcher first, run `pnpm configure` after editing, then restart `pnpm dev:cms` so the collection and indexing agree. Ordinary valid copy saves use the watcher; static output needs a new build. The existing profile and articles flags remain independent. Enabling does not alter Home, navigation, design or publication. Disabled Rooms and their owned `content/pages/rooms.json` index are excluded before parsing; their bytes remain dormant.
+ 
+ ## Drafts and identity
+ 
+ Use the native Room collection to create a draft. Choose a unique flat filename, contentId and shared slug. Existing saved identity is read-only and save-validated. Native Delete and folders are disabled; unpublish to remove public output. The index filename/template/contentId must remain `rooms.json`/`rooms`/`rooms`. The supplied English/Greek index is draft in both locales and there are no sample Room records.
+ 
+ ## Structure and localized copy
+ 
+ The default locale owns maximum guests (integer 1–100), ordered images (0–20), amenities (0–40), source uploads and crop. Add/remove/reorder uses stable IDs matching `[a-z][a-z0-9_]{0,79}`. Do not manually rename IDs. Removal prunes copy in every supplied locale without deleting upload files; reordering preserves copy associations.
+ 
+-Select original local PNG/JPEG/WebP files under `/uploads/`. Every referenced source must exist and pass the existing source adapter limits: 20 MiB, 20,000 pixels per side and 40 million pixels. These are metadata safety bounds, not a performance budget or exhaustive payload verification. Original files have no optimized derivatives/srcsets; choose small uploads. A Room can have no images. The first shared image becomes its listing thumbnail. Crop is center/top/bottom; rendering retains original dimensions, lazy loading and existing fixed classes.
++Select original local PNG/JPEG/WebP files under `/uploads/`. Every referenced source must exist and pass the existing source adapter limits: 20 MiB, 20,000 pixels per side and 40 million pixels. These safety bounds are not a performance budget; enabled optimization additionally decodes the validated payload. Stage 3A serves responsive static derivatives while retaining original uploads; see [media policy and rebuilds](MEDIA_OPTIMIZATION.md). A Room can have no images. The first shared image becomes its listing thumbnail. Crop is center/top/bottom; rendering retains intrinsic dimensions, lazy loading and existing fixed crop frames.
+ 
+ Titles, image alt text, bed descriptions and amenity labels are bounded to 200 characters. Bed description can be empty. Inline descriptions/captions use safe inline Markdown (10,000 characters); body uses safe Markdown with H2/H3 (100,000); SEO text is at most 300. Do not introduce another H1 or unsafe links/HTML.
+ 
+ Initialize each translation explicitly. It starts draft with blank localized fields, never copied default-language text. Images/amenities retain shared IDs and each supplied locale must contain exactly their membership, with nonempty alt text and labels. Adding a shared item leaves existing translated copy untouched and exposes an Initialize copy control; complete it before saving. Translate title, description, body, SEO, beds, image alt/captions and amenity labels; shared source/order/guest count remain default-locale controls.
+ 
+ Nested copy controls render native fields directly so corrections remain reachable after rejected saves. Structure operations preserve unrelated native rich-text object identity. Validation returns original native values after detached checking.
+ 
+ ## Publication
+ 
+ Publish the Rooms index and each Room independently for each locale. A Room appears only when both are published at the same captured publication clock. Scheduled or missing translations omit the Room and locale alternative; no language or item fallback is used. An empty published index displays its localized room-list emptyMessage. The index shared slug owns `/LOCALE/INDEX_SLUG/ROOM_SLUG`.
+diff --git a/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md b/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md
+new file mode 100644
+index 0000000..25affd3
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-19-starter-v2-media-optimization-evidence.md
+@@ -0,0 +1,80 @@
++# Stage 3A media optimization acceptance evidence
++
++Date: 2026-10-19. Task 6 acceptance candidate follows accepted Tasks 1–5 at `6e1d254`. This document records real changed-boundary proof, independently from the controller's later task review and whole-branch review. No deployment, sending, source D1 migration, reference-repository build or final user launcher restart was performed here.
++
++## Static browser matrix
++
++The actual built Worker serves the generated Astro output. Its wrapper marks every real Worker invocation; public derivative requests have no marker, correct image MIME and the existing CSP. Unknown derivative identities return 404 without producing output. Browser request inventories contain ordinary static derivative/original image URLs and no runtime transformation request. No privileged-route behavior is replaced; `/api/health` invokes the real Worker. Private runtime state/config stays inside each acceptance run.
++
++| Build | Environment | Theme / density | Profile | Rooms | Articles | Optimization | Raw run |
++| --- | --- | --- | --- | ---: | --- | --- | --- |
++| 1 | local | neutral / comfortable | enquiries | 4 | on | on | `.generated/media-optimization/acceptance-SAvATG` |
++| 2 | staging | accommodation / compact | newsletter | 1 | off | on | `.generated/media-optimization/acceptance-WDKLA4` |
++| 3 | production | trades / spacious | nurture | 2 | on | on | `.generated/media-optimization/acceptance-1o4tpi` |
++| 4 | local | wellness / compact | enquiries | 3 | off | on | `.generated/media-optimization/acceptance-pJhP40` |
++| 5 | production | neutral / spacious | enquiries | off | off | off | `.generated/media-optimization/acceptance-ddPY0L` |
++
++Build 1: EN/EL × 375/640/768/1440 CSS pixels × DPR 1/2 × JavaScript enabled/disabled (32 contexts), plus EN/DPR1/JavaScript enabled at 626/627/767/769 (4 contexts). Every context visits the public media fixture, Rooms index and Room detail. Each of builds 2–5 uses 640px/DPR2/no-JavaScript and 1440px/DPR1/JavaScript; locale assignment alternates EN/EL and is retained in `browser-matrix.json`. Total: 44 contexts and 128 route inspections. This is full default-design coverage plus representative other designs, not a claim that all theme/density combinations were tested.
++
++The media fixture has default and featured galleries with each item count 1/2/3/4, plus photo, oriented portrait, alpha PNG, small PNG and animated WebP media/text. All six size roles (including featured lead/item) are measured against browser-evaluated `sizes` within 1.1 CSS pixels; loaded `currentSrc`, srcset, intrinsic dimensions, crop, lazy/async attributes, localized alt/caption and document overflow are checked. Room cards intentionally have no caption. Disabled optimization verifies original rendering and absence of derivative inventory. Disabled modules retain dormant canonical assets while omitting public routes.
++
++Representative EN/EL 375px axe audits have zero violations. Saved screenshots include EN/EL mobile and each additional theme at 1440px; these supplement automated geometry and are not a general accessibility certification. Chromium is the installed revision under `.generated/browsers`; no browser download ran. WebP-capable Chromium does not prove fallback selection in engines without WebP.
++
++## Publication and warm cache
++
++The runs execute serially and preserve the cache. Local output publishes 24 demanded candidates, including ordinary local showcase demand; warm-cache staging and production each publish exactly their 18 rendered candidates. Wellness local publishes 24; optimization-off publishes zero. `publication.json` compares all generated URLs referenced by actual output HTML with actual published files, never an independent publication algorithm. Every test fixture original remains in the build's uploads. Original starter samples remain legitimate public business assets; nonlocal exclusion concerns the local-only showcase route and dedicated preview code.
++
++## Candidate bytes and transfer
++
++Fixture provenance/license/source URL and SHA-256 are in `tests/fixtures/media-optimization/README.md`; fixtures are test-only and exclusively owned while copied into uploads. Full candidate metadata, URLs, source hashes and bytes are in `acceptance-SAvATG/candidate-table.json`.
++
++Large photo: 3840×1725 JPEG, 1,610,954 bytes, SHA-256 `35f5cbcf42337206c818cf8c17f2bbeb309add5b8d4579b3432acedc6304e6c7`.
++
++| Candidate dimensions | JPEG bytes | WebP bytes |
++| --- | ---: | ---: |
++| 320×143 | 10,205 | 8,940 |
++| 640×287 | 36,702 | 31,722 |
++| 960×431 | 80,283 | 69,668 |
++| 1440×647 | 178,379 | 155,210 |
++| 1920×863 | 314,123 | 275,784 |
++
++Across 720 gallery observations, browser-selected static files range from 8,940 to 275,784 bytes, 82.88%–99.45% below this original. `selected-transfer.json` maps each actual currentSrc to the served artifact byte length and original byte length. These are selected resource payload bytes, not a universal network timing/compression benchmark.
++
++| Fixture | Original bytes | Actual fallback candidates (dimensions: bytes) | Actual WebP candidates (dimensions: bytes) |
++| --- | ---: | --- | --- |
++| Oriented portrait JPEG | 2,039 | 300×600: 1,351 | 300×600: 416 |
++| Transparent PNG | 2,291 | 320×160: 1,394; 400×200: 2,291 | 320×160: 222; 400×200: 280 |
++| Small PNG | 238 | 100×50: 238 | 100×50: 94 |
++| Animated WebP | 202 | none | none |
++
++The portrait's stored 600×300 metadata is oriented to 300×600. Alpha/PNG fallback is lossless; equal-dimension PNG fallback retains original bytes here, demonstrating that savings are not universal. Animation retains its original 3×2 two-frame source with `animated-or-multipage`; no flattening/animation processing or AVIF claim is made.
++
++## Native and live proof
++
++Native acceptance owns one `createCmsSources` record owner, excluded from the static fixture's documents. Actual Tina select/clear requests are intercepted before dispatch; `expectedNativeDocument` uses installed schema/rich-text serialization, and the installed GraphQL `stringifyFile` establishes complete expected JSON bytes before dispatch. The canonical snapshot advances from that known hash, never observed disk adoption. `captureNative` verifies the same complete document through the same owner. Body AST equality is checked across select/clear. Generated URLs never persist, and selected original uploads remain owned/present.
++
++The final public native phase passed in `.generated/media-optimization/acceptance-SADg9D`; actual UI/schema/serializer/runtime evidence is `.generated/media-optimization/acceptance-fixture-QzojLe` (19 successful UI queries). Evidence includes installed schema/serializer paths and hashes, pre-dispatch requests/full expectations/bytes/hashes, successful UI read queries, save/clear screenshot, same-path responsive URL change, upload add/change/unlink observations, referenced missing-source visible error/recovery, separate Tina/Astro process identities/close records and dependent cleanup ledger. Astro development can retain an already-streamed HTTP 200 while displaying its actionable error page; the contract is the visible contextual source error, not a new HTTP-status guarantee.
++
++## Failure preservation, commands and cleanup
++
++`task-6-red-phases.log` records the intentional phase-dispatch RED assertions. `task-6-green-phases.log` records their GREEN. The final-source focused pure phase records 134 passing tests in 10 files, including reviewed ownership faults, media source/config/encoder/cache/session/integration/layout and exact owned runtime shutdown.
++
++`task-6-static-attempt-1.log` retains four caption-expectation failures and one passing optimization-off case. Room cards intentionally omit captions; correcting the test produced `task-6-static-attempt-2.log` with all five configurations passing (2.6 minutes). No product change was needed. First-attempt root Playwright screenshot paths were superseded by the second attempt; its command logs/cleanup remain retained. Later phase runs use unique per-run browser-result paths so traces are retained.
++
++Native attempt 1 timed out on an incorrect readiness log marker, with exact child shutdown and complete restoration. Attempt 2 passed select/clear/live refresh. Attempt 3 added referenced unlink and failed an unsupported HTTP-500 expectation; the visible contextual error was confirmed in its retained screenshot/runtime log, then the assertion was corrected. A pure invocation attempted while native was live was refused by the port gate before launching a child; `task-6-pure-overlap-refused.log` retains that refusal. It is not represented as a passing invocation.
++
++All final gates run sequentially with owned servers stopped, through the public acceptance runner's complete project/content/uploads snapshots before and after each command. The seven planned gates are `pnpm check`, `pnpm test`, `pnpm build`, `pnpm worker:check`, `pnpm cms:local-build`, `pnpm test:static-routing`, and `pnpm test:showcase-builds`. Exact command arguments, child PID, start/end, exit status and raw logs are retained in their unique run directory; the Task 6 report records final outcomes. The supported site build wrapper owns build cleanup. An opt-in native-query skip in the general suite is accompanied by the separate actual live UI query proof above.
++
++The canonical baseline is `.superpowers/sdd/2026-10-19-starter-v2-media-optimization/canonical-before.json` (16 files, SHA-256 `11cd8ff23ef9bd1f07af86bd538a394771332d33fa5db47bf78262dcd418bf5c`). Each successful cleanup checks exact original bytes/absence. Restoration failures preserve unknown records and dependent uploads and refuse regeneration. No final whole-branch approval is claimed by this task; the controller owns independent reviews, permanent archival, verified scratch cleanup and final launcher restoration.
++
++## Harness source timing and persistence audit
++
++The final public native invocation ran 14:07:01–14:07:46 UTC; the final full static invocation ran 14:07:46–14:10:25 UTC (`acceptance-Gj7Zeq`). Their product assertions were unchanged afterward. Two subsequent cleanup-only guards move static setup inside try/finally and make rejecting browser close an independent cleanup action. `task-6-red-cleanup-guards.log` proves both regressions fail with the guards removed; `task-6-green-cleanup-guards.log` proves 32 focused tests pass with the guards restored. These isolated faults use temporary roots and an actual owned long-lived child. Final-source public pure evidence is `acceptance-qJjQd0`, 134 tests. The earlier full native/static invocations are not described as running at final harness source.
++
++Seven-gate attempt 1 (`acceptance-kvgUMD`) stopped at `pnpm check`, exit 2: newly reachable legacy acceptance port argument types and the new Worker's persistence option type. Earlier TypeScript diagnostics were retained in logs but trailing PowerShell reads masked their exit codes; previous pass statements were incorrect. `task-6-types-corrected.log` is the explicit exit-0 TypeScript rerun. The correction spreads the legacy port object and uses supported `persist:true,persistTo:<run>/runtime`. One focused real staging/static/browser case passed at the corrected harness source (`task-6-static-persist-focused.log`); no broad product matrix was repeated solely for cleanup/type changes.
++
++The pinned Wrangler CLI forwards persist/persistTo separately, maps dev.persist to `args.persist === false ? false : args.persistTo`, and resolves a missing persistTo relative to `dirname(userConfigPath)/.wrangler/state`. Earlier absolute userConfigPath values already pointed inside unique acceptance directories. Actual private state file inventories corroborate that default location; final options name `<run>/runtime` explicitly. `task-6-persistence-audit.json` retains CLI hash/source lines, exact prior config paths/hashes, command cwd, state paths/metadata and removed source DB bindings for each static run. No source D1 migration ran in those phases, and no unknown source `.wrangler`/D1 files were removed or restored. Source `.wrangler` was outside the canonical hash baseline, so byte-for-byte absence of unrelated state changes there is not claimed.
++
++## Final checkout gates
++
++All seven final-source checkout gates passed sequentially in `.generated/media-optimization/acceptance-u70xHM`; `commands.json` records each executable/arguments/cwd/PID/start/end/exit/log, and `restoration.json` confirms the complete baseline. Full tests: 737 passed / 1 opt-in skipped, with the separate site suite 24 passed. The live native run's 19 successful UI queries supply the explicit proof for the conditional query boundary. `task-6-canonical-final.json` confirms all 16 original hashes, and `task-6-process-final.json` is empty. First gate-attempt failure and successful retry remain separate; they are not presented as one uninterrupted green run. Task review and whole-branch review remain controller-owned and pending.
+diff --git a/e2e/helpers/composition-c-acceptance.ts b/e2e/helpers/composition-c-acceptance.ts
+index bee80c1..a5623d3 100644
+--- a/e2e/helpers/composition-c-acceptance.ts
++++ b/e2e/helpers/composition-c-acceptance.ts
+@@ -1,28 +1,28 @@
+ import {mkdirSync,mkdtempSync,readFileSync,writeFileSync,appendFileSync} from 'node:fs';
+ import {resolve,join} from 'node:path';
+ import {createOwnedFileEdit} from '../../scripts/owned-file-edit.mjs';
+ import {createWorkerEdit,createWorkerLifecycle} from './composition-c-worker-lifecycle';
+ import {canonicalSnapshot,assertCanonicalSnapshot} from '../../scripts/composition-c-snapshot.mjs';
+ import {runOwnedCommand} from '../../scripts/owned-command.mjs';
+ import {assertPortsFree,resolvePorts} from '../../scripts/ports.mjs';
+ import {createCmsSources} from './cms-source-ownership';
+ export async function acceptanceOwner(label:string) {
+- await assertPortsFree(resolvePorts());
++ await assertPortsFree({...resolvePorts()});
+  mkdirSync('.generated/composition-c-task6',{recursive:true});const directory=mkdtempSync(resolve('.generated/composition-c-task6/'+label+'-'));
+  const before=canonicalSnapshot(),base=JSON.parse(readFileSync('project.json','utf8'));
+  const edits=['project.json','content/pages/rooms.json'].map(path=>{const edit=createOwnedFileEdit(path,directory);return {path,edit,owner:createWorkerEdit(edit,()=>readFileSync(path))};});
+  const paths=['content/rooms/task6-suite.json','content/rooms/task6-text.json','content/rooms/task6-malformed.json'];
+  const sources=createCmsSources(paths,directory,{allowCreate:true});for(const path of paths)if(sources.originalState(path).exists)throw Error('Task6 fixture exists');
+  let expected=before,stop=async()=>{},stopped=true;const commands:any[]=[];
+  const log=(name:string,value:any)=>writeFileSync(join(directory,name),typeof value==='string'?value:JSON.stringify(value,null,2));
+- const command=async(args:string[],cwd=process.cwd())=>{await assertPortsFree(resolvePorts());if(!stopped)throw Error('Owned runtime shutdown unconfirmed');assertCanonicalSnapshot(expected);const record:any={args,cwd,started:new Date().toISOString(),passed:false};commands.push(record);log('commands.json',commands);await runOwnedCommand(process.execPath,args,{cwd,timeoutMs:180000,env:{...process.env,ASTRO_TELEMETRY_DISABLED:'1',WRANGLER_SEND_METRICS:'false',XDG_CONFIG_HOME:resolve('.wrangler/config'),WRANGLER_LOG_PATH:resolve('.wrangler/logs')},onStart:pid=>record.pid=pid,onOutput:text=>appendFileSync(join(directory,'commands.log'),text)});record.passed=true;record.ended=new Date().toISOString();assertCanonicalSnapshot(expected);log('commands.json',commands);};
++ const command=async(args:string[],cwd=process.cwd())=>{await assertPortsFree({...resolvePorts()});if(!stopped)throw Error('Owned runtime shutdown unconfirmed');assertCanonicalSnapshot(expected);const record:any={args,cwd,started:new Date().toISOString(),passed:false};commands.push(record);log('commands.json',commands);await runOwnedCommand(process.execPath,args,{cwd,timeoutMs:180000,env:{...process.env,ASTRO_TELEMETRY_DISABLED:'1',WRANGLER_SEND_METRICS:'false',XDG_CONFIG_HOME:resolve('.wrangler/config'),WRANGLER_LOG_PATH:resolve('.wrangler/logs')},onStart:pid=>record.pid=pid,onOutput:text=>appendFileSync(join(directory,'commands.log'),text)});record.passed=true;record.ended=new Date().toISOString();assertCanonicalSnapshot(expected);log('commands.json',commands);};
+  const lifecycle=createWorkerLifecycle({stopWorker:async()=>{await stop();stopped=true;},stopSite:async()=>{},restoreSources:()=>sources.restore(),restoreConfig:()=>edits[0].owner.restore(),restoreIndex:()=>edits[1].owner.restore(),assertInputs:()=>assertCanonicalSnapshot(before),configure:async()=>{expected=before;await command(['scripts/configure.mjs']);},record:state=>log('cleanup.json',{...state,before,after:canonicalSnapshot(),commands})});
+  return {directory,base,paths,sources,log,command,
+   mutate(project:any,index:any,rooms:any[]=[]){assertCanonicalSnapshot(before);edits[0].owner.replace(JSON.stringify(project,null,2)+'\n');edits[1].owner.replace(typeof index==='string'?index:JSON.stringify(index,null,2)+'\n');rooms.forEach((room,i)=>sources.createAbsent(paths[i],room,()=>true));expected=canonicalSnapshot();log('snapshot-mode.json',expected);},
+   started(shutdown:()=>Promise<void>){const runtime={started:new Date().toISOString(),stopped:null as string|null,shutdownConfirmed:false};log('runtime.json',runtime);stop=async()=>{await shutdown();runtime.stopped=new Date().toISOString();runtime.shutdownConfirmed=true;log('runtime.json',runtime);};stopped=false;lifecycle.workerStarted();},
+   async stop(){await lifecycle.stop();},
+   async cleanup(){await lifecycle.cleanup();assertCanonicalSnapshot(before);},
+  };
+ }
+ export function publicIndex(){const index=JSON.parse(readFileSync('content/pages/rooms.json','utf8'));index.status='published';index.translations.el.status='published';return index;}
+ export function publicRoom(id:string,images=true){const copy=(el=false)=>({status:'published',title:el?'Σουίτα δοκιμής':'Task Six Suite',description:el?'Δημόσιο **δωμάτιο**.':'A public **room**.',body:el?'Λεπτομέρειες με [επικοινωνία](/contact).':'Details with a safe [contact link](/contact).',seoDescription:'',bedDescription:el?'Διπλό κρεβάτι':'Double bed',imageCopy:images?[{id:'landscape',alt:el?'Αφηρημένο τοπίο':'Abstract landscape',caption:el?'Λεζάντα':'Caption'}]:[],amenityCopy:[{id:'wifi',label:el?'Ασύρματο δίκτυο':'Wi-Fi'}]});return {contentId:id,slug:id,...copy(),maxGuests:2,images:images?[{id:'landscape',media:{src:'/uploads/starter-samples/abstract-landscape.png',crop:'top'}}]:[],amenities:[{id:'wifi'}],translations:{el:copy(true)}};}
+diff --git a/e2e/helpers/media-optimization-acceptance.ts b/e2e/helpers/media-optimization-acceptance.ts
+new file mode 100644
+index 0000000..8f8c54f
+--- /dev/null
++++ b/e2e/helpers/media-optimization-acceptance.ts
+@@ -0,0 +1,41 @@
++import {readFileSync,readdirSync,existsSync,writeFileSync} from 'node:fs';
++import {join,resolve} from 'node:path';
++import {createHash} from 'node:crypto';
++import {createMediaOptimizationFixture} from './media-optimization-fixture';
++import {createMediaAcceptanceRun} from '../../scripts/media-optimization-acceptance.mjs';
++import {publicIndex,publicRoom} from './composition-c-acceptance';
++export const photoNames=['large-photo.jpg','portrait.jpg','alpha.png','small.png','animated.webp'];
++export const upload=(name:string)=>'/uploads/media-acceptance-'+name;
++export const hash=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex');
++export const walk=(path:string):string[]=>existsSync(path)?readdirSync(path,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(join(path,e.name)):[join(path,e.name)]):[];
++export function writeEvidence(directory:string,name:string,value:unknown){writeFileSync(join(directory,name),JSON.stringify(value,null,2)+'\n');}
++export function mediaPage(){
++ const sections:any[]=[{id:'intro',_template:'hero',variant:'default',enabled:true,appearance:{surface:'default'}}];
++ for(const variant of ['default','featured'])for(let count=1;count<=4;count++)sections.push({id:'gallery_'+variant+'_'+count,_template:'gallery',variant,enabled:true,appearance:{surface:'default'},items:Array.from({length:count},(_,i)=>({id:'image_'+i,media:{src:upload('large-photo.jpg'),crop:['center','top','bottom'][i%3]}}))});
++ for(const [i,name]of photoNames.entries())sections.push({id:'media_'+i,_template:'media-text',variant:i%2?'reversed':'default',enabled:true,appearance:{surface:'default'},media:{src:upload(name),crop:['center','top','bottom'][i%3]}});
++ const copy=(el=false)=>({sections:sections.map(s=>({id:s.id,_template:s._template,...(s._template==='hero'?{title:el?'Δοκιμή εικόνων':'Media acceptance',description:''}:s._template==='gallery'?{title:s.id,description:'',items:s.items.map((item:any)=>({id:item.id,alt:(el?'Εικόνα ':'Photo ')+item.id,caption:el?'Λεζάντα **εικόνας**':'Photo **caption**'}))}:{title:s.id,body:el?'Κείμενο **δοκιμής**.':'Retained **body**.',image:{alt:(el?'Εικόνα ':'Photo ')+s.id,caption:el?'Λεζάντα **εικόνας**':'Photo **caption**'}})}))});
++ return {contentId:'media_acceptance',_template:'standard',slug:'media-acceptance',status:'published',meta:{title:'Media acceptance',seoDescription:''},sections,copy:copy(),translations:{el:{status:'published',meta:{title:'Δοκιμή εικόνων',seoDescription:''},copy:copy(true)}}};
++}
++export function staticOwner(mode:{environment:string;theme:string;density:string;rooms:number;profile:string;articles:boolean;enabled:boolean},{root=process.cwd()}:{root?:string}={}){
++ const page='content/pages/media_acceptance.json',roomPaths=Array.from({length:mode.rooms},(_,i)=>'content/rooms/media-acceptance-'+i+'.json');
++ const documents=[page,'content/pages/rooms.json',...roomPaths];
++ const fixture=createMediaOptimizationFixture({root,documents,media:photoNames.map(name=>({path:'apps/site/public'+upload(name),documents:[page,...roomPaths]}))});
++ const base=JSON.parse(readFileSync(join(root,'project.json'),'utf8'));
++ let stopped=true;
++ const run=createMediaAcceptanceRun({root,expected:fixture.expectedSnapshot,isStopped:()=>stopped});
++ function setup(){
++ for(const name of photoNames)fixture.createMedia('apps/site/public'+upload(name),readFileSync('tests/fixtures/media-optimization/'+name));
++ fixture.createDocument(page,mediaPage());fixture.replaceDocument('content/pages/rooms.json',JSON.stringify(publicIndex(),null,2)+'\n');
++ roomPaths.forEach((path,i)=>{const room=publicRoom('media-acceptance-'+i);room.images[0].media.src=upload('large-photo.jpg');fixture.createDocument(path,room);});
++ fixture.replaceProject(JSON.stringify({...base,environment:mode.environment,profile:mode.profile,articles:mode.articles,modules:{...base.modules,rooms:mode.rooms>0},design:{theme:mode.theme,density:mode.density},media:{optimization:{enabled:mode.enabled}}},null,2)+'\n');
++ }
++ return {fixture,run,setup,started(){stopped=false;},stopped(){stopped=true;}};
++}
++export function outputDemand(){const html=walk('apps/site/dist').filter(p=>p.endsWith('.html'));const demanded=[...new Set(html.flatMap(p=>readFileSync(p,'utf8').match(/\/_media\/v1\/[a-f0-9]+\.(?:webp|png|jpg|jpeg)/g)||[]))].sort();const published=walk('apps/site/dist/_media').map(p=>'/'+p.replaceAll('\\','/').replace('apps/site/dist/','')).sort();return {demanded,published};}
++export async function workerFor(directory:string){
++ const {unstable_dev}=await import('wrangler');
++ const entry=join(directory,'static-worker.ts');
++ writeFileSync(entry,`import real from ${JSON.stringify(resolve('worker/index.ts').replaceAll('\\','/'))};\nexport default {async fetch(request,env,ctx){const response=await real.fetch(request,env,ctx);const out=new Response(response.body,response);out.headers.set('X-Media-Acceptance-Worker','1');return out;}};`);
++ const config=JSON.parse(readFileSync('wrangler.generated.json','utf8'));config.main=entry;config.assets.directory=resolve('apps/site/dist');for(const key of ['d1_databases','queues','triggers','workflows'])delete config[key];writeEvidence(directory,'static-worker.json',config);
++ return unstable_dev(entry,{config:join(directory,'static-worker.json'),port:0,inspectorPort:0,local:true,persist:true,persistTo:join(directory,'runtime'),logLevel:'error',experimental:{disableExperimentalWarning:true,disableDevRegistry:true,watch:false}});
++}
+diff --git a/e2e/helpers/media-optimization-runtime.ts b/e2e/helpers/media-optimization-runtime.ts
+new file mode 100644
+index 0000000..e73e983
+--- /dev/null
++++ b/e2e/helpers/media-optimization-runtime.ts
+@@ -0,0 +1,20 @@
++import {cleanupMediaOptimization} from './media-optimization-cleanup';
++import {spawn,execFile} from 'node:child_process';
++import {promisify} from 'node:util';
++import {appendFileSync} from 'node:fs';
++import {join} from 'node:path';
++import {writeEvidence} from './media-optimization-acceptance';
++/** Long-lived children are retained by actual ChildProcess identity until close is observed. */
++export function mediaRuntime(directory:string,label:string,args:string[],cwd=process.cwd()){
++ const row:any={executable:process.execPath,args,cwd,started:new Date().toISOString(),pid:null,closed:false,shutdownConfirmed:false};
++ const child=spawn(process.execPath,args,{cwd,windowsHide:true,detached:process.platform!=='win32',stdio:['ignore','pipe','pipe'],env:{...process.env,ASTRO_TELEMETRY_DISABLED:'1',WRANGLER_SEND_METRICS:'false',XDG_CONFIG_HOME:join(directory,'config'),WRANGLER_LOG_PATH:join(directory,'wrangler-logs')}});
++ let text='';const record=()=>writeEvidence(directory,'runtime-'+label+'.json',row);row.pid=child.pid;record();
++ for(const stream of [child.stdout,child.stderr])stream.on('data',b=>{text+=String(b);appendFileSync(join(directory,'runtime-'+label+'.log'),b);});
++ const closed=new Promise<void>((res,rej)=>{child.once('error',rej);child.once('close',(code,signal)=>{row.closed=true;row.code=code;row.signal=signal;row.ended=new Date().toISOString();record();res();});});
++ return {pid:child.pid,closed:()=>row.closed,output:()=>text,async stop(){if(!row.closed){if(process.platform==='win32')await promisify(execFile)('taskkill',['/PID',String(child.pid),'/T','/F'],{windowsHide:true});else process.kill(-child.pid!,'SIGTERM');await closed;}row.shutdownConfirmed=true;record();return true;}};
++}
++/** Browser rejection is an independent stop, so it cannot bypass owned child/source cleanup. */
++export function cleanupMediaBrowser(options:Parameters<typeof cleanupMediaOptimization>[0]&{closeBrowser:()=>unknown|Promise<unknown>}){
++ const {closeBrowser,...rest}=options;
++ return cleanupMediaOptimization({...rest,stops:[{id:'browser',stop:closeBrowser},...rest.stops]});
++}
+diff --git a/e2e/media-optimization-cms.spec.ts b/e2e/media-optimization-cms.spec.ts
+new file mode 100644
+index 0000000..ab152d6
+--- /dev/null
++++ b/e2e/media-optimization-cms.spec.ts
+@@ -0,0 +1,65 @@
++import {test,expect} from '@playwright/test';
++import {readFileSync,existsSync,writeFileSync,realpathSync} from 'node:fs';
++import {join,resolve,dirname} from 'node:path';
++import {createRequire} from 'node:module';
++import {pathToFileURL} from 'node:url';
++import sharp from 'sharp';
++import {createCmsSources} from './helpers/cms-source-ownership';
++import {createOwnedMedia} from './helpers/owned-media';
++import {expectedNativeDocument,type Mutation,type Schema} from './helpers/native-document';
++import {createMediaOptimizationFixture} from './helpers/media-optimization-fixture';
++import {createMediaAcceptanceRun} from '../scripts/media-optimization-acceptance.mjs';
++import {assertCanonicalSnapshot} from '../scripts/composition-c-snapshot.mjs';
++import {resolvePorts,assertPortsFree} from '../scripts/ports.mjs';
++import {mediaRuntime,cleanupMediaBrowser} from './helpers/media-optimization-runtime';
++import {mediaPage,upload,hash,writeEvidence} from './helpers/media-optimization-acceptance';
++
++test('native original selection/clear and live upload lifecycle with pre-dispatch complete ownership',async({browser})=>{
++ test.setTimeout(600000);
++ const config=createMediaOptimizationFixture({documents:[],media:[]});const directory=config.directory;const ports=resolvePorts();await assertPortsFree(ports);
++ let expected={...config.before};const check=()=>assertCanonicalSnapshot(expected);const runtimes:ReturnType<typeof mediaRuntime>[]=[];
++ const run=createMediaAcceptanceRun({expected:()=>expected,isStopped:()=>runtimes.every(r=>r.closed())});
++ const path='content/pages/media_native_acceptance.json',sources=createCmsSources([path],join(directory,'native-record'),{allowCreate:true});
++ const names=['large-photo.jpg','portrait.jpg'];const media=names.map(name=>createOwnedMedia('apps/site/public'+upload(name),join(directory,'originals')));
++ const livePath='apps/site/public/uploads/media-live-upload.png',live=createOwnedMedia(livePath,join(directory,'live'));let liveExists=false;
++ const document=mediaPage();document.contentId='media_native_acceptance';document.slug='media-native-acceptance';document.sections=document.sections.filter(s=>['intro','media_0'].includes(s.id));document.copy.sections=document.copy.sections.filter(s=>['intro','media_0'].includes(s.id));document.translations.el.copy.sections=document.translations.el.copy.sections.filter(s=>['intro','media_0'].includes(s.id));
++ let prior:any=document,pending:any,schema:Schema;const saves:any[]=[];let context:Awaited<ReturnType<typeof browser.newContext>>|undefined;
++ try{
++  check();names.forEach((name,i)=>{const bytes=readFileSync('tests/fixtures/media-optimization/'+name);media[i].create(bytes);expected['apps/site/public'+upload(name)]=hash(bytes);check();});
++  sources.createAbsent(path,document,()=>true);expected[path]=hash(JSON.stringify(document,null,2)+'\n');check();
++  await run.configure();await run.build();
++  runtimes.push(mediaRuntime(directory,'tina',[resolve('node_modules/@tinacms/cli/bin/tinacms'),'dev','--port',String(ports.tina),'--datalayer-port',String(ports.datalayer),'--noTelemetry']));
++  await expect.poll(()=>runtimes[0].output(),{timeout:120000}).toMatch(/TinaCMS Dev Server is active/);
++  runtimes.push(mediaRuntime(directory,'astro',[resolve('apps/site/node_modules/astro/bin/astro.mjs'),'dev','--host','127.0.0.1','--port',String(ports.site)],resolve('apps/site')));
++  await expect.poll(async()=>{try{return(await fetch('http://127.0.0.1:'+ports.site+'/en/media-native-acceptance')).status;}catch{return 0;}},{timeout:60000}).toBe(200);
++  schema=JSON.parse(readFileSync('tina/__generated__/_schema.json','utf8'));writeEvidence(directory,'installed-schema.json',schema);
++  const require=createRequire(import.meta.url);const graphqlPath=realpathSync(resolve(dirname(require.resolve('@tinacms/cli')),'../../graphql/dist/index.js'));const graphql=await import(pathToFileURL(graphqlPath).href);expect(typeof graphql.stringifyFile).toBe('function');
++  writeEvidence(directory,'installed-serializer.json',{path:graphqlPath,sha256:hash(readFileSync(graphqlPath)),format:'.json',keepTemplateKey:true,bridge:'installed FilesystemBridge.put writes serializer bytes without newline'});
++  context=await browser.newContext();const page=await context.newPage();const publicPage=await context.newPage();let liveQueries=0;
++  page.on('response',async r=>{if(r.url().endsWith('/graphql')&&r.request().method()==='POST'&&!/(?:create|update)Document/.test(r.request().postData()||'')){if(r.status()===200)liveQueries++;}});
++  await page.route('**/graphql',async route=>{const data=route.request().postDataJSON();if(route.request().method()==='POST'&&/(?:create|update)Document/.test(data?.query||'')){
++   check();sources.assertUnchanged();const request={...data.variables,operation:data.query.includes('createDocument')?'create':'update'} as Mutation;const complete=await expectedNativeDocument(request,schema,prior);const bytes=graphql.stringifyFile(complete,'.json',true);pending={request,complete,bytes,sha256:hash(bytes)};writeEvidence(directory,'pre-dispatch-'+saves.length+'.json',pending);
++  }await route.continue();});
++  async function open(){await page.goto('http://127.0.0.1:'+ports.site+'/cms/index.html?media='+Date.now()+'#/collections/edit/page/media_native_acceptance');const enter=page.getByRole('button',{name:'Enter Edit Mode',exact:true});await expect(enter.or(page.getByRole('button',{name:'Save',exact:true})).first()).toBeVisible({timeout:60000});if(await enter.isVisible())await enter.click();await expect(page.locator('[data-section-media=media_0]')).toBeVisible({timeout:30000});sources.assertUnchanged();check();}
++  async function save(predicate:(d:any)=>boolean){check();sources.assertUnchanged();pending=undefined;const response=page.waitForResponse(r=>r.request().method()==='POST'&&(r.request().postData()||'').includes('updateDocument'));await page.getByRole('button',{name:'Save',exact:true}).click();expect((await(await response).json()).errors||[]).toEqual([]);expect(pending).toBeTruthy();await sources.captureNative(path,pending.request,schema,predicate);expected[path]=pending.sha256;check();expect(readFileSync(path,'utf8')).toBe(pending.bytes);prior=pending.complete;saves.push(pending);writeEvidence(directory,'native-saves.json',saves);}
++  await open();const control=page.locator('[data-section-media=media_0]');await control.locator('button').first().click();await page.getByText('media-acceptance-portrait.jpg',{exact:true}).click();await page.getByRole('button',{name:'Insert',exact:true}).click();
++  await save(d=>d.sections.find((s:any)=>s.id==='media_0').media.src===upload('portrait.jpg')&&!JSON.stringify(d).includes('/_media/'));
++  await publicPage.goto('http://127.0.0.1:'+ports.site+'/en/media-native-acceptance');const rendered=publicPage.locator('[aria-labelledby=media_0] img');await rendered.scrollIntoViewIfNeeded();await expect.poll(()=>rendered.evaluate((e:HTMLImageElement)=>e.currentSrc)).toContain('/_media/v1/');const oldUrl=await rendered.evaluate((e:HTMLImageElement)=>e.currentSrc);
++  const replacement=await sharp({create:{width:800,height:500,channels:3,background:'#427'}}).jpeg().toBuffer();check();media[1].replace(replacement);expected['apps/site/public'+upload('portrait.jpg')]=hash(replacement);check();
++  await expect(async()=>{await publicPage.reload();await rendered.scrollIntoViewIfNeeded();await expect.poll(()=>rendered.evaluate((e:HTMLImageElement)=>e.complete&&e.naturalWidth>0)).toBe(true);expect(await rendered.evaluate((e:HTMLImageElement)=>e.currentSrc)).not.toBe(oldUrl);}).toPass({timeout:30000});const newUrl=await rendered.evaluate((e:HTMLImageElement)=>e.currentSrc);writeEvidence(directory,'responsive-same-path.json',{oldUrl,newUrl,replacementSha256:hash(replacement)});
++  check();media[1].restore();delete expected['apps/site/public'+upload('portrait.jpg')];check();await expect(async()=>{await publicPage.reload();await expect(publicPage.locator('body')).toContainText('Page media_native_acceptance, section media_0: cannot render image');}).toPass({timeout:30000});writeEvidence(directory,'referenced-unlink.json',{contextualVisibleFailure:true,missingSource:upload('portrait.jpg'),note:'Astro development error page can retain streamed HTTP 200; visible contextual failure is the contract'});media[1].create(replacement);expected['apps/site/public'+upload('portrait.jpg')]=hash(replacement);check();await expect(async()=>{expect((await publicPage.reload())!.status()).toBe(200);await rendered.scrollIntoViewIfNeeded();await expect.poll(()=>rendered.evaluate((e:HTMLImageElement)=>e.complete&&e.naturalWidth>0)).toBe(true);}).toPass({timeout:30000});
++  const astSelected=saves[0].request.params.page.standard.copy.sections.find((s:any)=>s.media_text)?.media_text?.body;
++  await open();writeEvidence(directory,'clear-controls.json',await control.locator('button').evaluateAll(es=>es.map(e=>({text:e.textContent,title:e.getAttribute('title'),'aria-label':e.getAttribute('aria-label')}))));
++  await control.locator('button').nth(1).click();
++  await save(d=>!d.sections.find((s:any)=>s.id==='media_0').media&&d.copy.sections.find((s:any)=>s.id==='media_0').body===prior.copy.sections.find((s:any)=>s.id==='media_0').body&&!JSON.stringify(d).includes('/_media/'));
++  const astCleared=saves[1].request.params.page.standard.copy.sections.find((s:any)=>s.media_text)?.media_text?.body;expect(astSelected).toBeTruthy();expect(astCleared).toEqual(astSelected);await open();expect(await control.locator('img').count()).toBe(0);expect(liveQueries).toBeGreaterThan(0);writeEvidence(directory,'native-query-proof.json',{successfulUiQueries:liveQueries,schemaSha256:hash(readFileSync('tina/__generated__/_schema.json')),originalsRetained:media.every(m=>m.owns()),unchangedBodyAst:true});await page.screenshot({path:join(directory,'native-cleared.png'),fullPage:true});
++  // The watcher is Astro's actual upload integration; no content mutation is needed to verify upload events.
++  const first=await sharp({create:{width:700,height:350,channels:3,background:'#752'}}).png().toBuffer();check();live.create(first);liveExists=true;expected[livePath]=hash(first);check();
++  await expect.poll(async()=>{const r=await fetch('http://127.0.0.1:'+ports.site+'/uploads/media-live-upload.png');return r.status===200?hash(Buffer.from(await r.arrayBuffer())):'';}).toBe(hash(first));
++  const changed=await sharp({create:{width:900,height:600,channels:3,background:'#275'}}).png().toBuffer();live.replace(changed);expected[livePath]=hash(changed);check();
++  await expect.poll(async()=>hash(Buffer.from(await(await fetch('http://127.0.0.1:'+ports.site+'/uploads/media-live-upload.png')).arrayBuffer()))).toBe(hash(changed));
++  live.restore();liveExists=false;delete expected[livePath];check();await expect.poll(async()=>(await fetch('http://127.0.0.1:'+ports.site+'/uploads/media-live-upload.png')).status).toBe(404);writeEvidence(directory,'upload-events.json',{add:true,change:true,unlink:true,samePathReplacement:true,first:hash(first),changed:hash(changed)});
++ }finally{
++  await cleanupMediaBrowser({closeBrowser:()=>context?.close(),stops:runtimes.map((runtime,i)=>({id:'runtime-'+i,stop:()=>runtime.stop()})),restores:[{id:'native-record',restore:()=>sources.restore()},...media.map((m,i)=>({id:'original-'+i,restore:()=>m.restore(),dependsOn:['native-record']})),{id:'live-original',restore:()=>liveExists?live.restore():true},{id:'project',restore:()=>config.cleanup()}],assertInputs:()=>{expected={...config.before};check();},regenerate:[{id:'configure-restored',run:()=>run.configure()}],record:state=>writeEvidence(directory,'native-cleanup.json',state)});run.finish();
++ }
++});
+diff --git a/e2e/media-optimization.spec.ts b/e2e/media-optimization.spec.ts
+new file mode 100644
+index 0000000..486a88b
+--- /dev/null
++++ b/e2e/media-optimization.spec.ts
+@@ -0,0 +1,63 @@
++import {test,expect,type Browser,type Page} from '@playwright/test';
++import AxeBuilder from '@axe-core/playwright';
++import {readFileSync,existsSync,statSync} from 'node:fs';
++import {join} from 'node:path';
++import sharp from 'sharp';
++import {staticOwner,outputDemand,workerFor,photoNames,upload,writeEvidence,walk,hash} from './helpers/media-optimization-acceptance';
++import {createMediaSession} from '../packages/media/session.mjs';
++
++test.describe.configure({timeout:900000});
++const modes=[
++ {environment:'local',theme:'neutral',density:'comfortable',rooms:4,profile:'enquiries',articles:true,enabled:true},
++ {environment:'staging',theme:'accommodation',density:'compact',rooms:1,profile:'newsletter',articles:false,enabled:true},
++ {environment:'production',theme:'trades',density:'spacious',rooms:2,profile:'nurture',articles:true,enabled:true},
++ {environment:'local',theme:'wellness',density:'compact',rooms:3,profile:'enquiries',articles:false,enabled:true},
++ {environment:'production',theme:'neutral',density:'spacious',rooms:0,profile:'enquiries',articles:false,enabled:false},
++];
++async function inspect(page:Page,enabled:boolean,locale:string){
++ const rows:any[]=[];
++ for(const image of await page.locator('main .section-image img').all()){
++  await image.scrollIntoViewIfNeeded();await expect.poll(()=>image.evaluate((e:HTMLImageElement)=>e.complete&&e.naturalWidth>0)).toBe(true);
++  const row=await image.evaluate((e:HTMLImageElement)=>{
++   const source=e.parentElement?.querySelector('source');const sizes=source?.sizes||e.sizes;
++   // Split only top-level commas: min()/clamp() contain their own delimiters.
++   const rules:string[]=[];let depth=0,start=0;for(let i=0;i<sizes.length;i++){if(sizes[i]==='(')depth++;if(sizes[i]===')')depth--;if(sizes[i]===','&&depth===0){rules.push(sizes.slice(start,i).trim());start=i+1;}}rules.push(sizes.slice(start).trim());
++   let expression='';for(const rule of rules){const m=rule.match(/^(\([^)]*\))\s+(.+)$/);if(!m||matchMedia(m[1]).matches){expression=m?m[2]:rule;break;}}
++   const ruler=document.createElement('div');ruler.style.cssText='position:fixed;visibility:hidden;box-sizing:content-box;padding:0;border:0;width:'+expression;document.body.append(ruler);const expected=ruler.getBoundingClientRect().width;ruler.remove();
++   return {alt:e.alt,caption:e.closest('figure')?.querySelector('figcaption')?.textContent||'',currentSrc:e.currentSrc,srcset:e.srcset,sizes,expected,frame:e.closest('.image-frame')!.getBoundingClientRect().width,width:e.getAttribute('width'),height:e.getAttribute('height'),naturalWidth:e.naturalWidth,fit:getComputedStyle(e).objectFit,crop:getComputedStyle(e).objectPosition,loading:e.loading,decoding:e.decoding,section:e.closest('section')?.getAttribute('aria-labelledby')||'room-detail'};
++  });
++  expect(row.alt).toMatch(locale==='el'?/Εικόνα|Αφηρημένο/:/Photo|Abstract/);if(row.section==='room_list')expect(row.caption).toBe('');else expect(row.caption).toMatch(locale==='el'?/Λεζάντα/:/caption|Caption/);expect(row.fit).toBe('cover');expect(['50% 50%','50% 0%','50% 100%']).toContain(row.crop);expect(Number(row.width)).toBeGreaterThan(0);expect(Number(row.height)).toBeGreaterThan(0);expect(row.loading).toBe('lazy');expect(row.decoding).toBe('async');
++  const animation=row.section==='media_4';if(enabled&&!animation){expect(row.currentSrc).toContain('/_media/v1/');expect(row.srcset).toContain('w');expect(Math.abs(row.expected-row.frame),JSON.stringify(row)).toBeLessThanOrEqual(1.1);}else {expect(row.currentSrc).toContain('/uploads/');expect(row.srcset).toBe('');}
++  rows.push(row);
++ }
++ expect(rows.length).toBeGreaterThan(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);return rows;
++}
++for(const [index,mode]of modes.entries())test('real static '+JSON.stringify(mode),async({browser})=>{
++ const owner=staticOwner(mode),{fixture,run}=owner;let runtime:Awaited<ReturnType<typeof workerFor>>|undefined;
++ try{
++  owner.setup();await run.configure();await run.build();
++  const inventory=outputDemand();expect(inventory.published).toEqual(inventory.demanded);expect(inventory.published.length>0).toBe(mode.enabled);writeEvidence(run.directory,'publication.json',{mode,...inventory,originals:photoNames.map(name=>({name,persisted:existsSync('apps/site/dist'+upload(name))}))});
++  for(const name of photoNames)expect(existsSync('apps/site/dist'+upload(name))).toBe(true);
++  if(mode.environment!=='local'){expect(walk('apps/site/dist').some(p=>p.replaceAll('\\','/').includes('/design-system/'))).toBe(false);}
++  runtime=await workerFor(run.directory);owner.started();writeEvidence(run.directory,'runtime.json',{port:runtime.port,started:new Date().toISOString()});
++  const url='http://127.0.0.1:'+runtime.port;
++  const unknown=await runtime.fetch('/_media/v1/'+ '0'.repeat(64)+'.webp');expect(unknown.status).toBe(404);expect(unknown.headers.get('X-Media-Acceptance-Worker')).toBe(null);expect(outputDemand()).toEqual(inventory);
++  for(const path of inventory.published){const response=await runtime.fetch(path);expect(response.status).toBe(200);expect(response.headers.get('content-type')).toMatch(/image\/(webp|png|jpeg)/);expect(response.headers.get('content-security-policy')).toContain("default-src 'self'");expect(response.headers.get('X-Media-Acceptance-Worker')).toBe(null);}
++  expect((await runtime.fetch('/api/health')).headers.get('X-Media-Acceptance-Worker')).toBe('1');
++  const matrix=index===0?['en','el'].flatMap(locale=>[375,640,768,1440].flatMap(width=>[1,2].flatMap(dpr=>[true,false].map(js=>({locale,width,dpr,js}))))):[{locale:index%2?'el':'en',width:640,dpr:2,js:false},{locale:index%2?'en':'el',width:1440,dpr:1,js:true}];
++  if(index===0)for(const width of [626,627,767,769])matrix.push({locale:'en',width,dpr:1,js:true});
++  const evidence:any[]=[];
++  for(const scenario of matrix){const context=await browser.newContext({viewport:{width:scenario.width,height:900},deviceScaleFactor:scenario.dpr,javaScriptEnabled:scenario.js,baseURL:url});try{
++   const page=await context.newPage();const requests:any[]=[];page.on('request',r=>requests.push({url:r.url(),method:r.method(),type:r.resourceType()}));
++   for(const route of ['/media-acceptance',...(mode.rooms?['/rooms','/rooms/media-acceptance-0']:[])]){expect((await page.goto('/'+scenario.locale+route))!.status()).toBe(200);const rows=await inspect(page,mode.enabled,scenario.locale);evidence.push({...scenario,route,images:rows});
++    if(index===0&&scenario.width===375&&scenario.dpr===1&&scenario.js&&route==='/media-acceptance'){const audit=await new AxeBuilder({page}).analyze();writeEvidence(run.directory,'axe-'+scenario.locale+'.json',audit);expect(audit.violations).toEqual([]);await page.screenshot({path:join(run.directory,scenario.locale+'-375.png'),fullPage:true});}
++    if(index>0&&scenario.width===1440&&route==='/media-acceptance')await page.screenshot({path:join(run.directory,mode.theme+'-1440.png'),fullPage:true});
++   }
++   if(!mode.rooms)expect((await page.goto('/'+scenario.locale+'/rooms'))!.status()).toBe(404);
++   if(!mode.articles)expect((await page.goto('/'+scenario.locale+'/insights'))!.status()).toBe(404);
++   expect(requests.filter(r=>r.type==='image').every(r=>/^https?:\/\/127\.0\.0\.1:\d+\/(?:_media\/v1\/[a-f0-9]+\.(?:webp|png|jpg|jpeg)|uploads\/[^?]+)$/.test(r.url))).toBe(true);writeEvidence(run.directory,'requests-'+scenario.locale+'-'+scenario.width+'-'+scenario.dpr+'-'+scenario.js+'.json',requests);
++  }finally{await context.close();}}
++  writeEvidence(run.directory,'browser-matrix.json',evidence);
++  if(index===0){const session=createMediaSession({root:process.cwd(),policy:{enabled:true,widths:[320,640,960,1440,1920],quality:80},mode:'build'});try{const table=[];for(const name of photoNames){const media=await session.resolve(upload(name));const source=await sharp(readFileSync('tests/fixtures/media-optimization/'+name)).metadata();table.push({name,source:{bytes:statSync('tests/fixtures/media-optimization/'+name).size,width:source.width,height:source.height,sha256:hash(readFileSync('tests/fixtures/media-optimization/'+name))},...media});}writeEvidence(run.directory,'candidate-table.json',table);const photo=table[0];expect(photo.webp.every(c=>c.bytes<photo.source.bytes)).toBe(true);expect(table[4].passthroughReason).toBe('animated-or-multipage');const selected=evidence.flatMap(e=>e.images.filter((i:any)=>i.section.startsWith('gallery_')).map((i:any)=>({src:i.currentSrc,bytes:statSync('apps/site/dist'+new URL(i.currentSrc).pathname).size,original:photo.source.bytes})));expect(selected.every(s=>s.bytes<s.original)).toBe(true);writeEvidence(run.directory,'selected-transfer.json',selected);}finally{await session.close();}}
++ }finally{await fixture.cleanup({stops:[{id:'built-worker',stop:async()=>{await runtime?.stop();owner.stopped();writeEvidence(run.directory,'shutdown.json',{confirmed:true,ended:new Date().toISOString()});}}],regenerate:[{id:'configure-restored',run:()=>run.configure()}]});run.finish();}
++});
+diff --git a/scripts/media-optimization-acceptance.d.mts b/scripts/media-optimization-acceptance.d.mts
+index bbe2aca..2be18a1 100644
+--- a/scripts/media-optimization-acceptance.d.mts
++++ b/scripts/media-optimization-acceptance.d.mts
+@@ -6,10 +6,11 @@ export interface MediaAcceptanceRunOptions {
+ }
+ export function createMediaAcceptanceRun(options?:MediaAcceptanceRunOptions):{
+  directory:string;
+  assertInputs():void;
+  command(args:string[],options?:{cwd?:string;timeoutMs?:number;env?:Record<string,string>}):Promise<void>;
+  configure():Promise<void>;
+  build(args?:string[]):Promise<void>;
+  finish():{directory:string;unchanged:boolean};
+ };
+ export function verifyMediaOptimization(options?:{phase?:string;root?:string;checkPorts?:()=>Promise<void>}):Promise<{directory:string;unchanged:boolean}>;
++/** Static/native phases execute their real Playwright-transformed suites, with per-run browser evidence. */
+diff --git a/scripts/media-optimization-acceptance.mjs b/scripts/media-optimization-acceptance.mjs
+index bde8686..76736c0 100644
+--- a/scripts/media-optimization-acceptance.mjs
++++ b/scripts/media-optimization-acceptance.mjs
+@@ -18,21 +18,21 @@ export function createMediaAcceptanceRun({root=process.cwd(),expected,isStopped=
+   active = true;
+   let row;
+   try {
+    if (!isStopped()) throw Error('Owned runtime shutdown unconfirmed; command refused');
+    assertInputs();
+    await checkPorts();
+    if (!isStopped()) throw Error('Owned runtime shutdown unconfirmed; command refused');
+    assertInputs();
+    row = {
+     executable: process.execPath, args, cwd,
+-    started: new Date().toISOString(), ended: null, pid: null, passed: false,
++    started: new Date().toISOString(), ended: null, pid: null, exitCode: null, passed: false,
+     log: `command-${commands.length + 1}.log`,
+    };
+    commands.push(row);
+    log('commands.json', commands);
+    await runOwnedCommand(process.execPath, args, {
+     cwd, timeoutMs,
+     env: {
+      ...process.env, ASTRO_TELEMETRY_DISABLED: '1', WRANGLER_SEND_METRICS: 'false',
+      XDG_CONFIG_HOME: join(directory, 'config'),
+      WRANGLER_LOG_PATH: join(directory, 'wrangler-logs'), ...env,
+@@ -41,34 +41,39 @@ export function createMediaAcceptanceRun({root=process.cwd(),expected,isStopped=
+      row.pid = pid;
+      log('commands.json', commands);
+     },
+     onOutput: text => {
+      appendFileSync(join(directory, row.log), text);
+      process.stdout.write(text);
+     },
+    });
+    assertInputs();
+    row.passed = true;
++   row.exitCode = 0;
+   } catch (error) {
+-   if (row) row.error = String(error);
++   if (row) { row.error = String(error); const exit = /Command exit (\d+)/.exec(String(error)); if (exit) row.exitCode = Number(exit[1]); }
+    throw error;
+   } finally {
+    try {
+     if (row) {
+      row.ended = new Date().toISOString();
+      log('commands.json', commands);
+     }
+    } finally {
+     active = false;
+    }
+   }
+  }
+  return {directory,assertInputs,command,configure:()=>command(['scripts/configure.mjs']),build:(args=[])=>command(['apps/site/scripts/build.mjs',...args]),finish(){const after=canonicalSnapshot(root),unchanged=isDeepStrictEqual(before,after);log('restoration.json',{before,after,unchanged,commands});if(active||!isStopped())throw Error('Owned runtime shutdown unconfirmed');if(!unchanged)throw Error('Full canonical project/content/uploads snapshot conflict; acceptance failed');return {directory,unchanged};}};
+ }
+-/** Task 6 supplies real static/native matrix implementations; unavailable phases cannot false-pass. */
++/** Separate transformed browser phases keep native TS helpers out of the Node import graph. */
+ export async function verifyMediaOptimization({phase='pure',root=process.cwd(),checkPorts}={}){
+- if(!['pure','smoke'].includes(phase))throw Error(`Media acceptance phase ${phase} not implemented; refused before mutation`);
++ if(!['pure','smoke','static','native'].includes(phase))throw Error(`Unknown media acceptance phase: ${phase}`);
+  const run=createMediaAcceptanceRun({root,checkPorts});let failure;
+- try{if(phase==='pure')await run.command(['node_modules/vitest/vitest.mjs','run','tests/media-optimization-cleanup.test.ts']);else await run.command(['-e',"console.log('Media acceptance no-mutation smoke')"]);}
+- catch(error){failure=error;}
++ writeFileSync(join(run.directory,'phase.json'),JSON.stringify({phase,started:new Date().toISOString()},null,2)+'\n');
++ try{
++  if(phase==='pure')await run.command(['node_modules/vitest/vitest.mjs','run','tests/media-optimization-cleanup.test.ts','tests/media-optimization.test.ts','tests/media-cache.test.ts','tests/media-session.test.ts','tests/media-layout.test.ts','tests/media-runtime.test.ts','tests/media-acceptance-harness.test.ts','tests/media-source.test.ts','tests/media-contract.test.ts','tests/media-integration.test.ts']);
++  else if(phase==='smoke')await run.command(['-e',"console.log('Media acceptance no-mutation smoke')"]);
++  else await run.command(['node_modules/@playwright/test/cli.js','test',phase==='static'?'e2e/media-optimization.spec.ts':'e2e/media-optimization-cms.spec.ts','--reporter=list','--output='+join(run.directory,'browser-results')],{env:{MEDIA_ACCEPTANCE_PHASE:phase,MEDIA_ACCEPTANCE_DIRECTORY:run.directory,PLAYWRIGHT_BROWSERS_PATH:join(root,'.generated/browsers')}});
++ }catch(error){failure=error;}
+  const result=run.finish();if(failure)throw failure;return result;
+ }
+diff --git a/tests/media-acceptance-harness.test.ts b/tests/media-acceptance-harness.test.ts
+new file mode 100644
+index 0000000..9a0d4dc
+--- /dev/null
++++ b/tests/media-acceptance-harness.test.ts
+@@ -0,0 +1,23 @@
++import {it,expect,vi} from 'vitest';
++import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,existsSync} from 'node:fs';
++import {tmpdir} from 'node:os';
++import {join} from 'node:path';
++import {staticOwner} from '../e2e/helpers/media-optimization-acceptance';
++import {createMediaOptimizationFixture} from '../e2e/helpers/media-optimization-fixture';
++import {cleanupMediaOptimization} from '../e2e/helpers/media-optimization-cleanup';
++import {mediaRuntime,cleanupMediaBrowser} from '../e2e/helpers/media-optimization-runtime';
++import {canonicalSnapshot,assertCanonicalSnapshot} from '../scripts/composition-c-snapshot.mjs';
++function root(){const path=mkdtempSync(join(tmpdir(),'media-harness-fault-'));for(const p of ['content/pages','content/rooms','apps/site/public/uploads'])mkdirSync(join(path,p),{recursive:true});writeFileSync(join(path,'project.json'),readFileSync('project.json'));writeFileSync(join(path,'content/pages/rooms.json'),readFileSync('content/pages/rooms.json'));return path;}
++it('restores partially acquired static setup when setup rejects before returning to browser work',async()=>{
++ const path=root(),before=canonicalSnapshot(path);const owner=staticOwner({environment:'local',theme:'neutral',density:'comfortable',rooms:1,profile:'enquiries',articles:true,enabled:true},{root:path});
++ vi.spyOn(owner.fixture,'createDocument').mockImplementationOnce(()=>{throw Error('setup failed after binary acquisition');});
++ expect(()=>owner.setup()).toThrow(/setup failed/);expect(existsSync(join(path,'apps/site/public/uploads/media-acceptance-large-photo.jpg'))).toBe(true);
++ await owner.fixture.cleanup();expect(canonicalSnapshot(path)).toEqual(before);expect(owner.run.finish().unchanged).toBe(true);
++});
++it('rejecting browser close still confirms exact runtime shutdown and restores sources while refusing regeneration',async()=>{
++ const path=root(),before=canonicalSnapshot(path),f=createMediaOptimizationFixture({root:path,documents:['content/pages/proof.json'],media:[{path:'apps/site/public/uploads/proof.png',documents:['content/pages/proof.json']}]});
++ f.createMedia('apps/site/public/uploads/proof.png',Buffer.from('owned'));f.createDocument('content/pages/proof.json',{src:'/uploads/proof.png'});
++ const runtime=mediaRuntime(f.directory,'actual-child',['-e','setInterval(()=>{},1000)']);let regenerated=false,ledger:any;
++ await expect(cleanupMediaBrowser({closeBrowser:async()=>{throw Error('browser close rejected');},stops:[{id:'owned-runtime',stop:()=>runtime.stop()}],restores:[{id:'fixture-sources',restore:()=>f.cleanup()}],assertInputs:()=>assertCanonicalSnapshot(before,path),regenerate:[{id:'configure',run:()=>{regenerated=true;}}],record:state=>{ledger=state;}})).rejects.toThrow();
++ expect(runtime.closed()).toBe(true);expect(canonicalSnapshot(path)).toEqual(before);expect(ledger.stops.map((r:any)=>r.status)).toEqual(['failed','stopped']);expect(ledger.actions[0].status).toBe('restored');expect(regenerated).toBe(false);expect(ledger.regeneration[0].status).toBe('skipped');
++});
+diff --git a/tests/media-optimization-cleanup.test.ts b/tests/media-optimization-cleanup.test.ts
+index 91bc08c..316d167 100644
+--- a/tests/media-optimization-cleanup.test.ts
++++ b/tests/media-optimization-cleanup.test.ts
+@@ -1,38 +1,39 @@
+ import {afterEach, expect, it} from 'vitest';
+ import {execFileSync} from 'node:child_process';
+ import {resolve} from 'node:path';
+ import {createOwnedFileEdit} from '../scripts/owned-file-edit.mjs';
+ import {createWorkerEdit} from '../e2e/helpers/composition-c-worker-lifecycle';
+-import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
++import {existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
+ import {tmpdir} from 'node:os';
+ import {join} from 'node:path';
+ import {cleanupMediaOptimization} from '../e2e/helpers/media-optimization-cleanup';
+ import {createMediaOptimizationFixture} from '../e2e/helpers/media-optimization-fixture';
+ import {createMediaAcceptanceRun, verifyMediaOptimization} from '../scripts/media-optimization-acceptance.mjs';
+ import {canonicalSnapshot} from '../scripts/composition-c-snapshot.mjs';
+ const roots:string[]=[];
+ afterEach(()=>{for(const root of roots.splice(0))rmSync(root,{recursive:true,force:true});});
+ function project(){const root=mkdtempSync(join(tmpdir(),'media-acceptance-'));roots.push(root);for(const path of ['content/pages','apps/site/public/uploads'])mkdirSync(join(root,path),{recursive:true});writeFileSync(join(root,'project.json'),'{}\n');writeFileSync(join(root,'content/pages/base.json'),'base\n');writeFileSync(join(root,'apps/site/public/uploads/base.png'),'base image');return root;}
+ function fixture(){const root=project();const f=createMediaOptimizationFixture({root,documents:['content/pages/proof.json'],media:[{path:'apps/site/public/uploads/proof.png',documents:['content/pages/proof.json']},{path:'apps/site/public/uploads/independent.png',documents:[]}]});return {root,f};}
+ it.each(['project.json','content/pages/base.json','apps/site/public/uploads/base.png','content/pages/new.json'])('gates every mutation against the complete snapshot: %s',path=>{const {root,f}=fixture();writeFileSync(join(root,path),'external');expect(()=>f.createDocument('content/pages/proof.json',{id:'proof'})).toThrow(/snapshot conflict/);expect(existsSync(join(root,'content/pages/proof.json'))).toBe(false);});
+ it('preserves prewrite project conflicts and restores independent documents',async()=>{const {root,f}=fixture();f.createDocument('content/pages/proof.json',{id:'proof'});writeFileSync(join(root,'project.json'),'external');expect(()=>f.replaceProject('{}')).toThrow();await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'project.json'),'utf8')).toBe('external');expect(existsSync(join(root,'content/pages/proof.json'))).toBe(false);});
+ it('restores exact bytes and original absence from known fixture bytes',async()=>{const {root,f}=fixture();const before=canonicalSnapshot(root);f.replaceProject('{"media":{}}\n');f.createMedia('apps/site/public/uploads/proof.png',Buffer.from('owned'));f.createDocument('content/pages/proof.json',{id:'proof'});await f.cleanup();expect(canonicalSnapshot(root)).toEqual(before);});
+ it('retains media dependent on a conflicted record while restoring independent media',async()=>{const {root,f}=fixture();f.createMedia('apps/site/public/uploads/proof.png',Buffer.from('dependent'));f.createMedia('apps/site/public/uploads/independent.png',Buffer.from('independent'));f.createDocument('content/pages/proof.json',{image:'/uploads/proof.png'});writeFileSync(join(root,'content/pages/proof.json'),'external record');await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'apps/site/public/uploads/proof.png'),'utf8')).toBe('dependent');expect(existsSync(join(root,'apps/site/public/uploads/independent.png'))).toBe(false);const ledger=JSON.parse(readFileSync(join(f.directory,'cleanup.json'),'utf8'));expect(ledger.actions.find((a:any)=>a.id==='apps/site/public/uploads/proof.png').status).toBe('retained');});
+ it('attempts sibling media restoration after one actual media owner conflict',async()=>{const {root,f}=fixture();f.createMedia('apps/site/public/uploads/proof.png',Buffer.from('owned'));f.createMedia('apps/site/public/uploads/independent.png',Buffer.from('owned'));writeFileSync(join(root,'apps/site/public/uploads/proof.png'),'external');await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'apps/site/public/uploads/proof.png'),'utf8')).toBe('external');expect(existsSync(join(root,'apps/site/public/uploads/independent.png'))).toBe(false);});
+ it('awaits failed independent siblings and records every cleanup outcome before refusing regeneration',async()=>{const order:string[]=[];let ledger:any;await expect(cleanupMediaOptimization({stops:[],restores:[{id:'a',restore:async()=>{await Promise.resolve();order.push('a');throw Error('a conflict');}},{id:'b',restore:async()=>{await Promise.resolve();order.push('b');return true;}}],assertInputs:()=>{order.push('snapshot');},regenerate:[{id:'configure',run:async()=>{order.push('configure');}}],record:state=>{ledger=state;order.push('ledger');}})).rejects.toThrow();expect(order).toEqual(['a','b','snapshot','ledger']);expect(ledger.actions.map((a:any)=>[a.id,a.status])).toEqual([['a','failed'],['b','restored']]);expect(ledger.regeneration[0].status).toBe('skipped');});
+ it.each(['restore','shutdown'])('false %s result prevents regeneration',async kind=>{let built=false;let ledger:any;await expect(cleanupMediaOptimization({stops:kind==='shutdown'?[{id:'owned',stop:()=>false}]:[],restores:[{id:'record',restore:()=>kind==='restore'?false:true}],assertInputs:()=>{},regenerate:[{id:'build',run:()=>{built=true;}}],record:state=>{ledger=state;}})).rejects.toThrow();expect(built).toBe(false);expect(ledger.regeneration[0].status).toBe('skipped');});
+ it('shutdown rejection does not detach independent cleanup or allow regeneration',async()=>{const order:string[]=[];await expect(cleanupMediaOptimization({stops:[{id:'site',stop:async()=>{throw Error('shutdown failed');}},{id:'worker',stop:async()=>{order.push('worker');}}],restores:[{id:'record',restore:async()=>{order.push('record');}}],assertInputs:()=>{},regenerate:[{id:'build',run:()=>{order.push('build');}}],record:()=>{order.push('ledger');}})).rejects.toThrow();expect(order).toEqual(['worker','record','ledger']);});
+ it('checks complete expected inputs again between configure and final build',async()=>{const root=project(),before=canonicalSnapshot(root),order:string[]=[];const run=createMediaAcceptanceRun({root,expected:()=>before,checkPorts:async()=>{}});await expect(cleanupMediaOptimization({stops:[],restores:[],assertInputs:()=>run.assertInputs(),regenerate:[{id:'configure',run:()=>{order.push('configure');writeFileSync(join(root,'content/pages/base.json'),'external');}},{id:'build',run:()=>{order.push('build');}}],record:()=>{}})).rejects.toThrow();expect(order).toEqual(['configure']);});
+-it('retains failed child command PID, end time, output and final canonical comparison',async()=>{const root=project();const run=createMediaAcceptanceRun({root,checkPorts:async()=>{}});await expect(run.command(['-e',"console.log('owned failure');process.exit(3)"])).rejects.toThrow(/exit 3/);const row=JSON.parse(readFileSync(join(run.directory,'commands.json'),'utf8'))[0];expect(row.pid).toBeGreaterThan(0);expect(row.ended).toBeTruthy();expect(row.passed).toBe(false);expect(readFileSync(join(run.directory,row.log),'utf8')).toContain('owned failure');expect(run.finish().unchanged).toBe(true);});
++it('retains failed child command PID, end time, output and final canonical comparison',async()=>{const root=project();const run=createMediaAcceptanceRun({root,checkPorts:async()=>{}});await expect(run.command(['-e',"console.log('owned failure');process.exit(3)"])).rejects.toThrow(/exit 3/);const row=JSON.parse(readFileSync(join(run.directory,'commands.json'),'utf8'))[0];expect(row.pid).toBeGreaterThan(0);expect(row.ended).toBeTruthy();expect(row.passed).toBe(false);expect(row.exitCode).toBe(3);expect(readFileSync(join(run.directory,row.log),'utf8')).toContain('owned failure');expect(run.finish().unchanged).toBe(true);});
+ it('refuses commands when owned runtime shutdown remains unconfirmed',async()=>{const root=project();const run=createMediaAcceptanceRun({root,isStopped:()=>false,checkPorts:async()=>{}});await expect(run.command(['-e',"require('fs').writeFileSync('unexpected','bad')"])).rejects.toThrow(/shutdown/);expect(existsSync(join(root,'unexpected'))).toBe(false);});
+-it.each(['static','native'])('fails incomplete %s phase before creating acceptance state or commands',async phase=>{const root=project();await expect(verifyMediaOptimization({root,phase})).rejects.toThrow(/not implemented/);expect(existsSync(join(root,'.generated'))).toBe(false);});
++it.each(['static','native'])('records actual %s phase failure without mutating canonical inputs',async phase=>{const root=project(),before=canonicalSnapshot(root);await expect(verifyMediaOptimization({root,phase,checkPorts:async()=>{}})).rejects.toThrow(/Command exit/);expect(canonicalSnapshot(root)).toEqual(before);const runs=requireRuns(root);expect(runs).toHaveLength(1);const row=JSON.parse(readFileSync(join(runs[0],'commands.json'),'utf8'))[0];expect(row.args).toContain('node_modules/@playwright/test/cli.js');expect(row.args).toContain(phase==='static'?'e2e/media-optimization.spec.ts':'e2e/media-optimization-cms.spec.ts');expect(row.passed).toBe(false);expect(row.ended).toBeTruthy();expect(JSON.parse(readFileSync(join(runs[0],'restoration.json'),'utf8')).unchanged).toBe(true);});
++function requireRuns(root:string){return readdirSync(join(root,'.generated/media-optimization')).map(p=>join(root,'.generated/media-optimization',p));}
+ it('runs a no-mutation orchestration smoke with actual child ownership and snapshots',async()=>{const root=project(),before=canonicalSnapshot(root);const result=await verifyMediaOptimization({root,phase:'smoke',checkPorts:async()=>{}});expect(result.unchanged).toBe(true);expect(canonicalSnapshot(root)).toEqual(before);expect(JSON.parse(readFileSync(join(result.directory,'commands.json'),'utf8'))[0].passed).toBe(true);});
+ 
+ it('switches expected snapshots back to baseline before safe final regeneration',async()=>{const {root,f}=fixture();f.replaceProject('{"owned":true}');const run=createMediaAcceptanceRun({root,expected:f.expectedSnapshot,checkPorts:async()=>{}});await f.cleanup({regenerate:[{id:'final-command',run:()=>run.command(['-e',"console.log('restored baseline command')"])}]});expect(canonicalSnapshot(root)).toEqual(f.before);});
+ it('rejects final regeneration that changes canonical inputs',async()=>{const root=project(),before=canonicalSnapshot(root);let ledger:any;const run=createMediaAcceptanceRun({root,expected:()=>before,checkPorts:async()=>{}});await expect(cleanupMediaOptimization({stops:[],restores:[],assertInputs:()=>run.assertInputs(),regenerate:[{id:'last',run:()=>{writeFileSync(join(root,'project.json'),'external');}}],record:state=>{ledger=state;}})).rejects.toThrow();expect(ledger.snapshot).toBe('failed');expect(ledger.regeneration[0].status).toBe('failed');});
+ it('accepts pnpm forwarded option delimiters for the no-mutation smoke',()=>{const root=project();expect(()=>execFileSync(process.execPath,[resolve('scripts/verify-media-optimization.mjs'),'--','--smoke'],{cwd:root,stdio:'pipe'})).not.toThrow();});
+ it('preserves external bytes after the actual pre-write owner revokes its claim',async()=>{const root=project(),path=join(root,'project.json'),owner=createWorkerEdit(createOwnedFileEdit(path,join(root,'backup')),()=>readFileSync(path));writeFileSync(path,'external after gate');expect(()=>owner.replace('owned')).toThrow(/ownership conflict/);let sibling=false,built=false,ledger:any;await expect(cleanupMediaOptimization({stops:[],restores:[{id:'project',restore:()=>owner.restore()},{id:'sibling',restore:async()=>{await Promise.resolve();sibling=true;}}],assertInputs:()=>{},regenerate:[{id:'build',run:()=>{built=true;}}],record:state=>{ledger=state;}})).rejects.toThrow();expect(readFileSync(path,'utf8')).toBe('external after gate');expect(sibling).toBe(true);expect(built).toBe(false);expect(ledger.actions.map((row:any)=>row.status)).toEqual(['failed','restored']);});
+ it('uses the supported site build entry and refuses a second command after canonical drift',async()=>{const root=project(),marker=join(root,'.generated/build-entry');mkdirSync(join(root,'apps/site/scripts'),{recursive:true});writeFileSync(join(root,'apps/site/scripts/build.mjs'),"import{writeFileSync}from'node:fs';writeFileSync('.generated/build-entry','public build');");const run=createMediaAcceptanceRun({root,checkPorts:async()=>{}});await run.build();expect(readFileSync(marker,'utf8')).toBe('public build');writeFileSync(join(root,'content/pages/base.json'),'external');await expect(run.build()).rejects.toThrow(/snapshot conflict/);});
+ it('restores an existing static document through exact owned-file bytes',async()=>{const root=project(),f=createMediaOptimizationFixture({root,documents:['content/pages/base.json']});f.replaceDocument('content/pages/base.json','{"owned":true}\n');expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('{"owned":true}\n');await f.cleanup();expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('base\n');});
+ it('preserves a conflicted existing document and restores its independent sibling',async()=>{const root=project(),f=createMediaOptimizationFixture({root,documents:['content/pages/base.json','content/pages/proof.json']});f.replaceDocument('content/pages/base.json','owned');f.createDocument('content/pages/proof.json',{id:'proof'});writeFileSync(join(root,'content/pages/base.json'),'external');await expect(f.cleanup()).rejects.toThrow();expect(readFileSync(join(root,'content/pages/base.json'),'utf8')).toBe('external');expect(existsSync(join(root,'content/pages/proof.json'))).toBe(false);});
+ 
+diff --git a/tests/media-runtime.test.ts b/tests/media-runtime.test.ts
+new file mode 100644
+index 0000000..7e70b4b
+--- /dev/null
++++ b/tests/media-runtime.test.ts
+@@ -0,0 +1,9 @@
++import {it,expect} from 'vitest';
++import {mkdtempSync,readFileSync} from 'node:fs';
++import {tmpdir} from 'node:os';
++import {join} from 'node:path';
++import {mediaRuntime} from '../e2e/helpers/media-optimization-runtime';
++it('confirms close of only its actual owned long-lived child before admitting regeneration',async()=>{
++ const directory=mkdtempSync(join(tmpdir(),'media-owned-runtime-'));const runtime=mediaRuntime(directory,'proof',['-e',"console.log('owned runtime');setInterval(()=>{},1000)"]);
++ expect(runtime.pid).toBeGreaterThan(0);expect(runtime.closed()).toBe(false);await runtime.stop();expect(runtime.closed()).toBe(true);const proof=JSON.parse(readFileSync(join(directory,'runtime-proof.json'),'utf8'));expect(proof.shutdownConfirmed).toBe(true);expect(proof.pid).toBe(runtime.pid);expect(proof.ended).toBeTruthy();await runtime.stop();
++});

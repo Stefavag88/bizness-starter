@@ -1,0 +1,24 @@
+
+> business-starter-v2@2.0.0-dev check C:\Projects\bizness-starter-v2
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+e2e/helpers/composition-c-acceptance.ts(10,24): error TS2345: Argument of type 'LocalPorts' is not assignable to parameter of type 'Record<string, number>'.
+  Index signature for type 'string' is missing in type 'LocalPorts'.
+e2e/helpers/composition-c-acceptance.ts(18,79): error TS2345: Argument of type 'LocalPorts' is not assignable to parameter of type 'Record<string, number>'.
+  Index signature for type 'string' is missing in type 'LocalPorts'.
+e2e/helpers/media-optimization-acceptance.ts(40,107): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
+ ELIFECYCLE  Command failed with exit code 2.
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 2: C:\Users\Vag\AppData\Roaming\npm\node_modules\pnpm\bin\pnpm.cjs check
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0

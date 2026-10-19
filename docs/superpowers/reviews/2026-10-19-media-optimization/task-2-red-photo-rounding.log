@@ -1,0 +1,32 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-cache.test.ts (12 tests | 1 failed) 1496ms
+   × reuses photographic output despite Sharp shrink-on-load height rounding 159ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-cache.test.ts > reuses photographic output despite Sharp shrink-on-load height rounding
+AssertionError: expected [ 1792414752332.6292, …(1) ] to deeply equal [ 1792414752271.275, …(1) ]
+
+- Expected
++ Received
+
+  [
+-   1792414752271.275,
+-   1792414752265.2253,
++   1792414752332.6292,
++   1792414752327.6206,
+  ]
+
+ ❯ tests/media-cache.test.ts:76:265
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  15:59:10
+   Duration  2.12s (tests 79%, import 16%, transform 5%)
+

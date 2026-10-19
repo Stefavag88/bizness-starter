@@ -1,0 +1,40 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+stderr | tests/media-cache.test.ts > deduplicates concurrent requests and limits real Sharp transforms to two globally
+CACHEMISS c547f918ac52e6daa0ff259821cc1afea6bc8a2ea1996d57278bf971a554c188 ENOENT: no such file or directory, lstat 'C:\Users\Vag\AppData\Local\Temp\media-cache-dG7KFb\.generated\media-optimization\cache\v1\c547f918ac52e6daa0ff259821cc1afea6bc8a2ea1996d57278bf971a554c188.webp.json'
+
+stderr | tests/media-cache.test.ts > deduplicates concurrent requests and limits real Sharp transforms to two globally
+CACHEMISS 15da5d79ae22bb49e038a33feb8043cdfe82caeea067da9f6f8cddc78e5e6b8c ENOENT: no such file or directory, lstat 'C:\Users\Vag\AppData\Local\Temp\media-cache-dG7KFb\.generated\media-optimization\cache\v1\15da5d79ae22bb49e038a33feb8043cdfe82caeea067da9f6f8cddc78e5e6b8c.webp.json'
+
+stderr | tests/media-cache.test.ts > deduplicates concurrent requests and limits real Sharp transforms to two globally
+CACHEMISS a50a8635ecb5127a1e2842600b57a8d61ee881139d367f78f604bad09a38de4d ENOENT: no such file or directory, lstat 'C:\Users\Vag\AppData\Local\Temp\media-cache-dG7KFb\.generated\media-optimization\cache\v1\a50a8635ecb5127a1e2842600b57a8d61ee881139d367f78f604bad09a38de4d.png.json'
+
+stderr | tests/media-cache.test.ts > deduplicates concurrent requests and limits real Sharp transforms to two globally
+CACHEMISS 247e18c208f9f573cff12a2d1b9c0b7e55a18409ea62a57e325fd15713fd9847 ENOENT: no such file or directory, lstat 'C:\Users\Vag\AppData\Local\Temp\media-cache-dG7KFb\.generated\media-optimization\cache\v1\247e18c208f9f573cff12a2d1b9c0b7e55a18409ea62a57e325fd15713fd9847.png.json'
+
+ ❯ tests/media-cache.test.ts (12 tests | 1 failed) 1544ms
+   × deduplicates concurrent requests and limits real Sharp transforms to two globally 116ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-cache.test.ts > deduplicates concurrent requests and limits real Sharp transforms to two globally
+AssertionError: expected 8 to be 4 // Object.is equality
+
+- Expected
++ Received
+
+- 4
++ 8
+
+ ❯ tests/media-cache.test.ts:38:214
+
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 18 passed (19)
+   Start at  16:01:18
+   Duration  3.30s (tests 83%, import 13%, transform 4%)
+

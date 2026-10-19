@@ -1,0 +1,180 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-optimization.test.ts (7 tests | 6 failed) 109ms
+   × candidateWidths caps without upscaling 24ms
+   × encodes a real large photo into at most twelve correctly decoded smaller candidates 21ms
+   × normalizes EXIF orientation without changing the original snapshot 11ms
+   × preserves transparency and lossless PNG fallback pixels at original size 11ms
+   × does not upscale small images and uses only one WebP family 10ms
+   × passes disabled and multipage sources through without creating a cache 10ms
+ ❯ tests/media-cache.test.ts (6 tests | 6 failed) 107ms
+   × reuses identical bytes across source paths and locales without writes 26ms
+   × uses the validated snapshot after the pathname is replaced and invalidates changed bytes 18ms
+   × quality and forged pipeline identities cannot reuse stale cache entries 14ms
+   × regenerates missing output, corrupt bytes, forged metadata and incomplete temporary writes 13ms
+   × deduplicates concurrent requests and limits real Sharp transforms to two globally 14ms
+   × rejects unowned markers, cache-directory junctions, output symlinks and forged URL escapes 20ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-cache.test.ts > reuses identical bytes across source paths and locales without writes
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-cache.test.ts:15:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/media-cache.test.ts > uses the validated snapshot after the pathname is replaced and invalidates changed bytes
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-cache.test.ts:20:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/media-cache.test.ts > quality and forged pipeline identities cannot reuse stale cache entries
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-cache.test.ts:24:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/media-cache.test.ts > regenerates missing output, corrupt bytes, forged metadata and incomplete temporary writes
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-cache.test.ts:29:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  tests/media-cache.test.ts > deduplicates concurrent requests and limits real Sharp transforms to two globally
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-cache.test.ts:38:86
+ ❯ tests/media-cache.test.ts:38:65
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  tests/media-cache.test.ts > rejects unowned markers, cache-directory junctions, output symlinks and forged URL escapes
+AssertionError: expected [Function] to throw error matching /marker|owner|pipeline/i but got 'Not implemented'
+
+- Expected:
+/marker|owner|pipeline/i
+
++ Received:
+"Not implemented"
+
+ ❯ tests/media-cache.test.ts:42:160
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  tests/media-optimization.test.ts > candidateWidths caps without upscaling
+AssertionError: expected [] to deeply equal [ 320, 640, 960, 1000 ]
+
+- Expected
++ Received
+
+- [
+-   320,
+-   640,
+-   960,
+-   1000,
+- ]
++ []
+
+ ❯ tests/media-optimization.test.ts:14:56
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  tests/media-optimization.test.ts > encodes a real large photo into at most twelve correctly decoded smaller candidates
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-optimization.test.ts:19:67
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  tests/media-optimization.test.ts > normalizes EXIF orientation without changing the original snapshot
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-optimization.test.ts:24:64
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  tests/media-optimization.test.ts > preserves transparency and lossless PNG fallback pixels at original size
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-optimization.test.ts:29:61
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  tests/media-optimization.test.ts > does not upscale small images and uses only one WebP family
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-optimization.test.ts:35:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  tests/media-optimization.test.ts > passes disabled and multipage sources through without creating a cache
+Error: Not implemented
+ ❯ resolveCachedMedia packages/media/cache.mjs:2:52
+      1| export function candidateWidths() { return []; }
+      2| export async function resolveCachedMedia() { throw new Error('Not impl…
+       |                                                    ^
+      3| export async function readCachedCandidate() { throw new Error('Not imp…
+      4|
+ ❯ tests/media-optimization.test.ts:40:157
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  12 failed | 1 passed (13)
+   Start at  15:53:41
+   Duration  753ms (import 61%, tests 22%, transform 15%, worker 2%)
+

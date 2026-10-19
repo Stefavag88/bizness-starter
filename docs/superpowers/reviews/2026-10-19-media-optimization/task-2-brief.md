@@ -1,0 +1,12 @@
+### Task 2: Encoder and content-addressed cache
+
+**Files:** New optimization/cache modules and declarations; tests/media-optimization.test.ts, tests/media-cache.test.ts; provenance fixtures.
+
+**Interfaces:** Consume validated snapshot and policy; produce ResponsiveMedia candidate families for sessions. Export candidateWidths and resolveCachedMedia(root:string,snapshot:Awaited<ReturnType<typeof readValidatedSource>>,policy:MediaOptimization):Promise<ResponsiveMedia> from cache.mjs.
+
+- [ ] Write test `candidateWidths caps without upscaling` with `expect(candidateWidths(1000,[320,640,960,1440,1920])).toEqual([320,640,960,1000])`, `expect(candidateWidths(200,[320,640])).toEqual([200])` and `expect(candidateWidths(4000,[320,640,960,1440,1920])).toEqual([320,640,960,1440,1920])`. Add actual-byte tests. Assert dimensions, alpha, normalized EXIF orientation, lossless PNG fallback, format counts, corrupt payload rejection, animated passthrough and zero derivatives when disabled. Acquire one redistributable large photographic fixture with verified original source/author/license and checksum recorded before use; do not import business reference photos. Generate orientation/alpha/small/animation fixtures from owned or licensed inputs and document recipes.
+- [ ] Add cache tests for identical source reuse across paths/locales, changed bytes at the same path, quality/pipeline changes, missing/corrupt output, concurrent identical requests, two-job ceiling, interrupted writes, forged metadata and destination symlink/escape. A controlled pathname replacement after read must still encode the original snapshot. Decode actual outputs rather than asserting names alone.
+- [ ] Run pnpm exec vitest run tests/media-optimization.test.ts tests/media-cache.test.ts and retain failing evidence.
+- [ ] Implement rotate/resize without upscaling, WebP and original-format output; cache immutable validated entries via atomic temporary writes and in-flight deduplication. Use the global two-job semaphore around transforms. Multipage and disabled cases retain original presentation with explicit reason, empty candidate arrays and no encode. Encoder errors propagate; do not fall back silently. Omit the optional equal-dimension original substitution in this increment to keep the renderer contract simple.
+- [ ] Repeat tests; require passing real output assertions. Commit feat: cache bounded responsive image variants after review.
+

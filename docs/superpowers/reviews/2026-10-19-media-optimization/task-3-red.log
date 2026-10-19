@@ -1,0 +1,33 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-integration.test.ts (0 test)
+ ❯ tests/media-session.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-integration.test.ts [ tests/media-integration.test.ts ]
+Error: Cannot find module '../apps/site/src/integrations/media.mjs' imported from C:/Projects/bizness-starter-v2/tests/media-integration.test.ts
+ ❯ tests/media-integration.test.ts:7:1
+      5| import {pathToFileURL} from 'node:url';
+      6| import sharp from 'sharp';
+      7| import mediaIntegration from '../apps/site/src/integrations/media.mjs';
+       | ^
+      8| import {getMediaSession,endMediaSession} from '../packages/media/sessi…
+      9| let root:string;const policy={enabled:true,widths:[160],quality:80};
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/media-session.test.ts [ tests/media-session.test.ts ]
+Error: Cannot find module '../packages/media/session.mjs' imported from C:/Projects/bizness-starter-v2/tests/media-session.test.ts
+ ❯ tests/media-session.test.ts:6:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  16:11:28
+   Duration  559ms (worker 97%, environment 3%)
+

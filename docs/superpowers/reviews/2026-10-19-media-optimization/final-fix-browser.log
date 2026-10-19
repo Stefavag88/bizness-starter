@@ -1,0 +1,109 @@
+
+Running 1 test using 1 worker
+
+(node:2916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Configured enquiries / local. No cloud resources were created.
+(node:25416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+21:52:01 [vite] Re-optimizing dependencies because vite config has changed
+21:52:02 [types] Generated 233ms
+21:52:02 [build] output: "static"
+21:52:02 [build] mode: "static"
+21:52:02 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+21:52:02 [build] Collecting build info...
+21:52:02 [build] ✓ Completed in 264ms.
+21:52:02 [build] Building static entrypoints...
+21:52:02 [vite] ✓ built in 336ms
+21:52:02 [vite] ✓ built in 142ms
+21:52:02 [build] Rearranging server assets...
+
+ generating static routes 
+21:52:03   ├─ /404.html (+20ms) 
+21:52:03   ├─ /design-system/index.html (+51ms) 
+21:52:03   ├─ /en/404/index.html (+4ms) 
+21:52:03   ├─ /el/404/index.html (+3ms) 
+21:52:03   ├─ /en/feed.xml (+3ms) 
+21:52:03   ├─ /el/feed.xml (+2ms) 
+21:52:03   ├─ /en/about/index.html (+3ms) 
+21:52:03   ├─ /en/contact/index.html (+3ms) 
+21:52:03   ├─ /en/index.html (+3ms) 
+21:52:03   ├─ /en/insights/index.html (+3ms) 
+21:52:03   ├─ /en/media-acceptance/index.html (+154ms) 
+21:52:03   ├─ /en/privacy/index.html (+3ms) 
+21:52:03   ├─ /en/rooms/index.html (+3ms) 
+21:52:03   ├─ /en/services/index.html (+2ms) 
+21:52:03   ├─ /en/services/planning-session/index.html (+2ms) 
+21:52:03   ├─ /en/insights/a-useful-first-question/index.html (+3ms) 
+21:52:03   ├─ /en/people/studio-guide/index.html (+2ms) 
+21:52:03   ├─ /en/rooms/media-acceptance-0/index.html (+3ms) 
+21:52:03   ├─ /en/rooms/media-acceptance-1/index.html (+2ms) 
+21:52:03   ├─ /en/rooms/media-acceptance-2/index.html (+2ms) 
+21:52:03   ├─ /en/rooms/media-acceptance-3/index.html (+2ms) 
+21:52:03   ├─ /el/about/index.html (+2ms) 
+21:52:03   ├─ /el/contact/index.html (+5ms) 
+21:52:03   ├─ /el/index.html (+3ms) 
+21:52:03   ├─ /el/insights/index.html (+4ms) 
+21:52:03   ├─ /el/media-acceptance/index.html (+4ms) 
+21:52:03   ├─ /el/privacy/index.html (+2ms) 
+21:52:03   ├─ /el/rooms/index.html (+2ms) 
+21:52:03   ├─ /el/services/index.html (+2ms) 
+21:52:03   ├─ /el/services/planning-session/index.html (+2ms) 
+21:52:03   ├─ /el/insights/a-useful-first-question/index.html (+3ms) 
+21:52:03   ├─ /el/people/studio-guide/index.html (+3ms) 
+21:52:03   ├─ /el/rooms/media-acceptance-0/index.html (+2ms) 
+21:52:03   ├─ /el/rooms/media-acceptance-1/index.html (+2ms) 
+21:52:03   ├─ /el/rooms/media-acceptance-2/index.html (+2ms) 
+21:52:03   ├─ /el/rooms/media-acceptance-3/index.html (+2ms) 
+21:52:03   ├─ /index.html (+3ms) 
+21:52:03 ✓ Completed in 520ms.
+
+21:52:03 [build] ✓ Completed in 1.28s.
+21:52:03 [build] 35 page(s) built in 2.19s
+21:52:03 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  ok 1 e2e\media-optimization.spec.ts:100:1 › scoped static WebP responsive preservation and demand equality (14.2s)
+
+  1 passed (16.1s)
+21:52:15 [types] Generated 95ms
+21:52:15 [build] output: "static"
+21:52:15 [build] mode: "static"
+21:52:15 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+21:52:15 [build] Collecting build info...
+21:52:15 [build] ✓ Completed in 128ms.
+21:52:15 [build] Building static entrypoints...
+21:52:15 [vite] ✓ built in 339ms
+21:52:16 [vite] ✓ built in 129ms
+21:52:16 [build] Rearranging server assets...
+
+ generating static routes 
+21:52:16   ├─ /404.html (+20ms) 
+21:52:16   ├─ /design-system/index.html (+54ms) 
+21:52:16   ├─ /en/404/index.html (+4ms) 
+21:52:16   ├─ /el/404/index.html (+3ms) 
+21:52:16   ├─ /en/feed.xml (+2ms) 
+21:52:16   ├─ /el/feed.xml (+2ms) 
+21:52:16   ├─ /en/about/index.html (+3ms) 
+21:52:16   ├─ /en/contact/index.html (+3ms) 
+21:52:16   ├─ /en/index.html (+3ms) 
+21:52:16   ├─ /en/insights/index.html (+3ms) 
+21:52:16   ├─ /en/privacy/index.html (+3ms) 
+21:52:16   ├─ /en/services/index.html (+2ms) 
+21:52:16   ├─ /en/services/planning-session/index.html (+2ms) 
+21:52:16   ├─ /en/insights/a-useful-first-question/index.html (+3ms) 
+21:52:16   ├─ /en/people/studio-guide/index.html (+3ms) 
+21:52:16   ├─ /el/about/index.html (+2ms) 
+21:52:16   ├─ /el/contact/index.html (+2ms) 
+21:52:16   ├─ /el/index.html (+2ms) 
+21:52:16   ├─ /el/insights/index.html (+2ms) 
+21:52:16   ├─ /el/privacy/index.html (+2ms) 
+21:52:16   ├─ /el/services/index.html (+2ms) 
+21:52:16   ├─ /el/services/planning-session/index.html (+3ms) 
+21:52:16   ├─ /el/insights/a-useful-first-question/index.html (+4ms) 
+21:52:16   ├─ /el/people/studio-guide/index.html (+3ms) 
+21:52:16   ├─ /index.html (+3ms) 
+21:52:16 ✓ Completed in 288ms.
+
+21:52:16 [build] ✓ Completed in 837ms.
+21:52:16 [build] 23 page(s) built in 1.13s
+21:52:16 [build] Complete!

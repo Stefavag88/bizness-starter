@@ -1,0 +1,57 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+owned failure
+Media acceptance no-mutation smoke
+ ❯ tests/media-optimization-cleanup.test.ts (20 tests | 2 failed) 722ms
+   × switches expected snapshots back to baseline before safe final regeneration 48ms
+   × rejects final regeneration that changes canonical inputs 25ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > switches expected snapshots back to baseline before safe final regeneration
+Error: Full canonical project/content/uploads snapshot conflict; regeneration refused
+ ❯ assertCanonicalSnapshot scripts/composition-c-snapshot.mjs:9:132
+
+ ❯ assertInputs scripts/media-optimization-acceptance.mjs:13:48
+ ❯ Object.command scripts/media-optimization-acceptance.mjs:17:3
+ ❯ run tests/media-optimization-cleanup.test.ts:27:307
+ ❯ confirmed e2e/helpers/media-optimization-cleanup.ts:19:51
+ ❯ e2e/helpers/media-optimization-cleanup.ts:32:104
+ ❯ cleanupCompositionPublic e2e/helpers/composition-b-cleanup.ts:7:13
+ ❯ cleanupMediaOptimization e2e/helpers/media-optimization-cleanup.ts:20:2
+ ❯ tests/media-optimization-cleanup.test.ts:27:246
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/media-optimization-cleanup.test.ts > rejects final regeneration that changes canonical inputs
+AssertionError: promise resolved "{ stops: [], actions: [], …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "actions": [],
++   "regeneration": [
++     {
++       "id": "last",
++       "status": "completed",
++     },
++   ],
++   "snapshot": "matched",
++   "stops": [],
+  }
+
+ ❯ tests/media-optimization-cleanup.test.ts:28:441
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 passed (20)
+   Start at  16:38:17
+   Duration  1.24s (tests 75%, transform 19%, import 5%, worker 1%)
+

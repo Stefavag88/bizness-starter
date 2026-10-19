@@ -1,0 +1,41 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-native-admission.test.ts (6 tests | 5 failed) 21ms
+   × refuses wrong-target before dispatch or pending/hash advancement 9ms
+   × refuses wrong-collection before dispatch or pending/hash advancement 3ms
+   × refuses wrong-create before dispatch or pending/hash advancement 2ms
+   × refuses wrong-delete before dispatch or pending/hash advancement 2ms
+   × refuses multiple-writes before dispatch or pending/hash advancement 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-native-admission.test.ts > refuses wrong-target before dispatch or pending/hash advancement
+ FAIL  tests/media-native-admission.test.ts > refuses wrong-collection before dispatch or pending/hash advancement
+ FAIL  tests/media-native-admission.test.ts > refuses wrong-create before dispatch or pending/hash advancement
+ FAIL  tests/media-native-admission.test.ts > refuses wrong-delete before dispatch or pending/hash advancement
+ FAIL  tests/media-native-admission.test.ts > refuses multiple-writes before dispatch or pending/hash advancement
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/media-native-admission.test.ts:31:5
+     29|   pending={request,bytes:'unexpected write'};
+     30|   dispatched++;writeFileSync(nativeDocumentPath(request,schema),'unexp…
+     31|  }).toThrow(/Native media write refused/);
+       |     ^
+     32|  expect(dispatched).toBe(0);expect(pending).toBeUndefined();expect(exp…
+     33|  expect(readFileSync(path,'utf8')).toBe('owned original');expect(readF…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 1 passed (6)
+   Start at  17:22:53
+   Duration  358ms (transform 51%, import 22%, tests 20%, worker 7%)
+

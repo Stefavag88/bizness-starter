@@ -1,0 +1,25 @@
+
+> business-starter-v2@2.0.0-dev check C:\Projects\bizness-starter-v2
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+tests/media-integration.test.ts(13,58): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+tests/media-integration.test.ts(13,223): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+tests/media-integration.test.ts(16,74): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+tests/media-integration.test.ts(20,8): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+tests/media-integration.test.ts(23,58): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+tests/media-integration.test.ts(23,207): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+tests/media-integration.test.ts(33,25): error TS2345: Argument of type '{ root: URL; configFile: boolean; logLevel: "silent"; integrations: AstroIntegration[]; }' is not assignable to parameter of type 'AstroInlineConfig'.
+  Types of property 'root' are incompatible.
+    Type 'URL' is not assignable to type 'string'.
+tests/media-integration.test.ts(35,25): error TS2345: Argument of type '{ root: URL; configFile: boolean; logLevel: "silent"; integrations: AstroIntegration[]; }' is not assignable to parameter of type 'AstroInlineConfig'.
+  Types of property 'root' are incompatible.
+    Type 'URL' is not assignable to type 'string'.
+tests/media-integration.test.ts(38,18): error TS2345: Argument of type '{ root: URL; configFile: boolean; logLevel: "silent"; integrations: AstroIntegration[]; }' is not assignable to parameter of type 'AstroInlineConfig'.
+  Types of property 'root' are incompatible.
+    Type 'URL' is not assignable to type 'string'.
+ ELIFECYCLE  Command failed with exit code 2.

@@ -1,0 +1,28 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/media-cache.test.ts (12 tests | 1 failed) 1485ms
+   × deduplicates concurrent requests and limits real Sharp transforms to two globally 113ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/media-cache.test.ts > deduplicates concurrent requests and limits real Sharp transforms to two globally
+AssertionError: expected 7 to be 4 // Object.is equality
+
+- Expected
++ Received
+
+- 4
++ 7
+
+ ❯ tests/media-cache.test.ts:38:214
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 18 passed (19)
+   Start at  15:59:55
+   Duration  3.03s (tests 82%, import 14%, transform 4%)
+

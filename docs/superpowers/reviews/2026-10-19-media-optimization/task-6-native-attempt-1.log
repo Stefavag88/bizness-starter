@@ -1,0 +1,114 @@
+
+Running 1 test using 1 worker
+
+(node:38492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Configured enquiries / local. No cloud resources were created.
+(node:34596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:59:49 [types] Generated 95ms
+16:59:49 [build] output: "static"
+16:59:49 [build] mode: "static"
+16:59:49 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:59:49 [build] Collecting build info...
+16:59:49 [build] ✓ Completed in 128ms.
+16:59:49 [build] Building static entrypoints...
+16:59:50 [vite] ✓ built in 341ms
+16:59:50 [vite] ✓ built in 139ms
+16:59:50 [build] Rearranging server assets...
+
+ generating static routes 
+16:59:50   ├─ /404.html (+17ms) 
+16:59:50   ├─ /design-system/index.html (+69ms) 
+16:59:50   ├─ /en/404/index.html (+4ms) 
+16:59:50   ├─ /el/404/index.html (+3ms) 
+16:59:50   ├─ /en/feed.xml (+2ms) 
+16:59:50   ├─ /el/feed.xml (+2ms) 
+16:59:50   ├─ /en/about/index.html (+4ms) 
+16:59:50   ├─ /en/contact/index.html (+4ms) 
+16:59:50   ├─ /en/index.html (+3ms) 
+16:59:50   ├─ /en/insights/index.html (+3ms) 
+16:59:50   ├─ /en/media-native-acceptance/index.html (+96ms) 
+16:59:50   ├─ /en/privacy/index.html (+3ms) 
+16:59:50   ├─ /en/services/index.html (+2ms) 
+16:59:50   ├─ /en/services/planning-session/index.html (+2ms) 
+16:59:50   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+16:59:50   ├─ /en/people/studio-guide/index.html (+2ms) 
+16:59:50   ├─ /el/about/index.html (+2ms) 
+16:59:50   ├─ /el/contact/index.html (+2ms) 
+16:59:50   ├─ /el/index.html (+2ms) 
+16:59:50   ├─ /el/insights/index.html (+2ms) 
+16:59:50   ├─ /el/media-native-acceptance/index.html (+2ms) 
+16:59:50   ├─ /el/privacy/index.html (+2ms) 
+16:59:50   ├─ /el/services/index.html (+2ms) 
+16:59:50   ├─ /el/services/planning-session/index.html (+2ms) 
+16:59:50   ├─ /el/insights/a-useful-first-question/index.html (+3ms) 
+16:59:50   ├─ /el/people/studio-guide/index.html (+2ms) 
+16:59:50   ├─ /index.html (+4ms) 
+16:59:50 ✓ Completed in 409ms.
+
+16:59:50 [build] ✓ Completed in 1.09s.
+16:59:51 [build] 25 page(s) built in 1.62s
+16:59:51 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  x  1 e2e\media-optimization-cms.spec.ts:18:1 › native original selection/clear and live upload lifecycle with pre-dispatch complete ownership (2.1m)
+
+
+  1) e2e\media-optimization-cms.spec.ts:18:1 › native original selection/clear and live upload lifecycle with pre-dispatch complete ownership 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /Local GraphQL|GraphQL server|Server ready|TinaCMS Url/
+    Received string:  "🦙 TinaCMS Dev Server is initializing...
+    (node:35944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    (Use `node --trace-warnings ...` to show where the warning was created)
+    Indexing local files ⠋Indexing local files ⠙
+    │
+    ○  ✅ 🦙 TinaCMS Dev Server is active: ───────────────────────────────────╮
+    │                                                                        │
+    │  🦙 TinaCMS URLs                                                       │
+    │     CMS:                <your-dev-server-url>/cms/index.html           │
+    │     API playground:     <your-dev-server-url>/cms/index.html#/graphql  │
+    │     API url:            http://localhost:4010/graphql                  │
+    │                                                                        │
+    │  🤖 Auto-generated files                                               │
+    │     GraphQL Client:     tina/__generated__/client.ts                   │
+    │     Typescript Types:   tina/__generated__/types.ts                    │
+    │                                                                        │
+    │                                                                        │
+    ├────────────────────────────────────────────────────────────────────────╯
+    "
+
+    Call Log:
+    - Timeout 120000ms exceeded while waiting on the predicate
+
+      31 |   await run.configure();await run.build();
+      32 |   runtimes.push(mediaRuntime(directory,'tina',[resolve('node_modules/@tinacms/cli/bin/tinacms'),'dev','--port',String(ports.tina),'--datalayer-port',String(ports.datalayer),'--noTelemetry']));
+    > 33 |   await expect.poll(()=>runtimes[0].output(),{timeout:120000}).toMatch(/TinaCMS Dev Server is active/);
+         |                                                                ^
+      34 |   runtimes.push(mediaRuntime(directory,'astro',[resolve('apps/site/node_modules/astro/bin/astro.mjs'),'dev','--host','127.0.0.1','--port',String(ports.site)],resolve('apps/site')));
+      35 |   await expect.poll(async()=>{try{return(await fetch('http://127.0.0.1:'+ports.site+'/en/media-native-acceptance')).status;}catch{return 0;}},{timeout:60000}).toBe(200);
+      36 |   schema=JSON.parse(readFileSync('tina/__generated__/_schema.json','utf8'));writeEvidence(directory,'installed-schema.json',schema);
+        at C:\Projects\bizness-starter-v2\e2e\media-optimization-cms.spec.ts:33:64
+
+    Error Context: .generated\media-optimization\acceptance-okRK24\browser-results\media-optimization-cms-nat-cf5de-dispatch-complete-ownership\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-okRK24\browser-results\media-optimization-cms-nat-cf5de-dispatch-complete-ownership\trace.zip
+    Usage:
+
+        npx playwright show-trace .generated\media-optimization\acceptance-okRK24\browser-results\media-optimization-cms-nat-cf5de-dispatch-complete-ownership\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\media-optimization-cms.spec.ts:18:1 › native original selection/clear and live upload lifecycle with pre-dispatch complete ownership 
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: node_modules/@playwright/test/cli.js test e2e/media-optimization-cms.spec.ts --reporter=list --output=C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-okRK24\browser-results
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0

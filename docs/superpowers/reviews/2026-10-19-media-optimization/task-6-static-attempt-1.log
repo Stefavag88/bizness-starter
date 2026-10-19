@@ -1,0 +1,407 @@
+
+Running 5 tests using 1 worker
+
+(node:27632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Configured enquiries / local. No cloud resources were created.
+(node:14484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:55:30 [vite] Re-optimizing dependencies because vite config has changed
+16:55:30 [types] Generated 240ms
+16:55:30 [build] output: "static"
+16:55:30 [build] mode: "static"
+16:55:30 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:55:30 [build] Collecting build info...
+16:55:30 [build] ✓ Completed in 271ms.
+16:55:30 [build] Building static entrypoints...
+16:55:30 [vite] ✓ built in 318ms
+16:55:30 [vite] ✓ built in 134ms
+16:55:30 [build] Rearranging server assets...
+
+ generating static routes 
+16:55:31   ├─ /404.html (+17ms) 
+16:55:31   ├─ /design-system/index.html (+52ms) 
+16:55:31   ├─ /en/404/index.html (+4ms) 
+16:55:31   ├─ /el/404/index.html (+3ms) 
+16:55:31   ├─ /en/feed.xml (+2ms) 
+16:55:31   ├─ /el/feed.xml (+2ms) 
+16:55:31   ├─ /en/about/index.html (+4ms) 
+16:55:31   ├─ /en/contact/index.html (+3ms) 
+16:55:31   ├─ /en/index.html (+3ms) 
+16:55:31   ├─ /en/insights/index.html (+3ms) 
+16:55:31   ├─ /en/media-acceptance/index.html (+784ms) 
+16:55:32   ├─ /en/privacy/index.html (+3ms) 
+16:55:32   ├─ /en/rooms/index.html (+3ms) 
+16:55:32   ├─ /en/services/index.html (+2ms) 
+16:55:32   ├─ /en/services/planning-session/index.html (+2ms) 
+16:55:32   ├─ /en/insights/a-useful-first-question/index.html (+3ms) 
+16:55:32   ├─ /en/people/studio-guide/index.html (+2ms) 
+16:55:32   ├─ /en/rooms/media-acceptance-0/index.html (+3ms) 
+16:55:32   ├─ /en/rooms/media-acceptance-1/index.html (+2ms) 
+16:55:32   ├─ /en/rooms/media-acceptance-2/index.html (+2ms) 
+16:55:32   ├─ /en/rooms/media-acceptance-3/index.html (+2ms) 
+16:55:32   ├─ /el/about/index.html (+2ms) 
+16:55:32   ├─ /el/contact/index.html (+2ms) 
+16:55:32   ├─ /el/index.html (+2ms) 
+16:55:32   ├─ /el/insights/index.html (+2ms) 
+16:55:32   ├─ /el/media-acceptance/index.html (+4ms) 
+16:55:32   ├─ /el/privacy/index.html (+2ms) 
+16:55:32   ├─ /el/rooms/index.html (+2ms) 
+16:55:32   ├─ /el/services/index.html (+2ms) 
+16:55:32   ├─ /el/services/planning-session/index.html (+2ms) 
+16:55:32   ├─ /el/insights/a-useful-first-question/index.html (+3ms) 
+16:55:32   ├─ /el/people/studio-guide/index.html (+3ms) 
+16:55:32   ├─ /el/rooms/media-acceptance-0/index.html (+2ms) 
+16:55:32   ├─ /el/rooms/media-acceptance-1/index.html (+2ms) 
+16:55:32   ├─ /el/rooms/media-acceptance-2/index.html (+2ms) 
+16:55:32   ├─ /el/rooms/media-acceptance-3/index.html (+2ms) 
+16:55:32   ├─ /index.html (+4ms) 
+16:55:32 ✓ Completed in 1.12s.
+
+16:55:32 [build] ✓ Completed in 1.66s.
+16:55:32 [build] 35 page(s) built in 2.54s
+16:55:32 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  x  1 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"local","theme":"neutral","density":"comfortable","rooms":4,"profile":"enquiries","articles":true,"enabled":true} (12.9s)
+(node:38120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Configured newsletter / staging. No cloud resources were created.
+(node:17952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:55:44 [types] Generated 90ms
+16:55:44 [build] output: "static"
+16:55:44 [build] mode: "static"
+16:55:44 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:55:44 [build] Collecting build info...
+16:55:44 [build] ✓ Completed in 111ms.
+16:55:44 [build] Building static entrypoints...
+16:55:45 [vite] ✓ built in 346ms
+16:55:45 [vite] ✓ built in 127ms
+16:55:45 [build] Rearranging server assets...
+
+ generating static routes 
+16:55:45   ├─ /404.html (+15ms) 
+16:55:45   ├─ /en/404/index.html (+4ms) 
+16:55:45   ├─ /el/404/index.html (+3ms) 
+16:55:45   ├─ /en/about/index.html (+5ms) 
+16:55:45   ├─ /en/contact/index.html (+4ms) 
+16:55:45   ├─ /en/index.html (+3ms) 
+16:55:45   ├─ /en/media-acceptance/index.html (+129ms) 
+16:55:45   ├─ /en/privacy/index.html (+4ms) 
+16:55:45   ├─ /en/rooms/index.html (+3ms) 
+16:55:45   ├─ /en/services/index.html (+3ms) 
+16:55:45   ├─ /en/services/planning-session/index.html (+2ms) 
+16:55:45   ├─ /en/people/studio-guide/index.html (+3ms) 
+16:55:45   ├─ /en/rooms/media-acceptance-0/index.html (+3ms) 
+16:55:45   ├─ /el/about/index.html (+2ms) 
+16:55:45   ├─ /el/contact/index.html (+2ms) 
+16:55:45   ├─ /el/index.html (+2ms) 
+16:55:45   ├─ /el/media-acceptance/index.html (+5ms) 
+16:55:45   ├─ /el/privacy/index.html (+2ms) 
+16:55:45   ├─ /el/rooms/index.html (+2ms) 
+16:55:45   ├─ /el/services/index.html (+2ms) 
+16:55:45   ├─ /el/services/planning-session/index.html (+2ms) 
+16:55:45   ├─ /el/people/studio-guide/index.html (+3ms) 
+16:55:45   ├─ /el/rooms/media-acceptance-0/index.html (+2ms) 
+16:55:45   ├─ /index.html (+4ms) 
+16:55:45 ✓ Completed in 365ms.
+
+16:55:45 [build] ✓ Completed in 1.01s.
+16:55:46 [build] 24 page(s) built in 1.55s
+16:55:46 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  x  2 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"staging","theme":"accommodation","density":"compact","rooms":1,"profile":"newsletter","articles":false,"enabled":true} (11.7s)
+(node:21896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Configured nurture / production. No cloud resources were created.
+(node:33744) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:55:57 [types] Generated 88ms
+16:55:57 [build] output: "static"
+16:55:57 [build] mode: "static"
+16:55:57 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:55:57 [build] Collecting build info...
+16:55:57 [build] ✓ Completed in 118ms.
+16:55:57 [build] Building static entrypoints...
+16:55:58 [vite] ✓ built in 326ms
+16:55:58 [vite] ✓ built in 122ms
+16:55:58 [build] Rearranging server assets...
+
+ generating static routes 
+16:55:58   ├─ /404.html (+17ms) 
+16:55:58   ├─ /en/404/index.html (+4ms) 
+16:55:58   ├─ /el/404/index.html (+3ms) 
+16:55:58   ├─ /en/feed.xml (+3ms) 
+16:55:58   ├─ /el/feed.xml (+2ms) 
+16:55:58   ├─ /en/about/index.html (+6ms) 
+16:55:58   ├─ /en/contact/index.html (+5ms) 
+16:55:58   ├─ /en/index.html (+4ms) 
+16:55:58   ├─ /en/insights/index.html (+4ms) 
+16:55:58   ├─ /en/media-acceptance/index.html (+130ms) 
+16:55:58   ├─ /en/privacy/index.html (+3ms) 
+16:55:58   ├─ /en/rooms/index.html (+3ms) 
+16:55:58   ├─ /en/services/index.html (+3ms) 
+16:55:58   ├─ /en/services/planning-session/index.html (+2ms) 
+16:55:58   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+16:55:58   ├─ /en/people/studio-guide/index.html (+2ms) 
+16:55:58   ├─ /en/rooms/media-acceptance-0/index.html (+2ms) 
+16:55:58   ├─ /en/rooms/media-acceptance-1/index.html (+2ms) 
+16:55:58   ├─ /el/about/index.html (+2ms) 
+16:55:58   ├─ /el/contact/index.html (+2ms) 
+16:55:58   ├─ /el/index.html (+2ms) 
+16:55:58   ├─ /el/insights/index.html (+2ms) 
+16:55:58   ├─ /el/media-acceptance/index.html (+6ms) 
+16:55:58   ├─ /el/privacy/index.html (+4ms) 
+16:55:58   ├─ /el/rooms/index.html (+4ms) 
+16:55:58   ├─ /el/services/index.html (+3ms) 
+16:55:58   ├─ /el/services/planning-session/index.html (+2ms) 
+16:55:58   ├─ /el/insights/a-useful-first-question/index.html (+3ms) 
+16:55:58   ├─ /el/people/studio-guide/index.html (+2ms) 
+16:55:58   ├─ /el/rooms/media-acceptance-0/index.html (+2ms) 
+16:55:58   ├─ /el/rooms/media-acceptance-1/index.html (+2ms) 
+16:55:58   ├─ /index.html (+4ms) 
+16:55:58 ✓ Completed in 444ms.
+
+16:55:58 [build] ✓ Completed in 1.08s.
+16:55:59 [build] 30 page(s) built in 1.63s
+16:55:59 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  x  3 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"production","theme":"trades","density":"spacious","rooms":2,"profile":"nurture","articles":true,"enabled":true} (11.3s)
+(node:39696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Configured enquiries / local. No cloud resources were created.
+(node:14064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:56:10 [types] Generated 98ms
+16:56:10 [build] output: "static"
+16:56:10 [build] mode: "static"
+16:56:10 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:56:10 [build] Collecting build info...
+16:56:10 [build] ✓ Completed in 136ms.
+16:56:10 [build] Building static entrypoints...
+16:56:11 [vite] ✓ built in 347ms
+16:56:11 [vite] ✓ built in 137ms
+16:56:11 [build] Rearranging server assets...
+
+ generating static routes 
+16:56:11   ├─ /404.html (+17ms) 
+16:56:11   ├─ /design-system/index.html (+49ms) 
+16:56:11   ├─ /en/404/index.html (+4ms) 
+16:56:11   ├─ /el/404/index.html (+3ms) 
+16:56:11   ├─ /en/about/index.html (+3ms) 
+16:56:11   ├─ /en/contact/index.html (+3ms) 
+16:56:11   ├─ /en/index.html (+2ms) 
+16:56:11   ├─ /en/media-acceptance/index.html (+119ms) 
+16:56:11   ├─ /en/privacy/index.html (+3ms) 
+16:56:11   ├─ /en/rooms/index.html (+3ms) 
+16:56:11   ├─ /en/services/index.html (+3ms) 
+16:56:11   ├─ /en/services/planning-session/index.html (+3ms) 
+16:56:11   ├─ /en/people/studio-guide/index.html (+3ms) 
+16:56:11   ├─ /en/rooms/media-acceptance-0/index.html (+3ms) 
+16:56:11   ├─ /en/rooms/media-acceptance-1/index.html (+2ms) 
+16:56:11   ├─ /en/rooms/media-acceptance-2/index.html (+3ms) 
+16:56:11   ├─ /el/about/index.html (+2ms) 
+16:56:11   ├─ /el/contact/index.html (+2ms) 
+16:56:11   ├─ /el/index.html (+2ms) 
+16:56:11   ├─ /el/media-acceptance/index.html (+4ms) 
+16:56:11   ├─ /el/privacy/index.html (+2ms) 
+16:56:11   ├─ /el/rooms/index.html (+2ms) 
+16:56:11   ├─ /el/services/index.html (+2ms) 
+16:56:11   ├─ /el/services/planning-session/index.html (+2ms) 
+16:56:11   ├─ /el/people/studio-guide/index.html (+3ms) 
+16:56:11   ├─ /el/rooms/media-acceptance-0/index.html (+2ms) 
+16:56:11   ├─ /el/rooms/media-acceptance-1/index.html (+3ms) 
+16:56:11   ├─ /el/rooms/media-acceptance-2/index.html (+3ms) 
+16:56:11   ├─ /index.html (+4ms) 
+16:56:11 ✓ Completed in 437ms.
+
+16:56:11 [build] ✓ Completed in 1.09s.
+16:56:12 [build] 29 page(s) built in 1.82s
+16:56:12 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  x  4 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"local","theme":"wellness","density":"compact","rooms":3,"profile":"enquiries","articles":false,"enabled":true} (11.2s)
+(node:15732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Configured enquiries / production. No cloud resources were created.
+(node:31348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+16:56:23 [types] Generated 88ms
+16:56:23 [build] output: "static"
+16:56:23 [build] mode: "static"
+16:56:23 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+16:56:23 [build] Collecting build info...
+16:56:23 [build] ✓ Completed in 119ms.
+16:56:23 [build] Building static entrypoints...
+16:56:23 [vite] ✓ built in 353ms
+16:56:23 [vite] ✓ built in 131ms
+16:56:23 [build] Rearranging server assets...
+
+ generating static routes 
+16:56:23   ├─ /404.html (+16ms) 
+16:56:23   ├─ /en/404/index.html (+4ms) 
+16:56:23   ├─ /el/404/index.html (+4ms) 
+16:56:23   ├─ /en/about/index.html (+6ms) 
+16:56:23   ├─ /en/contact/index.html (+3ms) 
+16:56:23   ├─ /en/index.html (+3ms) 
+16:56:23   ├─ /en/media-acceptance/index.html (+19ms) 
+16:56:23   ├─ /en/privacy/index.html (+4ms) 
+16:56:23   ├─ /en/services/index.html (+3ms) 
+16:56:23   ├─ /en/services/planning-session/index.html (+3ms) 
+16:56:23   ├─ /en/people/studio-guide/index.html (+3ms) 
+16:56:23   ├─ /el/about/index.html (+2ms) 
+16:56:23   ├─ /el/contact/index.html (+2ms) 
+16:56:23   ├─ /el/index.html (+2ms) 
+16:56:23   ├─ /el/media-acceptance/index.html (+3ms) 
+16:56:23   ├─ /el/privacy/index.html (+2ms) 
+16:56:23   ├─ /el/services/index.html (+2ms) 
+16:56:23   ├─ /el/services/planning-session/index.html (+2ms) 
+16:56:23   ├─ /el/people/studio-guide/index.html (+2ms) 
+16:56:23   ├─ /index.html (+4ms) 
+16:56:23 ✓ Completed in 265ms.
+
+16:56:24 [build] ✓ Completed in 829ms.
+16:56:24 [build] 20 page(s) built in 1.00s
+16:56:24 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+  ok 5 e2e\media-optimization.spec.ts:35:42 › real static {"environment":"production","theme":"neutral","density":"spacious","rooms":0,"profile":"enquiries","articles":false,"enabled":false} (13.4s)
+
+
+  1) e2e\media-optimization.spec.ts:35:42 › real static {"environment":"local","theme":"neutral","density":"comfortable","rooms":4,"profile":"enquiries","articles":true,"enabled":true} 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /caption|Caption/
+    Received string:  ""
+
+      27 |    return {alt:e.alt,caption:e.closest('figure')?.querySelector('figcaption')?.textContent||'',currentSrc:e.currentSrc,srcset:e.srcset,sizes,expected,frame:e.closest('.image-frame')!.getBoundingClientRect().width,width:e.getAttribute('width'),height:e.getAttribute('height'),naturalWidth:e.naturalWidth,fit:getComputedStyle(e).objectFit,crop:getComputedStyle(e).objectPosition,loading:e.loading,decoding:e.decoding,section:e.closest('section')?.getAttribute('aria-labelledby')||'room-detail'};
+      28 |   });
+    > 29 |   expect(row.alt).toMatch(locale==='el'?/Εικόνα|Αφηρημένο/:/Photo|Abstract/);expect(row.caption).toMatch(locale==='el'?/Λεζάντα/:/caption|Caption/);expect(row.fit).toBe('cover');expect(['50% 50%','50% 0%','50% 100%']).toContain(row.crop);expect(Number(row.width)).toBeGreaterThan(0);expect(Number(row.height)).toBeGreaterThan(0);expect(row.loading).toBe('lazy');expect(row.decoding).toBe('async');
+         |                                                                                                  ^
+      30 |   const animation=row.section==='media_4';if(enabled&&!animation){expect(row.currentSrc).toContain('/_media/v1/');expect(row.srcset).toContain('w');expect(Math.abs(row.expected-row.frame),JSON.stringify(row)).toBeLessThanOrEqual(1.1);}else {expect(row.currentSrc).toContain('/uploads/');expect(row.srcset).toBe('');}
+      31 |   rows.push(row);
+      32 |  }
+        at inspect (C:\Projects\bizness-starter-v2\e2e\media-optimization.spec.ts:29:98)
+        at C:\Projects\bizness-starter-v2\e2e\media-optimization.spec.ts:51:188
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\media-optimization-real-st-ba717-articles-true-enabled-true-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\media-optimization-real-st-ba717-articles-true-enabled-true-\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\media-optimization-real-st-ba717-articles-true-enabled-true-\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\media-optimization-real-st-ba717-articles-true-enabled-true-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) e2e\media-optimization.spec.ts:35:42 › real static {"environment":"staging","theme":"accommodation","density":"compact","rooms":1,"profile":"newsletter","articles":false,"enabled":true} 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /Λεζάντα/
+    Received string:  ""
+
+      27 |    return {alt:e.alt,caption:e.closest('figure')?.querySelector('figcaption')?.textContent||'',currentSrc:e.currentSrc,srcset:e.srcset,sizes,expected,frame:e.closest('.image-frame')!.getBoundingClientRect().width,width:e.getAttribute('width'),height:e.getAttribute('height'),naturalWidth:e.naturalWidth,fit:getComputedStyle(e).objectFit,crop:getComputedStyle(e).objectPosition,loading:e.loading,decoding:e.decoding,section:e.closest('section')?.getAttribute('aria-labelledby')||'room-detail'};
+      28 |   });
+    > 29 |   expect(row.alt).toMatch(locale==='el'?/Εικόνα|Αφηρημένο/:/Photo|Abstract/);expect(row.caption).toMatch(locale==='el'?/Λεζάντα/:/caption|Caption/);expect(row.fit).toBe('cover');expect(['50% 50%','50% 0%','50% 100%']).toContain(row.crop);expect(Number(row.width)).toBeGreaterThan(0);expect(Number(row.height)).toBeGreaterThan(0);expect(row.loading).toBe('lazy');expect(row.decoding).toBe('async');
+         |                                                                                                  ^
+      30 |   const animation=row.section==='media_4';if(enabled&&!animation){expect(row.currentSrc).toContain('/_media/v1/');expect(row.srcset).toContain('w');expect(Math.abs(row.expected-row.frame),JSON.stringify(row)).toBeLessThanOrEqual(1.1);}else {expect(row.currentSrc).toContain('/uploads/');expect(row.srcset).toBe('');}
+      31 |   rows.push(row);
+      32 |  }
+        at inspect (C:\Projects\bizness-starter-v2\e2e\media-optimization.spec.ts:29:98)
+        at C:\Projects\bizness-starter-v2\e2e\media-optimization.spec.ts:51:188
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\media-optimization-real-st-aa303-rticles-false-enabled-true-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\media-optimization-real-st-aa303-rticles-false-enabled-true-\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\media-optimization-real-st-aa303-rticles-false-enabled-true-\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\media-optimization-real-st-aa303-rticles-false-enabled-true-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) e2e\media-optimization.spec.ts:35:42 › real static {"environment":"production","theme":"trades","density":"spacious","rooms":2,"profile":"nurture","articles":true,"enabled":true} 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /caption|Caption/
+    Received string:  ""
+
+      27 |    return {alt:e.alt,caption:e.closest('figure')?.querySelector('figcaption')?.textContent||'',currentSrc:e.currentSrc,srcset:e.srcset,sizes,expected,frame:e.closest('.image-frame')!.getBoundingClientRect().width,width:e.getAttribute('width'),height:e.getAttribute('height'),naturalWidth:e.naturalWidth,fit:getComputedStyle(e).objectFit,crop:getComputedStyle(e).objectPosition,loading:e.loading,decoding:e.decoding,section:e.closest('section')?.getAttribute('aria-labelledby')||'room-detail'};
+      28 |   });
+    > 29 |   expect(row.alt).toMatch(locale==='el'?/Εικόνα|Αφηρημένο/:/Photo|Abstract/);expect(row.caption).toMatch(locale==='el'?/Λεζάντα/:/caption|Caption/);expect(row.fit).toBe('cover');expect(['50% 50%','50% 0%','50% 100%']).toContain(row.crop);expect(Number(row.width)).toBeGreaterThan(0);expect(Number(row.height)).toBeGreaterThan(0);expect(row.loading).toBe('lazy');expect(row.decoding).toBe('async');
+         |                                                                                                  ^
+      30 |   const animation=row.section==='media_4';if(enabled&&!animation){expect(row.currentSrc).toContain('/_media/v1/');expect(row.srcset).toContain('w');expect(Math.abs(row.expected-row.frame),JSON.stringify(row)).toBeLessThanOrEqual(1.1);}else {expect(row.currentSrc).toContain('/uploads/');expect(row.srcset).toBe('');}
+      31 |   rows.push(row);
+      32 |  }
+        at inspect (C:\Projects\bizness-starter-v2\e2e\media-optimization.spec.ts:29:98)
+        at C:\Projects\bizness-starter-v2\e2e\media-optimization.spec.ts:51:188
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\media-optimization-real-st-0a25d-articles-true-enabled-true-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\media-optimization-real-st-0a25d-articles-true-enabled-true-\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\media-optimization-real-st-0a25d-articles-true-enabled-true-\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\media-optimization-real-st-0a25d-articles-true-enabled-true-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) e2e\media-optimization.spec.ts:35:42 › real static {"environment":"local","theme":"wellness","density":"compact","rooms":3,"profile":"enquiries","articles":false,"enabled":true} 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /Λεζάντα/
+    Received string:  ""
+
+      27 |    return {alt:e.alt,caption:e.closest('figure')?.querySelector('figcaption')?.textContent||'',currentSrc:e.currentSrc,srcset:e.srcset,sizes,expected,frame:e.closest('.image-frame')!.getBoundingClientRect().width,width:e.getAttribute('width'),height:e.getAttribute('height'),naturalWidth:e.naturalWidth,fit:getComputedStyle(e).objectFit,crop:getComputedStyle(e).objectPosition,loading:e.loading,decoding:e.decoding,section:e.closest('section')?.getAttribute('aria-labelledby')||'room-detail'};
+      28 |   });
+    > 29 |   expect(row.alt).toMatch(locale==='el'?/Εικόνα|Αφηρημένο/:/Photo|Abstract/);expect(row.caption).toMatch(locale==='el'?/Λεζάντα/:/caption|Caption/);expect(row.fit).toBe('cover');expect(['50% 50%','50% 0%','50% 100%']).toContain(row.crop);expect(Number(row.width)).toBeGreaterThan(0);expect(Number(row.height)).toBeGreaterThan(0);expect(row.loading).toBe('lazy');expect(row.decoding).toBe('async');
+         |                                                                                                  ^
+      30 |   const animation=row.section==='media_4';if(enabled&&!animation){expect(row.currentSrc).toContain('/_media/v1/');expect(row.srcset).toContain('w');expect(Math.abs(row.expected-row.frame),JSON.stringify(row)).toBeLessThanOrEqual(1.1);}else {expect(row.currentSrc).toContain('/uploads/');expect(row.srcset).toBe('');}
+      31 |   rows.push(row);
+      32 |  }
+        at inspect (C:\Projects\bizness-starter-v2\e2e\media-optimization.spec.ts:29:98)
+        at C:\Projects\bizness-starter-v2\e2e\media-optimization.spec.ts:51:188
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\media-optimization-real-st-f9378-rticles-false-enabled-true-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\media-optimization-real-st-f9378-rticles-false-enabled-true-\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\media-optimization-real-st-f9378-rticles-false-enabled-true-\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\media-optimization-real-st-f9378-rticles-false-enabled-true-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    e2e\media-optimization.spec.ts:35:42 › real static {"environment":"local","theme":"neutral","density":"comfortable","rooms":4,"profile":"enquiries","articles":true,"enabled":true} 
+    e2e\media-optimization.spec.ts:35:42 › real static {"environment":"staging","theme":"accommodation","density":"compact","rooms":1,"profile":"newsletter","articles":false,"enabled":true} 
+    e2e\media-optimization.spec.ts:35:42 › real static {"environment":"production","theme":"trades","density":"spacious","rooms":2,"profile":"nurture","articles":true,"enabled":true} 
+    e2e\media-optimization.spec.ts:35:42 › real static {"environment":"local","theme":"wellness","density":"compact","rooms":3,"profile":"enquiries","articles":false,"enabled":true} 
+  1 passed (1.1m)
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: node_modules/@playwright/test/cli.js test e2e/media-optimization.spec.ts --reporter=list
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
