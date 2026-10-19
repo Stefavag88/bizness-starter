@@ -13,3 +13,4 @@ export function createMediaAcceptanceRun(options?:MediaAcceptanceRunOptions):{
  finish():{directory:string;unchanged:boolean};
 };
 export function verifyMediaOptimization(options?:{phase?:string;root?:string;checkPorts?:()=>Promise<void>}):Promise<{directory:string;unchanged:boolean}>;
+/** Static/native phases execute their real Playwright-transformed suites, with per-run browser evidence. */

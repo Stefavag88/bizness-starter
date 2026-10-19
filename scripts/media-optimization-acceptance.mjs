@@ -25,7 +25,7 @@ export function createMediaAcceptanceRun({root=process.cwd(),expected,isStopped=
    assertInputs();
    row = {
     executable: process.execPath, args, cwd,
-    started: new Date().toISOString(), ended: null, pid: null, passed: false,
+    started: new Date().toISOString(), ended: null, pid: null, exitCode: null, passed: false,
     log: `command-${commands.length + 1}.log`,
    };
    commands.push(row);
@@ -48,8 +48,9 @@ export function createMediaAcceptanceRun({root=process.cwd(),expected,isStopped=
    });
    assertInputs();
    row.passed = true;
+   row.exitCode = 0;
   } catch (error) {
-   if (row) row.error = String(error);
+   if (row) { row.error = String(error); const exit = /Command exit (\d+)/.exec(String(error)); if (exit) row.exitCode = Number(exit[1]); }
    throw error;
   } finally {
    try {
@@ -64,11 +65,15 @@ export function createMediaAcceptanceRun({root=process.cwd(),expected,isStopped=
  }
  return {directory,assertInputs,command,configure:()=>command(['scripts/configure.mjs']),build:(args=[])=>command(['apps/site/scripts/build.mjs',...args]),finish(){const after=canonicalSnapshot(root),unchanged=isDeepStrictEqual(before,after);log('restoration.json',{before,after,unchanged,commands});if(active||!isStopped())throw Error('Owned runtime shutdown unconfirmed');if(!unchanged)throw Error('Full canonical project/content/uploads snapshot conflict; acceptance failed');return {directory,unchanged};}};
 }
-/** Task 6 supplies real static/native matrix implementations; unavailable phases cannot false-pass. */
+/** Separate transformed browser phases keep native TS helpers out of the Node import graph. */
 export async function verifyMediaOptimization({phase='pure',root=process.cwd(),checkPorts}={}){
- if(!['pure','smoke'].includes(phase))throw Error(`Media acceptance phase ${phase} not implemented; refused before mutation`);
+ if(!['pure','smoke','static','native'].includes(phase))throw Error(`Unknown media acceptance phase: ${phase}`);
  const run=createMediaAcceptanceRun({root,checkPorts});let failure;
- try{if(phase==='pure')await run.command(['node_modules/vitest/vitest.mjs','run','tests/media-optimization-cleanup.test.ts']);else await run.command(['-e',"console.log('Media acceptance no-mutation smoke')"]);}
- catch(error){failure=error;}
+ writeFileSync(join(run.directory,'phase.json'),JSON.stringify({phase,started:new Date().toISOString()},null,2)+'\n');
+ try{
+  if(phase==='pure')await run.command(['node_modules/vitest/vitest.mjs','run','tests/media-optimization-cleanup.test.ts','tests/media-optimization.test.ts','tests/media-cache.test.ts','tests/media-session.test.ts','tests/media-layout.test.ts','tests/media-runtime.test.ts','tests/media-acceptance-harness.test.ts','tests/media-source.test.ts','tests/media-contract.test.ts','tests/media-integration.test.ts']);
+  else if(phase==='smoke')await run.command(['-e',"console.log('Media acceptance no-mutation smoke')"]);
+  else await run.command(['node_modules/@playwright/test/cli.js','test',phase==='static'?'e2e/media-optimization.spec.ts':'e2e/media-optimization-cms.spec.ts','--reporter=list','--output='+join(run.directory,'browser-results')],{env:{MEDIA_ACCEPTANCE_PHASE:phase,MEDIA_ACCEPTANCE_DIRECTORY:run.directory,PLAYWRIGHT_BROWSERS_PATH:join(root,'.generated/browsers')}});
+ }catch(error){failure=error;}
  const result=run.finish();if(failure)throw failure;return result;
 }
