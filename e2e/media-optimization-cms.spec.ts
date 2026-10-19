@@ -6,7 +6,8 @@ import {pathToFileURL} from 'node:url';
 import sharp from 'sharp';
 import {createCmsSources} from './helpers/cms-source-ownership';
 import {createOwnedMedia} from './helpers/owned-media';
-import {expectedNativeDocument,type Mutation,type Schema} from './helpers/native-document';
+import {expectedNativeDocument,type Schema} from './helpers/native-document';
+import {admitMediaNativeWrite} from './helpers/media-optimization-native-admission';
 import {createMediaOptimizationFixture} from './helpers/media-optimization-fixture';
 import {createMediaAcceptanceRun} from '../scripts/media-optimization-acceptance.mjs';
 import {assertCanonicalSnapshot} from '../scripts/composition-c-snapshot.mjs';
@@ -37,9 +38,34 @@ test('native original selection/clear and live upload lifecycle with pre-dispatc
   writeEvidence(directory,'installed-serializer.json',{path:graphqlPath,sha256:hash(readFileSync(graphqlPath)),format:'.json',keepTemplateKey:true,bridge:'installed FilesystemBridge.put writes serializer bytes without newline'});
   context=await browser.newContext();const page=await context.newPage();const publicPage=await context.newPage();let liveQueries=0;
   page.on('response',async r=>{if(r.url().endsWith('/graphql')&&r.request().method()==='POST'&&!/(?:create|update)Document/.test(r.request().postData()||'')){if(r.status()===200)liveQueries++;}});
-  await page.route('**/graphql',async route=>{const data=route.request().postDataJSON();if(route.request().method()==='POST'&&/(?:create|update)Document/.test(data?.query||'')){
-   check();sources.assertUnchanged();const request={...data.variables,operation:data.query.includes('createDocument')?'create':'update'} as Mutation;const complete=await expectedNativeDocument(request,schema,prior);const bytes=graphql.stringifyFile(complete,'.json',true);pending={request,complete,bytes,sha256:hash(bytes)};writeEvidence(directory,'pre-dispatch-'+saves.length+'.json',pending);
-  }await route.continue();});
+  await page.route('**/graphql',async route=>{
+   const intercepted=route.request();
+   const data=intercepted.postDataJSON();
+   const isWrite=intercepted.method()==='POST'&&
+    /\b(?:create|update|delete)Document\b/.test(data?.query||'');
+   if(isWrite){
+    pending=undefined;
+    try{
+     const request=admitMediaNativeWrite(data.query,data.variables,schema,path);
+     check();
+     sources.assertUnchanged();
+     const complete=await expectedNativeDocument(request,schema,prior);
+     const bytes=graphql.stringifyFile(complete,'.json',true);
+     const expectation={request,complete,bytes,sha256:hash(bytes)};
+     writeEvidence(directory,'pre-dispatch-'+saves.length+'.json',expectation);
+     pending=expectation;
+    }catch(error){
+     // Abort first: diagnostic failure must never let an unowned write continue.
+     pending=undefined;
+     await route.abort('blockedbyclient');
+     writeEvidence(directory,'refused-native-write.json',{
+      query:data.query,variables:data.variables,reason:String(error),
+     });
+     return;
+    }
+   }
+   await route.continue();
+  });
   async function open(){await page.goto('http://127.0.0.1:'+ports.site+'/cms/index.html?media='+Date.now()+'#/collections/edit/page/media_native_acceptance');const enter=page.getByRole('button',{name:'Enter Edit Mode',exact:true});await expect(enter.or(page.getByRole('button',{name:'Save',exact:true})).first()).toBeVisible({timeout:60000});if(await enter.isVisible())await enter.click();await expect(page.locator('[data-section-media=media_0]')).toBeVisible({timeout:30000});sources.assertUnchanged();check();}
   async function save(predicate:(d:any)=>boolean){check();sources.assertUnchanged();pending=undefined;const response=page.waitForResponse(r=>r.request().method()==='POST'&&(r.request().postData()||'').includes('updateDocument'));await page.getByRole('button',{name:'Save',exact:true}).click();expect((await(await response).json()).errors||[]).toEqual([]);expect(pending).toBeTruthy();await sources.captureNative(path,pending.request,schema,predicate);expected[path]=pending.sha256;check();expect(readFileSync(path,'utf8')).toBe(pending.bytes);prior=pending.complete;saves.push(pending);writeEvidence(directory,'native-saves.json',saves);}
   await open();const control=page.locator('[data-section-media=media_0]');await control.locator('button').first().click();await page.getByText('media-acceptance-portrait.jpg',{exact:true}).click();await page.getByRole('button',{name:'Insert',exact:true}).click();
