@@ -1,0 +1,24 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/newsletter-form.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/newsletter-form.test.ts [ tests/newsletter-form.test.ts ]
+Error: Cannot find module '../apps/site/src/scripts/newsletter-form' imported from C:/Projects/bizness-starter-v2/tests/newsletter-form.test.ts
+ ❯ tests/newsletter-form.test.ts:2:1
+      1| import {it,expect,vi} from 'vitest';
+      2| import {createNewsletterRequest} from '../apps/site/src/scripts/newsle…
+       | ^
+      3| const coordinator=()=>({busy:false,listeners:new Set<()=>void>()});
+      4| const email='fixture@example.com',token='local-preview';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  12:05:44
+   Duration  336ms (worker 96%, environment 4%)
+

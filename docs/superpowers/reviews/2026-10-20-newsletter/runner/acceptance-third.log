@@ -1,0 +1,100 @@
+
+> business-starter-v2@2.0.0-dev test:newsletter C:\Projects\bizness-starter-v2
+> node scripts/verify-newsletter.mjs
+
+
+Running 2 tests using 1 worker
+
+(node:6544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 e2e\newsletter-cms.spec.ts:13:1 › native newsletter WYSIWYG saves and dormant module roundtrip (55.5s)
+(node:8600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  2 e2e\newsletter.spec.ts:7:1 › public newsletter surfaces, suppression and real isolated lifecycle (44.3s)
+
+
+  1) e2e\newsletter-cms.spec.ts:13:1 › native newsletter WYSIWYG saves and dormant module roundtrip 
+
+    TimeoutError: locator.click: Timeout 20000ms exceeded.
+    Call log:
+      - waiting for getByText('Newsletter signup', { exact: true })
+
+
+      20 |  async function rich(editor:Locator,text:string){await editor.click();await editor.focus();await page.keyboard.press('Control+a');await page.keyboard.press('Backspace');await page.keyboard.type(text,{delay:10});await expect(editor).toContainText(text);}
+      21 |  try{
+    > 22 |  await f.start();await loadSchema();await open();await page.getByText('Newsletter signup',{exact:true}).click();await page.locator('[name="newsletterPrompt.title"]').fill('Practical newsletter');const editors=page.locator('[contenteditable=true]:visible');await expect(editors).toHaveCount(3);await rich(editors.nth(0),'Practical body from the visual editor');await rich(editors.nth(1),'Useful footer updates');await rich(editors.nth(2),'Request received. Confirm using the email link.');await page.locator('[name="newsletterPrompt.delaySeconds"]').fill('7');await page.locator('[name="newsletterPrompt.dismissDays"]').fill('35');await page.locator('[name="newsletterPrompt.acceptedDays"]').fill('190');await page.locator('[name="newsletterPrompt.interestId"]').selectOption('guides');await save();expect(prior.newsletterPrompt.body).toContain('Practical body');expect(prior.newsletterPrompt.footerPrompt).toContain('Useful footer');expect(prior.newsletterPrompt.successBody).toContain('Confirm');
+         |                                                                                                         ^
+      23 |  await page.locator('[name="newsletterPrompt.modalEnabled"]').uncheck();await save();const publicPage=await context.newPage();await publicPage.goto(f.cms+'/el');await expect(publicPage.locator('[data-newsletter-dialog]')).toHaveCount(0);await expect(publicPage.locator('#newsletter-footer-email')).toBeVisible();await publicPage.close();
+      24 |  await page.locator('[name="newsletterPrompt.enabled"]').uncheck();await save();await page.locator('[name="newsletterPrompt.enabled"]').check();await page.locator('[name="newsletterPrompt.modalEnabled"]').check();await page.locator('[name="newsletterPrompt.footerMode"]').selectOption('open-modal');await save();
+      25 |  const dormant=structuredClone(prior.newsletterPrompt);await f.stop();f.project.modules.newsletterPrompt=false;writeFileSync(join(f.root,'project.json'),JSON.stringify(f.project,null,2));await f.start();await loadSchema();await open();await expect(page.getByText('Newsletter signup',{exact:true})).toHaveCount(0);await page.getByText('brand',{exact:true}).click();await page.locator('[name="brand.tagline"]').fill('Useful work and updates');await save();expect(prior.newsletterPrompt).toEqual(dormant);
+        at C:\Projects\bizness-starter-v2\e2e\newsletter-cms.spec.ts:22:105
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-cms-native-news-c20fc-nd-dormant-module-roundtrip\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\newsletter-cms-native-news-c20fc-nd-dormant-module-roundtrip\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\newsletter-cms-native-news-c20fc-nd-dormant-module-roundtrip\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\newsletter-cms-native-news-c20fc-nd-dormant-module-roundtrip\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) e2e\newsletter.spec.ts:7:1 › public newsletter surfaces, suppression and real isolated lifecycle 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('#newsletter-modal-email')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('#newsletter-modal-email') with timeout 15000ms
+      - waiting for locator('#newsletter-modal-email')
+        33 × locator resolved to <input required="" type="email" name="email" maxlength="254" autocomplete="email" id="newsletter-modal-email"/>
+           - unexpected value "inactive"
+
+
+      11 |  for(const locale of ['en','el'])for(const width of [375,768,1440]){
+      12 |   const context=await browser.newContext({viewport:{width,height:850}});const page=await context.newPage();const errors:string[]=[],external:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(!['localhost','127.0.0.1'].includes(new URL(r.url()).hostname))external.push(r.url());});
+    > 13 |   try{await page.goto(fixture.base+'/'+locale);const dialog=page.locator('[data-newsletter-dialog]');await expect(dialog).not.toBeVisible();await expect(dialog).toBeVisible({timeout:10000});await expect(page.locator('#newsletter-modal-email')).toBeFocused();expect(await dialog.evaluate(e=>e.contains(document.activeElement))).toBe(true);await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(page.locator('.brand')).toBeFocused();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+         |                                                                                                                                                                                                                                                     ^
+      14 |    await page.reload();await page.waitForTimeout(5200);await expect(dialog).not.toBeVisible();await page.goto(fixture.base+'/'+(locale==='en'?'el':'en'));await page.waitForTimeout(5200);await expect(dialog).not.toBeVisible();
+      15 |    await page.locator('[data-preferences-open-footer]').click();await page.locator('[data-prompts-allowed]').uncheck();await page.keyboard.press('Escape');const other=await context.newPage();await other.goto(fixture.base+'/'+locale);await other.waitForTimeout(5200);await expect(other.locator('[data-newsletter-dialog]')).not.toBeVisible();await other.close();
+      16 |    await page.screenshot({path:join(fixture.directory,`${locale}-${width}.png`),fullPage:true});expect(errors).toEqual([]);expect(external).toEqual([]);rows.push({locale,width,autoDelay:true,escape:true,focusRestore:true,noOverflow:true,sharedLanguageAndTabSuppression:true});
+        at C:\Projects\bizness-starter-v2\e2e\newsletter.spec.ts:13:245
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    e2e\newsletter-cms.spec.ts:13:1 › native newsletter WYSIWYG saves and dormant module roundtrip ─
+    e2e\newsletter.spec.ts:7:1 › public newsletter surfaces, suppression and real isolated lifecycle 
+Newsletter evidence: C:\Projects\bizness-starter-v2\.generated\newsletter\acceptance-k1kiNv
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: C:\Projects\bizness-starter-v2\node_modules\@playwright\test\cli.js test e2e/newsletter.spec.ts e2e/newsletter-cms.spec.ts
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
+ ELIFECYCLE  Command failed with exit code 1.

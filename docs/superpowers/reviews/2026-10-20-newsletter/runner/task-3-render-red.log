@@ -1,0 +1,29 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+ ❯ tests/newsletter.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/newsletter.test.ts [ tests/newsletter.test.ts ]
+Error: Cannot find module '../src/components/newsletter/NewsletterFooter.astro' imported from C:/Projects/bizness-starter-v2/apps/site/tests/newsletter.test.ts
+ ❯ tests/newsletter.test.ts:3:1
+      1| import {it,expect} from 'vitest';
+      2| import {experimental_AstroContainer as AstroContainer} from 'astro/con…
+      3| import NewsletterFooter from '../src/components/newsletter/NewsletterF…
+       | ^
+      4| import VisitorDialogs from '../src/components/newsletter/VisitorDialog…
+      5| import {resolveNewsletterExperience} from '../../../packages/content/n…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 9 passed (10)
+      Tests  36 passed (36)
+   Start at  12:05:48
+   Duration  3.16s (transform 56%, import 39%, tests 5%)
+
+  Transform  transforming modules took 12.63s · 56% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

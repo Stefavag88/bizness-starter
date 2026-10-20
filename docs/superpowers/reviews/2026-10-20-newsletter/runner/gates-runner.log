@@ -1,0 +1,14 @@
+Starting check
+Passed check
+Starting test
+Passed test
+Starting build
+Passed build
+Starting worker:check
+Passed worker:check
+Starting cms:local-build
+Passed cms:local-build
+Starting test:static-routing
+Passed test:static-routing
+Starting test:showcase-builds
+Passed test:showcase-builds

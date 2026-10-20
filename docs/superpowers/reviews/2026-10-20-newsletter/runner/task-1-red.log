@@ -1,0 +1,39 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/newsletter-settings.test.ts (0 test)
+ ❯ tests/cms-newsletter.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/cms-newsletter.test.ts [ tests/cms-newsletter.test.ts ]
+Error: Cannot find module '../packages/content/newsletter.mjs' imported from C:/Projects/bizness-starter-v2/tests/newsletter-settings.test.ts
+ ❯ tests/newsletter-settings.test.ts:3:1
+      1| import {describe,it,expect} from 'vitest';
+      2| import {parseProject} from '../packages/config/project.mjs';
+      3| import {newsletterSettingsSchema,newsletterCopySchema,validateNewslett…
+       | ^
+      4| import {project,normalizedSettings} from './fixtures/content/factory';
+      5| import {settingsSchema} from '../packages/content/schemas.mjs';
+ ❯ tests/cms-newsletter.test.ts:5:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/newsletter-settings.test.ts [ tests/newsletter-settings.test.ts ]
+Error: Cannot find module '../packages/content/newsletter.mjs' imported from C:/Projects/bizness-starter-v2/tests/newsletter-settings.test.ts
+ ❯ tests/newsletter-settings.test.ts:3:1
+      1| import {describe,it,expect} from 'vitest';
+      2| import {parseProject} from '../packages/config/project.mjs';
+      3| import {newsletterSettingsSchema,newsletterCopySchema,validateNewslett…
+       | ^
+      4| import {project,normalizedSettings} from './fixtures/content/factory';
+      5| import {settingsSchema} from '../packages/content/schemas.mjs';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  12:00:43
+   Duration  974ms (worker 97%, environment 3%)
+

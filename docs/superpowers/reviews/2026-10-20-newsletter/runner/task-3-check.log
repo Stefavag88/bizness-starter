@@ -1,0 +1,25 @@
+
+> business-starter-v2@2.0.0-dev check C:\Projects\bizness-starter-v2
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\bizness-starter-v2\apps\site
+> astro check
+
+12:08:05 [types] Generated 115ms
+12:08:05 [check] Getting diagnostics for Astro files in C:\Projects\bizness-starter-v2\apps\site...
+[96msrc/components/newsletter/NewsletterForm.astro[0m:[93m6[0m:[93m85[0m - [93mwarning[0m[90m ts(6133): [0m'messages' is declared but its value is never read.
+
+[7m6[0m const {model,locale,placement}=Astro.props;const id=`newsletter-${placement}`;const messages=newsletterMessages(locale);
+[7m [0m [93m                                                                                    ~~~~~~~~[0m
+
+Result (69 files): 
+- 0 errors
+- 0 warnings
+- 1 hint
+

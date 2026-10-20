@@ -1,0 +1,163 @@
+
+> business-starter-v2@2.0.0-dev test:newsletter C:\Projects\bizness-starter-v2
+> node scripts/verify-newsletter.mjs
+
+
+Running 2 tests using 1 worker
+
+(node:37344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 e2e\newsletter-cms.spec.ts:13:1 › native newsletter WYSIWYG saves and dormant module roundtrip (39.4s)
+(node:20880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  2 e2e\newsletter.spec.ts:7:1 › public newsletter surfaces, suppression and real isolated lifecycle (2.7m)
+
+
+  1) e2e\newsletter-cms.spec.ts:13:1 › native newsletter WYSIWYG saves and dormant module roundtrip 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 4
+    + Received  + 8
+
+    @@ -4,11 +4,12 @@
+        },
+        "contact": Object {
+          "address": "",
+        },
+        "legal": Object {
+    -     "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.",
+    +     "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.
+    + ",
+        },
+        "navigation": Array [
+          Object {
+            "label": "Αρχική",
+            "pageId": "home",
+    @@ -31,17 +32,20 @@
+          },
+        ],
+        "newsletterPrompt": Object {
+          "body": "## Useful news
+
+    - A **short** message.",
+    + A **short** message.
+    + ",
+          "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+          "dismissLabel": "Κλείσιμο",
+          "emailLabel": "Email",
+    -     "footerPrompt": "Λάβετε **ενημερώσεις**.",
+    +     "footerPrompt": "Λάβετε **ενημερώσεις**.
+    + ",
+          "privacyLinkLabel": "Απόρρητο",
+          "submitLabel": "Εγγραφή",
+    -     "successBody": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.",
+    +     "successBody": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.
+    + ",
+          "successTitle": "Ελέγξτε το email σας",
+          "title": "Χρήσιμες ενημερώσεις",
+        },
+      }
+
+      17 |  await page.route('**/graphql',async route=>{const body=route.request().postDataJSON();if(route.request().method()==='POST'&&/\bmutation\b/.test(body?.query||'')){try{sources.assertUnchanged();assertContactSettingsMutation(body,'content/settings/site.json');const request:Mutation=coerceContactSettingsVariables(body,sdl);const complete=await expectedNativeDocument(request,schema,prior);const bytes=serializer.stringifyFile(complete,'.json',false);pending={request,complete,bytes,sourceBefore:hash(readFileSync(f.sourcePath)),expected:hash(bytes)};writeFileSync(join(f.directory,'pre-dispatch-'+saves.length+'.json'),JSON.stringify({...pending,wire:body},null,2));}catch(error){writeFileSync(join(f.directory,'refused.json'),JSON.stringify({error:String(error),body}));await route.abort('blockedbyclient');return;}}await route.continue();});
+      18 |  async function open(){await page.goto(f.cms+'/cms/index.html?newsletter='+Date.now()+'#/collections/edit/settings/site');const enter=page.getByRole('button',{name:'Enter Edit Mode',exact:true});await expect(enter.or(page.getByRole('button',{name:'Save',exact:true})).first()).toBeVisible({timeout:90000});if(await enter.isVisible())await enter.click();await expect(page.getByRole('button',{name:'Save',exact:true})).toBeVisible({timeout:90000});}
+    > 19 |  async function save(){pending=undefined;const response=page.waitForResponse(r=>r.request().method()==='POST'&&(r.request().postData()||'').includes('updateDocument'));await page.getByRole('button',{name:'Save',exact:true}).click();expect((await(await response).json()).errors||[]).toEqual([]);expect(pending).toBeTruthy();await sources.captureNative(f.sourcePath,pending.request,schema,()=>true,pending.bytes);expect(readFileSync(f.sourcePath,'utf8')).toBe(pending.bytes);expect(pending.complete.translations.el).toEqual(prior.translations.el);saves.push(pending);prior=pending.complete;writeFileSync(join(f.directory,'saves.json'),JSON.stringify(saves,null,2));}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      20 |  async function rich(editor:Locator,text:string){await editor.click();await editor.focus();await page.keyboard.press('Control+a');await page.keyboard.press('Backspace');await page.keyboard.type(text,{delay:10});await expect(editor).toContainText(text);}
+      21 |  try{
+      22 |  await f.start();await loadSchema();await open();await page.getByText(/^Newsletter signup/).first().click();await page.locator('[name="newsletterPrompt.title"]').fill('Practical newsletter');const editors=page.locator('[contenteditable=true]:visible');await expect(editors).toHaveCount(3);await rich(editors.nth(0),'Practical body from the visual editor');await rich(editors.nth(1),'Useful footer updates');await rich(editors.nth(2),'Request received. Confirm using the email link.');await page.locator('[name="newsletterPrompt.delaySeconds"]').fill('7');await page.locator('[name="newsletterPrompt.dismissDays"]').fill('35');await page.locator('[name="newsletterPrompt.acceptedDays"]').fill('190');await page.locator('[name="newsletterPrompt.interestId"]').selectOption('guides');await save();expect(prior.newsletterPrompt.body).toContain('Practical body');expect(prior.newsletterPrompt.footerPrompt).toContain('Useful footer');expect(prior.newsletterPrompt.successBody).toContain('Confirm');
+        at save (C:\Projects\bizness-starter-v2\e2e\newsletter-cms.spec.ts:19:515)
+        at C:\Projects\bizness-starter-v2\e2e\newsletter-cms.spec.ts:22:782
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-cms-native-news-c20fc-nd-dormant-module-roundtrip\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\newsletter-cms-native-news-c20fc-nd-dormant-module-roundtrip\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\newsletter-cms-native-news-c20fc-nd-dormant-module-roundtrip\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\newsletter-cms-native-news-c20fc-nd-dormant-module-roundtrip\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) e2e\newsletter.spec.ts:7:1 › public newsletter surfaces, suppression and real isolated lifecycle 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator: locator('footer form')
+    Expected: not visible
+    Error: strict mode violation: locator('footer form') resolved to 2 elements:
+        1) <form hidden="" data-newsletter-form="">…</form> aka getByLabel('Newsletter', { exact: true }).getByText('EmailEmailSign up I agree to newsletter emails. PrivacyCheck your inboxIf')
+        2) <form hidden="" data-newsletter-form="">…</form> aka getByLabel('Useful updates').locator('form')
+
+    Call log:
+      - Expect "not toBeVisible" locator('footer form') with timeout 15000ms
+      - waiting for locator('footer form')
+
+
+      32 |    if(fault==='reduced'){await expect(dialog).toBeVisible();expect(await dialog.evaluate(e=>e.getAnimations().length)).toBe(0);await page.keyboard.press('Escape');}
+      33 |    else await expect(dialog).not.toBeVisible();
+    > 34 |    if(fault==='no-js'||fault==='import-failure'){await expect(page.locator('[data-newsletter-fallback]')).toBeVisible();await expect(page.locator('footer form')).not.toBeVisible();}
+         |                                                                                                                                                                       ^
+      35 |    if(fault==='form-focus'){await page.locator('.brand').focus();await expect(dialog).toBeVisible();}
+      36 |    if(fault==='background'){await page.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,value:'visible'});document.dispatchEvent(new Event('visibilitychange'));});await expect(dialog).toBeVisible({timeout:10000});}
+      37 |    if(fault==='other-dialog'){await page.keyboard.press('Escape');await expect(dialog).toBeVisible();}
+        at C:\Projects\bizness-starter-v2\e2e\newsletter.spec.ts:34:167
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\test-failed-5.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\test-failed-6.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\test-failed-7.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\error-context.md
+
+    attachment #9: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\newsletter-public-newslett-269c3-and-real-isolated-lifecycle\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    e2e\newsletter-cms.spec.ts:13:1 › native newsletter WYSIWYG saves and dormant module roundtrip ─
+    e2e\newsletter.spec.ts:7:1 › public newsletter surfaces, suppression and real isolated lifecycle 
+Newsletter evidence: C:\Projects\bizness-starter-v2\.generated\newsletter\acceptance-T2nOvx
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: C:\Projects\bizness-starter-v2\node_modules\@playwright\test\cli.js test e2e/newsletter.spec.ts e2e/newsletter-cms.spec.ts
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
+ ELIFECYCLE  Command failed with exit code 1.

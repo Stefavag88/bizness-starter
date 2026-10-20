@@ -1,0 +1,31 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+ ❯ tests/newsletter.test.ts (5 tests | 1 failed) 53ms
+   × keeps a localized Contact alternative for modal-only use without enhancement 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/newsletter.test.ts > keeps a localized Contact alternative for modal-only use without enhancement
+AssertionError: expected '' to contain 'data-newsletter-fallback'
+
+- Expected
++ Received
+
+- data-newsletter-fallback
+
+ ❯ tests/newsletter.test.ts:10:490
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 9 passed (10)
+      Tests  1 failed | 40 passed (41)
+   Start at  12:28:27
+   Duration  2.76s (transform 56%, import 39%, tests 5%)
+
+  Transform  transforming modules took 12.50s · 56% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

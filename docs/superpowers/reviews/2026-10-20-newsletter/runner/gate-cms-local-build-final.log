@@ -1,0 +1,22 @@
+
+> business-starter-v2@2.0.0-dev cms:local-build C:\Projects\bizness-starter-v2
+> node scripts/dev.mjs --cms-build
+
+Configured enquiries / local. No cloud resources were created.
+Owned tina process 30696
+Starting Tina build
+server listening on port 4010
+│
+○  Tina build complete ────────────────────────────────────╮
+│                                                          │
+│  🦙 Tina Config                                          │
+│     API url:            http://localhost:4010/graphql    │
+│                                                          │
+│  🤖 Auto-generated files                                 │
+│     GraphQL Client:     tina/__generated__/client.ts     │
+│     Typescript Types:   tina/__generated__/types.ts      │
+│     Static HTML file:   apps/site/public/cms/index.html  │
+│                                                          │
+│                                                          │
+├──────────────────────────────────────────────────────────╯
+Stopping owned development processes

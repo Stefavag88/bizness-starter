@@ -1,0 +1,21 @@
+
+> business-starter-v2@2.0.0-dev check C:\Projects\bizness-starter-v2
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\bizness-starter-v2\apps\site
+> astro check
+
+15:27:51 [vite] Re-optimizing dependencies because vite config has changed
+15:27:51 [types] Generated 232ms
+15:27:51 [check] Getting diagnostics for Astro files in C:\Projects\bizness-starter-v2\apps\site...
+Result (69 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+

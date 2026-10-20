@@ -1,0 +1,32 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/newsletter-scheduler.test.ts (0 test)
+ ❯ tests/visitor-state.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/newsletter-scheduler.test.ts [ tests/newsletter-scheduler.test.ts ]
+Error: Cannot find module '../apps/site/src/scripts/newsletter-scheduler' imported from C:/Projects/bizness-starter-v2/tests/newsletter-scheduler.test.ts
+ ❯ tests/newsletter-scheduler.test.ts:2:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/visitor-state.test.ts [ tests/visitor-state.test.ts ]
+Error: Cannot find module '../apps/site/src/scripts/visitor-state.mjs' imported from C:/Projects/bizness-starter-v2/tests/visitor-state.test.ts
+ ❯ tests/visitor-state.test.ts:2:1
+      1| import {it,expect} from 'vitest';
+      2| import {visitorStorageKey,readVisitorState,canAutoPrompt,updateVisitor…
+       | ^
+      3| const now=1800000000000,day=86400000,policy={dismissDays:30,acceptedDa…
+      4| const store=()=>{const data=new Map<string,string>();return {data,getI…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  12:04:23
+   Duration  342ms (worker 97%, environment 3%)
+

@@ -1,0 +1,59 @@
+
+> business-starter-v2@2.0.0-dev test:newsletter C:\Projects\bizness-starter-v2
+> node scripts/verify-newsletter.mjs
+
+Error: Vitest failed to find the current suite. One of the following is possible:
+- "vitest" is imported directly without running "vitest" command
+- "vitest" is imported inside "globalSetup" (to fix this, use "setupFiles" instead, because "globalSetup" runs in a different context)
+- "vitest" is imported inside Vite / Vitest config file
+- Otherwise, it might be a Vitest bug. Please report it to https://github.com/vitest-dev/vitest/issues
+
+
+   at ..\tests\fixtures\content\factory.ts:28
+
+  26 | });
+  27 | const dirs:string[]=[];
+> 28 | afterEach(()=>{for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+     | ^
+  29 | export function fixture() {
+  30 |  const root=mkdtempSync(join(tmpdir(),'starter-content-'));dirs.push(root);
+  31 |  const write=(path:string,value:unknown)=>{const file=join(root,'content',path);mkdirSync(join(file,'..'),{recursive:true});writeFileSync(file,JSON.stringify(value));};
+    at assert (C:\Projects\bizness-starter-v2\node_modules\.pnpm\vitest@5.0.3_@types+node@24_78404d460d46587efe3d9406ba17896f\node_modules\vitest\dist\chunks\run.BTlFXlnv.js:2538:24)
+    at getCurrentSuite (C:\Projects\bizness-starter-v2\node_modules\.pnpm\vitest@5.0.3_@types+node@24_78404d460d46587efe3d9406ba17896f\node_modules\vitest\dist\chunks\run.BTlFXlnv.js:2573:2)
+    at afterEach (C:\Projects\bizness-starter-v2\node_modules\.pnpm\vitest@5.0.3_@types+node@24_78404d460d46587efe3d9406ba17896f\node_modules\vitest\dist\chunks\run.BTlFXlnv.js:2006:9)
+    at C:\Projects\bizness-starter-v2\tests\fixtures\content\factory.ts:28:1
+Error: Vitest failed to find the current suite. One of the following is possible:
+- "vitest" is imported directly without running "vitest" command
+- "vitest" is imported inside "globalSetup" (to fix this, use "setupFiles" instead, because "globalSetup" runs in a different context)
+- "vitest" is imported inside Vite / Vitest config file
+- Otherwise, it might be a Vitest bug. Please report it to https://github.com/vitest-dev/vitest/issues
+
+
+   at ..\tests\fixtures\content\factory.ts:28
+
+  26 | });
+  27 | const dirs:string[]=[];
+> 28 | afterEach(()=>{for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+     | ^
+  29 | export function fixture() {
+  30 |  const root=mkdtempSync(join(tmpdir(),'starter-content-'));dirs.push(root);
+  31 |  const write=(path:string,value:unknown)=>{const file=join(root,'content',path);mkdirSync(join(file,'..'),{recursive:true});writeFileSync(file,JSON.stringify(value));};
+    at assert (C:\Projects\bizness-starter-v2\node_modules\.pnpm\vitest@5.0.3_@types+node@24_78404d460d46587efe3d9406ba17896f\node_modules\vitest\dist\chunks\run.BTlFXlnv.js:2538:24)
+    at getCurrentSuite (C:\Projects\bizness-starter-v2\node_modules\.pnpm\vitest@5.0.3_@types+node@24_78404d460d46587efe3d9406ba17896f\node_modules\vitest\dist\chunks\run.BTlFXlnv.js:2573:2)
+    at afterEach (C:\Projects\bizness-starter-v2\node_modules\.pnpm\vitest@5.0.3_@types+node@24_78404d460d46587efe3d9406ba17896f\node_modules\vitest\dist\chunks\run.BTlFXlnv.js:2006:9)
+    at C:\Projects\bizness-starter-v2\tests\fixtures\content\factory.ts:28:1
+Error: No tests found.
+Make sure that arguments are regular expressions matching test files.
+You may need to escape symbols like "$" or "*" and quote the arguments.
+
+Newsletter evidence: C:\Projects\bizness-starter-v2\.generated\newsletter\acceptance-hFGF0Q
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: C:\Projects\bizness-starter-v2\node_modules\@playwright\test\cli.js test e2e/newsletter.spec.ts e2e/newsletter-cms.spec.ts
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
+ ELIFECYCLE  Command failed with exit code 1.

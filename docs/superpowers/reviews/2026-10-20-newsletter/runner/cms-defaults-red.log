@@ -1,0 +1,21 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/cms-newsletter.test.ts (4 tests | 1 failed) 15ms
+   × shows normalized policy defaults in the native editor for legacy documents 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/cms-newsletter.test.ts > shows normalized policy defaults in the native editor for legacy documents
+TypeError: Cannot read properties of undefined (reading 'defaultValue')
+ ❯ tests/cms-newsletter.test.ts:10:393
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  15:27:38
+   Duration  852ms (transform 53%, import 44%, tests 2%, worker 1%)
+

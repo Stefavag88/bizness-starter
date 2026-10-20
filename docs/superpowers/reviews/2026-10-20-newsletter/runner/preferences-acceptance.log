@@ -1,0 +1,55 @@
+
+Running 1 test using 1 worker
+
+(node:20532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 e2e\newsletter.spec.ts:53:1 › public live-tab preferences reset and manual signup with blocked storage (26.8s)
+
+
+  1) e2e\newsletter.spec.ts:53:1 › public live-tab preferences reset and manual signup with blocked storage 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      57 |   const second=await context.newPage();await second.goto(f.base+'/el');await second.locator('[data-preferences-open-footer]').click();await second.locator('[data-prompts-allowed]').uncheck();await expect.poll(()=>first.evaluate(()=>(window as any).__storageEvents)).toBeGreaterThan(0);await first.locator('.brand').focus();await first.waitForTimeout(5500);await expect(first.locator('[data-newsletter-dialog]')).not.toBeVisible();
+      58 |   await second.locator('[data-preferences-reset]').click();await expect(second.locator('[data-prompts-allowed]')).toBeChecked();expect(await second.evaluate(()=>localStorage.getItem('unrelated'))).toBe('keep');await expect(first.locator('[data-newsletter-dialog]')).toBeVisible();
+    > 59 |   for(let i=0;i<10;i++){await first.keyboard.press('Tab');expect(await first.locator('[data-newsletter-dialog]').evaluate(e=>e.contains(document.activeElement))).toBe(true);}await first.keyboard.press('Escape');rows.push({liveStorageEvents:true,resetOwnKeyOnly:true,tabFocusContained:true});
+         |                                                                                                                                                                   ^
+      60 |  }finally{await context.close();}
+      61 |  const denied=await browser.newContext();try{await denied.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw Error('Denied')}}));const page=await denied.newPage();await page.route('**/api/newsletter/subscribe',route=>route.fulfill({status:202,contentType:'application/json',body:'{}'}));await page.goto(f.base+'/en');await page.locator('#newsletter-footer-email').fill('manual-local@example.com');await page.locator('#newsletter-footer-consent').check();await page.locator('.newsletter-footer button[type=submit]').click();await expect(page.locator('.newsletter-footer [data-newsletter-receipt]')).toBeVisible();rows.push({blockedStorageManualForm:true,apiResponseStubbedForThisCase:true});}finally{await denied.close();}
+      62 |  // The renderer's modal-only fallback is also checked with JavaScript genuinely disabled.
+        at C:\Projects\bizness-starter-v2\e2e\newsletter.spec.ts:59:163
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-live-tab-263ea-signup-with-blocked-storage\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-live-tab-263ea-signup-with-blocked-storage\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\newsletter-public-live-tab-263ea-signup-with-blocked-storage\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\newsletter-public-live-tab-263ea-signup-with-blocked-storage\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\newsletter-public-live-tab-263ea-signup-with-blocked-storage\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\newsletter.spec.ts:53:1 › public live-tab preferences reset and manual signup with blocked storage 
+Newsletter evidence: C:\Projects\bizness-starter-v2\.generated\newsletter\acceptance-XP1wTM
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: C:\Projects\bizness-starter-v2\node_modules\@playwright\test\cli.js test e2e/newsletter.spec.ts e2e/newsletter-cms.spec.ts --grep live-tab
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
