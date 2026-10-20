@@ -1,0 +1,8 @@
+{
+  "time": "2026-10-20T04:02:11.097Z",
+  "controllerAuthorized": true,
+  "target": "content/settings/site.json",
+  "backup": ".generated/media-optimization/acceptance-wpKqA3/settings-source/snapshot-YdYQxl/bdd0f71996ae7a90-site.json",
+  "provedCurrentSha256": "f29627fb5e7cd0d1efa53041d763c61a3aaf2249dea1dead2f8713fe156a6908",
+  "restoredSha256": "45a65bbaf8411f420a44d7173c62d09bc3ff135cec6823c59bc99cfd2c0b39bb"
+}

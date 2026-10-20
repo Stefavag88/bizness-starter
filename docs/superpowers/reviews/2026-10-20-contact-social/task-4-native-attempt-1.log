@@ -1,0 +1,140 @@
+
+> business-starter-v2@2.0.0-dev test:contact-social C:\Projects\bizness-starter-v2
+> node scripts/verify-contact-social.mjs "--native"
+
+
+Running 1 test using 1 worker
+
+(node:31756) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+23:09:54 [types] Generated 81ms
+23:09:54 [build] output: "static"
+23:09:54 [build] mode: "static"
+23:09:54 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+23:09:54 [build] Collecting build info...
+23:09:54 [build] ✓ Completed in 109ms.
+23:09:54 [build] Building static entrypoints...
+23:09:55 [vite] ✓ built in 278ms
+23:09:55 [vite] ✓ built in 114ms
+23:09:55 [build] Rearranging server assets...
+
+ generating static routes 
+23:09:55   ├─ /404.html (+16ms) 
+23:09:55   ├─ /design-system/index.html (+48ms) 
+23:09:55   ├─ /en/404/index.html (+3ms) 
+23:09:55   ├─ /el/404/index.html (+2ms) 
+23:09:55   ├─ /en/feed.xml (+2ms) 
+23:09:55   ├─ /el/feed.xml (+2ms) 
+23:09:55   ├─ /en/about/index.html (+3ms) 
+23:09:55   ├─ /en/contact/index.html (+3ms) 
+23:09:55   ├─ /en/index.html (+2ms) 
+23:09:55   ├─ /en/insights/index.html (+3ms) 
+23:09:55   ├─ /en/privacy/index.html (+2ms) 
+23:09:55   ├─ /en/services/index.html (+2ms) 
+23:09:55   ├─ /en/services/planning-session/index.html (+2ms) 
+23:09:55   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+23:09:55   ├─ /en/people/studio-guide/index.html (+2ms) 
+23:09:55   ├─ /el/about/index.html (+2ms) 
+23:09:55   ├─ /el/contact/index.html (+2ms) 
+23:09:55   ├─ /el/index.html (+2ms) 
+23:09:55   ├─ /el/insights/index.html (+2ms) 
+23:09:55   ├─ /el/privacy/index.html (+2ms) 
+23:09:55   ├─ /el/services/index.html (+2ms) 
+23:09:55   ├─ /el/services/planning-session/index.html (+2ms) 
+23:09:55   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+23:09:55   ├─ /el/people/studio-guide/index.html (+2ms) 
+23:09:55   ├─ /index.html (+3ms) 
+23:09:55 ✓ Completed in 256ms.
+
+23:09:55 [build] ✓ Completed in 712ms.
+23:09:55 [build] 23 page(s) built in 950ms
+23:09:55 [build] Complete!
+(node:34932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+23:11:41 [vite] Re-optimizing dependencies because vite config has changed
+23:11:41 [types] Generated 209ms
+23:11:41 [build] output: "static"
+23:11:41 [build] mode: "static"
+23:11:41 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+23:11:41 [build] Collecting build info...
+23:11:41 [build] ✓ Completed in 239ms.
+23:11:41 [build] Building static entrypoints...
+23:11:41 [vite] ✓ built in 280ms
+23:11:41 [vite] ✓ built in 114ms
+23:11:41 [build] Rearranging server assets...
+
+ generating static routes 
+23:11:41   ├─ /404.html (+16ms) 
+23:11:41   ├─ /design-system/index.html (+47ms) 
+23:11:41   ├─ /en/404/index.html (+3ms) 
+23:11:41   ├─ /el/404/index.html (+2ms) 
+23:11:41   ├─ /en/feed.xml (+2ms) 
+23:11:41   ├─ /el/feed.xml (+2ms) 
+23:11:41   ├─ /en/about/index.html (+3ms) 
+23:11:41   ├─ /en/contact/index.html (+3ms) 
+23:11:41   ├─ /en/index.html (+2ms) 
+23:11:41   ├─ /en/insights/index.html (+2ms) 
+23:11:41   ├─ /en/privacy/index.html (+2ms) 
+23:11:41   ├─ /en/services/index.html (+2ms) 
+23:11:41   ├─ /en/services/planning-session/index.html (+2ms) 
+23:11:41   ├─ /en/insights/a-useful-first-question/index.html (+3ms) 
+23:11:41   ├─ /en/people/studio-guide/index.html (+2ms) 
+23:11:41   ├─ /el/about/index.html (+2ms) 
+23:11:41   ├─ /el/contact/index.html (+2ms) 
+23:11:41   ├─ /el/index.html (+2ms) 
+23:11:41   ├─ /el/insights/index.html (+2ms) 
+23:11:41   ├─ /el/privacy/index.html (+2ms) 
+23:11:41   ├─ /el/services/index.html (+2ms) 
+23:11:41   ├─ /el/services/planning-session/index.html (+2ms) 
+23:11:41   ├─ /el/insights/a-useful-first-question/index.html (+3ms) 
+23:11:41   ├─ /el/people/studio-guide/index.html (+2ms) 
+23:11:41   ├─ /index.html (+3ms) 
+23:11:41 ✓ Completed in 250ms.
+
+23:11:41 [build] ✓ Completed in 711ms.
+23:11:41 [build] 23 page(s) built in 1.08s
+23:11:41 [build] Complete!
+  x  1 e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof (1.8m)
+
+
+  1) e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof 
+
+    Error: locator.fill: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('Instagram URL', { exact: true })
+
+
+      23 |  await open();writeEvidence(directory,'initial-controls.json',await page.locator('input,button').evaluateAll(es=>es.map(e=>({tag:e.tagName,text:e.textContent,name:e.getAttribute('name'),type:e.getAttribute('type')}))));
+      24 |  const group=page.getByText('Social channels',{exact:true});await group.click();
+    > 25 |  await page.getByLabel('Instagram URL',{exact:true}).fill('https://instagram.com/example-contact');await page.getByLabel('LinkedIn URL',{exact:true}).fill('https://www.linkedin.com/company/example-contact');await page.getByLabel('Facebook URL',{exact:true}).fill('https://facebook.com/example-contact');await page.getByLabel('WhatsApp international number',{exact:true}).fill('+302101234567');await page.getByLabel('Show social icons in header',{exact:true}).check();await save();await publicProof(4,4);await page.getByLabel('Instagram URL',{exact:true}).fill('');await page.getByLabel('WhatsApp international number',{exact:true}).fill('');await save();await publicProof(2,2);await page.getByLabel('Show social icons in header',{exact:true}).uncheck();await save();await publicProof(2,0);await open();expect(queries).toBeGreaterThan(0);writeEvidence(directory,'indexed-query-proof.json',{successfulQueries:queries,saves:saves.length,translationsAndLegalPreserved:true});await page.screenshot({path:join(directory,'native-final.png'),fullPage:true});
+         |                                                      ^
+      26 |  }finally{await cleanupMediaBrowser({closeBrowser:()=>context?.close(),stops:runtimes.map((r,i)=>({id:'runtime-'+i,stop:()=>r.stop()})),restores:[{id:'settings',restore:()=>sources.restore()}],assertInputs:()=>{expected={...before};assertCanonicalSnapshot(before);},regenerate:[{id:'canonical-build',run:()=>run.build()}],record:x=>writeEvidence(directory,'native-cleanup.json',x)});run.finish();}
+      27 | });
+      28 |
+        at C:\Projects\bizness-starter-v2\e2e\contact-social-cms.spec.ts:25:54
+
+    Error Context: .generated\media-optimization\acceptance-4BXmuv\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-4BXmuv\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .generated\media-optimization\acceptance-4BXmuv\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof 
+Contact/social evidence: C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-4BXmuv
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: node_modules/@playwright/test/cli.js test e2e/contact-social-cms.spec.ts --reporter=list --output=C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-4BXmuv\browser-results
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,9 @@
+# Final documentation-only fix wave
+
+Repo C:/Projects/bizness-starter-v2, branch codex/starter-v2-contact-social, base180f4ea1b895c4d5d998dcd956c2370b82768bc3. Full final-review.md gives ACCEPT, no Critical/Important. Complete findings: M1 qualify source-inventory wording; M2 dense acceptance lifecycle readability deferred by explicit controller ruling in progress.md. Historical RED/output limitations remain disclosed, no falsified reruns.
+
+Fix M1 only in permanent evidence docs/superpowers/plans/2026-10-20-starter-v2-contact-social-evidence.md and any corresponding unqualified wording in docs/CONTACT_SOCIAL.md. Required precise meaning: historical native/public equality proves equality only of paths listed by scripts/verify-contact-social.mjs; it omits top-level Tina config/validation and site/Worker build/config inputs. Later seven-gate inventory is broader and cannot retrospectively prove omitted inputs unchanged. Canonical project/content/uploads 16-file inventory is complete and distinct. Future broader inventory coverage remains deferred. No claim of actual omitted drift is made.
+
+Append a clearly dated correction to task-4-report.md in this ignored workspace rather than rewriting its historical record. Do not change product/helper/driver/tests/dependencies/source data, or implement M2. Controller owns plan/spec administrative statuses, archive and original launcher restart.
+
+Read final-review.md relevant M1/M2 and existing docs. Edit only necessary explanatory text, preserve truthful raw evidence/source timing. Verify exact doc diff + git diff --check; no runtime tests/builds warranted. Commit documentation candidate. Write final-doc-fix-report.md here with changed wording/verification/commit/deferred M2 and return shortstatus/commit/concerns. No subagents or remote operations. C: commands require_escalated.

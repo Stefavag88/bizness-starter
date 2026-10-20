@@ -10,7 +10,7 @@
 
 **Spec:** [Contact/social design](../specs/2026-10-19-starter-v2-contact-social-design.md).
 
-Status: Tasks 1–3 implemented and independently accepted; Task 4 local native/public/seven-gate candidate verified on 2026-10-20. Independent Task 4 and whole-branch reviews, evidence archival and original launcher readiness restoration remain pending with the controller. See [actual evidence and failure history](2026-10-20-starter-v2-contact-social-evidence.md). The approved medium subagent/task-review and most-capable medium final-review method remains authoritative.
+Status: All four tasks and whole-branch review accepted at product candidate 180f4ea; final documentation correction accepted at 09ce9b8. Verified evidence archival and original local launcher restoration are the remaining controller closeout duties. The approved execution method was preserved.
 
 ## Global Constraints
 
@@ -42,7 +42,7 @@ Status: Tasks 1–3 implemented and independently accepted; Task 4 local native/
 - tests/contact-channels.test.ts, tests/cms-contact-social.test.ts, apps/site/tests/contact-social.test.ts: contract/native validation/component tests.
 - e2e/contact-social.spec.ts, e2e/contact-social-cms.spec.ts, e2e/helpers/contact-social-native-admission.ts, tests/contact-social-native-admission.test.ts: public/native proof and exact pre-dispatch admission.
 - scripts/verify-contact-social.mjs: narrow stopped-stack acceptance driver; package.json exposes test:contact-social. Reuse current ports, runtime, cleanup and evidence primitives rather than duplicating generic infrastructure.
-- docs/CONTACT_SOCIAL.md plus updates to CONTENT_MODEL.md, ARCHITECTURE.md, QUICKSTART.md; acceptance evidence in docs/superpowers/plans/2026-10-19-starter-v2-contact-social-evidence.md.
+- docs/CONTACT_SOCIAL.md plus updates to CONTENT_MODEL.md, ARCHITECTURE.md, QUICKSTART.md; acceptance evidence in docs/superpowers/plans/2026-10-20-starter-v2-contact-social-evidence.md.
 
 ### Task 1: Pure settings and destination contracts
 
@@ -52,8 +52,8 @@ Status: Tasks 1–3 implemented and independently accepted; Task 4 local native/
 
 **Produces:** SocialSettings, ContactLink and ContactChannels exactly as specified; SOCIAL_CHANNELS; socialSettingsSchema; phoneHref(value:string):string|undefined; contactChannels(settings:SettingsCopy,locale:string):ContactChannels. SettingsCopy.social is normalized and required in parsed output.
 
-- [ ] Write table-driven tests: absent/null parent and fields => all empty/false; actual boolean accepted, 'false' rejected; unknown keys and translated social rejected. Existing settingsDocument parses without rewriting input; both EN/EL localized settings retain equal social values and remain detached.
-- [ ] Test projection assertions, including:
+- [x] Write table-driven tests: absent/null parent and fields => all empty/false; actual boolean accepted, 'false' rejected; unknown keys and translated social rejected. Existing settingsDocument parses without rewriting input; both EN/EL localized settings retain equal social values and remain detached.
+- [x] Test projection assertions, including:
 
 ```ts
 expect(phoneHref('+30 (210) 123-4567')).toBe('tel:+302101234567');
@@ -63,8 +63,8 @@ expect(contactChannels(settings,'el').social.map(x=>x.id))
 ```
 
 Supply settings with all four valid channels; assert WhatsApp href https://wa.me/302101234567 and external=true. Direct email label remains original while href uses encodeURIComponent(mailbox). Blank phone produces neither phone link nor phoneText; unsupported phone stays in phoneText.
-- [ ] Cover URL boundaries: valid provider base/www/country subdomain and path/query/fragment; reject provider.com.evil.test, evilprovider.com, HTTP, protocol-relative, userinfo, port8443, javascript:, encoded controls/backslashes and wrong-platform URLs. WhatsApp rejects local number, URL, spaces, leading zero country code and over15 digits. A mailbox with literal ?/# cannot introduce href parameters.
-- [ ] Run pnpm exec vitest run tests/contact-channels.test.ts and retain meaningful RED; implement strict pure contracts and locale wiring; rerun GREEN plus tests/content-schema.test.ts and tests/content-documents.test.ts. No production singleton or filesystem import enters the pure module. Commit verified candidate; independent task review records acceptance afterward.
+- [x] Cover URL boundaries: valid provider base/www/country subdomain and path/query/fragment; reject provider.com.evil.test, evilprovider.com, HTTP, protocol-relative, userinfo, port8443, javascript:, encoded controls/backslashes and wrong-platform URLs. WhatsApp rejects local number, URL, spaces, leading zero country code and over15 digits. A mailbox with literal ?/# cannot introduce href parameters.
+- [x] Run pnpm exec vitest run tests/contact-channels.test.ts and retain meaningful RED; implement strict pure contracts and locale wiring; rerun GREEN plus tests/content-schema.test.ts and tests/content-documents.test.ts. No production singleton or filesystem import enters the pure module. Commit verified candidate; independent task review records acceptance afterward.
 
 ### Task 2: Native Settings authoring
 
@@ -74,9 +74,9 @@ Supply settings with all four valid channels; assert WhatsApp href https://wa.me
 
 **Produces:** contactFields() and socialFields(), each returning TinaField[]. Settings exposes one shared Social channels group and the existing translated address only; no translated social URLs/toggle.
 
-- [ ] Write failing schema/validation tests: labeled Instagram/LinkedIn/Facebook URL inputs, WhatsApp international-number helper and Show social icons in header boolean exist once; EN/EL translations contain no shared destinations. Every functional profile exposes these fields.
-- [ ] Validate native rich AST objects on unrelated legal.notice remain identical after detached save checks. Verify actual-shaped null clears/parent-null/defaults and invalid social save field paths through the existing validation entry, not a newly fabricated bypass. Invalid booleans and destinations must fail before persistence.
-- [ ] Run pnpm exec vitest run tests/cms-contact-social.test.ts; capture RED, implement field factories/shared validation, run GREEN plus tests/cms-save.test.ts and tests/cms-schema.test.ts. Regenerate only with the owned stack stopped. Commit and obtain independent review.
+- [x] Write failing schema/validation tests: labeled Instagram/LinkedIn/Facebook URL inputs, WhatsApp international-number helper and Show social icons in header boolean exist once; EN/EL translations contain no shared destinations. Every functional profile exposes these fields.
+- [x] Validate native rich AST objects on unrelated legal.notice remain identical after detached save checks. Verify actual-shaped null clears/parent-null/defaults and invalid social save field paths through the existing validation entry, not a newly fabricated bypass. Invalid booleans and destinations must fail before persistence.
+- [x] Run pnpm exec vitest run tests/cms-contact-social.test.ts; capture RED, implement field factories/shared validation, run GREEN plus tests/cms-save.test.ts and tests/cms-schema.test.ts. Regenerate only with the owned stack stopped. Commit and obtain independent review.
 
 ### Task 3: Shared static components and placements
 
@@ -86,10 +86,10 @@ Supply settings with all four valid channels; assert WhatsApp href https://wa.me
 
 **Produces:** Common data/rendering behavior in all placements, vendored static icons and semantic styles.
 
-- [ ] Write actual Astro-container tests: exact email/tel/WhatsApp/social href and target/rel; escaped phone/address; decorative SVG attributes; icon-only links have platform/new-tab accessible text. Empty social arrays produce no social nav/heading. With showInHeader=false Contact/footer links remain but header has none; true shows only configured icons.
-- [ ] Preserve footer identity/legal/privacy and required form fields/action/script. Test icon-only header vs labeled Contact/footer, both locales, empty address and unsupported phoneText. Ensure no raw URL or CMS SVG reaches set:html and no remote icon/script request is introduced.
-- [ ] Run pnpm exec vitest run --config apps/site/vitest.config.ts apps/site/tests/contact-social.test.ts; retain RED. Vendor the seven SVGs from a verified pinned upstream commit, strip unrelated SVG attributes, retain source/license metadata and create allowlisted components. Do not install an icon package.
-- [ ] Integrate form-first responsive aside at56rem; footer groups and optional header nav; use exact token defaults and current semantic colors. Add no extra hero/eyebrow or decorative animation. Rerun focused GREEN and the existing site component suite. Commit and obtain independent review.
+- [x] Write actual Astro-container tests: exact email/tel/WhatsApp/social href and target/rel; escaped phone/address; decorative SVG attributes; icon-only links have platform/new-tab accessible text. Empty social arrays produce no social nav/heading. With showInHeader=false Contact/footer links remain but header has none; true shows only configured icons.
+- [x] Preserve footer identity/legal/privacy and required form fields/action/script. Test icon-only header vs labeled Contact/footer, both locales, empty address and unsupported phoneText. Ensure no raw URL or CMS SVG reaches set:html and no remote icon/script request is introduced.
+- [x] Run pnpm exec vitest run --config apps/site/vitest.config.ts apps/site/tests/contact-social.test.ts; retain RED. Vendor the seven SVGs from a verified pinned upstream commit, strip unrelated SVG attributes, retain source/license metadata and create allowlisted components. Do not install an icon package.
+- [x] Integrate form-first responsive aside at56rem; footer groups and optional header nav; use exact token defaults and current semantic colors. Add no extra hero/eyebrow or decorative animation. Rerun focused GREEN and the existing site component suite. Commit and obtain independent review.
 
 ### Task 4: Actual native/static acceptance and handoff
 
@@ -99,14 +99,18 @@ Supply settings with all four valid channels; assert WhatsApp href https://wa.me
 
 **Produces:** assertContactSettingsMutation(body:unknown,sourcePath:string):void for exactly one update/settings/site.json; test:contact-social driver with --public and --native modes, explicit logs/snapshots/exits and safe source/runtime cleanup.
 
-- [ ] Before canonical edits, fault-test wrong target, collection, create/delete/multiple mutation refusal with zero dispatch; restoration conflict preserves foreign bytes; failed child shutdown prevents regeneration while independent restoration is attempted. Keep tests temporary-root owned; retain deliberate failure evidence. Run pnpm exec vitest run tests/contact-social-native-admission.test.ts RED/GREEN before live writes.
-- [ ] Native UI: open actual Settings, set all four channels/toggle, perform a real save, clear one URL and WhatsApp, save again, turn header off, save again. Before every dispatch derive complete expected bytes from installed request/schema/serializer and admit only owned target. Assert source bytes, untouched translations/legal ASTs, public EN/EL updates and cleared-link absence. Restore only exact owned source bytes; no direct mutation API standing in for UI proof.
-- [ ] Public static proof: temporary exact-owned settings fixtures for no socials/headeroff, all socials/headeroff, all socials/headeron, one remaining social, long contact/address and unsupported phone. Build and serve via existing static Worker harness; inspect EN/EL375/768/1440, JS/noJS, all three placements, 44px targets, keyboard focus, no overflow, exact href/rel/new-tab labeling and representative axe. Intercept external navigation; do not contact platforms, dial or invoke mail clients. Record screenshots and no added browser/runtime transformation dependency.
-- [ ] Driver exposes pnpm test:contact-social -- --public and --native, each with stopped-stack checks and independent cleanup. Native mode owns its Tina/Astro tree and may not start the main launcher/migrate source D1. Restore canonical output after successful restoration; refuse after conflict. Retain every command executable/args/cwd/PID/start/end/exit, complete source inventory/hashes and owned-process stop proof.
-- [ ] Run public/native phases sequentially, then seven gates: pnpm check, pnpm test, pnpm build, pnpm worker:check, pnpm cms:local-build, pnpm test:static-routing, pnpm test:showcase-builds. Each must have explicit exit0; retain failures/repairs/source timing honestly. Do not broadly rerun unchanged gates after documentation-only edits.
-- [ ] Document CMS paths, defaults, tokens, per-placement behavior, optional clears, phone/URL restrictions, locale ownership, app-launch limits and hosted rebuild requirement. Update original spec status only after evidence. Commit verified candidate and obtain independent task review.
+- [x] Before canonical edits, fault-test wrong target, collection, create/delete/multiple mutation refusal with zero dispatch; restoration conflict preserves foreign bytes; failed child shutdown prevents regeneration while independent restoration is attempted. Keep tests temporary-root owned; retain deliberate failure evidence. Run pnpm exec vitest run tests/contact-social-native-admission.test.ts RED/GREEN before live writes.
+- [x] Native UI: open actual Settings, set all four channels/toggle, perform a real save, clear one URL and WhatsApp, save again, turn header off, save again. Before every dispatch derive complete expected bytes from installed request/schema/serializer and admit only owned target. Assert source bytes, untouched translations/legal ASTs, public EN/EL updates and cleared-link absence. Restore only exact owned source bytes; no direct mutation API standing in for UI proof.
+- [x] Public static proof: temporary exact-owned settings fixtures for no socials/headeroff, all socials/headeroff, all socials/headeron, one remaining social, long contact/address and unsupported phone. Build and serve via existing static Worker harness; inspect EN/EL375/768/1440, JS/noJS, all three placements, 44px targets, keyboard focus, no overflow, exact href/rel/new-tab labeling and representative axe. Intercept external navigation; do not contact platforms, dial or invoke mail clients. Record screenshots and no added browser/runtime transformation dependency.
+- [x] Driver exposes pnpm test:contact-social -- --public and --native, each with stopped-stack checks and independent cleanup. Native mode owns its Tina/Astro tree and may not start the main launcher/migrate source D1. Restore canonical output after successful restoration; refuse after conflict. Retain every command executable/args/cwd/PID/start/end/exit, complete source inventory/hashes and owned-process stop proof.
+- [x] Run public/native phases sequentially, then seven gates: pnpm check, pnpm test, pnpm build, pnpm worker:check, pnpm cms:local-build, pnpm test:static-routing, pnpm test:showcase-builds. Each must have explicit exit0; retain failures/repairs/source timing honestly. Do not broadly rerun unchanged gates after documentation-only edits.
+- [x] Document CMS paths, defaults, tokens, per-placement behavior, optional clears, phone/URL restrictions, locale ownership, app-launch limits and hosted rebuild requirement. Update original spec status only after evidence. Commit verified candidate and obtain independent task review.
 - [ ] Obtain most-capable medium whole-branch review; one batched fix wave and one scoped re-review if needed, adjudicating residuals explicitly. Archive complete raw reports/rulings before verified scratch removal. Restore original local site/CMS, verify actual public/CMS/Tina read-only readiness, and preserve this local branch. No remote operations.
 
 ## Plan self-review
 
 Coverage: Task1 owns all data/default/safety/localization requirements; Task2 owns editor exposure/detached validation; Task3 owns rendering/icons/tokens/form order; Task4 owns native persistence, actual public behavior, process/source faults, final gates and documentation. Every Review Focus input class has a named owning test. Contracts use the same normalized SocialSettings, ContactLink/Channels and component props throughout. Existing settings remain valid with no data migration. No product dependency upgrade, secret, outbound action or unrelated stage is required. Written artifact review precedes implementation; the preserved execution method is subagent-driven at medium with independent gates.
+
+## Reviewed completion and limitations
+
+Checked items record accepted delivery with explicit historical deviations: Task 1 supplemental URL cases did not initially run RED; the first Task 4 eleven-case RED failed module collection rather than assertions. Later mutation and exact-byte/coercion RED/GREEN evidence is retained without rewriting history. Selected native/public source inventories prove only listed-path equality; dense acceptance code and broader future inventory coverage remain deferred. See [final review archive](../reviews/2026-10-20-contact-social/README.md) and the actual acceptance evidence for exact source timing and all rulings.

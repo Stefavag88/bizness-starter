@@ -1,0 +1,18 @@
+
+> business-starter-v2@2.0.0-dev test:footer C:\Projects\bizness-starter-v2
+> vitest run --config apps/site/vitest.config.ts
+
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+
+ Test Files  8 passed (8)
+      Tests  31 passed (31)
+   Start at  07:12:19
+   Duration  3.00s (transform 61%, import 32%, tests 6%)
+
+  Transform  transforming modules took 11.66s · 61% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+
+Post-whitespace component evidence: C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-Do2ASJ

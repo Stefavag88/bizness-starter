@@ -1,0 +1,18 @@
+{
+  "apps/site/public/uploads/starter-samples/abstract-landscape.png": "f1b40847c8667998c6ee65e0a618887d8a12c2301140e2543a829228204d40e1",
+  "apps/site/public/uploads/starter-samples/abstract-portrait.png": "bd317dcb00a00fac5d8df09f5767b8406096ad5b51dfdb36f076ce90a7d48e14",
+  "content/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "content/articles/sample-article.json": "2fddca08327dc1cfb000661dcdcab1384a1a13b0bb22a326716e501016a90ebf",
+  "content/offerings/sample-service.json": "486df0c872b84b9174be8c11707e35e8973c139ab28efb7b581212ca19c567f3",
+  "content/pages/about.json": "257d4b2065fef1e7363489ec717e1b2dba1883168f65624e6dcf5480fe3cb663",
+  "content/pages/contact.json": "4f3d85546b991d73344e5d30b27ade090d5b17c396c039a37d80201fc1d08515",
+  "content/pages/home.json": "1dfda8fcdb9d3454025b5422d46cfc6e9e9c1e81204c28f6925b990d799d1ff3",
+  "content/pages/insights.json": "719f34e44aab21d8cdd2424af510be22b6417853010b3709b805b1e53be10a65",
+  "content/pages/privacy.json": "5880bdef5ccd3094ac0b28e68ba49958d552d92c39abfe8efa250b79835e21ab",
+  "content/pages/rooms.json": "d6412c065ff6a11a81c9d3f343b473fa5b6430eba2ab235ac9480419198450e5",
+  "content/pages/services.json": "7b00ab1d5f9e85846e435f4f0b6ed04cacdd7d5d4a0249290bc4dbca07246f1f",
+  "content/people/sample-person.json": "43adb9451b2ef41667aa93c0b2f5fc318cb88aba770fd2cf2247b62b629352b9",
+  "content/rooms/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "content/settings/site.json": "45a65bbaf8411f420a44d7173c62d09bc3ff135cec6823c59bc99cfd2c0b39bb",
+  "project.json": "791eda9087dab819250d4f3511f305b63d1c82a878800a498cd40b41defd231c"
+}

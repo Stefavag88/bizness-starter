@@ -1,0 +1,337 @@
+# Review package: 1b8698a1b197f1183cc477d19d39f6b398368f4d..1367a9e5f92fcd8f78572ea0c0f815d6b6d4dcde
+
+## Commits
+1367a9e feat(content): add shared contact and social destination contracts
+
+## Files changed
+ packages/content/contact.d.mts    |   7 +++
+ packages/content/contact.mjs      |  46 ++++++++++++++++++
+ packages/content/localize.mjs     |   2 +-
+ packages/content/schemas.mjs      |   7 ++-
+ packages/content/types.ts         |   5 +-
+ tests/contact-channels.test.ts    | 100 ++++++++++++++++++++++++++++++++++++++
+ tests/fixtures/content/factory.ts |   2 +
+ 7 files changed, 165 insertions(+), 4 deletions(-)
+
+## Diff
+diff --git a/packages/content/contact.d.mts b/packages/content/contact.d.mts
+new file mode 100644
+index 0000000..42ba1f9
+--- /dev/null
++++ b/packages/content/contact.d.mts
+@@ -0,0 +1,7 @@
++import type {ZodType} from 'zod';
++import type {SettingsCopy,SocialSettings,ContactLink,ContactChannels} from './types';
++export type {SocialSettings,ContactLink,ContactChannels} from './types';
++export const SOCIAL_CHANNELS:readonly ['instagram','linkedin','facebook','whatsapp'];
++export const socialSettingsSchema:ZodType<SocialSettings,unknown>;
++export function phoneHref(value:string):string|undefined;
++export function contactChannels(settings:SettingsCopy,locale:string):ContactChannels;
+diff --git a/packages/content/contact.mjs b/packages/content/contact.mjs
+new file mode 100644
+index 0000000..203e0b8
+--- /dev/null
++++ b/packages/content/contact.mjs
+@@ -0,0 +1,46 @@
++import {z} from 'zod';
++import {isSafeLink} from './rich-text.mjs';
++
++export const SOCIAL_CHANNELS=Object.freeze(['instagram','linkedin','facebook','whatsapp']);
++const clearedString=z.preprocess(value=>value==null?'':value,z.string().trim());
++function platformUrl(platform){
++ return clearedString.pipe(z.string().max(2048).refine(value=>{
++  if(!value)return true;
++  if(!isSafeLink(value))return false;
++  try{
++   const url=new URL(value);
++   return url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&
++    (url.hostname===platform+'.com'||url.hostname.endsWith('.'+platform+'.com'));
++  }catch{return false;}
++ },'Use a safe HTTPS URL on '+platform+'.com'));
++}
++export const socialSettingsSchema=z.preprocess(value=>value==null?{}:value,z.strictObject({
++ instagram:platformUrl('instagram'),linkedin:platformUrl('linkedin'),facebook:platformUrl('facebook'),
++ whatsapp:clearedString.pipe(z.string().refine(value=>!value||/^\+[1-9][0-9]{7,14}$/.test(value),'Use an international number such as +302101234567')),
++ showInHeader:z.preprocess(value=>value==null?false:value,z.boolean()),
++}));
++
++export function phoneHref(value){
++ if(!/^\+?[0-9 ().-]+$/.test(value.replace(/^ +/,'')))return undefined;
++ const number=value.replace(/[ ().-]/g,'');
++ if(!/^\+?[0-9]{3,20}$/.test(number))return undefined;
++ const href='tel:'+number;
++ return isSafeLink(href)?href:undefined;
++}
++
++export function contactChannels(settings,locale){
++ const direct=[],social=[];
++ const phone=settings.contact.phone;
++ const phoneLink=phoneHref(phone);
++ if(phoneLink)direct.push({id:'phone',label:phone,href:phoneLink,external:false});
++ const email='mailto:'+encodeURIComponent(settings.contact.email);
++ if(isSafeLink(email))direct.push({id:'email',label:settings.contact.email,href:email,external:false});
++ const labels={instagram:'Instagram',linkedin:'LinkedIn',facebook:'Facebook',whatsapp:'WhatsApp'};
++ for(const id of SOCIAL_CHANNELS){
++  const value=settings.social[id];
++  if(!value)continue;
++  const href=id==='whatsapp'?'https://wa.me/'+value.slice(1):value;
++  if(isSafeLink(href))social.push({id,label:labels[id],href,external:true});
++ }
++ return {direct,social,...(phone.trim()&&!phoneLink?{phoneText:phone}:{}),...(settings.contact.address.trim()?{address:settings.contact.address}:{})};
++}
+diff --git a/packages/content/localize.mjs b/packages/content/localize.mjs
+index adaedcf..b58c162 100644
+--- a/packages/content/localize.mjs
++++ b/packages/content/localize.mjs
+@@ -3,21 +3,21 @@ import {getDisabledDomainPages} from './domain-registry.mjs';
+ import {sectionDefinitions,sectionEnabled} from './section-registry.mjs';
+ import { activeRecords, requiredPage, joinPath } from './publication.mjs';
+ 
+ export function localizeContent(source,locale,project,registry) {
+  if(!project.languages.some(l=>l.code===locale))throw new Error('Unconfigured locale: '+locale);
+  const {translations,...baseSettings}=source.settings;
+  const translation=translations[locale];
+  if(locale!==project.locale&&!translation)throw new Error('Missing required settings translation for locale '+locale);
+  const settings=structuredClone(locale===project.locale?baseSettings:{
+   brand:{...baseSettings.brand,...translation.brand},legal:{...baseSettings.legal,...translation.legal},
+-  contact:{...baseSettings.contact,...translation.contact},
++  contact:{...baseSettings.contact,...translation.contact},social:baseSettings.social,
+   navigation:baseSettings.navigation.map(item=>({...item,label:translation.navigation[item.pageId]})),
+  });
+  const disabledIds=new Set(getDisabledDomainPages(project,registry).map(page=>page.contentId));
+  source={...source,pages:source.pages.filter(page=>!disabledIds.has(page.contentId))};
+  const active=activeRecords(source,locale,project);
+  for(const page of source.pages) {
+   if(requiredPage(page,project)&&!active.pages.some(p=>p.contentId===page.contentId))
+    throw new Error('Required page '+page.contentId+' has no published translation for locale '+locale);
+  }
+  const availableIds=new Set(active.pages.map(p=>p.contentId));
+diff --git a/packages/content/schemas.mjs b/packages/content/schemas.mjs
+index fa01c38..ba1bf49 100644
+--- a/packages/content/schemas.mjs
++++ b/packages/content/schemas.mjs
+@@ -1,10 +1,11 @@
++import {socialSettingsSchema} from './contact.mjs';
+ import {modulePageTemplates} from './module-extensions.mjs';
+ import { z } from 'zod';
+ import { isSafeMarkdown } from './rich-text.mjs';
+ import { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas, sectionDefinitions } from './section-registry.mjs';
+ export { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas, sectionDefinitions } from './section-registry.mjs';
+ export const PAGE_TEMPLATES = Object.freeze(['home','about','contact','standard','offerings','insights',...modulePageTemplates]);
+ if(new Set(PAGE_TEMPLATES).size!==PAGE_TEMPLATES.length)throw Error('Duplicate Page template registration');
+ export const SURFACES = Object.freeze(['default','muted','accent']);
+ const title = z.string().trim().min(1).max(LIMITS.title);
+ const richSummary = z.string().max(LIMITS.description).refine(value=>isSafeMarkdown(value,true),'Description allows safe inline emphasis and links only');
+@@ -58,30 +59,32 @@ const editorial = extra => z.strictObject({
+  translations:translations(z.strictObject({...publication,...prose,...extra.localized})),
+ });
+ export const offeringSchema=editorial({shared:{},localized:{}});
+ export const personSchema=editorial({shared:{role:title},localized:{role:title}});
+ const optionalId=z.preprocess(value=>value==null || (typeof value==='string'&&!value.trim())?undefined:value,identifier.optional());
+ const articleDates={publishAt:z.iso.datetime({offset:true}),updatedAt:z.iso.datetime({offset:true}).optional()};
+ export const articleSchema=editorial({shared:{authorId:optionalId,offeringId:optionalId,...articleDates},localized:articleDates}).superRefine((article,ctx)=>{
+  for(const [value,path] of [[article,[]],...Object.entries(article.translations).map(([locale,translation])=>[translation,['translations',locale]])])
+   if(value.updatedAt&&Date.parse(value.updatedAt)<Date.parse(value.publishAt))ctx.addIssue({code:'custom',path:[...path,'updatedAt'],message:'updatedAt must not precede publishAt'});
+ });
++const optionalContactText=max=>z.preprocess(value=>value==null?'':value,z.string().max(max));
+ const settingsCopy = {
++ social:socialSettingsSchema,
+  brand:z.strictObject({name:title,tagline:z.string().max(300)}),
+  legal:z.strictObject({businessName:title,privacyVersion:z.string().trim().min(1).max(80),notice:richBody}),
+- contact:z.strictObject({email:z.email(),phone:z.string().max(100),address:z.string().max(1000)}),
++ contact:z.strictObject({email:z.email(),phone:optionalContactText(100),address:optionalContactText(1000)}),
+  navigation:z.array(z.strictObject({label:title,pageId:fieldId})),
+ };
+ const localizedSettingsCopy = {
+  brand:z.strictObject({tagline:z.string().max(300)}),
+  legal:z.strictObject({notice:richBody}),
+- contact:z.strictObject({address:z.string().max(1000)}),
++ contact:z.strictObject({address:optionalContactText(1000)}),
+  navigation:z.record(fieldId,title),
+ };
+ export const settingsSchema=z.strictObject({...settingsCopy,translations:translations(z.strictObject(localizedSettingsCopy))}).superRefine((settings,ctx)=>{
+  const ids=settings.navigation.map(n=>n.pageId);
+  if(new Set(ids).size!==ids.length)ctx.addIssue({code:'custom',path:['navigation'],message:'Navigation page IDs must be unique'});
+  for(const [locale,translation] of Object.entries(settings.translations)) {
+   for(const id of ids)if(!Object.hasOwn(translation.navigation,id))ctx.addIssue({code:'custom',path:['translations',locale,'navigation',id],message:'Missing translated navigation label'});
+   for(const id of Object.keys(translation.navigation))if(!ids.includes(id))ctx.addIssue({code:'custom',path:['translations',locale,'navigation',id],message:'Stale translated navigation page ID'});
+  }
+ });
+diff --git a/packages/content/types.ts b/packages/content/types.ts
+index b150bd8..6081af6 100644
+--- a/packages/content/types.ts
++++ b/packages/content/types.ts
+@@ -26,21 +26,24 @@ export interface SectionReference {id:string;_template:SectionType;variant:Secti
+ export interface PageCopy {sections:Record<string,SectionCopy>}
+ export interface PageTranslation extends Publication {meta:Meta;copy:PageCopy}
+ export interface Page extends Publication {contentId:string;_template:PageTemplate;slug:string;meta:Meta;sections:SectionReference[];copy:PageCopy;translations:Record<string,PageTranslation>}
+ export interface EditorialCopy extends Publication {title:string;description:string;body:string;seoDescription:string}
+ export interface Offering extends EditorialCopy {contentId:string;slug:string;translations:Record<string,EditorialCopy>}
+ export interface PersonCopy extends EditorialCopy {role:string}
+ export interface Person extends PersonCopy {contentId:string;slug:string;translations:Record<string,PersonCopy>}
+ export interface ArticleCopy extends EditorialCopy {publishAt:string;updatedAt?:string}
+ export interface Article extends ArticleCopy {contentId:string;slug:string;authorId?:string;offeringId?:string;translations:Record<string,ArticleCopy>}
+ export interface NavigationItem {label:string;pageId:string}
+-export interface SettingsCopy {brand:{name:string;tagline:string};legal:{businessName:string;privacyVersion:string;notice:string};contact:{email:string;phone:string;address:string};navigation:NavigationItem[]}
++export interface SocialSettings {instagram:string;linkedin:string;facebook:string;whatsapp:string;showInHeader:boolean}
++export interface ContactLink {id:'email'|'phone'|'instagram'|'linkedin'|'facebook'|'whatsapp';label:string;href:string;external:boolean}
++export interface ContactChannels {direct:ContactLink[];social:ContactLink[];phoneText?:string;address?:string}
++export interface SettingsCopy {social:SocialSettings;brand:{name:string;tagline:string};legal:{businessName:string;privacyVersion:string;notice:string};contact:{email:string;phone:string;address:string};navigation:NavigationItem[]}
+ export interface SettingsTranslation {brand:{tagline:string};legal:{notice:string};contact:{address:string};navigation:Record<string,string>}
+ export interface Settings extends SettingsCopy {translations:Record<string,SettingsTranslation>}
+ export interface Campaign {contentId:string;subject:string;intro:string;articleId?:string;interest:string}
+ export interface ContentSnapshot {settings:Settings;pages:Page[];offerings:Offering[];people:Person[];articles:Article[];campaigns:Campaign[];domains:DomainRecords;now:string}
+ export interface Alternate {locale:string;path:string}
+ export interface RouteFields {path:string;alternates:Alternate[]}
+ export type LocalizedSection = {[K in SectionType]:Omit<SectionReference,'_template'> & {_template:K;copy:SectionCopyMap[K]}}[SectionType];
+ export interface LocalizedPage extends Omit<Page,'translations'|'sections'|'copy'>,RouteFields {sections:LocalizedSection[]}
+ export type LocalizedOffering = Omit<Offering,'translations'> & RouteFields;
+ export type LocalizedPerson = Omit<Person,'translations'> & RouteFields;
+diff --git a/tests/contact-channels.test.ts b/tests/contact-channels.test.ts
+new file mode 100644
+index 0000000..221df4c
+--- /dev/null
++++ b/tests/contact-channels.test.ts
+@@ -0,0 +1,100 @@
++import {describe,expect,it} from 'vitest';
++import {settingsSchema} from '../packages/content/schemas.mjs';
++import {normalizeSettingsDocument} from '../packages/content/documents.mjs';
++import {localizeContent} from '../packages/content/localize.mjs';
++import {fixture,normalizedSettings,project,settingsDocument} from './fixtures/content/factory';
++import {contactChannels,phoneHref} from '../packages/content/contact.mjs';
++import {readContent} from '../packages/content/read.mjs';
++
++const emptySocial={instagram:'',linkedin:'',facebook:'',whatsapp:'',showInHeader:false};
++
++describe('shared social settings',()=>{
++ it.each([undefined,null,{}, {instagram:null,linkedin:null,facebook:null,whatsapp:null,showInHeader:null}, {instagram:'  ',linkedin:'',facebook:'\t',whatsapp:'\n'}])('normalizes native clear state %j',social=>{
++  expect(settingsSchema.parse({...normalizedSettings(),social}).social).toEqual(emptySocial);
++ });
++ it.each([true,false])('accepts actual header boolean %s',showInHeader=>{
++  expect(settingsSchema.parse({...normalizedSettings(),social:{showInHeader}}).social.showInHeader).toBe(showInHeader);
++ });
++ it.each([{showInHeader:'false'},{unknown:''}])('rejects invalid social fields %j',social=>{
++  expect(settingsSchema.safeParse({...normalizedSettings(),social}).success).toBe(false);
++ });
++ it('rejects translated social data',()=>{
++  const settings:any=normalizedSettings();settings.translations.el.social={instagram:''};
++  expect(settingsSchema.safeParse(settings).success).toBe(false);
++ });
++ it.each([undefined,null])('normalizes cleared optional phone/address %j',clear=>{
++  const settings:any=normalizedSettings();settings.contact.phone=clear;settings.contact.address=clear;settings.translations.el.contact.address=clear;
++  const parsed=settingsSchema.parse(settings);
++  expect(parsed.contact).toEqual({email:'hello@example.com',phone:'',address:''});
++  expect(parsed.translations.el.contact.address).toBe('');
++ });
++ it('preserves arbitrary existing phone display text and its length bound',()=>{
++  const settings=normalizedSettings();settings.contact.phone='Reception ext 2';
++  expect(settingsSchema.parse(settings).contact.phone).toBe('Reception ext 2');
++  settings.contact.phone='1'.repeat(101);expect(settingsSchema.safeParse(settings).success).toBe(false);
++ });
++ it('parses an existing document without inserting defaults into input',()=>{
++  const raw=settingsDocument();delete raw.social;const original=structuredClone(raw);
++  expect(normalizeSettingsDocument(raw).social).toEqual(emptySocial);expect(raw).toEqual(original);
++ });
++ it('retains detached equal shared settings in both locales',()=>{
++  const {root,write}=fixture();const raw=settingsDocument();raw.social={instagram:' https://www.instagram.com/example?view=1#profile ',linkedin:'',facebook:'',whatsapp:'+302101234567',showInHeader:true};write('settings/site.json',raw);
++  const source=readContent(root,project);const before=structuredClone(source);
++  const en=localizeContent(source,'en',project),el=localizeContent(source,'el',project);
++  const want={instagram:'https://www.instagram.com/example?view=1#profile',linkedin:'',facebook:'',whatsapp:'+302101234567',showInHeader:true};
++  expect(en.settings.social).toEqual(want);expect(el.settings.social).toEqual(want);
++  en.settings.social.instagram='';expect(el.settings.social).toEqual(want);expect(source).toEqual(before);
++ });
++});
++
++describe('platform destination validation',()=>{
++ const platforms=['instagram','linkedin','facebook'] as const;
++ for(const platform of platforms){
++  it.each([`https://${platform}.com`,`https://www.${platform}.com/example?view=1#profile`,`https://gr.${platform}.com/a%20b`,`https://${platform}.com:443/profile`])(`accepts ${platform} destination %s`,value=>{
++   const social:any={[platform]:` ${value} `};expect(settingsSchema.parse({...normalizedSettings(),social}).social[platform]).toBe(value);
++  });
++  it.each([`https://${platform}.com.evil.test`,`https://evil${platform}.com`,`http://${platform}.com`,`//${platform}.com`,`https://user@${platform}.com`,`https://${platform}.com:8443`,`javascript:alert(1)`,`https://${platform}.com/%0a`,`https://${platform}.com/%255c`,`https://${platform}.com/\\evil`,`https://${platform}.com/%00`,`https://${platform}.com/${'x'.repeat(2048)}`,...platforms.filter(other=>other!==platform).map(other=>`https://${other}.com/example`)])(`rejects ${platform} destination %s`,value=>{
++   const result=settingsSchema.safeParse({...normalizedSettings(),social:{[platform]:value}});expect(result.success).toBe(false);
++   if(!result.success)expect(result.error.issues.some(issue=>issue.path.join('.')===`social.${platform}`)).toBe(true);
++  });
++ }
++ it.each(['+12345678','+123456789012345'])('accepts international WhatsApp boundary %s',whatsapp=>{
++  expect(settingsSchema.parse({...normalizedSettings(),social:{whatsapp}}).social.whatsapp).toBe(whatsapp);
++ });
++ it.each(['2101234567','https://wa.me/302101234567','+30 2101234567','+012345678','+1234567','+1234567890123456',12345678])('rejects invalid WhatsApp value %s',whatsapp=>{
++  expect(settingsSchema.safeParse({...normalizedSettings(),social:{whatsapp}}).success).toBe(false);
++ });
++});
++
++describe('contact channel projection',()=>{
++ it.each([
++  ['+30 (210) 123-4567','tel:+302101234567'],[' +30 (210) 123-4567 ','tel:+302101234567'],['123','tel:123'],['1'.repeat(20),'tel:'+'1'.repeat(20)],[' (123).45-67 ','tel:1234567'],
++  ['',undefined],['   ',undefined],['Reception ext 2',undefined],['12',undefined],['1'.repeat(21),undefined],['12+345',undefined],['++123',undefined],['１２３',undefined],['123\n456',undefined],['123/456',undefined],
++ ])('projects phone %j to %s',async(value,want)=>{
++  expect(phoneHref(value)).toBe(want);
++ });
++ it('orders and safely projects all channels without mutating settings',async()=>{
++  
++  const settings={...normalizedSettings(),contact:{email:'hello?team#desk@example.com',phone:'+30 (210) 123-4567',address:'Studio\nAthens'},social:{instagram:'https://instagram.com/example',linkedin:'https://www.linkedin.com/company/example',facebook:'https://gr.facebook.com/example',whatsapp:'+302101234567',showInHeader:false}};
++  const before=structuredClone(settings);const actual=contactChannels(settings,'el');
++  expect(actual).toEqual({direct:[{id:'phone',label:'+30 (210) 123-4567',href:'tel:+302101234567',external:false},{id:'email',label:'hello?team#desk@example.com',href:'mailto:hello%3Fteam%23desk%40example.com',external:false}],social:[{id:'instagram',label:'Instagram',href:'https://instagram.com/example',external:true},{id:'linkedin',label:'LinkedIn',href:'https://www.linkedin.com/company/example',external:true},{id:'facebook',label:'Facebook',href:'https://gr.facebook.com/example',external:true},{id:'whatsapp',label:'WhatsApp',href:'https://wa.me/302101234567',external:true}],address:'Studio\nAthens'});
++  expect(actual.social.map((link:any)=>link.id)).toEqual(['instagram','linkedin','facebook','whatsapp']);
++  expect(settings).toEqual(before);actual.direct[0].label='changed';expect(settings).toEqual(before);
++ });
++ it.each(['','   '])('omits blank phone %j and empty groups',async phone=>{
++  const settings=settingsSchema.parse({...normalizedSettings(),contact:{email:'hello@example.com',phone,address:'   '}});
++  expect(contactChannels(settings,'en')).toEqual({direct:[{id:'email',label:'hello@example.com',href:'mailto:hello%40example.com',external:false}],social:[]});
++ });
++ it('keeps unsupported phone display text without inventing a destination',async()=>{
++  const settings=settingsSchema.parse({...normalizedSettings(),contact:{email:'hello@example.com',phone:'Reception ext 2',address:''}});
++  expect(contactChannels(settings,'en')).toEqual({direct:[{id:'email',label:'hello@example.com',href:'mailto:hello%40example.com',external:false}],social:[],phoneText:'Reception ext 2'});
++ });
++});
++
++it.each([
++ ['hello+team@example.com','mailto:hello%2Bteam%40example.com'],
++ ['hello?subject=x#desk@example.com','mailto:hello%3Fsubject%3Dx%23desk%40example.com'],
++])('encodes the entire mailbox %s without introducing URI parameters', (email,href)=>{
++ const settings={...normalizedSettings(),contact:{email,phone:'',address:''}};
++ expect(contactChannels(settings,'en').direct).toEqual([{id:'email',label:email,href,external:false}]);
++});
+\ No newline at end of file
+diff --git a/tests/fixtures/content/factory.ts b/tests/fixtures/content/factory.ts
+index 257469d..986af35 100644
+--- a/tests/fixtures/content/factory.ts
++++ b/tests/fixtures/content/factory.ts
+@@ -11,20 +11,21 @@ export const normalizedPage = (id='home',template='home',slug='') => ({
+  copy:{sections:{intro:{title:'Hello',description:'A **clear** introduction.'},[id==='privacy'?'privacy_details':'details']:{title:'More',body:'A useful paragraph.'}}},
+  translations:{el:{status:'published',meta:{title:'Σελίδα'},copy:{sections:{intro:{title:'Γεια',description:'Μια εισαγωγή.'},[id==='privacy'?'privacy_details':'details']:{title:'Περισσότερα',body:'Μια παράγραφος.'}}}}}
+ });
+ export const editorial = (kind='offering',id='sample') => ({
+  contentId:id,slug:id,status:'published',title:'A sample',description:'A **useful** summary.',body:'## Details\n\nUseful information.',
+  ...(kind==='person'?{role:'Guide'}:{}),
+  ...(kind==='article'?{publishAt:'2025-01-01T09:00:00Z'}:{}),
+  translations:{el:{status:'published',title:'Δείγμα',description:'Μια περίληψη.',body:'## Λεπτομέρειες',...(kind==='person'?{role:'Οδηγός'}:{}),...(kind==='article'?{publishAt:'2025-01-02T09:00:00Z'}:{})}}
+ });
+ export const normalizedSettings = () => ({
++ social:{instagram:'',linkedin:'',facebook:'',whatsapp:'',showInHeader:false},
+  brand:{name:'Example Studio',tagline:'Space for useful work'},legal:{businessName:'Example Studio',privacyVersion:'sample-v1',notice:'Example content for review.'},
+  contact:{email:'hello@example.com',phone:'',address:''},
+  navigation:[{label:'Home',pageId:'home'},{label:'Articles',pageId:'insights'}],
+  translations:{el:{brand:{tagline:'Χώρος για χρήσιμη εργασία'},legal:{notice:'Ενδεικτικό περιεχόμενο.'},contact:{address:''},navigation:{home:'Αρχική',insights:'Άρθρα'}}}
+ });
+ const dirs:string[]=[];
+ afterEach(()=>{for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+ export function fixture() {
+  const root=mkdtempSync(join(tmpdir(),'starter-content-'));dirs.push(root);
+  const write=(path:string,value:unknown)=>{const file=join(root,'content',path);mkdirSync(join(file,'..'),{recursive:true});writeFileSync(file,JSON.stringify(value));};
+@@ -37,13 +38,14 @@ export function fixture() {
+ }
+ 
+ // Domain helpers and serialized helpers are deliberately distinct.
+ export function pageDocument(id='home',template='home',slug='') {
+  const value:any=normalizedPage(id,template,slug);
+  for(const copy of [value.copy,...Object.values(value.translations).map((t:any)=>t.copy)])copy.sections=Object.entries(copy.sections).map(([id,copy]:any)=>({id,_template:value.sections.find((s:any)=>s.id===id)._template,...copy}));
+  return value;
+ }
+ export function settingsDocument() {
+  const value:any=normalizedSettings();
++ delete value.social;
+  for(const translation of Object.values(value.translations) as any[])translation.navigation=Object.entries(translation.navigation).map(([pageId,label])=>({pageId,label}));
+  return value;
+ }

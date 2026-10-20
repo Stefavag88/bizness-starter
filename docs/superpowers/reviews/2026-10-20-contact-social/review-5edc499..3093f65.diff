@@ -1,0 +1,301 @@
+# Review package: 5edc499cec99ead03e43f2cec1df30ef08e92071..3093f652d7cb5a988b1b8b0bd7008d716cc28633
+
+## Commits
+3093f65 feat(site): share contact details and social link placements
+
+## Files changed
+ apps/site/src/components/ui/ContactDetails.astro |  7 ++++
+ apps/site/src/components/ui/ContactIcon.astro    |  7 ++++
+ apps/site/src/components/ui/SocialLinks.astro    |  9 +++++
+ apps/site/src/layouts/Layout.astro               |  9 +++--
+ apps/site/src/styles/foundations.css             |  1 +
+ apps/site/src/styles/global.css                  |  2 ++
+ apps/site/src/templates/ContactForm.astro        | 11 +++++--
+ apps/site/tests/contact-social.test.ts           | 24 ++++++++++++++
+ apps/site/vitest.config.ts                       |  2 +-
+ docs/THIRD_PARTY_NOTICES.md                      | 40 ++++++++++++++++++++++
+ packages/design-system/contact-icons.d.mts       |  2 ++
+ packages/design-system/contact-icons.mjs         | 42 ++++++++++++++++++++++++
+ 12 files changed, 149 insertions(+), 7 deletions(-)
+
+## Diff
+diff --git a/apps/site/src/components/ui/ContactDetails.astro b/apps/site/src/components/ui/ContactDetails.astro
+new file mode 100644
+index 0000000..11c05ef
+--- /dev/null
++++ b/apps/site/src/components/ui/ContactDetails.astro
+@@ -0,0 +1,7 @@
++---
++import ContactIcon from './ContactIcon.astro';
++import type {ContactChannels} from '../../../../../packages/content/types';
++interface Props {channels:ContactChannels;locale:string}
++const {channels,locale}=Astro.props;
++---
++<div class="contact-details"><h2 class="contact-group-heading">{locale==='el'?'Στοιχεία επικοινωνίας':'Contact details'}</h2><ul class="contact-list">{channels.direct.map(link=><li><a class="contact-link" href={link.href}><ContactIcon name={link.id}/><span>{link.label}</span></a></li>)}{channels.phoneText&&<li class="contact-text"><ContactIcon name="phone"/><span>{channels.phoneText}</span></li>}{channels.address&&<li class="contact-text contact-address"><ContactIcon name="address"/><span>{channels.address}</span></li>}</ul></div>
+diff --git a/apps/site/src/components/ui/ContactIcon.astro b/apps/site/src/components/ui/ContactIcon.astro
+new file mode 100644
+index 0000000..31b1bc7
+--- /dev/null
++++ b/apps/site/src/components/ui/ContactIcon.astro
+@@ -0,0 +1,7 @@
++---
++import {contactIcons} from '../../../../../packages/design-system/contact-icons.mjs';
++import type {ContactLink} from '../../../../../packages/content/types';
++interface Props {name:ContactLink['id']|'address'}
++const {name}=Astro.props;
++---
++<svg class="contact-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">{contactIcons[name].map(path=><path d={path.d} fill-rule={path.fillRule}/>)}</svg>
+diff --git a/apps/site/src/components/ui/SocialLinks.astro b/apps/site/src/components/ui/SocialLinks.astro
+new file mode 100644
+index 0000000..e0523bf
+--- /dev/null
++++ b/apps/site/src/components/ui/SocialLinks.astro
+@@ -0,0 +1,9 @@
++---
++import ContactIcon from './ContactIcon.astro';
++import type {ContactLink} from '../../../../../packages/content/types';
++interface Props {links:ContactLink[];locale:string;variant:'labeled'|'icons'}
++const {links,locale,variant}=Astro.props;
++const heading=locale==='el'?'Ακολουθήστε μας':'Follow us';
++const newTab=locale==='el'?'ανοίγει σε νέα καρτέλα':'opens in a new tab';
++---
++{links.length>0&&<div class:list={['social-group',`social-${variant}`]}>{variant==='labeled'&&<h2 class="contact-group-heading">{heading}</h2>}<nav class="social-links" aria-label={heading}>{links.map(link=><a class="social-link" href={link.href} target={link.external?'_blank':undefined} rel={link.external?'noopener noreferrer':undefined}><ContactIcon name={link.id}/><span class={variant==='icons'?'visually-hidden':undefined}>{link.label}{link.external&&<span class="visually-hidden"> ({newTab})</span>}</span></a>)}</nav></div>}
+diff --git a/apps/site/src/layouts/Layout.astro b/apps/site/src/layouts/Layout.astro
+index 4e04f2f..59a3588 100644
+--- a/apps/site/src/layouts/Layout.astro
++++ b/apps/site/src/layouts/Layout.astro
+@@ -1,17 +1,20 @@
+ ---
+ import '../styles/foundations.css';
+ import '../styles/themes.generated.css';
+ import '../styles/global.css';
+ import '@fontsource/noto-sans/400.css';
+ import '@fontsource/noto-sans/600.css';
++import ContactDetails from '../components/ui/ContactDetails.astro';
++import SocialLinks from '../components/ui/SocialLinks.astro';
++import {contactChannels} from '../../../../packages/content/contact.mjs';
+ import RichText from '../components/ui/RichText.astro';
+ import {project} from '../lib/content';
+ import type {LocalizedContent,Alternate} from '../../../../packages/content/types';
+ interface Props {content:LocalizedContent;title:string;description:string;path:string;alternates:Alternate[];noindex?:boolean}
+-const {content,title,description,path,alternates,noindex=false}=Astro.props;const {settings,locale}=content;const el=locale==='el';
++const {content,title,description,path,alternates,noindex=false}=Astro.props;const {settings,locale}=content;const el=locale==='el';const channels=contactChannels(settings,locale);
+ ---
+ <!doctype html><html lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>{title} | {settings.brand.name}</title><meta name="description" content={description}/><link rel="canonical" href={project.siteUrl+path}/>{noindex&&<meta name="robots" content="noindex"/>}{alternates.map(a=><link rel="alternate" hreflang={a.locale} href={project.siteUrl+a.path}/>)}{content.feedPath&&<link rel="alternate" type="application/rss+xml" title={settings.brand.name} href={content.feedPath}/>}</head><body>
+ <a class="skip" href="#main">{el?'Μετάβαση στο περιεχόμενο':'Skip to content'}</a>
+-<header class="wrap"><a class="brand" href={content.pages.find(p=>p._template==='home')?.path}>{settings.brand.name}</a><nav aria-label={el?'Κύρια πλοήγηση':'Main navigation'}>{settings.navigation.map(n=><a href={content.pages.find(p=>p.contentId===n.pageId)!.path} aria-current={content.pages.find(p=>p.contentId===n.pageId)?.path===path?'page':undefined}>{n.label}</a>)}</nav><nav aria-label={el?'Γλώσσα':'Language'}>{alternates.map(a=><a href={a.path} lang={a.locale} hreflang={a.locale} aria-current={a.locale===locale?'true':undefined}>{project.languages.find(l=>l.code===a.locale)?.label}</a>)}</nav></header>
+-<main id="main"><slot/></main><footer class="wrap"><p>{settings.brand.tagline}</p><p>{settings.legal.businessName}</p><RichText body={settings.legal.notice} locale={locale}/><a href={content.pages.find(p=>p.contentId==='privacy')?.path}>{el?'Απόρρητο':'Privacy'}</a> · <a href={'mailto:'+settings.contact.email}>{settings.contact.email}</a></footer>
++<header class="wrap"><a class="brand" href={content.pages.find(p=>p._template==='home')?.path}>{settings.brand.name}</a><nav aria-label={el?'Κύρια πλοήγηση':'Main navigation'}>{settings.navigation.map(n=><a href={content.pages.find(p=>p.contentId===n.pageId)!.path} aria-current={content.pages.find(p=>p.contentId===n.pageId)?.path===path?'page':undefined}>{n.label}</a>)}</nav><nav aria-label={el?'Γλώσσα':'Language'}>{alternates.map(a=><a href={a.path} lang={a.locale} hreflang={a.locale} aria-current={a.locale===locale?'true':undefined}>{project.languages.find(l=>l.code===a.locale)?.label}</a>)}</nav>{settings.social.showInHeader&&<SocialLinks links={channels.social} locale={locale} variant="icons"/>}</header>
++<main id="main"><slot/></main><footer class="wrap"><div class="footer-groups"><div class="footer-identity"><p>{settings.brand.tagline}</p><p>{settings.legal.businessName}</p><RichText body={settings.legal.notice} locale={locale}/><a href={content.pages.find(p=>p.contentId==='privacy')?.path}>{el?'Απόρρητο':'Privacy'}</a></div><ContactDetails channels={channels} locale={locale}/><SocialLinks links={channels.social} locale={locale} variant="labeled"/></div></footer>
+ </body></html>
+diff --git a/apps/site/src/styles/foundations.css b/apps/site/src/styles/foundations.css
+index 9ab197e..cefd792 100644
+--- a/apps/site/src/styles/foundations.css
++++ b/apps/site/src/styles/foundations.css
+@@ -1,2 +1,3 @@
+ :root {--space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-6:1.5rem;--space-8:2rem;--space-12:3rem;--content-width:72rem;--reading-width:44rem;}
+ *{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0}img,svg{max-width:100%}button,input,select,textarea{font:inherit}a{overflow-wrap:anywhere}h1,h2,h3,p{overflow-wrap:anywhere}button,a,input,textarea,select{touch-action:manipulation}
++:root{--contact-icon-size:1.125rem;--social-icon-size:1.25rem;--contact-link-gap:.625rem;--social-link-gap:.5rem;--contact-link-target:44px;--contact-aside-width:22rem}
+diff --git a/apps/site/src/styles/global.css b/apps/site/src/styles/global.css
+index d2523ce..7ee1e04 100644
+--- a/apps/site/src/styles/global.css
++++ b/apps/site/src/styles/global.css
+@@ -1,8 +1,10 @@
+ :root{--density-factor:1;--section-space-effective:calc(var(--section-space) * var(--density-factor))}html[data-density="compact"]{--density-factor:.75}html[data-density="spacious"]{--density-factor:1.25}
+ body{background:var(--color-surface);color:var(--color-text-primary);font:1.0625rem/1.65 var(--font-body)}h1,h2,h3{font-family:var(--font-heading);font-weight:600;line-height:1.2;letter-spacing:-.025em}h1{font-size:clamp(2.3rem,5.5vw,4.5rem);max-width:20ch;margin:0 0 var(--space-6)}h2{font-size:clamp(1.65rem,3vw,2.5rem);max-width:32ch;margin:0 0 var(--space-6)}h3{font-size:1.35rem}a{color:var(--color-brand-accent);text-underline-offset:.2em}a:hover{text-decoration-thickness:2px}:focus-visible{outline:3px solid var(--color-focus);outline-offset:4px}.wrap{max-width:var(--content-width);padding-inline:clamp(1.25rem,4vw,3rem);margin-inline:auto}header{display:flex;align-items:center;flex-wrap:wrap;gap:1rem 2rem;padding-block:1.4rem;border-bottom:1px solid var(--color-border)}.brand{font-weight:600;text-decoration:none;color:var(--color-text-primary);margin-right:auto}nav{display:flex;gap:.5rem 1rem;flex-wrap:wrap}nav a{padding:.5rem 0;min-height:44px;display:inline-flex;align-items:center}nav [aria-current]{font-weight:600}section{padding-block:var(--section-space-effective)}[data-surface="muted"]{background:var(--color-surface-muted)}[data-surface="accent"]{background:var(--color-notice-surface)}.description{max-width:var(--reading-width);color:var(--color-text-muted);margin-block:0 var(--space-6)}.hero{padding-block:clamp(4rem,9vw,8rem)}.hero .description{font-size:1.2rem;max-width:52ch}.button,button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.7rem 1.2rem;color:var(--color-on-action);background:var(--color-action-primary);border:1px solid transparent;border-radius:var(--radius-control);font-weight:600;text-decoration:none;cursor:pointer}.button:hover,button:hover{background:var(--color-action-hover)}button:disabled{opacity:.7;cursor:wait}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:var(--space-8)}.card{border-top:1px solid var(--color-border);padding-block:var(--space-4)}.card h3 a{color:var(--color-text-primary)}.prose{max-width:var(--reading-width)}.prose h2,.prose h3{margin-top:2rem}.prose p,.prose ul,.prose ol{margin-block:1.2rem}.editorial,.page-title{padding-block:4rem}.editorial{max-width:58rem}footer{padding-block:3rem;border-top:1px solid var(--color-border);color:var(--color-text-muted)}form{max-width:38rem}.field{display:grid;gap:.4rem;margin-block:1rem}.field label{font-weight:600}input:not([type="checkbox"]),select,textarea{width:100%;min-height:48px;background:var(--color-surface);color:var(--color-text-primary);border:1px solid var(--color-control-border);border-radius:var(--radius-control);padding:.65rem}.check{display:flex;align-items:baseline;gap:.5rem;margin-block:1.25rem}.check input{width:1.2rem;height:1.2rem;flex-shrink:0}.field-error{color:var(--color-feedback-error)}.skip{position:absolute;top:-10rem;left:1rem;padding:1rem;background:var(--color-surface);z-index:2}.skip:focus{top:1rem}@media(max-width:640px){header{align-items:flex-start}header nav{width:100%}:root{--section-space-effective:calc(var(--section-space-mobile) * var(--density-factor))}.check{flex-wrap:wrap}.editorial{padding-block:3rem}}
+ 
+ html[lang="el"] body{font-family:var(--font-greek-body)}html[lang="el"] h1,html[lang="el"] h2,html[lang="el"] h3{font-family:var(--font-greek-heading)}footer>a,.brand{display:inline-flex;align-items:center;min-height:44px}.card h3 a{display:inline-flex;align-items:center;min-height:44px}
+ 
+ .faq-items{max-width:var(--reading-width)}.faq-item{border-top:1px solid var(--color-border);padding-block:var(--space-6)}.faq-item summary{font-family:var(--font-heading);font-weight:600;font-size:1.2rem;cursor:pointer;padding-block:var(--space-4);overflow-wrap:anywhere}.faq-item h3{margin-top:0}.steps{display:grid;gap:var(--space-8);padding-inline-start:1.8rem}.steps>li{padding-inline-start:var(--space-4);overflow-wrap:anywhere}.steps h3{margin-top:0}.steps-cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}.steps-cards>li{border:1px solid var(--color-border);border-radius:var(--radius-control);padding:var(--space-6);margin-inline-start:var(--space-4)}
+ 
+ .section-image{margin:0;min-width:0}.image-frame{overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted)}.frame-landscape{aspect-ratio:3/2}.frame-gallery{aspect-ratio:4/3}.image-frame picture{display:block;width:100%;height:100%}.image-frame img{display:block;width:100%;height:100%;object-fit:cover}.crop-center{object-position:center}.crop-top{object-position:center top}.crop-bottom{object-position:center bottom}.section-image figcaption{color:var(--color-text-muted);font-size:.95rem;margin-top:var(--space-4);overflow-wrap:anywhere}.media-text{display:grid;gap:var(--space-8);align-items:start}.media-text-copy{min-width:0;overflow-wrap:anywhere}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:var(--space-8);list-style:none;padding:0;margin:0}.gallery>li{min-width:0}@media(min-width:768px){.media-text-with-image{grid-template-columns:repeat(2,minmax(0,1fr));align-items:center}.media-text-reversed>.section-image{grid-column:2;grid-row:1}.media-text-reversed>.media-text-copy{grid-column:1;grid-row:1}.gallery-featured{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery-featured>li:first-child{grid-column:1/-1}}
++
++.contact-layout{display:grid;gap:var(--space-12);align-items:start}.contact-layout>form{width:100%;min-width:0}.contact-aside{display:grid;gap:var(--space-8);min-width:0}.contact-group-heading{font-size:1.2rem;margin:0 0 var(--space-4);letter-spacing:normal}.contact-list{list-style:none;padding:0;margin:0;display:grid;gap:var(--space-2)}.contact-link,.contact-text{display:flex;align-items:center;gap:var(--contact-link-gap);min-height:var(--contact-link-target);min-width:0}.contact-link>span,.contact-text>span{min-width:0;overflow-wrap:anywhere}.contact-text{align-items:flex-start;padding-block:var(--space-2)}.contact-address span{white-space:pre-line}.contact-icon{width:var(--contact-icon-size);height:var(--contact-icon-size);flex:none}.contact-text .contact-icon{margin-top:.3rem}.social-links{display:flex;flex-direction:column;gap:var(--social-link-gap)}.social-link{display:inline-flex;align-items:center;gap:var(--social-link-gap);min-width:var(--contact-link-target);min-height:var(--contact-link-target);border-radius:var(--radius-control)}.social-link .contact-icon{width:var(--social-icon-size);height:var(--social-icon-size)}.social-icons .social-links{flex-direction:row;flex-wrap:wrap}.social-icons .social-link{justify-content:center;padding:var(--space-2)}.footer-groups{display:flex;flex-wrap:wrap;gap:var(--space-8) var(--space-12);align-items:flex-start}.footer-groups>div{min-width:0;flex:1 1 14rem}.footer-groups>.footer-identity{flex-basis:22rem}.footer-identity>p:first-child{margin-top:0}.footer-identity>a{display:inline-flex;align-items:center;min-height:var(--contact-link-target)}.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}@media(min-width:56rem){.contact-layout{grid-template-columns:minmax(0,1fr) minmax(0,var(--contact-aside-width))}}
+diff --git a/apps/site/src/templates/ContactForm.astro b/apps/site/src/templates/ContactForm.astro
+index 7b7cd0c..23d4840 100644
+--- a/apps/site/src/templates/ContactForm.astro
++++ b/apps/site/src/templates/ContactForm.astro
+@@ -1,32 +1,37 @@
+ ---
+ import {getEnquiryContexts} from '../../../../packages/content/enquiry-contexts.mjs';
++import ContactDetails from '../components/ui/ContactDetails.astro';
++import SocialLinks from '../components/ui/SocialLinks.astro';
++import {contactChannels} from '../../../../packages/content/contact.mjs';
+ import Field from '../components/ui/Field.astro';
+ import type {LocalizedContent} from '../../../../packages/content/types';
+ import {project} from '../lib/content';
+ interface Props {content:LocalizedContent}
+ const {content}=Astro.props;const el=content.locale==='el';
+ const contexts=getEnquiryContexts(content);
++const channels=contactChannels(content.settings,content.locale);
++const email=channels.direct.find(link=>link.id==='email')!;
+ ---
+ <section><div class="wrap"><h2>{el?'Ας μιλήσουμε':'Let’s talk'}</h2><p>{el?'Τα πεδία με * είναι υποχρεωτικά.':'Fields marked * are required.'}</p>
+-<form id="contact-form" action="/api/contact" method="post" data-locale={content.locale}>
++<div class="contact-layout"><form id="contact-form" action="/api/contact" method="post" data-locale={content.locale}>
+ <Field name="name" label={el?'Όνομα':'Name'} required maxlength={120} autocomplete="name"/>
+ <Field name="email" label={el?'Email':'Email'} type="email" required maxlength={254} autocomplete="email"/>
+ <Field name="phone" label={el?'Τηλέφωνο':'Phone'} type="tel" maxlength={40} autocomplete="tel"/>
+ <div class="field"><label for="contextId">{el?'Θέμα ενδιαφέροντος':'Area of interest'}</label><select id="contextId" name="contextId"><option value="">{el?'Γενική ερώτηση':'General enquiry'}</option>{contexts.map(context=><option value={context.id}>{context.title}</option>)}</select></div>
+ <Field name="message" label={el?'Μήνυμα':'Message'} required minlength={20} maxlength={5000} multiline/>
+ <label class="check"><input type="checkbox" name="privacyAccepted" id="privacyAccepted" aria-describedby="privacyAccepted-error" required/>{el?'Έχω διαβάσει την':'I have read the'} <a href={'/'+content.locale+'/privacy'}>{el?'πολιτική απορρήτου':'privacy notice'}</a> *</label><span id="privacyAccepted-error" class="field-error"></span>
+ {project.profile!=='enquiries'&&<><label class="check"><input type="checkbox" name="marketingConsent"/>{el?'Θέλω να λαμβάνω ενημερώσεις μέσω email (προαιρετικό).':'Send me useful email updates (optional).'}</label><div class="field"><label for="interest">{el?'Ενημερώσεις':'Updates'}</label><select name="interest" id="interest">{project.interests.map(i=><option value={i.id}>{i.label}</option>)}</select></div></>}
+ <input type="hidden" name="turnstileToken" value="local-preview"/>
+ <div id="form-errors" tabindex="-1" role="alert" hidden></div><button type="submit">{el?'Αποστολή μηνύματος':'Send message'}</button><p id="form-status" role="status" aria-live="polite"></p>
+-<noscript><p>{el?'Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email.':'This form needs JavaScript. You can also email us directly.'} <a href={'mailto:'+content.settings.contact.email}>{content.settings.contact.email}</a></p></noscript>
+-</form></div></section>
++<noscript><p>{el?'Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email.':'This form needs JavaScript. You can also email us directly.'} <a href={email.href}>{email.label}</a></p></noscript>
++</form><aside class="contact-aside"><ContactDetails channels={channels} locale={content.locale}/><SocialLinks links={channels.social} locale={content.locale} variant="labeled"/></aside></div></div></section>
+ <script>
+ const form=document.querySelector<HTMLFormElement>('#contact-form');
+ if(form){
+  const context=form.querySelector<HTMLSelectElement>('#contextId')!;
+  const requestedContext=new URLSearchParams(location.search).get('contextId');
+  if(requestedContext&&Array.from(context.options).some(option=>option.value===requestedContext))context.value=requestedContext;
+  form.noValidate=true;
+  let requestKey=crypto.randomUUID();
+  const el=form.dataset.locale==='el';
+  const summary=form.querySelector<HTMLElement>('#form-errors')!;
+diff --git a/apps/site/tests/contact-social.test.ts b/apps/site/tests/contact-social.test.ts
+new file mode 100644
+index 0000000..c84dabd
+--- /dev/null
++++ b/apps/site/tests/contact-social.test.ts
+@@ -0,0 +1,24 @@
++import {it,expect} from 'vitest';
++import {experimental_AstroContainer as AstroContainer} from 'astro/container';
++import Layout from '../src/layouts/Layout.astro';
++import ContactForm from '../src/templates/ContactForm.astro';
++import {contents} from '../src/lib/content';
++const fixture=(locale:string,showInHeader=false)=>{const content=structuredClone(contents.find(c=>c.locale===locale)!);content.settings.contact={email:'hello+team?subject=x@example.com',phone:'+30 (210) 123-4567',address:'First <script>\nSecond & third'};content.settings.social={instagram:'https://instagram.com/example',linkedin:'https://linkedin.com/company/example',facebook:'https://facebook.com/example',whatsapp:'+302101234567',showInHeader};return content;};
++const social=['https://instagram.com/example','https://linkedin.com/company/example','https://facebook.com/example','https://wa.me/302101234567'];
++function links(html:string){return [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map(m=>({attributes:m[1],body:m[2]}));}
++it.each(['en','el'])('renders shared labeled Contact and footer destinations in %s with safe text and decorative icons',async locale=>{
++ const container=await AstroContainer.create();const content=fixture(locale);const form=await container.renderToString(ContactForm,{props:{content}});const layout=await container.renderToString(Layout,{props:{content,title:'Fixture',description:'Fixture',path:'/'+locale,alternates:content.pages[0].alternates}});const footer=layout.match(/<footer\b[^>]*>([\s\S]*?)<\/footer>/)![1];
++ for(const html of [form,footer]){expect(html).toContain('href="tel:+302101234567"');expect(html).toContain('href="mailto:hello%2Bteam%3Fsubject%3Dx%40example.com"');expect(html).toContain('First &lt;script&gt;');expect(html).toContain('Second &amp; third');expect(html).toContain(locale==='el'?'Στοιχεία επικοινωνίας':'Contact details');expect(html).toContain(locale==='el'?'Ακολουθήστε μας':'Follow us');
++ for(const href of social){const link=links(html).find(a=>a.attributes.includes('href="'+href+'"'))!;expect(link).toBeDefined();expect(link.attributes).toContain('target="_blank"');expect(link.attributes).toContain('rel="noopener noreferrer"');expect(link.body).toContain(locale==='el'?'ανοίγει σε νέα καρτέλα':'opens in a new tab');expect(link.body).not.toMatch(/<span class="visually-hidden">(?:Instagram|LinkedIn|Facebook|WhatsApp)/);}
++ for(const link of links(html).filter(a=>/href="(?:tel:|mailto:)/.test(a.attributes)))expect(link.attributes).not.toMatch(/target=|rel=/);
++ const svgs=[...html.matchAll(/<svg\b([^>]*)>/g)];expect(svgs.length).toBe(7);for(const [,attrs]of svgs){expect(attrs).toContain('aria-hidden="true"');expect(attrs).toContain('focusable="false"');expect(attrs).toContain('width="16"');expect(attrs).toContain('height="16"');expect(attrs).toContain('fill="currentColor"');}expect(html).not.toMatch(/<script>|<img|<use\b/);
++ }
++ expect(form.indexOf('<form')).toBeLessThan(form.indexOf('<aside'));expect(form).toContain('action="/api/contact" method="post"');for(const name of ['name','email','message','privacyAccepted'])expect(form).toMatch(new RegExp('<(?:input|textarea)[^>]*name="'+name+'"[^>]*required'));
++ expect(footer).toContain(content.settings.brand.tagline);expect(footer).toContain(content.settings.legal.businessName);expect(footer).toContain('/'+locale+'/privacy');expect(layout.match(/<header[\s\S]*?<\/header>/)![0]).not.toContain('instagram.com');
++});
++it.each(['en','el'])('shows only configured header icons when enabled in %s, retaining navigation and language',async locale=>{
++ const container=await AstroContainer.create();const content=fixture(locale,true);content.settings.social.linkedin='';content.settings.social.facebook='';const html=await container.renderToString(Layout,{props:{content,title:'Fixture',description:'Fixture',path:'/'+locale,alternates:content.pages[0].alternates}});const header=html.match(/<header[\s\S]*?<\/header>/)![0];expect(header).toContain('aria-label="'+(locale==='el'?'Ακολουθήστε μας':'Follow us')+'"');expect(header).toContain('class="visually-hidden">Instagram');expect(header).toContain('class="visually-hidden">WhatsApp');expect(header).not.toMatch(/linkedin.com|facebook.com/);expect(header).toContain(locale==='el'?'Κύρια πλοήγηση':'Main navigation');expect(header).toContain(locale==='el'?'Γλώσσα':'Language');expect(header).toContain(locale==='el'?'ανοίγει σε νέα καρτέλα':'opens in a new tab');
++});
++it('omits all empty social groups and address while keeping unsupported phone as escaped text',async()=>{
++ const container=await AstroContainer.create();const content=fixture('en',true);content.settings.social={instagram:'',linkedin:'',facebook:'',whatsapp:'',showInHeader:true};content.settings.contact.address='';content.settings.contact.phone='Ask <desk> & team';const form=await container.renderToString(ContactForm,{props:{content}});const layout=await container.renderToString(Layout,{props:{content,title:'Fixture',description:'Fixture',path:'/en',alternates:[]}});for(const html of [form,layout]){expect(html).not.toContain('Follow us');expect(html).not.toContain('href="tel:');expect(html).toContain('Ask &lt;desk&gt; &amp; team');expect(html).not.toContain('contact-address');}
++});
+diff --git a/apps/site/vitest.config.ts b/apps/site/vitest.config.ts
+index 30a2222..22b8d50 100644
+--- a/apps/site/vitest.config.ts
++++ b/apps/site/vitest.config.ts
+@@ -1,5 +1,5 @@
+ import {getViteConfig} from 'astro/config';
+ import {fileURLToPath} from 'node:url';
+ const root=fileURLToPath(new URL('./',import.meta.url));
+-const config={root,test:{include:['tests/footer.test.ts','tests/showcase.test.ts','tests/composition-b.test.ts','tests/composition-b-media.test.ts','tests/domain-rendering.test.ts','tests/rooms.test.ts','tests/media-optimization.test.ts']}};
++const config={root,test:{include:['tests/contact-social.test.ts','tests/footer.test.ts','tests/showcase.test.ts','tests/composition-b.test.ts','tests/composition-b-media.test.ts','tests/domain-rendering.test.ts','tests/rooms.test.ts','tests/media-optimization.test.ts']}};
+ export default getViteConfig(config,{root});
+diff --git a/docs/THIRD_PARTY_NOTICES.md b/docs/THIRD_PARTY_NOTICES.md
+new file mode 100644
+index 0000000..d05c8b5
+--- /dev/null
++++ b/docs/THIRD_PARTY_NOTICES.md
+@@ -0,0 +1,40 @@
++# Third-party notices
++
++## Bootstrap Icons subset
++
++Source: https://github.com/twbs/icons/tree/ce0e49dd063243118a115f17ad1fe1fe7576d552 (v1.13.1). The GitHub commit endpoint verified this exact commit on 2026-10-19. Seven original SVGs were fetched only from the pinned raw.githubusercontent.com paths below. SHA256 values describe their original UTF-8 bytes. Only path d and optional fill-rule are retained in contact-icons.mjs; dimensions, currentColor and decorative accessibility attributes are supplied by ContactIcon.astro. No remote assets are requested at runtime. Logo usage is not a legal certification.
++
++| Upstream source path | SHA256 |
++| --- | --- |
++| `icons/telephone.svg` | `00eb2fbe421d2c50a5cdabfa837a8e0dc45b65cf91c69fe5970fe5885aa52aa1` |
++| `icons/envelope.svg` | `46354ede34e6acffd9828377884007ae3090db3b892e4b4a8fb8eec3e1017d63` |
++| `icons/geo-alt.svg` | `04ea4a9f3df177701826a941c77119eedce03e102f0f7697d77ae10ff453cb08` |
++| `icons/instagram.svg` | `19e53b107d19b81cc92217e9389b5d1cf98a7637ed965a5d07d6e84e8d200cb0` |
++| `icons/linkedin.svg` | `ddcbb2735eea12f090ea0ee371d1b9a3462531dc11efd0e944adc2d38c71e2df` |
++| `icons/facebook.svg` | `fccefddbce24b7acef96fcdb75aa9bc37dc1d6e725efa8b32eca6b619ff153ff` |
++| `icons/whatsapp.svg` | `dc1de80c69f87f91ff4570e40baf8ff824a6fb81e617a9e054c26907cd608647` |
++| `LICENSE` | `0fb3e11bd57e896c5a512afd64864d28a37de45d19835016c87ca1ad19ead969` |
++
++### Full upstream MIT license
++
++The MIT License (MIT)
++
++Copyright (c) 2019-2024 The Bootstrap Authors
++
++Permission is hereby granted, free of charge, to any person obtaining a copy
++of this software and associated documentation files (the "Software"), to deal
++in the Software without restriction, including without limitation the rights
++to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++copies of the Software, and to permit persons to whom the Software is
++furnished to do so, subject to the following conditions:
++
++The above copyright notice and this permission notice shall be included in
++all copies or substantial portions of the Software.
++
++THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
++THE SOFTWARE.
+diff --git a/packages/design-system/contact-icons.d.mts b/packages/design-system/contact-icons.d.mts
+new file mode 100644
+index 0000000..3bac904
+--- /dev/null
++++ b/packages/design-system/contact-icons.d.mts
+@@ -0,0 +1,2 @@
++import type {ContactLink} from '../content/types';
++export const contactIcons:Readonly<Record<ContactLink['id']|'address',readonly {d:string;fillRule?:'evenodd'|'nonzero'}[]>>;
+diff --git a/packages/design-system/contact-icons.mjs b/packages/design-system/contact-icons.mjs
+new file mode 100644
+index 0000000..f181a36
+--- /dev/null
++++ b/packages/design-system/contact-icons.mjs
+@@ -0,0 +1,42 @@
++// Bootstrap Icons v1.13.1, commit ce0e49dd063243118a115f17ad1fe1fe7576d552. Full license and source hashes: docs/THIRD_PARTY_NOTICES.md.
++// Static allowlist: never accepts markup or URLs from content.
++export const contactIcons = Object.freeze({
++  "phone": [
++    {
++      "d": "M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"
++    }
++  ],
++  "email": [
++    {
++      "d": "M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"
++    }
++  ],
++  "address": [
++    {
++      "d": "M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"
++    },
++    {
++      "d": "M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"
++    }
++  ],
++  "instagram": [
++    {
++      "d": "M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"
++    }
++  ],
++  "linkedin": [
++    {
++      "d": "M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"
++    }
++  ],
++  "facebook": [
++    {
++      "d": "M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"
++    }
++  ],
++  "whatsapp": [
++    {
++      "d": "M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"
++    }
++  ]
++});

@@ -1,0 +1,55 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/contact-channels.test.ts (100 tests | 2 failed) 82ms
+   ❯ contact channel projection (19)
+     × projects phone " +30 (210) 123-4567 " to tel:+302101234567 4ms
+   × encodes the entire mailbox sales%team@example.com without introducing URI parameters 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone " +30 (210) 123-4567 " to tel:+302101234567
+AssertionError: expected undefined to be 'tel:+302101234567' // Object.is equality
+
+- Expected:
+"tel:+302101234567"
+
++ Received:
+undefined
+
+ ❯ tests/contact-channels.test.ts:74:28
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/contact-channels.test.ts > encodes the entire mailbox sales%team@example.com without introducing URI parameters
+AssertionError: expected [] to deeply equal [ { id: 'email', …(3) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "external": false,
+-     "href": "mailto:sales%25team%40example.com",
+-     "id": "email",
+-     "label": "sales%team@example.com",
+-   },
+- ]
++ []
+
+ ❯ tests/contact-channels.test.ts:100:48
+     98| ])('encodes the entire mailbox %s without introducing URI parameters',…
+     99|  const settings={...normalizedSettings(),contact:{email,phone:'',addre…
+    100|  expect(contactChannels(settings,'en').direct).toEqual([{id:'email',la…
+       |                                                ^
+    101| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 98 passed (100)
+   Start at  22:44:33
+   Duration  645ms (import 49%, transform 32%, tests 18%, worker 1%)
+

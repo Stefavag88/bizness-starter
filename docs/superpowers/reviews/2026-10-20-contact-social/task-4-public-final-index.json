@@ -1,0 +1,206 @@
+{
+  "invocation": {
+    "executable": "C:\\Program Files\\nodejs\\node.exe",
+    "args": [
+      "C:\\Projects\\bizness-starter-v2\\scripts\\verify-contact-social.mjs",
+      "--public"
+    ],
+    "cwd": "C:\\Projects\\bizness-starter-v2",
+    "pid": 18184,
+    "started": "2026-10-20T04:08:06.950Z",
+    "ended": "2026-10-20T04:09:20.922Z",
+    "exitCode": 0
+  },
+  "fixtures": [
+    {
+      "mode": "none",
+      "evidence": ".generated\\media-optimization\\acceptance-RwqtcL\\none",
+      "owner": "C:\\Projects\\bizness-starter-v2\\.generated\\media-optimization\\acceptance-fixture-DeXBdY",
+      "builds": {
+        "directory": ".generated\\media-optimization\\acceptance-XX2Ept",
+        "commands": [
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:08:08.761Z",
+            "ended": "2026-10-20T04:08:12.347Z",
+            "pid": 39448,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-1.log"
+          },
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:08:20.393Z",
+            "ended": "2026-10-20T04:08:23.905Z",
+            "pid": 32820,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-2.log"
+          }
+        ],
+        "restoration": true
+      },
+      "contexts": 12
+    },
+    {
+      "mode": "all-off",
+      "evidence": ".generated\\media-optimization\\acceptance-RwqtcL\\all-off",
+      "owner": "C:\\Projects\\bizness-starter-v2\\.generated\\media-optimization\\acceptance-fixture-csOVx8",
+      "builds": {
+        "directory": ".generated\\media-optimization\\acceptance-Dvjj0K",
+        "commands": [
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:08:23.989Z",
+            "ended": "2026-10-20T04:08:27.493Z",
+            "pid": 39168,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-1.log"
+          },
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:08:34.758Z",
+            "ended": "2026-10-20T04:08:38.236Z",
+            "pid": 25744,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-2.log"
+          }
+        ],
+        "restoration": true
+      },
+      "contexts": 12
+    },
+    {
+      "mode": "all-on",
+      "evidence": ".generated\\media-optimization\\acceptance-RwqtcL\\all-on",
+      "owner": "C:\\Projects\\bizness-starter-v2\\.generated\\media-optimization\\acceptance-fixture-MQdJre",
+      "builds": {
+        "directory": ".generated\\media-optimization\\acceptance-hVnzYw",
+        "commands": [
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:08:38.318Z",
+            "ended": "2026-10-20T04:08:41.803Z",
+            "pid": 33888,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-1.log"
+          },
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:08:49.243Z",
+            "ended": "2026-10-20T04:08:52.722Z",
+            "pid": 15512,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-2.log"
+          }
+        ],
+        "restoration": true
+      },
+      "contexts": 12
+    },
+    {
+      "mode": "one",
+      "evidence": ".generated\\media-optimization\\acceptance-RwqtcL\\one",
+      "owner": "C:\\Projects\\bizness-starter-v2\\.generated\\media-optimization\\acceptance-fixture-NwWaaT",
+      "builds": {
+        "directory": ".generated\\media-optimization\\acceptance-J8Dzlg",
+        "commands": [
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:08:52.802Z",
+            "ended": "2026-10-20T04:08:56.253Z",
+            "pid": 13832,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-1.log"
+          },
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:09:02.865Z",
+            "ended": "2026-10-20T04:09:06.421Z",
+            "pid": 38260,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-2.log"
+          }
+        ],
+        "restoration": true
+      },
+      "contexts": 12
+    },
+    {
+      "mode": "long",
+      "evidence": ".generated\\media-optimization\\acceptance-RwqtcL\\long",
+      "owner": "C:\\Projects\\bizness-starter-v2\\.generated\\media-optimization\\acceptance-fixture-afoFIg",
+      "builds": {
+        "directory": ".generated\\media-optimization\\acceptance-G2px0y",
+        "commands": [
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:09:06.503Z",
+            "ended": "2026-10-20T04:09:10.010Z",
+            "pid": 6368,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-1.log"
+          },
+          {
+            "executable": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "apps/site/scripts/build.mjs"
+            ],
+            "cwd": "C:\\Projects\\bizness-starter-v2",
+            "started": "2026-10-20T04:09:17.160Z",
+            "ended": "2026-10-20T04:09:20.720Z",
+            "pid": 35192,
+            "exitCode": 0,
+            "passed": true,
+            "log": "command-2.log"
+          }
+        ],
+        "restoration": true
+      },
+      "contexts": 12
+    }
+  ]
+}

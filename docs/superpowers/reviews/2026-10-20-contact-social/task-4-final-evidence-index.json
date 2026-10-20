@@ -1,0 +1,274 @@
+{
+  "native": {
+    "directory": ".generated/media-optimization/acceptance-KCY5qC",
+    "invocation": {
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\bizness-starter-v2\\scripts\\verify-contact-social.mjs",
+        "--native"
+      ],
+      "cwd": "C:\\Projects\\bizness-starter-v2",
+      "pid": 26984,
+      "started": "2026-10-20T04:07:20.285Z",
+      "ended": "2026-10-20T04:07:59.676Z",
+      "exitCode": 0
+    },
+    "indexed": {
+      "successfulQueries": 25,
+      "saves": 3,
+      "translationsAndLegalPreserved": true
+    },
+    "saves": 3,
+    "cleanup": {
+      "stops": [
+        {
+          "id": "browser",
+          "status": "stopped"
+        },
+        {
+          "id": "runtime-0",
+          "status": "stopped"
+        },
+        {
+          "id": "runtime-1",
+          "status": "stopped"
+        }
+      ],
+      "actions": [
+        {
+          "id": "settings",
+          "status": "restored"
+        }
+      ],
+      "snapshot": "matched",
+      "regeneration": [
+        {
+          "id": "canonical-build",
+          "status": "completed"
+        }
+      ]
+    }
+  },
+  "public": {
+    "directory": ".generated/media-optimization/acceptance-RwqtcL",
+    "invocation": {
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\bizness-starter-v2\\scripts\\verify-contact-social.mjs",
+        "--public"
+      ],
+      "cwd": "C:\\Projects\\bizness-starter-v2",
+      "pid": 18184,
+      "started": "2026-10-20T04:08:06.950Z",
+      "ended": "2026-10-20T04:09:20.922Z",
+      "exitCode": 0
+    },
+    "contexts": 60,
+    "audits": [
+      {
+        "mode": "none",
+        "locale": "en",
+        "violations": 0
+      },
+      {
+        "mode": "none",
+        "locale": "el",
+        "violations": 0
+      },
+      {
+        "mode": "all-off",
+        "locale": "en",
+        "violations": 0
+      },
+      {
+        "mode": "all-off",
+        "locale": "el",
+        "violations": 0
+      },
+      {
+        "mode": "all-on",
+        "locale": "en",
+        "violations": 0
+      },
+      {
+        "mode": "all-on",
+        "locale": "el",
+        "violations": 0
+      },
+      {
+        "mode": "one",
+        "locale": "en",
+        "violations": 0
+      },
+      {
+        "mode": "one",
+        "locale": "el",
+        "violations": 0
+      },
+      {
+        "mode": "long",
+        "locale": "en",
+        "violations": 0
+      },
+      {
+        "mode": "long",
+        "locale": "el",
+        "violations": 0
+      }
+    ]
+  },
+  "gates": {
+    "directory": ".generated/media-optimization/acceptance-V2qmjt",
+    "commands": [
+      {
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:/Users/Vag/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs",
+          "check"
+        ],
+        "cwd": "C:\\Projects\\bizness-starter-v2",
+        "started": "2026-10-20T04:09:47.191Z",
+        "ended": "2026-10-20T04:10:02.873Z",
+        "pid": 20136,
+        "exitCode": 0,
+        "passed": true,
+        "log": "command-1.log"
+      },
+      {
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:/Users/Vag/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs",
+          "test"
+        ],
+        "cwd": "C:\\Projects\\bizness-starter-v2",
+        "started": "2026-10-20T04:10:02.993Z",
+        "ended": "2026-10-20T04:10:24.310Z",
+        "pid": 14044,
+        "exitCode": 0,
+        "passed": true,
+        "log": "command-2.log"
+      },
+      {
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:/Users/Vag/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs",
+          "build"
+        ],
+        "cwd": "C:\\Projects\\bizness-starter-v2",
+        "started": "2026-10-20T04:10:24.438Z",
+        "ended": "2026-10-20T04:10:29.601Z",
+        "pid": 13236,
+        "exitCode": 0,
+        "passed": true,
+        "log": "command-3.log"
+      },
+      {
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:/Users/Vag/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs",
+          "worker:check"
+        ],
+        "cwd": "C:\\Projects\\bizness-starter-v2",
+        "started": "2026-10-20T04:10:29.728Z",
+        "ended": "2026-10-20T04:10:32.467Z",
+        "pid": 15896,
+        "exitCode": 0,
+        "passed": true,
+        "log": "command-4.log"
+      },
+      {
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:/Users/Vag/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs",
+          "cms:local-build"
+        ],
+        "cwd": "C:\\Projects\\bizness-starter-v2",
+        "started": "2026-10-20T04:10:32.589Z",
+        "ended": "2026-10-20T04:11:10.471Z",
+        "pid": 5904,
+        "exitCode": 0,
+        "passed": true,
+        "log": "command-5.log"
+      },
+      {
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:/Users/Vag/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs",
+          "test:static-routing"
+        ],
+        "cwd": "C:\\Projects\\bizness-starter-v2",
+        "started": "2026-10-20T04:11:10.591Z",
+        "ended": "2026-10-20T04:11:19.456Z",
+        "pid": 28060,
+        "exitCode": 0,
+        "passed": true,
+        "log": "command-6.log"
+      },
+      {
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:/Users/Vag/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs",
+          "test:showcase-builds"
+        ],
+        "cwd": "C:\\Projects\\bizness-starter-v2",
+        "started": "2026-10-20T04:11:19.573Z",
+        "ended": "2026-10-20T04:11:32.000Z",
+        "pid": 39788,
+        "exitCode": 0,
+        "passed": true,
+        "log": "command-7.log"
+      }
+    ],
+    "sourceStableDuringGates": true
+  },
+  "sourceTiming": {
+    "publicVsNative": [],
+    "preGateChanges": [
+      "tests\\contact-social-native-admission.test.ts"
+    ],
+    "postGateEOFFixes": [
+      "apps\\site\\src\\components\\ui\\SocialLinks.astro",
+      "apps\\site\\src\\layouts\\Layout.astro"
+    ]
+  },
+  "canonical": {
+    "time": "2026-10-20T04:12:16.450Z",
+    "before": {
+      "apps/site/public/uploads/starter-samples/abstract-landscape.png": "f1b40847c8667998c6ee65e0a618887d8a12c2301140e2543a829228204d40e1",
+      "apps/site/public/uploads/starter-samples/abstract-portrait.png": "bd317dcb00a00fac5d8df09f5767b8406096ad5b51dfdb36f076ce90a7d48e14",
+      "content/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "content/articles/sample-article.json": "2fddca08327dc1cfb000661dcdcab1384a1a13b0bb22a326716e501016a90ebf",
+      "content/offerings/sample-service.json": "486df0c872b84b9174be8c11707e35e8973c139ab28efb7b581212ca19c567f3",
+      "content/pages/about.json": "257d4b2065fef1e7363489ec717e1b2dba1883168f65624e6dcf5480fe3cb663",
+      "content/pages/contact.json": "4f3d85546b991d73344e5d30b27ade090d5b17c396c039a37d80201fc1d08515",
+      "content/pages/home.json": "1dfda8fcdb9d3454025b5422d46cfc6e9e9c1e81204c28f6925b990d799d1ff3",
+      "content/pages/insights.json": "719f34e44aab21d8cdd2424af510be22b6417853010b3709b805b1e53be10a65",
+      "content/pages/privacy.json": "5880bdef5ccd3094ac0b28e68ba49958d552d92c39abfe8efa250b79835e21ab",
+      "content/pages/rooms.json": "d6412c065ff6a11a81c9d3f343b473fa5b6430eba2ab235ac9480419198450e5",
+      "content/pages/services.json": "7b00ab1d5f9e85846e435f4f0b6ed04cacdd7d5d4a0249290bc4dbca07246f1f",
+      "content/people/sample-person.json": "43adb9451b2ef41667aa93c0b2f5fc318cb88aba770fd2cf2247b62b629352b9",
+      "content/rooms/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content/settings/site.json": "45a65bbaf8411f420a44d7173c62d09bc3ff135cec6823c59bc99cfd2c0b39bb",
+      "project.json": "791eda9087dab819250d4f3511f305b63d1c82a878800a498cd40b41defd231c"
+    },
+    "after": {
+      "apps/site/public/uploads/starter-samples/abstract-landscape.png": "f1b40847c8667998c6ee65e0a618887d8a12c2301140e2543a829228204d40e1",
+      "apps/site/public/uploads/starter-samples/abstract-portrait.png": "bd317dcb00a00fac5d8df09f5767b8406096ad5b51dfdb36f076ce90a7d48e14",
+      "content/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "content/articles/sample-article.json": "2fddca08327dc1cfb000661dcdcab1384a1a13b0bb22a326716e501016a90ebf",
+      "content/offerings/sample-service.json": "486df0c872b84b9174be8c11707e35e8973c139ab28efb7b581212ca19c567f3",
+      "content/pages/about.json": "257d4b2065fef1e7363489ec717e1b2dba1883168f65624e6dcf5480fe3cb663",
+      "content/pages/contact.json": "4f3d85546b991d73344e5d30b27ade090d5b17c396c039a37d80201fc1d08515",
+      "content/pages/home.json": "1dfda8fcdb9d3454025b5422d46cfc6e9e9c1e81204c28f6925b990d799d1ff3",
+      "content/pages/insights.json": "719f34e44aab21d8cdd2424af510be22b6417853010b3709b805b1e53be10a65",
+      "content/pages/privacy.json": "5880bdef5ccd3094ac0b28e68ba49958d552d92c39abfe8efa250b79835e21ab",
+      "content/pages/rooms.json": "d6412c065ff6a11a81c9d3f343b473fa5b6430eba2ab235ac9480419198450e5",
+      "content/pages/services.json": "7b00ab1d5f9e85846e435f4f0b6ed04cacdd7d5d4a0249290bc4dbca07246f1f",
+      "content/people/sample-person.json": "43adb9451b2ef41667aa93c0b2f5fc318cb88aba770fd2cf2247b62b629352b9",
+      "content/rooms/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content/settings/site.json": "45a65bbaf8411f420a44d7173c62d09bc3ff135cec6823c59bc99cfd2c0b39bb",
+      "project.json": "791eda9087dab819250d4f3511f305b63d1c82a878800a498cd40b41defd231c"
+    },
+    "unchanged": true
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "derivation": "Captured raw variables -> installed graphql getVariableValues with generated SDL -> expectedNativeDocument using captured schema/original backup -> pinned installed stringifyFile(.json,false)",
+  "serializer": {
+    "path": "C:\\Projects\\bizness-starter-v2\\node_modules\\.pnpm\\@tinacms+graphql@3.0.0_react@18.3.1\\node_modules\\@tinacms\\graphql\\dist\\index.js",
+    "sha256": "ca6f1e9037b192fd0db331e83f9ecad266b662fa869ccd8b1fd00fd029edb5ed"
+  },
+  "canonicalSchemaSha256": "da409ff1938d3e6c2c1d8c31b97a20ec9d250cf2e9b7ebc96a53dfe74f857ff7",
+  "capturedSchemaSha256": "65438e5f1ec65f4932d8b601d24a7b69605e4835692c694ffc93f7094ab00749",
+  "sdlSha256": "934cfc7bbb7258fb17ea0137a637b099d5a7220bd1520486154b50bf66ecdc68",
+  "rawFieldOrder": [
+    "brand",
+    "legal",
+    "contact",
+    "navigation",
+    "translations",
+    "social"
+  ],
+  "coercedFieldOrder": [
+    "brand",
+    "legal",
+    "contact",
+    "social",
+    "navigation",
+    "translations"
+  ],
+  "expectedFieldOrder": [
+    "brand",
+    "legal",
+    "contact",
+    "social",
+    "navigation",
+    "translations"
+  ],
+  "expectedSha256": "f29627fb5e7cd0d1efa53041d763c61a3aaf2249dea1dead2f8713fe156a6908",
+  "retainedCurrentSha256": "f29627fb5e7cd0d1efa53041d763c61a3aaf2249dea1dead2f8713fe156a6908",
+  "exactMatch": true,
+  "otherChanges": [],
+  "originalBackupSha256": "45a65bbaf8411f420a44d7173c62d09bc3ff135cec6823c59bc99cfd2c0b39bb",
+  "baselineSettingsSha256": "45a65bbaf8411f420a44d7173c62d09bc3ff135cec6823c59bc99cfd2c0b39bb"
+}

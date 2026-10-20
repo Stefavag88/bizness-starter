@@ -1,0 +1,16 @@
+warning: LF will be replaced by CRLF in apps/site/src/components/ui/SocialLinks.astro.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in apps/site/src/layouts/Layout.astro.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in apps/site/tests/contact-social.test.ts.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in docs/ARCHITECTURE.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in docs/CONTENT_MODEL.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in docs/QUICKSTART.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in e2e/helpers/cms-source-ownership.ts.
+The file will have its original line endings in your working directory
+apps/site/src/components/ui/SocialLinks.astro:11: new blank line at EOF.
+apps/site/src/layouts/Layout.astro:21: new blank line at EOF.

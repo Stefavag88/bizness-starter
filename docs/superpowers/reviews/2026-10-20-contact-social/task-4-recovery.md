@@ -1,0 +1,15 @@
+# Task 4 recovery after usage interruption
+
+Resume existing Task4 work, not accepted Tasks1–3. Read task-4-brief.md, contracts.md and task-4-handoff.md first. HEAD3093f65. Existing uncommitted specs/driver/admission/tests and minimal owner accessibility fix are in place. Prior agent is unavailable in the current agent tree after usage interruption; fresh successor keeps medium model and existing scope.
+
+Completed evidence:
+- task-4-red.log / task-4-green.log: temporary-root admission/faultRED/GREEN,11tests.
+- Public attempt1 found actual axe landmark-unique bug: SocialLinks now takes placement deriving distinct localized navigation labels. Visible headings unchanged. Approved controller ruling in progress.md. Exact full component label regression still required before finalgates.
+- Publicattempt2:4passed/1longfixture failed overbroad mailto locator; corrected selector to.contact-link.
+- Publicattempt3:5passed/60ENELviewportJScontexts, source inventory restored, workersclosed/canonicalbuild0. Outer acceptance-WlWNpE containslogs; nested per-case fixtures hold screenshots/axe/matrix. Inspect current files/evidence, do not recreate phase blindly.
+- Nativeattempt1 failed/stalled before anysave. task-4-native-stall-browser.json records exactownedbrowsertermination, nativeattempt1log/browsertrace/error-context identify getByLabel mismatch after expanding Settings. Need bounded action timeouts/post-expansion DOM evidence and correctselectors. No native success proof yet.
+- Recovery actual16sourcehashesmatch baseline, all4portsfree, no relevantNode/workerd. Fresh usage says ordinaryAllowedtrue. No account/model switch. Currentcode notcommitted.
+
+Before new canonical fixture writes, address a concrete current public ownership risk: e2e/contact-social.spec.ts writes deterministic bytes then sources.capture(path,settings,()=>true). Existing capture proves semantic whole-record JSON but adopts observed bytes, contrary to this slice's exact-byte requirement. A foreign same-JSON different-format overwrite between write/capture could be claimed; subsequent snapshot fail then restore overwrites it. Use an existing accepted known-byte fixture owner (media-optimization-fixture is one possible implementation to inspect) or a narrow exact-byte source owner, with fault test proving foreign same-JSON/different-bytes are preserved and regeneration refused. Do not expand/rewrite generic native helper unnecessarily. Do not merely compare before semantic capture and retain a race/adoption window. Keep native installed serializer ownership one owner, exact request-derived expectation BEFORE dispatch, and exacttarget guard.
+
+Do not rerun all accepted public matrix just to rediscover old failures; rerun affected public proof when fixture/ownership changes justify it, recording source timing. Complete real indexedUIthree-save proof, docs and7sequentialgates. No mainlauncher restart/sourceD1migrations; controllerownsfinalreview/archive/restart. Preserve allrawfailures. Write task-4-report.md and verifiedlocalcommit; no subagents/remoteops/dependencychanges. C: tools require_escalated.

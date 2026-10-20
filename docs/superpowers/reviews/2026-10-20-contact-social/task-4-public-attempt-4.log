@@ -1,0 +1,457 @@
+
+> business-starter-v2@2.0.0-dev test:contact-social C:\Projects\bizness-starter-v2
+> node scripts/verify-contact-social.mjs "--public"
+
+
+Running 5 tests using 1 worker
+
+(node:20332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:08:11 [types] Generated 82ms
+07:08:11 [build] output: "static"
+07:08:11 [build] mode: "static"
+07:08:11 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:08:11 [build] Collecting build info...
+07:08:11 [build] ✓ Completed in 110ms.
+07:08:11 [build] Building static entrypoints...
+07:08:11 [vite] ✓ built in 281ms
+07:08:11 [vite] ✓ built in 112ms
+07:08:11 [build] Rearranging server assets...
+
+ generating static routes 
+07:08:12   ├─ /404.html (+17ms) 
+07:08:12   ├─ /design-system/index.html (+49ms) 
+07:08:12   ├─ /en/404/index.html (+3ms) 
+07:08:12   ├─ /el/404/index.html (+2ms) 
+07:08:12   ├─ /en/feed.xml (+2ms) 
+07:08:12   ├─ /el/feed.xml (+2ms) 
+07:08:12   ├─ /en/about/index.html (+3ms) 
+07:08:12   ├─ /en/contact/index.html (+2ms) 
+07:08:12   ├─ /en/index.html (+2ms) 
+07:08:12   ├─ /en/insights/index.html (+3ms) 
+07:08:12   ├─ /en/privacy/index.html (+3ms) 
+07:08:12   ├─ /en/services/index.html (+2ms) 
+07:08:12   ├─ /en/services/planning-session/index.html (+2ms) 
+07:08:12   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:08:12   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:08:12   ├─ /el/about/index.html (+2ms) 
+07:08:12   ├─ /el/contact/index.html (+2ms) 
+07:08:12   ├─ /el/index.html (+2ms) 
+07:08:12   ├─ /el/insights/index.html (+3ms) 
+07:08:12   ├─ /el/privacy/index.html (+2ms) 
+07:08:12   ├─ /el/services/index.html (+2ms) 
+07:08:12   ├─ /el/services/planning-session/index.html (+2ms) 
+07:08:12   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:08:12   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:08:12   ├─ /index.html (+2ms) 
+07:08:12 ✓ Completed in 264ms.
+
+07:08:12 [build] ✓ Completed in 822ms.
+07:08:12 [build] 23 page(s) built in 1.06s
+07:08:12 [build] Complete!
+(node:32820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:08:23 [types] Generated 82ms
+07:08:23 [build] output: "static"
+07:08:23 [build] mode: "static"
+07:08:23 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:08:23 [build] Collecting build info...
+07:08:23 [build] ✓ Completed in 110ms.
+07:08:23 [build] Building static entrypoints...
+07:08:23 [vite] ✓ built in 280ms
+07:08:23 [vite] ✓ built in 112ms
+07:08:23 [build] Rearranging server assets...
+
+ generating static routes 
+07:08:23   ├─ /404.html (+17ms) 
+07:08:23   ├─ /design-system/index.html (+45ms) 
+07:08:23   ├─ /en/404/index.html (+3ms) 
+07:08:23   ├─ /el/404/index.html (+2ms) 
+07:08:23   ├─ /en/feed.xml (+2ms) 
+07:08:23   ├─ /el/feed.xml (+2ms) 
+07:08:23   ├─ /en/about/index.html (+3ms) 
+07:08:23   ├─ /en/contact/index.html (+3ms) 
+07:08:23   ├─ /en/index.html (+2ms) 
+07:08:23   ├─ /en/insights/index.html (+2ms) 
+07:08:23   ├─ /en/privacy/index.html (+2ms) 
+07:08:23   ├─ /en/services/index.html (+2ms) 
+07:08:23   ├─ /en/services/planning-session/index.html (+2ms) 
+07:08:23   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:08:23   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:08:23   ├─ /el/about/index.html (+2ms) 
+07:08:23   ├─ /el/contact/index.html (+2ms) 
+07:08:23   ├─ /el/index.html (+2ms) 
+07:08:23   ├─ /el/insights/index.html (+2ms) 
+07:08:23   ├─ /el/privacy/index.html (+2ms) 
+07:08:23   ├─ /el/services/index.html (+2ms) 
+07:08:23   ├─ /el/services/planning-session/index.html (+2ms) 
+07:08:23   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:08:23   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:08:23   ├─ /index.html (+3ms) 
+07:08:23 ✓ Completed in 254ms.
+
+07:08:23 [build] ✓ Completed in 713ms.
+07:08:23 [build] 23 page(s) built in 951ms
+07:08:23 [build] Complete!
+  ok 1 e2e\contact-social.spec.ts:11:25 › built contact none (15.2s)
+(node:39168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:08:26 [types] Generated 85ms
+07:08:26 [build] output: "static"
+07:08:26 [build] mode: "static"
+07:08:26 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:08:26 [build] Collecting build info...
+07:08:26 [build] ✓ Completed in 113ms.
+07:08:26 [build] Building static entrypoints...
+07:08:26 [vite] ✓ built in 282ms
+07:08:27 [vite] ✓ built in 113ms
+07:08:27 [build] Rearranging server assets...
+
+ generating static routes 
+07:08:27   ├─ /404.html (+17ms) 
+07:08:27   ├─ /design-system/index.html (+46ms) 
+07:08:27   ├─ /en/404/index.html (+3ms) 
+07:08:27   ├─ /el/404/index.html (+2ms) 
+07:08:27   ├─ /en/feed.xml (+2ms) 
+07:08:27   ├─ /el/feed.xml (+2ms) 
+07:08:27   ├─ /en/about/index.html (+4ms) 
+07:08:27   ├─ /en/contact/index.html (+3ms) 
+07:08:27   ├─ /en/index.html (+2ms) 
+07:08:27   ├─ /en/insights/index.html (+2ms) 
+07:08:27   ├─ /en/privacy/index.html (+3ms) 
+07:08:27   ├─ /en/services/index.html (+2ms) 
+07:08:27   ├─ /en/services/planning-session/index.html (+2ms) 
+07:08:27   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:08:27   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:08:27   ├─ /el/about/index.html (+2ms) 
+07:08:27   ├─ /el/contact/index.html (+2ms) 
+07:08:27   ├─ /el/index.html (+2ms) 
+07:08:27   ├─ /el/insights/index.html (+2ms) 
+07:08:27   ├─ /el/privacy/index.html (+2ms) 
+07:08:27   ├─ /el/services/index.html (+2ms) 
+07:08:27   ├─ /el/services/planning-session/index.html (+2ms) 
+07:08:27   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:08:27   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:08:27   ├─ /index.html (+2ms) 
+07:08:27 ✓ Completed in 260ms.
+
+07:08:27 [build] ✓ Completed in 722ms.
+07:08:27 [build] 23 page(s) built in 957ms
+07:08:27 [build] Complete!
+(node:25744) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:08:37 [types] Generated 87ms
+07:08:37 [build] output: "static"
+07:08:37 [build] mode: "static"
+07:08:37 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:08:37 [build] Collecting build info...
+07:08:37 [build] ✓ Completed in 116ms.
+07:08:37 [build] Building static entrypoints...
+07:08:37 [vite] ✓ built in 271ms
+07:08:37 [vite] ✓ built in 112ms
+07:08:37 [build] Rearranging server assets...
+
+ generating static routes 
+07:08:37   ├─ /404.html (+16ms) 
+07:08:37   ├─ /design-system/index.html (+47ms) 
+07:08:38   ├─ /en/404/index.html (+3ms) 
+07:08:38   ├─ /el/404/index.html (+3ms) 
+07:08:38   ├─ /en/feed.xml (+2ms) 
+07:08:38   ├─ /el/feed.xml (+2ms) 
+07:08:38   ├─ /en/about/index.html (+3ms) 
+07:08:38   ├─ /en/contact/index.html (+3ms) 
+07:08:38   ├─ /en/index.html (+3ms) 
+07:08:38   ├─ /en/insights/index.html (+2ms) 
+07:08:38   ├─ /en/privacy/index.html (+3ms) 
+07:08:38   ├─ /en/services/index.html (+2ms) 
+07:08:38   ├─ /en/services/planning-session/index.html (+2ms) 
+07:08:38   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:08:38   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:08:38   ├─ /el/about/index.html (+2ms) 
+07:08:38   ├─ /el/contact/index.html (+2ms) 
+07:08:38   ├─ /el/index.html (+2ms) 
+07:08:38   ├─ /el/insights/index.html (+2ms) 
+07:08:38   ├─ /el/privacy/index.html (+2ms) 
+07:08:38   ├─ /el/services/index.html (+2ms) 
+07:08:38   ├─ /el/services/planning-session/index.html (+2ms) 
+07:08:38   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:08:38   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:08:38   ├─ /index.html (+3ms) 
+07:08:38 ✓ Completed in 256ms.
+
+07:08:38 [build] ✓ Completed in 706ms.
+07:08:38 [build] 23 page(s) built in 947ms
+07:08:38 [build] Complete!
+  ok 2 e2e\contact-social.spec.ts:11:25 › built contact all-off (14.3s)
+(node:33888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:08:40 [types] Generated 86ms
+07:08:40 [build] output: "static"
+07:08:40 [build] mode: "static"
+07:08:40 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:08:40 [build] Collecting build info...
+07:08:40 [build] ✓ Completed in 121ms.
+07:08:40 [build] Building static entrypoints...
+07:08:41 [vite] ✓ built in 279ms
+07:08:41 [vite] ✓ built in 119ms
+07:08:41 [build] Rearranging server assets...
+
+ generating static routes 
+07:08:41   ├─ /404.html (+17ms) 
+07:08:41   ├─ /design-system/index.html (+44ms) 
+07:08:41   ├─ /en/404/index.html (+3ms) 
+07:08:41   ├─ /el/404/index.html (+2ms) 
+07:08:41   ├─ /en/feed.xml (+2ms) 
+07:08:41   ├─ /el/feed.xml (+2ms) 
+07:08:41   ├─ /en/about/index.html (+3ms) 
+07:08:41   ├─ /en/contact/index.html (+3ms) 
+07:08:41   ├─ /en/index.html (+2ms) 
+07:08:41   ├─ /en/insights/index.html (+2ms) 
+07:08:41   ├─ /en/privacy/index.html (+2ms) 
+07:08:41   ├─ /en/services/index.html (+2ms) 
+07:08:41   ├─ /en/services/planning-session/index.html (+2ms) 
+07:08:41   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:08:41   ├─ /en/people/studio-guide/index.html (+3ms) 
+07:08:41   ├─ /el/about/index.html (+2ms) 
+07:08:41   ├─ /el/contact/index.html (+2ms) 
+07:08:41   ├─ /el/index.html (+2ms) 
+07:08:41   ├─ /el/insights/index.html (+2ms) 
+07:08:41   ├─ /el/privacy/index.html (+2ms) 
+07:08:41   ├─ /el/services/index.html (+2ms) 
+07:08:41   ├─ /el/services/planning-session/index.html (+2ms) 
+07:08:41   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:08:41   ├─ /el/people/studio-guide/index.html (+3ms) 
+07:08:41   ├─ /index.html (+3ms) 
+07:08:41 ✓ Completed in 255ms.
+
+07:08:41 [build] ✓ Completed in 718ms.
+07:08:41 [build] 23 page(s) built in 963ms
+07:08:41 [build] Complete!
+(node:15512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:08:51 [types] Generated 83ms
+07:08:51 [build] output: "static"
+07:08:51 [build] mode: "static"
+07:08:51 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:08:51 [build] Collecting build info...
+07:08:51 [build] ✓ Completed in 117ms.
+07:08:51 [build] Building static entrypoints...
+07:08:52 [vite] ✓ built in 282ms
+07:08:52 [vite] ✓ built in 113ms
+07:08:52 [build] Rearranging server assets...
+
+ generating static routes 
+07:08:52   ├─ /404.html (+16ms) 
+07:08:52   ├─ /design-system/index.html (+46ms) 
+07:08:52   ├─ /en/404/index.html (+3ms) 
+07:08:52   ├─ /el/404/index.html (+2ms) 
+07:08:52   ├─ /en/feed.xml (+2ms) 
+07:08:52   ├─ /el/feed.xml (+2ms) 
+07:08:52   ├─ /en/about/index.html (+3ms) 
+07:08:52   ├─ /en/contact/index.html (+3ms) 
+07:08:52   ├─ /en/index.html (+2ms) 
+07:08:52   ├─ /en/insights/index.html (+2ms) 
+07:08:52   ├─ /en/privacy/index.html (+2ms) 
+07:08:52   ├─ /en/services/index.html (+2ms) 
+07:08:52   ├─ /en/services/planning-session/index.html (+2ms) 
+07:08:52   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:08:52   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:08:52   ├─ /el/about/index.html (+2ms) 
+07:08:52   ├─ /el/contact/index.html (+2ms) 
+07:08:52   ├─ /el/index.html (+2ms) 
+07:08:52   ├─ /el/insights/index.html (+2ms) 
+07:08:52   ├─ /el/privacy/index.html (+2ms) 
+07:08:52   ├─ /el/services/index.html (+2ms) 
+07:08:52   ├─ /el/services/planning-session/index.html (+1ms) 
+07:08:52   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:08:52   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:08:52   ├─ /index.html (+3ms) 
+07:08:52 ✓ Completed in 249ms.
+
+07:08:52 [build] ✓ Completed in 712ms.
+07:08:52 [build] 23 page(s) built in 951ms
+07:08:52 [build] Complete!
+  ok 3 e2e\contact-social.spec.ts:11:25 › built contact all-on (14.5s)
+(node:13832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:08:55 [types] Generated 81ms
+07:08:55 [build] output: "static"
+07:08:55 [build] mode: "static"
+07:08:55 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:08:55 [build] Collecting build info...
+07:08:55 [build] ✓ Completed in 110ms.
+07:08:55 [build] Building static entrypoints...
+07:08:55 [vite] ✓ built in 274ms
+07:08:55 [vite] ✓ built in 112ms
+07:08:55 [build] Rearranging server assets...
+
+ generating static routes 
+07:08:55   ├─ /404.html (+16ms) 
+07:08:56   ├─ /design-system/index.html (+45ms) 
+07:08:56   ├─ /en/404/index.html (+3ms) 
+07:08:56   ├─ /el/404/index.html (+3ms) 
+07:08:56   ├─ /en/feed.xml (+3ms) 
+07:08:56   ├─ /el/feed.xml (+2ms) 
+07:08:56   ├─ /en/about/index.html (+3ms) 
+07:08:56   ├─ /en/contact/index.html (+3ms) 
+07:08:56   ├─ /en/index.html (+2ms) 
+07:08:56   ├─ /en/insights/index.html (+2ms) 
+07:08:56   ├─ /en/privacy/index.html (+3ms) 
+07:08:56   ├─ /en/services/index.html (+2ms) 
+07:08:56   ├─ /en/services/planning-session/index.html (+2ms) 
+07:08:56   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:08:56   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:08:56   ├─ /el/about/index.html (+2ms) 
+07:08:56   ├─ /el/contact/index.html (+2ms) 
+07:08:56   ├─ /el/index.html (+2ms) 
+07:08:56   ├─ /el/insights/index.html (+2ms) 
+07:08:56   ├─ /el/privacy/index.html (+2ms) 
+07:08:56   ├─ /el/services/index.html (+2ms) 
+07:08:56   ├─ /el/services/planning-session/index.html (+1ms) 
+07:08:56   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:08:56   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:08:56   ├─ /index.html (+2ms) 
+07:08:56 ✓ Completed in 253ms.
+
+07:08:56 [build] ✓ Completed in 704ms.
+07:08:56 [build] 23 page(s) built in 937ms
+07:08:56 [build] Complete!
+(node:38260) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:09:05 [types] Generated 81ms
+07:09:05 [build] output: "static"
+07:09:05 [build] mode: "static"
+07:09:05 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:09:05 [build] Collecting build info...
+07:09:05 [build] ✓ Completed in 114ms.
+07:09:05 [build] Building static entrypoints...
+07:09:05 [vite] ✓ built in 279ms
+07:09:05 [vite] ✓ built in 113ms
+07:09:05 [build] Rearranging server assets...
+
+ generating static routes 
+07:09:06   ├─ /404.html (+17ms) 
+07:09:06   ├─ /design-system/index.html (+45ms) 
+07:09:06   ├─ /en/404/index.html (+3ms) 
+07:09:06   ├─ /el/404/index.html (+2ms) 
+07:09:06   ├─ /en/feed.xml (+2ms) 
+07:09:06   ├─ /el/feed.xml (+2ms) 
+07:09:06   ├─ /en/about/index.html (+3ms) 
+07:09:06   ├─ /en/contact/index.html (+3ms) 
+07:09:06   ├─ /en/index.html (+4ms) 
+07:09:06   ├─ /en/insights/index.html (+4ms) 
+07:09:06   ├─ /en/privacy/index.html (+4ms) 
+07:09:06   ├─ /en/services/index.html (+4ms) 
+07:09:06   ├─ /en/services/planning-session/index.html (+10ms) 
+07:09:06   ├─ /en/insights/a-useful-first-question/index.html (+3ms) 
+07:09:06   ├─ /en/people/studio-guide/index.html (+4ms) 
+07:09:06   ├─ /el/about/index.html (+3ms) 
+07:09:06   ├─ /el/contact/index.html (+2ms) 
+07:09:06   ├─ /el/index.html (+2ms) 
+07:09:06   ├─ /el/insights/index.html (+29ms) 
+07:09:06   ├─ /el/privacy/index.html (+2ms) 
+07:09:06   ├─ /el/services/index.html (+2ms) 
+07:09:06   ├─ /el/services/planning-session/index.html (+1ms) 
+07:09:06   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:09:06   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:09:06   ├─ /index.html (+3ms) 
+07:09:06 ✓ Completed in 304ms.
+
+07:09:06 [build] ✓ Completed in 763ms.
+07:09:06 [build] 23 page(s) built in 1.00s
+07:09:06 [build] Complete!
+  ok 4 e2e\contact-social.spec.ts:11:25 › built contact one (13.7s)
+(node:6368) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:09:09 [types] Generated 81ms
+07:09:09 [build] output: "static"
+07:09:09 [build] mode: "static"
+07:09:09 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:09:09 [build] Collecting build info...
+07:09:09 [build] ✓ Completed in 108ms.
+07:09:09 [build] Building static entrypoints...
+07:09:09 [vite] ✓ built in 272ms
+07:09:09 [vite] ✓ built in 116ms
+07:09:09 [build] Rearranging server assets...
+
+ generating static routes 
+07:09:09   ├─ /404.html (+17ms) 
+07:09:09   ├─ /design-system/index.html (+44ms) 
+07:09:09   ├─ /en/404/index.html (+3ms) 
+07:09:09   ├─ /el/404/index.html (+3ms) 
+07:09:09   ├─ /en/feed.xml (+2ms) 
+07:09:09   ├─ /el/feed.xml (+2ms) 
+07:09:09   ├─ /en/about/index.html (+3ms) 
+07:09:09   ├─ /en/contact/index.html (+3ms) 
+07:09:09   ├─ /en/index.html (+2ms) 
+07:09:09   ├─ /en/insights/index.html (+2ms) 
+07:09:09   ├─ /en/privacy/index.html (+2ms) 
+07:09:09   ├─ /en/services/index.html (+2ms) 
+07:09:09   ├─ /en/services/planning-session/index.html (+2ms) 
+07:09:09   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:09:09   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:09:09   ├─ /el/about/index.html (+2ms) 
+07:09:09   ├─ /el/contact/index.html (+2ms) 
+07:09:09   ├─ /el/index.html (+2ms) 
+07:09:09   ├─ /el/insights/index.html (+2ms) 
+07:09:09   ├─ /el/privacy/index.html (+2ms) 
+07:09:09   ├─ /el/services/index.html (+2ms) 
+07:09:09   ├─ /el/services/planning-session/index.html (+2ms) 
+07:09:09   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:09:09   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:09:09   ├─ /index.html (+3ms) 
+07:09:09 ✓ Completed in 253ms.
+
+07:09:09 [build] ✓ Completed in 708ms.
+07:09:09 [build] 23 page(s) built in 940ms
+07:09:09 [build] Complete!
+(node:35192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:09:19 [types] Generated 81ms
+07:09:19 [build] output: "static"
+07:09:19 [build] mode: "static"
+07:09:19 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:09:19 [build] Collecting build info...
+07:09:19 [build] ✓ Completed in 111ms.
+07:09:19 [build] Building static entrypoints...
+07:09:20 [vite] ✓ built in 300ms
+07:09:20 [vite] ✓ built in 115ms
+07:09:20 [build] Rearranging server assets...
+
+ generating static routes 
+07:09:20   ├─ /404.html (+16ms) 
+07:09:20   ├─ /design-system/index.html (+44ms) 
+07:09:20   ├─ /en/404/index.html (+3ms) 
+07:09:20   ├─ /el/404/index.html (+2ms) 
+07:09:20   ├─ /en/feed.xml (+2ms) 
+07:09:20   ├─ /el/feed.xml (+2ms) 
+07:09:20   ├─ /en/about/index.html (+3ms) 
+07:09:20   ├─ /en/contact/index.html (+3ms) 
+07:09:20   ├─ /en/index.html (+2ms) 
+07:09:20   ├─ /en/insights/index.html (+2ms) 
+07:09:20   ├─ /en/privacy/index.html (+2ms) 
+07:09:20   ├─ /en/services/index.html (+2ms) 
+07:09:20   ├─ /en/services/planning-session/index.html (+2ms) 
+07:09:20   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:09:20   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:09:20   ├─ /el/about/index.html (+2ms) 
+07:09:20   ├─ /el/contact/index.html (+2ms) 
+07:09:20   ├─ /el/index.html (+2ms) 
+07:09:20   ├─ /el/insights/index.html (+2ms) 
+07:09:20   ├─ /el/privacy/index.html (+2ms) 
+07:09:20   ├─ /el/services/index.html (+2ms) 
+07:09:20   ├─ /el/services/planning-session/index.html (+2ms) 
+07:09:20   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:09:20   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:09:20   ├─ /index.html (+3ms) 
+07:09:20 ✓ Completed in 250ms.
+
+07:09:20 [build] ✓ Completed in 733ms.
+07:09:20 [build] 23 page(s) built in 968ms
+07:09:20 [build] Complete!
+  ok 5 e2e\contact-social.spec.ts:11:25 › built contact long (14.3s)
+
+  5 passed (1.2m)
+Contact/social evidence: C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-RwqtcL

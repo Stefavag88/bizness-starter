@@ -1,0 +1,11 @@
+Verified https://api.github.com/repos/twbs/icons/commits/ce0e49dd063243118a115f17ad1fe1fe7576d552
+sha=ce0e49dd063243118a115f17ad1fe1fe7576d552
+tree=a793afa7e9f95fc9dbf12cfef6c810920a9e237d
+message=Release v1.13.1 and fix search (#2152)
+
+* Check before splitting
+
+* Bump version for 1.13.1
+Tag v1.13.1 git ref returns this commit directly (lightweight tag).
+All seven source paths/checksums and full MIT license retained in docs/THIRD_PARTY_NOTICES.md.
+EXIT=0

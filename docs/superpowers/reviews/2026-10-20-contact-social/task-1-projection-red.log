@@ -1,0 +1,91 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/contact-channels.test.ts (96 tests | 18 failed) 79ms
+   ❯ contact channel projection (18)
+     × projects phone "+30 (210) 123-4567" to tel:+302101234567 3ms
+     × projects phone "123" to tel:123 0ms
+     × projects phone "11111111111111111111" to tel:11111111111111111111 0ms
+     × projects phone " (123).45-67 " to tel:1234567 0ms
+     × projects phone "" to undefined 0ms
+     × projects phone "   " to undefined 0ms
+     × projects phone "Reception ext 2" to undefined 0ms
+     × projects phone "12" to undefined 0ms
+     × projects phone "111111111111111111111" to undefined 0ms
+     × projects phone "12+345" to undefined 0ms
+     × projects phone "++123" to undefined 0ms
+     × projects phone "１２３" to undefined 0ms
+     × projects phone "123\n456" to undefined 0ms
+     × projects phone "123/456" to undefined 0ms
+     × orders and safely projects all channels without mutating settings 1ms
+     × omits blank phone "" and empty groups 0ms
+     × omits blank phone "   " and empty groups 0ms
+     × keeps unsupported phone display text without inventing a destination 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "+30 (210) 123-4567" to tel:+302101234567
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "123" to tel:123
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "11111111111111111111" to tel:11111111111111111111
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone " (123).45-67 " to tel:1234567
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "" to undefined
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "   " to undefined
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "Reception ext 2" to undefined
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "12" to undefined
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "111111111111111111111" to undefined
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "12+345" to undefined
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "++123" to undefined
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "１２３" to undefined
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "123\n456" to undefined
+ FAIL  tests/contact-channels.test.ts > contact channel projection > projects phone "123/456" to undefined
+TypeError: contact.phoneHref is not a function
+ ❯ tests/contact-channels.test.ts:73:84
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  tests/contact-channels.test.ts > contact channel projection > orders and safely projects all channels without mutating settings
+ZodError: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "email",
+    "pattern": "/^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
+    "path": [
+      "contact",
+      "email"
+    ],
+    "message": "Invalid email address"
+  }
+]
+ ❯ tests/contact-channels.test.ts:77:33
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  tests/contact-channels.test.ts > contact channel projection > omits blank phone "" and empty groups
+ FAIL  tests/contact-channels.test.ts > contact channel projection > omits blank phone "   " and empty groups
+TypeError: contact.contactChannels is not a function
+ ❯ tests/contact-channels.test.ts:85:18
+     83|  it.each(['','   '])('omits blank phone %j and empty groups',async pho…
+     84|   const contact:any=await import('../packages/content/contact.mjs');co…
+     85|   expect(contact.contactChannels(settings,'en')).toEqual({direct:[{id:…
+       |                  ^
+     86|  });
+     87|  it('keeps unsupported phone display text without inventing a destinat…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  tests/contact-channels.test.ts > contact channel projection > keeps unsupported phone display text without inventing a destination
+TypeError: contact.contactChannels is not a function
+ ❯ tests/contact-channels.test.ts:89:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  18 failed | 78 passed (96)
+   Start at  22:43:42
+   Duration  649ms (import 48%, transform 33%, tests 18%, worker 1%)
+

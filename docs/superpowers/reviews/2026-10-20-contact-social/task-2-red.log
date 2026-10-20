@@ -1,0 +1,63 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/cms-contact-social.test.ts (4 tests | 4 failed) 15ms
+   ❯ shared native contact and social authoring (4)
+     × exposes one labeled shared social group in enquiries 9ms
+     × exposes one labeled shared social group in newsletter 1ms
+     × exposes one labeled shared social group in nurture 1ms
+     × explains required email and supported phone display formatting 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/cms-contact-social.test.ts > shared native contact and social authoring > exposes one labeled shared social group in enquiries
+ FAIL  tests/cms-contact-social.test.ts > shared native contact and social authoring > exposes one labeled shared social group in newsletter
+ FAIL  tests/cms-contact-social.test.ts > shared native contact and social authoring > exposes one labeled shared social group in nurture
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/cms-contact-social.test.ts:18:22
+     16|       const fields = settingsFor(profile).fields!;
+     17|       const groups = fields.filter(field => field.name === 'social');
+     18|       expect(groups).toHaveLength(1);
+       |                      ^
+     19|       expect(groups[0].label).toBe('Social channels');
+     20|       expect(fieldsOf(groups[0]).map(({name, type, label}) => ({name, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/cms-contact-social.test.ts > shared native contact and social authoring > explains required email and supported phone display formatting
+AssertionError: expected { name: 'email', type: 'string', …(1) } to match object { Object (type, label, ...) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "label": "Email",
+-   "required": true,
+    "type": "string",
+  }
+
+ ❯ tests/cms-contact-social.test.ts:41:35
+     39|   it('explains required email and supported phone display formatting',…
+     40|     const fields = fieldsOf(find(settingsFor().fields!, 'contact'));
+     41|     expect(find(fields, 'email')).toMatchObject({type: 'string', label…
+       |                                   ^
+     42|     expect(find(fields, 'phone').description).toMatch(/3.?20.*digits/i…
+     43|     expect(find(fields, 'phone').description).toMatch(/spaces.*hyphens…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  22:50:18
+   Duration  847ms (transform 55%, import 41%, tests 2%, worker 1%)
+
+EXIT=1

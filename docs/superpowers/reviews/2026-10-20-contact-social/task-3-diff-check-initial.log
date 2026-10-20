@@ -1,0 +1,12 @@
+warning: LF will be replaced by CRLF in apps/site/src/layouts/Layout.astro.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in apps/site/src/styles/foundations.css.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in apps/site/src/styles/global.css.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in apps/site/src/templates/ContactForm.astro.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in apps/site/vitest.config.ts.
+The file will have its original line endings in your working directory
+apps/site/vitest.config.ts:6: new blank line at EOF.
+EXIT=2

@@ -1,0 +1,74 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+ ❯ tests/contact-social.test.ts (5 tests | 5 failed) 49ms
+   × renders shared labeled Contact and footer destinations in en with safe text and decorative icons 36ms
+   × renders shared labeled Contact and footer destinations in el with safe text and decorative icons 5ms
+   × shows only configured header icons when enabled in en, retaining navigation and language 2ms
+   × shows only configured header icons when enabled in el, retaining navigation and language 2ms
+   × omits all empty social groups and address while keeping unsupported phone as escaped text 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contact-social.test.ts > renders shared labeled Contact and footer destinations in en with safe text and decorative icons
+AssertionError: expected '<section><div class="wrap"><h2>Let’s …' to contain 'href="tel:+302101234567"'
+
+Expected: "href="tel:+302101234567""
+Received: "<section><div class="wrap"><h2>Let’s talk</h2><p>Fields marked * are required.</p><form id="contact-form" action="/api/contact" method="post" data-locale="en"><div class="field"><label for="name">Name *</label><input id="name" name="name" type="text" required maxlength="120" autocomplete="name" aria-describedby="name-error"><span id="name-error" class="field-error"></span></div><div class="field"><label for="email">Email *</label><input id="email" name="email" type="email" required maxlength="254" autocomplete="email" aria-describedby="email-error"><span id="email-error" class="field-error"></span></div><div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" maxlength="40" autocomplete="tel" aria-describedby="phone-error"><span id="phone-error" class="field-error"></span></div><div class="field"><label for="contextId">Area of interest</label><select id="contextId" name="contextId"><option value="">General enquiry</option><option value="sample-service">Planning session</option></select></div><div class="field"><label for="message">Message *</label><textarea id="message" name="message" required minlength="20" maxlength="5000" rows="6" aria-describedby="message-error"></textarea><span id="message-error" class="field-error"></span></div><label class="check"><input type="checkbox" name="privacyAccepted" id="privacyAccepted" aria-describedby="privacyAccepted-error" required>I have read the <a href="/en/privacy">privacy notice</a> *</label><span id="privacyAccepted-error" class="field-error"></span><input type="hidden" name="turnstileToken" value="local-preview"><div id="form-errors" tabindex="-1" role="alert" hidden></div><button type="submit">Send message</button><p id="form-status" role="status" aria-live="polite"></p><noscript><p>This form needs JavaScript. You can also email us directly. <a href="mailto:hello+team?subject=x@example.com">hello+team?subject=x@example.com</a></p></noscript></form></div></section><script type="module" src="C:/Projects/bizness-starter-v2/apps/site/src/templates/ContactForm.astro?astro&type=script&index=0&lang.ts"></script>"
+
+ ❯ tests/contact-social.test.ts:11:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/contact-social.test.ts > renders shared labeled Contact and footer destinations in el with safe text and decorative icons
+AssertionError: expected '<section><div class="wrap"><h2>Ας μιλ…' to contain 'href="tel:+302101234567"'
+
+Expected: "href="tel:+302101234567""
+Received: "<section><div class="wrap"><h2>Ας μιλήσουμε</h2><p>Τα πεδία με * είναι υποχρεωτικά.</p><form id="contact-form" action="/api/contact" method="post" data-locale="el"><div class="field"><label for="name">Όνομα *</label><input id="name" name="name" type="text" required maxlength="120" autocomplete="name" aria-describedby="name-error"><span id="name-error" class="field-error"></span></div><div class="field"><label for="email">Email *</label><input id="email" name="email" type="email" required maxlength="254" autocomplete="email" aria-describedby="email-error"><span id="email-error" class="field-error"></span></div><div class="field"><label for="phone">Τηλέφωνο</label><input id="phone" name="phone" type="tel" maxlength="40" autocomplete="tel" aria-describedby="phone-error"><span id="phone-error" class="field-error"></span></div><div class="field"><label for="contextId">Θέμα ενδιαφέροντος</label><select id="contextId" name="contextId"><option value="">Γενική ερώτηση</option><option value="sample-service">Συνάντηση σχεδιασμού</option></select></div><div class="field"><label for="message">Μήνυμα *</label><textarea id="message" name="message" required minlength="20" maxlength="5000" rows="6" aria-describedby="message-error"></textarea><span id="message-error" class="field-error"></span></div><label class="check"><input type="checkbox" name="privacyAccepted" id="privacyAccepted" aria-describedby="privacyAccepted-error" required>Έχω διαβάσει την <a href="/el/privacy">πολιτική απορρήτου</a> *</label><span id="privacyAccepted-error" class="field-error"></span><input type="hidden" name="turnstileToken" value="local-preview"><div id="form-errors" tabindex="-1" role="alert" hidden></div><button type="submit">Αποστολή μηνύματος</button><p id="form-status" role="status" aria-live="polite"></p><noscript><p>Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email. <a href="mailto:hello+team?subject=x@example.com">hello+team?subject=x@example.com</a></p></noscript></form></div></section><script type="module" src="C:/Projects/bizness-starter-v2/apps/site/src/templates/ContactForm.astro?astro&type=script&index=0&lang.ts"></script>"
+
+ ❯ tests/contact-social.test.ts:11:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/contact-social.test.ts > shows only configured header icons when enabled in en, retaining navigation and language
+AssertionError: expected '<header class="wrap"><a class="brand"…' to contain 'aria-label="Follow us"'
+
+Expected: "aria-label="Follow us""
+Received: "<header class="wrap"><a class="brand" href="/en">Example Studio</a><nav aria-label="Main navigation"><a href="/en" aria-current="page">Home</a><a href="/en/services">Services</a><a href="/en/about">About</a><a href="/en/insights">Articles</a><a href="/en/contact">Contact</a></nav><nav aria-label="Language"><a href="/en/about" lang="en" hreflang="en" aria-current="true">English</a><a href="/el/about" lang="el" hreflang="el">Ελληνικά</a></nav></header>"
+
+ ❯ tests/contact-social.test.ts:20:388
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/contact-social.test.ts > shows only configured header icons when enabled in el, retaining navigation and language
+AssertionError: expected '<header class="wrap"><a class="brand"…' to contain 'aria-label="Ακολουθήστε μας"'
+
+Expected: "aria-label="Ακολουθήστε μας""
+Received: "<header class="wrap"><a class="brand" href="/el">Example Studio</a><nav aria-label="Κύρια πλοήγηση"><a href="/el" aria-current="page">Αρχική</a><a href="/el/services">Υπηρεσίες</a><a href="/el/about">Σχετικά</a><a href="/el/insights">Άρθρα</a><a href="/el/contact">Επικοινωνία</a></nav><nav aria-label="Γλώσσα"><a href="/en/about" lang="en" hreflang="en">English</a><a href="/el/about" lang="el" hreflang="el" aria-current="true">Ελληνικά</a></nav></header>"
+
+ ❯ tests/contact-social.test.ts:20:388
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/contact-social.test.ts > omits all empty social groups and address while keeping unsupported phone as escaped text
+AssertionError: expected '<section><div class="wrap"><h2>Let’s …' to contain 'Ask &lt;desk&gt; &amp; team'
+
+Expected: "Ask &lt;desk&gt; &amp; team"
+Received: "<section><div class="wrap"><h2>Let’s talk</h2><p>Fields marked * are required.</p><form id="contact-form" action="/api/contact" method="post" data-locale="en"><div class="field"><label for="name">Name *</label><input id="name" name="name" type="text" required maxlength="120" autocomplete="name" aria-describedby="name-error"><span id="name-error" class="field-error"></span></div><div class="field"><label for="email">Email *</label><input id="email" name="email" type="email" required maxlength="254" autocomplete="email" aria-describedby="email-error"><span id="email-error" class="field-error"></span></div><div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" maxlength="40" autocomplete="tel" aria-describedby="phone-error"><span id="phone-error" class="field-error"></span></div><div class="field"><label for="contextId">Area of interest</label><select id="contextId" name="contextId"><option value="">General enquiry</option><option value="sample-service">Planning session</option></select></div><div class="field"><label for="message">Message *</label><textarea id="message" name="message" required minlength="20" maxlength="5000" rows="6" aria-describedby="message-error"></textarea><span id="message-error" class="field-error"></span></div><label class="check"><input type="checkbox" name="privacyAccepted" id="privacyAccepted" aria-describedby="privacyAccepted-error" required>I have read the <a href="/en/privacy">privacy notice</a> *</label><span id="privacyAccepted-error" class="field-error"></span><input type="hidden" name="turnstileToken" value="local-preview"><div id="form-errors" tabindex="-1" role="alert" hidden></div><button type="submit">Send message</button><p id="form-status" role="status" aria-live="polite"></p><noscript><p>This form needs JavaScript. You can also email us directly. <a href="mailto:hello+team?subject=x@example.com">hello+team?subject=x@example.com</a></p></noscript></form></div></section><script type="module" src="C:/Projects/bizness-starter-v2/apps/site/src/templates/ContactForm.astro?astro&type=script&index=0&lang.ts"></script>"
+
+ ❯ tests/contact-social.test.ts:23:594
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  22:57:28
+   Duration  1.80s (transform 70%, import 26%, tests 3%)
+
+EXIT=1

@@ -1,0 +1,139 @@
+
+> business-starter-v2@2.0.0-dev test:contact-social C:\Projects\bizness-starter-v2
+> node scripts/verify-contact-social.mjs "--native"
+
+
+Running 1 test using 1 worker
+
+(node:31316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+06:58:32 [types] Generated 81ms
+06:58:32 [build] output: "static"
+06:58:32 [build] mode: "static"
+06:58:32 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+06:58:32 [build] Collecting build info...
+06:58:32 [build] ✓ Completed in 108ms.
+06:58:32 [build] Building static entrypoints...
+06:58:33 [vite] ✓ built in 276ms
+06:58:33 [vite] ✓ built in 114ms
+06:58:33 [build] Rearranging server assets...
+
+ generating static routes 
+06:58:33   ├─ /404.html (+16ms) 
+06:58:33   ├─ /design-system/index.html (+46ms) 
+06:58:33   ├─ /en/404/index.html (+3ms) 
+06:58:33   ├─ /el/404/index.html (+2ms) 
+06:58:33   ├─ /en/feed.xml (+2ms) 
+06:58:33   ├─ /el/feed.xml (+2ms) 
+06:58:33   ├─ /en/about/index.html (+3ms) 
+06:58:33   ├─ /en/contact/index.html (+3ms) 
+06:58:33   ├─ /en/index.html (+2ms) 
+06:58:33   ├─ /en/insights/index.html (+2ms) 
+06:58:33   ├─ /en/privacy/index.html (+2ms) 
+06:58:33   ├─ /en/services/index.html (+2ms) 
+06:58:33   ├─ /en/services/planning-session/index.html (+2ms) 
+06:58:33   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+06:58:33   ├─ /en/people/studio-guide/index.html (+2ms) 
+06:58:33   ├─ /el/about/index.html (+2ms) 
+06:58:33   ├─ /el/contact/index.html (+2ms) 
+06:58:33   ├─ /el/index.html (+2ms) 
+06:58:33   ├─ /el/insights/index.html (+2ms) 
+06:58:33   ├─ /el/privacy/index.html (+2ms) 
+06:58:33   ├─ /el/services/index.html (+2ms) 
+06:58:33   ├─ /el/services/planning-session/index.html (+2ms) 
+06:58:33   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+06:58:33   ├─ /el/people/studio-guide/index.html (+2ms) 
+06:58:33   ├─ /index.html (+3ms) 
+06:58:33 ✓ Completed in 254ms.
+
+06:58:33 [build] ✓ Completed in 710ms.
+06:58:33 [build] 23 page(s) built in 946ms
+06:58:33 [build] Complete!
+  x  1 e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof (26.8s)
+
+
+  1) e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof 
+
+    AggregateError: Independent Composition public cleanup failed
+
+       at helpers\composition-b-cleanup.ts:14
+
+      12 |     }
+      13 |     if (failures.length)
+    > 14 |         throw new AggregateError(failures, 'Independent Composition public cleanup failed');
+         |               ^
+      15 | }
+      16 | export interface BuildCleanupState {
+      17 |     runtimeStopped: boolean;
+        at cleanupCompositionPublic (C:\Projects\bizness-starter-v2\e2e\helpers\composition-b-cleanup.ts:14:15)
+        at cleanupMediaOptimization (C:\Projects\bizness-starter-v2\e2e\helpers\media-optimization-cleanup.ts:20:2)
+        at C:\Projects\bizness-starter-v2\e2e\contact-social-cms.spec.ts:26:11
+
+    Error: Concurrent edits preserved; restore manually from C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-wpKqA3\settings-source\snapshot-YdYQxl: C:\Projects\bizness-starter-v2\content\settings\site.json
+
+       at helpers\cms-source-ownership.ts:160
+
+      158 |       await cleanup();
+      159 |       if (conflicts.size)
+    > 160 |         throw Error(
+          |               ^
+      161 |           'Concurrent edits preserved; restore manually from ' +
+      162 |             backup +
+      163 |             ': ' +
+        at Object.restore (C:\Projects\bizness-starter-v2\e2e\helpers\cms-source-ownership.ts:160:15)
+        at confirmed (C:\Projects\bizness-starter-v2\e2e\helpers\media-optimization-cleanup.ts:19:45)
+        at C:\Projects\bizness-starter-v2\e2e\helpers\media-optimization-cleanup.ts:25:28
+        at cleanupCompositionPublic (C:\Projects\bizness-starter-v2\e2e\helpers\composition-b-cleanup.ts:7:13)
+        at cleanupMediaOptimization (C:\Projects\bizness-starter-v2\e2e\helpers\media-optimization-cleanup.ts:20:2)
+        at C:\Projects\bizness-starter-v2\e2e\contact-social-cms.spec.ts:26:11
+
+    Error: Full canonical project/content/uploads snapshot conflict; regeneration refused
+
+       at ..\scripts\composition-c-snapshot.mjs:9
+
+       7 |  return Object.fromEntries([join(root,'project.json'),...walk(join(root,'content')),...walk(join(root,'apps/site/public/uploads'))].sort().map(path=>[relative(root,path).replaceAll('\\','/'),createHash('sha256').update(readFileSync(path)).digest('hex')]));
+       8 | }
+    >  9 | export function assertCanonicalSnapshot(expected,root=process.cwd()){if(!isDeepStrictEqual(canonicalSnapshot(root),expected))throw Error('Full canonical project/content/uploads snapshot conflict; regeneration refused');}
+         |                                                                                                                                    ^
+      10 |
+        at assertCanonicalSnapshot (C:\Projects\bizness-starter-v2\scripts\composition-c-snapshot.mjs:9:132)
+        at action (C:\Projects\bizness-starter-v2\e2e\contact-social-cms.spec.ts:26:233)
+        at confirmed (C:\Projects\bizness-starter-v2\e2e\helpers\media-optimization-cleanup.ts:19:51)
+        at action (C:\Projects\bizness-starter-v2\e2e\helpers\media-optimization-cleanup.ts:27:44)
+        at cleanupCompositionPublic (C:\Projects\bizness-starter-v2\e2e\helpers\composition-b-cleanup.ts:7:19)
+        at cleanupMediaOptimization (C:\Projects\bizness-starter-v2\e2e\helpers\media-optimization-cleanup.ts:20:2)
+        at C:\Projects\bizness-starter-v2\e2e\contact-social-cms.spec.ts:26:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-wpKqA3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-wpKqA3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .generated\media-optimization\acceptance-wpKqA3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-wpKqA3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .generated\media-optimization\acceptance-wpKqA3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof 
+file:///C:/Projects/bizness-starter-v2/scripts/media-optimization-acceptance.mjs:66
+ return {directory,assertInputs,command,configure:()=>command(['scripts/configure.mjs']),build:(args=[])=>command(['apps/site/scripts/build.mjs',...args]),finish(){const after=canonicalSnapshot(root),unchanged=isDeepStrictEqual(before,after);log('restoration.json',{before,after,unchanged,commands});if(active||!isStopped())throw Error('Owned runtime shutdown unconfirmed');if(!unchanged)throw Error('Full canonical project/content/uploads snapshot conflict; acceptance failed');return {directory,unchanged};}};
+                                                                                                                                                                                                                                                                                                                                                                                                          ^
+
+Error: Full canonical project/content/uploads snapshot conflict; acceptance failed
+    at Object.finish (file:///C:/Projects/bizness-starter-v2/scripts/media-optimization-acceptance.mjs:66:395)
+    at file:///C:/Projects/bizness-starter-v2/scripts/verify-contact-social.mjs:12:5
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
+ ELIFECYCLE  Command failed with exit code 1.

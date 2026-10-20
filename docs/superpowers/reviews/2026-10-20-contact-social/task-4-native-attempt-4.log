@@ -1,0 +1,165 @@
+
+> business-starter-v2@2.0.0-dev test:contact-social C:\Projects\bizness-starter-v2
+> node scripts/verify-contact-social.mjs "--native"
+
+
+Running 1 test using 1 worker
+
+(node:36728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:26520) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:02:58 [vite] Re-optimizing dependencies because vite config has changed
+07:02:58 [types] Generated 213ms
+07:02:58 [build] output: "static"
+07:02:58 [build] mode: "static"
+07:02:58 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:02:58 [build] Collecting build info...
+07:02:58 [build] ✓ Completed in 236ms.
+07:02:58 [build] Building static entrypoints...
+07:02:58 [vite] ✓ built in 275ms
+07:02:58 [vite] ✓ built in 113ms
+07:02:58 [build] Rearranging server assets...
+
+ generating static routes 
+07:02:59   ├─ /404.html (+15ms) 
+07:02:59   ├─ /design-system/index.html (+48ms) 
+07:02:59   ├─ /en/404/index.html (+3ms) 
+07:02:59   ├─ /el/404/index.html (+3ms) 
+07:02:59   ├─ /en/feed.xml (+2ms) 
+07:02:59   ├─ /el/feed.xml (+2ms) 
+07:02:59   ├─ /en/about/index.html (+3ms) 
+07:02:59   ├─ /en/contact/index.html (+3ms) 
+07:02:59   ├─ /en/index.html (+2ms) 
+07:02:59   ├─ /en/insights/index.html (+3ms) 
+07:02:59   ├─ /en/privacy/index.html (+2ms) 
+07:02:59   ├─ /en/services/index.html (+2ms) 
+07:02:59   ├─ /en/services/planning-session/index.html (+2ms) 
+07:02:59   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:02:59   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:02:59   ├─ /el/about/index.html (+2ms) 
+07:02:59   ├─ /el/contact/index.html (+2ms) 
+07:02:59   ├─ /el/index.html (+2ms) 
+07:02:59   ├─ /el/insights/index.html (+2ms) 
+07:02:59   ├─ /el/privacy/index.html (+2ms) 
+07:02:59   ├─ /el/services/index.html (+2ms) 
+07:02:59   ├─ /el/services/planning-session/index.html (+2ms) 
+07:02:59   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:02:59   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:02:59   ├─ /index.html (+3ms) 
+07:02:59 ✓ Completed in 252ms.
+
+07:02:59 [build] ✓ Completed in 707ms.
+07:02:59 [build] 23 page(s) built in 1.07s
+07:02:59 [build] Complete!
+(node:38344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:03:25 [vite] Re-optimizing dependencies because vite config has changed
+07:03:25 [types] Generated 203ms
+07:03:25 [build] output: "static"
+07:03:25 [build] mode: "static"
+07:03:25 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:03:25 [build] Collecting build info...
+07:03:25 [build] ✓ Completed in 230ms.
+07:03:25 [build] Building static entrypoints...
+07:03:25 [vite] ✓ built in 268ms
+07:03:26 [vite] ✓ built in 117ms
+07:03:26 [build] Rearranging server assets...
+
+ generating static routes 
+07:03:26   ├─ /404.html (+17ms) 
+07:03:26   ├─ /design-system/index.html (+50ms) 
+07:03:26   ├─ /en/404/index.html (+3ms) 
+07:03:26   ├─ /el/404/index.html (+2ms) 
+07:03:26   ├─ /en/feed.xml (+2ms) 
+07:03:26   ├─ /el/feed.xml (+2ms) 
+07:03:26   ├─ /en/about/index.html (+3ms) 
+07:03:26   ├─ /en/contact/index.html (+3ms) 
+07:03:26   ├─ /en/index.html (+2ms) 
+07:03:26   ├─ /en/insights/index.html (+3ms) 
+07:03:26   ├─ /en/privacy/index.html (+2ms) 
+07:03:26   ├─ /en/services/index.html (+2ms) 
+07:03:26   ├─ /en/services/planning-session/index.html (+2ms) 
+07:03:26   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:03:26   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:03:26   ├─ /el/about/index.html (+2ms) 
+07:03:26   ├─ /el/contact/index.html (+2ms) 
+07:03:26   ├─ /el/index.html (+2ms) 
+07:03:26   ├─ /el/insights/index.html (+2ms) 
+07:03:26   ├─ /el/privacy/index.html (+2ms) 
+07:03:26   ├─ /el/services/index.html (+2ms) 
+07:03:26   ├─ /el/services/planning-session/index.html (+2ms) 
+07:03:26   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:03:26   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:03:26   ├─ /index.html (+2ms) 
+07:03:26 ✓ Completed in 257ms.
+
+07:03:26 [build] ✓ Completed in 796ms.
+07:03:26 [build] 23 page(s) built in 1.15s
+07:03:26 [build] Complete!
+  x  1 e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof (31.0s)
+
+
+  1) e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 2
+
+    @@ -5,11 +5,12 @@
+          },
+          "contact": Object {
+            "address": "",
+          },
+          "legal": Object {
+    -       "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.",
+    +       "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.
+    + ",
+          },
+          "navigation": Array [
+            Object {
+              "label": "Αρχική",
+              "pageId": "home",
+
+      19 |  await page.route('**/graphql',async route=>{const body=route.request().postDataJSON();if(route.request().method()==='POST'&&/\bmutation\b/.test(body?.query||'')){pending=undefined;try{assertContactSettingsMutation(body,path);sources.assertUnchanged();assertCanonicalSnapshot(expected);const request:Mutation=coerceContactSettingsVariables(body,schemaSDL),complete=await expectedNativeDocument(request,schema,prior),bytes=graphql.stringifyFile(complete,'.json',false);pending={request,complete,bytes,sha256:hash(bytes)};writeEvidence(directory,'pre-dispatch-'+saves.length+'.json',{...pending,wire:body});}catch(error){pending=undefined;await route.abort('blockedbyclient');writeEvidence(directory,'refused.json',{body,error:String(error)});return;}}await route.continue();});
+      20 |  async function open(){await page.goto('http://127.0.0.1:'+ports.site+'/cms/index.html?contact='+Date.now()+'#/collections/edit/settings/site');const enter=page.getByRole('button',{name:'Enter Edit Mode',exact:true});await expect(enter.or(page.getByRole('button',{name:'Save',exact:true})).first()).toBeVisible({timeout:60000});if(await enter.isVisible())await enter.click();await expect(page.getByRole('button',{name:'Save',exact:true})).toBeVisible({timeout:60000});}
+    > 21 |  async function save(){pending=undefined;const response=page.waitForResponse(r=>r.request().method()==='POST'&&(r.request().postData()||'').includes('updateDocument'));await page.getByRole('button',{name:'Save',exact:true}).click();expect((await(await response).json()).errors||[]).toEqual([]);expect(pending).toBeTruthy();await evidence.captureNative(sources,path,pending.request,schema,()=>true,pending.bytes);expect(readFileSync(path,'utf8')).toBe(pending.bytes);expected[path]=pending.sha256;assertCanonicalSnapshot(expected);expect(pending.complete.translations).toEqual(prior.translations);expect(pending.complete.legal).toEqual(prior.legal);if(saves.length){expect(pending.request.params.settings.legal).toEqual(saves[0].request.params.settings.legal);expect(pending.request.params.settings.translations).toEqual(saves[0].request.params.settings.translations);}prior=pending.complete;saves.push(pending);writeEvidence(directory,'saves.json',saves);}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ^
+      22 |  async function publicProof(count:number,header:number){for(const locale of ['en','el']){await publicPage.goto('http://127.0.0.1:'+ports.site+'/'+locale+'/contact');await expect(publicPage.locator('main .social-link')).toHaveCount(count);await expect(publicPage.locator('footer .social-link')).toHaveCount(count);await expect(publicPage.locator('header .social-link')).toHaveCount(header);if(count===2){await expect(publicPage.locator('a[href*="instagram.com"],a[href*="wa.me"]')).toHaveCount(0);}}}
+      23 |  await open();writeEvidence(directory,'initial-controls.json',await page.locator('input,button').evaluateAll(es=>es.map(e=>({tag:e.tagName,text:e.textContent,name:e.getAttribute('name'),type:e.getAttribute('type')}))));
+      24 |  const group=page.getByText('Social channels',{exact:true});await group.click();writeEvidence(directory,'expanded-social-dom.json',await page.locator('input,button,label').evaluateAll(es=>es.map(e=>({tag:e.tagName,text:e.textContent,name:e.getAttribute('name'),type:e.getAttribute('type'),id:e.id,html:e.outerHTML}))));
+        at save (C:\Projects\bizness-starter-v2\e2e\contact-social-cms.spec.ts:21:569)
+        at C:\Projects\bizness-starter-v2\e2e\contact-social-cms.spec.ts:25:445
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-XRHSg3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-XRHSg3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .generated\media-optimization\acceptance-XRHSg3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    .generated\media-optimization\acceptance-XRHSg3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .generated\media-optimization\acceptance-XRHSg3\browser-results\contact-social-cms-actual--89cbb--installed-serializer-proof\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof 
+Contact/social evidence: C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-XRHSg3
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: node_modules/@playwright/test/cli.js test e2e/contact-social-cms.spec.ts --reporter=list --output=C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-XRHSg3\browser-results
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
+ ELIFECYCLE  Command failed with exit code 1.

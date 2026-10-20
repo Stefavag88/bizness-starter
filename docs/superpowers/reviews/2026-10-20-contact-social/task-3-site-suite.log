@@ -1,0 +1,14 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+
+ Test Files  8 passed (8)
+      Tests  29 passed (29)
+   Start at  22:59:00
+   Duration  2.53s (transform 58%, import 36%, tests 5%)
+
+  Transform  transforming modules took 9.58s · 58% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+
+EXIT=0

@@ -1,0 +1,63 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/contact-channels.test.ts (99 tests | 18 failed | 36 skipped) 37ms
+   ❯ platform destination validation (63)
+     × rejects instagram destination https://instagram.com.evil.test 6ms
+     × rejects instagram destination https://evilinstagram.com 1ms
+     × rejects instagram destination http://instagram.com 1ms
+     × rejects instagram destination https://instagram.com:8443 1ms
+     × rejects instagram destination https://linkedin.com/example 1ms
+     × rejects instagram destination https://facebook.com/example 0ms
+     × rejects linkedin destination https://linkedin.com.evil.test 0ms
+     × rejects linkedin destination https://evillinkedin.com 0ms
+     × rejects linkedin destination http://linkedin.com 0ms
+     × rejects linkedin destination https://linkedin.com:8443 0ms
+     × rejects linkedin destination https://instagram.com/example 0ms
+     × rejects linkedin destination https://facebook.com/example 0ms
+     × rejects facebook destination https://facebook.com.evil.test 0ms
+     × rejects facebook destination https://evilfacebook.com 0ms
+     × rejects facebook destination http://facebook.com 1ms
+     × rejects facebook destination https://facebook.com:8443 0ms
+     × rejects facebook destination https://instagram.com/example 0ms
+     × rejects facebook destination https://linkedin.com/example 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects instagram destination https://instagram.com.evil.test
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects instagram destination https://evilinstagram.com
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects instagram destination http://instagram.com
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects instagram destination https://instagram.com:8443
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects instagram destination https://linkedin.com/example
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects instagram destination https://facebook.com/example
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects linkedin destination https://linkedin.com.evil.test
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects linkedin destination https://evillinkedin.com
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects linkedin destination http://linkedin.com
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects linkedin destination https://linkedin.com:8443
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects linkedin destination https://instagram.com/example
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects linkedin destination https://facebook.com/example
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects facebook destination https://facebook.com.evil.test
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects facebook destination https://evilfacebook.com
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects facebook destination http://facebook.com
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects facebook destination https://facebook.com:8443
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects facebook destination https://instagram.com/example
+ FAIL  tests/contact-channels.test.ts > platform destination validation > rejects facebook destination https://linkedin.com/example
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/contact-channels.test.ts:57:118
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  18 failed | 45 passed | 36 skipped (99)
+   Start at  22:45:23
+   Duration  701ms (import 54%, transform 35%, tests 9%, worker 2%)
+

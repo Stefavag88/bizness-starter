@@ -1,0 +1,19 @@
+
+> business-starter-v2@2.0.0-dev check C:\Projects\bizness-starter-v2
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+tina/fields/contact.ts(6,5): error TS2322: Type '{ label: string; required: true; description: string; list?: undefined; ui?: UIField<RichTextAst, false> | undefined; indexed?: boolean | undefined; name: string; ... 9 more ...; parser?: Parser | undefined; } | ... 26 more ... | { ...; }' is not assignable to type 'TinaField'.
+  Type '{ label: string; required: true; description: string; indexed?: undefined; name: string; nameOverride?: string; searchable?: boolean; uid?: boolean; type: "displayOnly"; list?: never; ui?: { component?: React.FC<any> | null; }; }' is not assignable to type 'TinaField'.
+    Type '{ label: string; required: true; description: string; indexed?: undefined; name: string; nameOverride?: string; searchable?: boolean; uid?: boolean; type: "displayOnly"; list?: never; ui?: { component?: React.FC<any> | null; }; }' is not assignable to type '({ list?: undefined; ui?: UIField<RichTextAst, false> | undefined; } & BaseField & SearchableTextField & { type: "rich-text"; ... 4 more ...; parser?: Parser | undefined; }) | ... 18 more ... | ({ ...; } & ... 2 more ... & { ...; })'.
+      Type '{ label: string; required: true; description: string; indexed?: undefined; name: string; nameOverride?: string; searchable?: boolean; uid?: boolean; type: "displayOnly"; list?: never; ui?: { component?: React.FC<any> | null; }; }' is not assignable to type '{ list?: false | undefined; ui?: (UIField<string, false> & ObjectUiProps) | undefined; } & BaseField & { openFormOnCreate?: boolean | undefined; } & { ...; }'.
+        Property 'templates' is missing in type '{ label: string; required: true; description: string; indexed?: undefined; name: string; nameOverride?: string; searchable?: boolean; uid?: boolean; type: "displayOnly"; list?: never; ui?: { component?: React.FC<any> | null; }; }' but required in type '{ type: "object"; fields?: undefined; templates: { label?: string | boolean | undefined; name: string; nameOverride?: string | undefined; ui?: { itemProps?(item: Record<string, any>): { ...; }; defaultItem?: DefaultItem<...> | undefined; previewSrc?: string | undefined; } | undefined; fields: Field<...>[]; }[]; temp...'.
+tina/fields/contact.ts(17,5): error TS2322: Type '{ label: string; description: string; ui: { component: string; }; required?: undefined; indexed?: undefined; name: string; nameOverride?: string; searchable?: boolean; uid?: boolean; type: "displayOnly"; list?: never; }' is not assignable to type 'TinaField'.
+  The types of 'ui.component' are incompatible between these types.
+    Type 'string' is not assignable to type 'FunctionComponent<any>'.
+ ELIFECYCLE  Command failed with exit code 2.
+EXIT=2

@@ -1,0 +1,38 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+stderr | tests/contact-social-native-admission.test.ts > rejects same-JSON foreign bytes before a native claim, revokes older claim and blocks regeneration
+Preserved failed-test evidence: C:\Users\Vag\AppData\Local\Temp\contact-native-fault-R8apxS
+
+ ❯ tests/contact-social-native-admission.test.ts (12 tests | 1 failed) 34ms
+   × rejects same-JSON foreign bytes before a native claim, revokes older claim and blocks regeneration 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contact-social-native-admission.test.ts > rejects same-JSON foreign bytes before a native claim, revokes older claim and blocks regeneration
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/contact-social-native-admission.test.ts:25:70
+     23|  writeFileSync(path,known);await owner.captureNative(path,request,sche…
+     24|  const foreign=JSON.stringify(JSON.parse(known),null,4)+'\n';writeFile…
+     25|  await expect(owner.captureNative(path,request,schema,()=>true,known))…
+       |                                                                      ^
+     26|  expect(owner.owns(path)).toBe(false);const regenerate=vi.fn();
+     27|  await expect(cleanupMediaOptimization({stops:[],restores:[{id:'settin…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  06:56:35
+   Duration  515ms (import 61%, transform 26%, tests 10%, worker 2%)
+

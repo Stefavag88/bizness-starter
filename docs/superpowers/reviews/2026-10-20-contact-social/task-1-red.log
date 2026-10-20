@@ -1,0 +1,225 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/contact-channels.test.ts (15 tests | 11 failed) 40ms
+   ❯ shared social settings (15)
+     × normalizes native clear state undefined 10ms
+     × normalizes native clear state null 1ms
+     × normalizes native clear state {} 1ms
+     × normalizes native clear state {"instagram":null,"linkedin":null,"facebook":null,"whatsapp":null,"showInHeader":null} 1ms
+     × normalizes native clear state {"instagram":"  ","linkedin":"","facebook":"\t","whatsapp":"\n"} 1ms
+     × accepts actual header boolean true 1ms
+     × accepts actual header boolean false 0ms
+     × normalizes cleared optional phone/address undefined 1ms
+     × normalizes cleared optional phone/address null 0ms
+     × parses an existing document without inserting defaults into input 5ms
+     × retains detached equal shared settings in both locales 16ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contact-channels.test.ts > shared social settings > normalizes native clear state undefined
+ FAIL  tests/contact-channels.test.ts > shared social settings > normalizes native clear state null
+ FAIL  tests/contact-channels.test.ts > shared social settings > normalizes native clear state {}
+ FAIL  tests/contact-channels.test.ts > shared social settings > normalizes native clear state {"instagram":null,"linkedin":null,"facebook":null,"whatsapp":null,"showInHeader":null}
+ FAIL  tests/contact-channels.test.ts > shared social settings > normalizes native clear state {"instagram":"  ","linkedin":"","facebook":"\t","whatsapp":"\n"}
+ZodError: [
+  {
+    "code": "unrecognized_keys",
+    "keys": [
+      "social"
+    ],
+    "path": [],
+    "message": "Unrecognized key: \"social\""
+  }
+]
+ ❯ tests/contact-channels.test.ts:12:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  tests/contact-channels.test.ts > shared social settings > accepts actual header boolean true
+ FAIL  tests/contact-channels.test.ts > shared social settings > accepts actual header boolean false
+ZodError: [
+  {
+    "code": "unrecognized_keys",
+    "keys": [
+      "social"
+    ],
+    "path": [],
+    "message": "Unrecognized key: \"social\""
+  }
+]
+ ❯ tests/contact-channels.test.ts:15:25
+     13|  });
+     14|  it.each([true,false])('accepts actual header boolean %s',showInHeader…
+     15|   expect(settingsSchema.parse({...normalizedSettings(),social:{showInH…
+       |                         ^
+     16|  });
+     17|  it.each([{showInHeader:'false'},{unknown:''}])('rejects invalid socia…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  tests/contact-channels.test.ts > shared social settings > normalizes cleared optional phone/address undefined
+ZodError: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "contact",
+      "phone"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "contact",
+      "address"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "translations",
+      "el",
+      "contact",
+      "address"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+]
+ ❯ tests/contact-channels.test.ts:26:31
+     24|  it.each([undefined,null])('normalizes cleared optional phone/address …
+     25|   const settings:any=normalizedSettings();settings.contact.phone=clear…
+     26|   const parsed=settingsSchema.parse(settings);
+       |                               ^
+     27|   expect(parsed.contact).toEqual({email:'hello@example.com',phone:'',a…
+     28|   expect(parsed.translations.el.contact.address).toBe('');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  tests/contact-channels.test.ts > shared social settings > normalizes cleared optional phone/address null
+ZodError: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "contact",
+      "phone"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "contact",
+      "address"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "translations",
+      "el",
+      "contact",
+      "address"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+ ❯ tests/contact-channels.test.ts:26:31
+     24|  it.each([undefined,null])('normalizes cleared optional phone/address …
+     25|   const settings:any=normalizedSettings();settings.contact.phone=clear…
+     26|   const parsed=settingsSchema.parse(settings);
+       |                               ^
+     27|   expect(parsed.contact).toEqual({email:'hello@example.com',phone:'',a…
+     28|   expect(parsed.translations.el.contact.address).toBe('');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  tests/contact-channels.test.ts > shared social settings > parses an existing document without inserting defaults into input
+AssertionError: expected undefined to deeply equal { instagram: '', linkedin: '', …(3) }
+
+- Expected:
+{
+  "facebook": "",
+  "instagram": "",
+  "linkedin": "",
+  "showInHeader": false,
+  "whatsapp": "",
+}
+
++ Received:
+undefined
+
+ ❯ tests/contact-channels.test.ts:37:49
+     35|  it('parses an existing document without inserting defaults into input…
+     36|   const raw=settingsDocument();delete raw.social;const original=struct…
+     37|   expect(normalizeSettingsDocument(raw).social).toEqual(emptySocial);e…
+       |                                                 ^
+     38|  });
+     39|  it('retains detached equal shared settings in both locales',()=>{
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  tests/contact-channels.test.ts > shared social settings > retains detached equal shared settings in both locales
+Error: C:\Users\Vag\AppData\Local\Temp\starter-content-jwq80i\content\settings\site.json: [
+  {
+    "code": "unrecognized_keys",
+    "keys": [
+      "social"
+    ],
+    "path": [],
+    "message": "Unrecognized key: \"social\""
+  }
+]
+ ❯ json packages/content/read.mjs:12:21
+     10| function json(file,schema,project) {
+     11|  try {return (typeof schema==='function'?schema:value=>schema.parse(va…
+     12|  catch(error){throw new Error(file+': '+error.message,{cause:error});}
+       |                     ^
+     13| }
+     14| function flatFiles(folder) {
+ ❯ readContent packages/content/read.mjs:35:12
+ ❯ tests/contact-channels.test.ts:41:16
+
+Caused by: ZodError: [
+  {
+    "code": "unrecognized_keys",
+    "keys": [
+      "social"
+    ],
+    "path": [],
+    "message": "Unrecognized key: \"social\""
+  }
+]
+ ❯ normalizeSettingsDocument packages/content/documents.mjs:88:73
+ ❯ json packages/content/read.mjs:11:76
+ ❯ readContent packages/content/read.mjs:35:12
+ ❯ tests/contact-channels.test.ts:41:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { _zod: { def: [ { code: 'unrecognized_keys', keys: [ 'social' ], path: [], message: 'Unrecognized key: "social"' } ], constr: 'Function<ZodError>', traits: { constructor: 'Function<Set>', has: 'Function<has>', add: 'Function<add>', delete: 'Function<delete>', difference: 'Function<difference>', clear: 'Function<clear>', entries: 'Function<entries>', forEach: 'Function<forEach>', intersection: 'Function<intersection>', isSubsetOf: 'Function<isSubsetOf>', isSupersetOf: 'Function<isSupersetOf>', isDisjointFrom: 'Function<isDisjointFrom>', size: 2, symmetricDifference: 'Function<symmetricDifference>', union: 'Function<union>', values: 'Function<values>', keys: 'Function<values>' }, message: '[
+  {
+    "code": "unrecognized_keys",
+    "keys": [
+      "social"
+    ],
+    "path": [],
+    "message": "Unrecognized key: \"social\""
+  }
+]' }, issues: [ { code: 'unrecognized_keys', keys: [ 'social' ], path: [], message: 'Unrecognized key: "social"' } ], format: 'Function<anonymous>', flatten: 'Function<anonymous>', addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', isEmpty: false }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed | 4 passed (15)
+   Start at  22:42:59
+   Duration  643ms (import 53%, transform 35%, tests 10%, worker 2%)
+

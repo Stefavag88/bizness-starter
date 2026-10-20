@@ -1,0 +1,31 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/contact-social-native-admission.test.ts (14 tests | 1 failed) 67ms
+   × coerces raw Settings variable key order through the installed GraphQL input schema before exact serializer expectations 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contact-social-native-admission.test.ts > coerces raw Settings variable key order through the installed GraphQL input schema before exact serializer expectations
+AssertionError: expected [ 'navigation', 'social' ] to deeply equal [ 'social', 'navigation' ]
+
+- Expected
++ Received
+
+  [
+-   "social",
+    "navigation",
++   "social",
+  ]
+
+ ❯ tests/contact-social-native-admission.test.ts:43:47
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  07:02:22
+   Duration  578ms (import 53%, transform 29%, tests 17%, worker 2%)
+

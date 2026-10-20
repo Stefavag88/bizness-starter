@@ -1,0 +1,21 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/contact-social-native-admission.test.ts (14 tests | 1 failed) 65ms
+   × coerces raw Settings variable key order through the installed GraphQL input schema before exact serializer expectations 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contact-social-native-admission.test.ts > coerces raw Settings variable key order through the installed GraphQL input schema before exact serializer expectations
+TypeError: coerceContactSettingsVariables is not a function
+ ❯ tests/contact-social-native-admission.test.ts:42:16
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  07:02:12
+   Duration  579ms (import 53%, transform 29%, tests 17%, worker 2%)
+

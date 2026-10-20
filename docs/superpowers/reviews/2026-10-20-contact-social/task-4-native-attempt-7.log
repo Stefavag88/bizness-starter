@@ -1,0 +1,102 @@
+
+> business-starter-v2@2.0.0-dev test:contact-social C:\Projects\bizness-starter-v2
+> node scripts/verify-contact-social.mjs "--native"
+
+
+Running 1 test using 1 worker
+
+(node:22400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:07:24 [types] Generated 81ms
+07:07:24 [build] output: "static"
+07:07:24 [build] mode: "static"
+07:07:24 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:07:24 [build] Collecting build info...
+07:07:24 [build] ✓ Completed in 109ms.
+07:07:24 [build] Building static entrypoints...
+07:07:25 [vite] ✓ built in 289ms
+07:07:25 [vite] ✓ built in 116ms
+07:07:25 [build] Rearranging server assets...
+
+ generating static routes 
+07:07:25   ├─ /404.html (+17ms) 
+07:07:25   ├─ /design-system/index.html (+46ms) 
+07:07:25   ├─ /en/404/index.html (+3ms) 
+07:07:25   ├─ /el/404/index.html (+2ms) 
+07:07:25   ├─ /en/feed.xml (+2ms) 
+07:07:25   ├─ /el/feed.xml (+2ms) 
+07:07:25   ├─ /en/about/index.html (+3ms) 
+07:07:25   ├─ /en/contact/index.html (+3ms) 
+07:07:25   ├─ /en/index.html (+3ms) 
+07:07:25   ├─ /en/insights/index.html (+3ms) 
+07:07:25   ├─ /en/privacy/index.html (+2ms) 
+07:07:25   ├─ /en/services/index.html (+2ms) 
+07:07:25   ├─ /en/services/planning-session/index.html (+2ms) 
+07:07:25   ├─ /en/insights/a-useful-first-question/index.html (+3ms) 
+07:07:25   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:07:25   ├─ /el/about/index.html (+2ms) 
+07:07:25   ├─ /el/contact/index.html (+2ms) 
+07:07:25   ├─ /el/index.html (+2ms) 
+07:07:25   ├─ /el/insights/index.html (+2ms) 
+07:07:25   ├─ /el/privacy/index.html (+2ms) 
+07:07:25   ├─ /el/services/index.html (+2ms) 
+07:07:25   ├─ /el/services/planning-session/index.html (+2ms) 
+07:07:25   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:07:25   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:07:25   ├─ /index.html (+3ms) 
+07:07:25 ✓ Completed in 255ms.
+
+07:07:25 [build] ✓ Completed in 726ms.
+07:07:25 [build] 23 page(s) built in 957ms
+07:07:25 [build] Complete!
+(node:10392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+07:07:58 [vite] Re-optimizing dependencies because vite config has changed
+07:07:58 [types] Generated 202ms
+07:07:58 [build] output: "static"
+07:07:58 [build] mode: "static"
+07:07:58 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:07:58 [build] Collecting build info...
+07:07:58 [build] ✓ Completed in 236ms.
+07:07:58 [build] Building static entrypoints...
+07:07:58 [vite] ✓ built in 268ms
+07:07:59 [vite] ✓ built in 115ms
+07:07:59 [build] Rearranging server assets...
+
+ generating static routes 
+07:07:59   ├─ /404.html (+16ms) 
+07:07:59   ├─ /design-system/index.html (+46ms) 
+07:07:59   ├─ /en/404/index.html (+3ms) 
+07:07:59   ├─ /el/404/index.html (+2ms) 
+07:07:59   ├─ /en/feed.xml (+2ms) 
+07:07:59   ├─ /el/feed.xml (+2ms) 
+07:07:59   ├─ /en/about/index.html (+3ms) 
+07:07:59   ├─ /en/contact/index.html (+3ms) 
+07:07:59   ├─ /en/index.html (+3ms) 
+07:07:59   ├─ /en/insights/index.html (+3ms) 
+07:07:59   ├─ /en/privacy/index.html (+2ms) 
+07:07:59   ├─ /en/services/index.html (+2ms) 
+07:07:59   ├─ /en/services/planning-session/index.html (+2ms) 
+07:07:59   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:07:59   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:07:59   ├─ /el/about/index.html (+2ms) 
+07:07:59   ├─ /el/contact/index.html (+2ms) 
+07:07:59   ├─ /el/index.html (+2ms) 
+07:07:59   ├─ /el/insights/index.html (+2ms) 
+07:07:59   ├─ /el/privacy/index.html (+2ms) 
+07:07:59   ├─ /el/services/index.html (+2ms) 
+07:07:59   ├─ /el/services/planning-session/index.html (+2ms) 
+07:07:59   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:07:59   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:07:59   ├─ /index.html (+2ms) 
+07:07:59 ✓ Completed in 250ms.
+
+07:07:59 [build] ✓ Completed in 698ms.
+07:07:59 [build] 23 page(s) built in 1.06s
+07:07:59 [build] Complete!
+  ok 1 e2e\contact-social-cms.spec.ts:15:1 › actual Settings edit clear toggle with pre-dispatch installed serializer proof (37.2s)
+
+  1 passed (38.6s)
+Contact/social evidence: C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-KCY5qC

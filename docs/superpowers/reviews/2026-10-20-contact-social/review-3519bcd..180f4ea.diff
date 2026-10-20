@@ -1,0 +1,1645 @@
+# Review package: 3519bcd345c3dfc4a425b935bd59100a9f80e3f0..180f4ea1b895c4d5d998dcd956c2370b82768bc3
+
+## Commits
+180f4ea test: prove shared contact and social acceptance
+3093f65 feat(site): share contact details and social link placements
+5edc499 feat(cms): add shared contact and social settings controls
+1367a9e feat(content): add shared contact and social destination contracts
+1b8698a docs: define shared contact and social implementation slice
+
+## Files changed
+ apps/site/src/components/ui/ContactDetails.astro   |   7 ++
+ apps/site/src/components/ui/ContactIcon.astro      |   7 ++
+ apps/site/src/components/ui/SocialLinks.astro      |  10 ++
+ apps/site/src/layouts/Layout.astro                 |   9 +-
+ apps/site/src/styles/foundations.css               |   1 +
+ apps/site/src/styles/global.css                    |   2 +
+ apps/site/src/templates/ContactForm.astro          |  11 +-
+ apps/site/tests/contact-social.test.ts             |  31 +++++
+ apps/site/vitest.config.ts                         |   2 +-
+ docs/ARCHITECTURE.md                               |   8 +-
+ docs/CONTACT_SOCIAL.md                             |  32 +++++
+ docs/CONTENT_MODEL.md                              |   9 +-
+ docs/QUICKSTART.md                                 |   6 +-
+ docs/THIRD_PARTY_NOTICES.md                        |  40 +++++++
+ .../plans/2026-10-19-starter-v2-contact-social.md  | 112 ++++++++++++++++++
+ ...026-10-20-starter-v2-contact-social-evidence.md |  44 +++++++
+ .../2026-10-19-starter-v2-contact-social-design.md |  87 ++++++++++++++
+ e2e/contact-social-cms.spec.ts                     |  38 ++++++
+ e2e/contact-social.spec.ts                         |  24 ++++
+ e2e/helpers/cms-source-ownership.ts                |  10 +-
+ e2e/helpers/contact-social-native-admission.ts     |  30 +++++
+ package.json                                       |   3 +-
+ packages/content/contact.d.mts                     |   7 ++
+ packages/content/contact.mjs                       |  46 ++++++++
+ packages/content/localize.mjs                      |   2 +-
+ packages/content/schemas.mjs                       |   7 +-
+ packages/content/types.ts                          |   5 +-
+ packages/design-system/contact-icons.d.mts         |   2 +
+ packages/design-system/contact-icons.mjs           |  42 +++++++
+ scripts/verify-contact-social.mjs                  |  12 ++
+ tests/cms-contact-social.test.ts                   | 130 +++++++++++++++++++++
+ tests/contact-channels.test.ts                     | 100 ++++++++++++++++
+ tests/contact-social-native-admission.test.ts      |  44 +++++++
+ tests/fixtures/content/factory.ts                  |   2 +
+ tina/collections/settings.ts                       |   6 +-
+ tina/fields/contact.ts                             |  58 +++++++++
+ 36 files changed, 964 insertions(+), 22 deletions(-)
+
+## Diff
+diff --git a/apps/site/src/components/ui/ContactDetails.astro b/apps/site/src/components/ui/ContactDetails.astro
+new file mode 100644
+index 0000000..11c05ef
+--- /dev/null
++++ b/apps/site/src/components/ui/ContactDetails.astro
+@@ -0,0 +1,7 @@
++---
++import ContactIcon from './ContactIcon.astro';
++import type {ContactChannels} from '../../../../../packages/content/types';
++interface Props {channels:ContactChannels;locale:string}
++const {channels,locale}=Astro.props;
++---
++<div class="contact-details"><h2 class="contact-group-heading">{locale==='el'?'Στοιχεία επικοινωνίας':'Contact details'}</h2><ul class="contact-list">{channels.direct.map(link=><li><a class="contact-link" href={link.href}><ContactIcon name={link.id}/><span>{link.label}</span></a></li>)}{channels.phoneText&&<li class="contact-text"><ContactIcon name="phone"/><span>{channels.phoneText}</span></li>}{channels.address&&<li class="contact-text contact-address"><ContactIcon name="address"/><span>{channels.address}</span></li>}</ul></div>
+diff --git a/apps/site/src/components/ui/ContactIcon.astro b/apps/site/src/components/ui/ContactIcon.astro
+new file mode 100644
+index 0000000..31b1bc7
+--- /dev/null
++++ b/apps/site/src/components/ui/ContactIcon.astro
+@@ -0,0 +1,7 @@
++---
++import {contactIcons} from '../../../../../packages/design-system/contact-icons.mjs';
++import type {ContactLink} from '../../../../../packages/content/types';
++interface Props {name:ContactLink['id']|'address'}
++const {name}=Astro.props;
++---
++<svg class="contact-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">{contactIcons[name].map(path=><path d={path.d} fill-rule={path.fillRule}/>)}</svg>
+diff --git a/apps/site/src/components/ui/SocialLinks.astro b/apps/site/src/components/ui/SocialLinks.astro
+new file mode 100644
+index 0000000..bbb3416
+--- /dev/null
++++ b/apps/site/src/components/ui/SocialLinks.astro
+@@ -0,0 +1,10 @@
++---
++import ContactIcon from './ContactIcon.astro';
++import type {ContactLink} from '../../../../../packages/content/types';
++interface Props {links:ContactLink[];locale:string;variant:'labeled'|'icons';placement?:'header'|'contact'|'footer'}
++const {links,locale,variant,placement='contact'}=Astro.props;
++const location=locale==='el'?{header:'κεφαλίδα',contact:'επικοινωνία',footer:'υποσέλιδο'}:{header:'header',contact:'contact',footer:'footer'};
++const heading=locale==='el'?'Ακολουθήστε μας':'Follow us';
++const newTab=locale==='el'?'ανοίγει σε νέα καρτέλα':'opens in a new tab';
++---
++{links.length>0&&<div class:list={['social-group',`social-${variant}`]}>{variant==='labeled'&&<h2 class="contact-group-heading">{heading}</h2>}<nav class="social-links" aria-label={`${heading} — ${location[placement]}`}>{links.map(link=><a class="social-link" href={link.href} target={link.external?'_blank':undefined} rel={link.external?'noopener noreferrer':undefined}><ContactIcon name={link.id}/><span class={variant==='icons'?'visually-hidden':undefined}>{link.label}{link.external&&<span class="visually-hidden"> ({newTab})</span>}</span></a>)}</nav></div>}
+diff --git a/apps/site/src/layouts/Layout.astro b/apps/site/src/layouts/Layout.astro
+index 4e04f2f..1b41289 100644
+--- a/apps/site/src/layouts/Layout.astro
++++ b/apps/site/src/layouts/Layout.astro
+@@ -1,17 +1,20 @@
+ ---
+ import '../styles/foundations.css';
+ import '../styles/themes.generated.css';
+ import '../styles/global.css';
+ import '@fontsource/noto-sans/400.css';
+ import '@fontsource/noto-sans/600.css';
++import ContactDetails from '../components/ui/ContactDetails.astro';
++import SocialLinks from '../components/ui/SocialLinks.astro';
++import {contactChannels} from '../../../../packages/content/contact.mjs';
+ import RichText from '../components/ui/RichText.astro';
+ import {project} from '../lib/content';
+ import type {LocalizedContent,Alternate} from '../../../../packages/content/types';
+ interface Props {content:LocalizedContent;title:string;description:string;path:string;alternates:Alternate[];noindex?:boolean}
+-const {content,title,description,path,alternates,noindex=false}=Astro.props;const {settings,locale}=content;const el=locale==='el';
++const {content,title,description,path,alternates,noindex=false}=Astro.props;const {settings,locale}=content;const el=locale==='el';const channels=contactChannels(settings,locale);
+ ---
+ <!doctype html><html lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>{title} | {settings.brand.name}</title><meta name="description" content={description}/><link rel="canonical" href={project.siteUrl+path}/>{noindex&&<meta name="robots" content="noindex"/>}{alternates.map(a=><link rel="alternate" hreflang={a.locale} href={project.siteUrl+a.path}/>)}{content.feedPath&&<link rel="alternate" type="application/rss+xml" title={settings.brand.name} href={content.feedPath}/>}</head><body>
+ <a class="skip" href="#main">{el?'Μετάβαση στο περιεχόμενο':'Skip to content'}</a>
+-<header class="wrap"><a class="brand" href={content.pages.find(p=>p._template==='home')?.path}>{settings.brand.name}</a><nav aria-label={el?'Κύρια πλοήγηση':'Main navigation'}>{settings.navigation.map(n=><a href={content.pages.find(p=>p.contentId===n.pageId)!.path} aria-current={content.pages.find(p=>p.contentId===n.pageId)?.path===path?'page':undefined}>{n.label}</a>)}</nav><nav aria-label={el?'Γλώσσα':'Language'}>{alternates.map(a=><a href={a.path} lang={a.locale} hreflang={a.locale} aria-current={a.locale===locale?'true':undefined}>{project.languages.find(l=>l.code===a.locale)?.label}</a>)}</nav></header>
+-<main id="main"><slot/></main><footer class="wrap"><p>{settings.brand.tagline}</p><p>{settings.legal.businessName}</p><RichText body={settings.legal.notice} locale={locale}/><a href={content.pages.find(p=>p.contentId==='privacy')?.path}>{el?'Απόρρητο':'Privacy'}</a> · <a href={'mailto:'+settings.contact.email}>{settings.contact.email}</a></footer>
++<header class="wrap"><a class="brand" href={content.pages.find(p=>p._template==='home')?.path}>{settings.brand.name}</a><nav aria-label={el?'Κύρια πλοήγηση':'Main navigation'}>{settings.navigation.map(n=><a href={content.pages.find(p=>p.contentId===n.pageId)!.path} aria-current={content.pages.find(p=>p.contentId===n.pageId)?.path===path?'page':undefined}>{n.label}</a>)}</nav><nav aria-label={el?'Γλώσσα':'Language'}>{alternates.map(a=><a href={a.path} lang={a.locale} hreflang={a.locale} aria-current={a.locale===locale?'true':undefined}>{project.languages.find(l=>l.code===a.locale)?.label}</a>)}</nav>{settings.social.showInHeader&&<SocialLinks links={channels.social} locale={locale} variant="icons" placement="header"/>}</header>
++<main id="main"><slot/></main><footer class="wrap"><div class="footer-groups"><div class="footer-identity"><p>{settings.brand.tagline}</p><p>{settings.legal.businessName}</p><RichText body={settings.legal.notice} locale={locale}/><a href={content.pages.find(p=>p.contentId==='privacy')?.path}>{el?'Απόρρητο':'Privacy'}</a></div><ContactDetails channels={channels} locale={locale}/><SocialLinks links={channels.social} locale={locale} variant="labeled" placement="footer"/></div></footer>
+ </body></html>
+diff --git a/apps/site/src/styles/foundations.css b/apps/site/src/styles/foundations.css
+index 9ab197e..cefd792 100644
+--- a/apps/site/src/styles/foundations.css
++++ b/apps/site/src/styles/foundations.css
+@@ -1,2 +1,3 @@
+ :root {--space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-6:1.5rem;--space-8:2rem;--space-12:3rem;--content-width:72rem;--reading-width:44rem;}
+ *{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0}img,svg{max-width:100%}button,input,select,textarea{font:inherit}a{overflow-wrap:anywhere}h1,h2,h3,p{overflow-wrap:anywhere}button,a,input,textarea,select{touch-action:manipulation}
++:root{--contact-icon-size:1.125rem;--social-icon-size:1.25rem;--contact-link-gap:.625rem;--social-link-gap:.5rem;--contact-link-target:44px;--contact-aside-width:22rem}
+diff --git a/apps/site/src/styles/global.css b/apps/site/src/styles/global.css
+index d2523ce..7ee1e04 100644
+--- a/apps/site/src/styles/global.css
++++ b/apps/site/src/styles/global.css
+@@ -1,8 +1,10 @@
+ :root{--density-factor:1;--section-space-effective:calc(var(--section-space) * var(--density-factor))}html[data-density="compact"]{--density-factor:.75}html[data-density="spacious"]{--density-factor:1.25}
+ body{background:var(--color-surface);color:var(--color-text-primary);font:1.0625rem/1.65 var(--font-body)}h1,h2,h3{font-family:var(--font-heading);font-weight:600;line-height:1.2;letter-spacing:-.025em}h1{font-size:clamp(2.3rem,5.5vw,4.5rem);max-width:20ch;margin:0 0 var(--space-6)}h2{font-size:clamp(1.65rem,3vw,2.5rem);max-width:32ch;margin:0 0 var(--space-6)}h3{font-size:1.35rem}a{color:var(--color-brand-accent);text-underline-offset:.2em}a:hover{text-decoration-thickness:2px}:focus-visible{outline:3px solid var(--color-focus);outline-offset:4px}.wrap{max-width:var(--content-width);padding-inline:clamp(1.25rem,4vw,3rem);margin-inline:auto}header{display:flex;align-items:center;flex-wrap:wrap;gap:1rem 2rem;padding-block:1.4rem;border-bottom:1px solid var(--color-border)}.brand{font-weight:600;text-decoration:none;color:var(--color-text-primary);margin-right:auto}nav{display:flex;gap:.5rem 1rem;flex-wrap:wrap}nav a{padding:.5rem 0;min-height:44px;display:inline-flex;align-items:center}nav [aria-current]{font-weight:600}section{padding-block:var(--section-space-effective)}[data-surface="muted"]{background:var(--color-surface-muted)}[data-surface="accent"]{background:var(--color-notice-surface)}.description{max-width:var(--reading-width);color:var(--color-text-muted);margin-block:0 var(--space-6)}.hero{padding-block:clamp(4rem,9vw,8rem)}.hero .description{font-size:1.2rem;max-width:52ch}.button,button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.7rem 1.2rem;color:var(--color-on-action);background:var(--color-action-primary);border:1px solid transparent;border-radius:var(--radius-control);font-weight:600;text-decoration:none;cursor:pointer}.button:hover,button:hover{background:var(--color-action-hover)}button:disabled{opacity:.7;cursor:wait}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:var(--space-8)}.card{border-top:1px solid var(--color-border);padding-block:var(--space-4)}.card h3 a{color:var(--color-text-primary)}.prose{max-width:var(--reading-width)}.prose h2,.prose h3{margin-top:2rem}.prose p,.prose ul,.prose ol{margin-block:1.2rem}.editorial,.page-title{padding-block:4rem}.editorial{max-width:58rem}footer{padding-block:3rem;border-top:1px solid var(--color-border);color:var(--color-text-muted)}form{max-width:38rem}.field{display:grid;gap:.4rem;margin-block:1rem}.field label{font-weight:600}input:not([type="checkbox"]),select,textarea{width:100%;min-height:48px;background:var(--color-surface);color:var(--color-text-primary);border:1px solid var(--color-control-border);border-radius:var(--radius-control);padding:.65rem}.check{display:flex;align-items:baseline;gap:.5rem;margin-block:1.25rem}.check input{width:1.2rem;height:1.2rem;flex-shrink:0}.field-error{color:var(--color-feedback-error)}.skip{position:absolute;top:-10rem;left:1rem;padding:1rem;background:var(--color-surface);z-index:2}.skip:focus{top:1rem}@media(max-width:640px){header{align-items:flex-start}header nav{width:100%}:root{--section-space-effective:calc(var(--section-space-mobile) * var(--density-factor))}.check{flex-wrap:wrap}.editorial{padding-block:3rem}}
+ 
+ html[lang="el"] body{font-family:var(--font-greek-body)}html[lang="el"] h1,html[lang="el"] h2,html[lang="el"] h3{font-family:var(--font-greek-heading)}footer>a,.brand{display:inline-flex;align-items:center;min-height:44px}.card h3 a{display:inline-flex;align-items:center;min-height:44px}
+ 
+ .faq-items{max-width:var(--reading-width)}.faq-item{border-top:1px solid var(--color-border);padding-block:var(--space-6)}.faq-item summary{font-family:var(--font-heading);font-weight:600;font-size:1.2rem;cursor:pointer;padding-block:var(--space-4);overflow-wrap:anywhere}.faq-item h3{margin-top:0}.steps{display:grid;gap:var(--space-8);padding-inline-start:1.8rem}.steps>li{padding-inline-start:var(--space-4);overflow-wrap:anywhere}.steps h3{margin-top:0}.steps-cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}.steps-cards>li{border:1px solid var(--color-border);border-radius:var(--radius-control);padding:var(--space-6);margin-inline-start:var(--space-4)}
+ 
+ .section-image{margin:0;min-width:0}.image-frame{overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted)}.frame-landscape{aspect-ratio:3/2}.frame-gallery{aspect-ratio:4/3}.image-frame picture{display:block;width:100%;height:100%}.image-frame img{display:block;width:100%;height:100%;object-fit:cover}.crop-center{object-position:center}.crop-top{object-position:center top}.crop-bottom{object-position:center bottom}.section-image figcaption{color:var(--color-text-muted);font-size:.95rem;margin-top:var(--space-4);overflow-wrap:anywhere}.media-text{display:grid;gap:var(--space-8);align-items:start}.media-text-copy{min-width:0;overflow-wrap:anywhere}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:var(--space-8);list-style:none;padding:0;margin:0}.gallery>li{min-width:0}@media(min-width:768px){.media-text-with-image{grid-template-columns:repeat(2,minmax(0,1fr));align-items:center}.media-text-reversed>.section-image{grid-column:2;grid-row:1}.media-text-reversed>.media-text-copy{grid-column:1;grid-row:1}.gallery-featured{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery-featured>li:first-child{grid-column:1/-1}}
++
++.contact-layout{display:grid;gap:var(--space-12);align-items:start}.contact-layout>form{width:100%;min-width:0}.contact-aside{display:grid;gap:var(--space-8);min-width:0}.contact-group-heading{font-size:1.2rem;margin:0 0 var(--space-4);letter-spacing:normal}.contact-list{list-style:none;padding:0;margin:0;display:grid;gap:var(--space-2)}.contact-link,.contact-text{display:flex;align-items:center;gap:var(--contact-link-gap);min-height:var(--contact-link-target);min-width:0}.contact-link>span,.contact-text>span{min-width:0;overflow-wrap:anywhere}.contact-text{align-items:flex-start;padding-block:var(--space-2)}.contact-address span{white-space:pre-line}.contact-icon{width:var(--contact-icon-size);height:var(--contact-icon-size);flex:none}.contact-text .contact-icon{margin-top:.3rem}.social-links{display:flex;flex-direction:column;gap:var(--social-link-gap)}.social-link{display:inline-flex;align-items:center;gap:var(--social-link-gap);min-width:var(--contact-link-target);min-height:var(--contact-link-target);border-radius:var(--radius-control)}.social-link .contact-icon{width:var(--social-icon-size);height:var(--social-icon-size)}.social-icons .social-links{flex-direction:row;flex-wrap:wrap}.social-icons .social-link{justify-content:center;padding:var(--space-2)}.footer-groups{display:flex;flex-wrap:wrap;gap:var(--space-8) var(--space-12);align-items:flex-start}.footer-groups>div{min-width:0;flex:1 1 14rem}.footer-groups>.footer-identity{flex-basis:22rem}.footer-identity>p:first-child{margin-top:0}.footer-identity>a{display:inline-flex;align-items:center;min-height:var(--contact-link-target)}.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}@media(min-width:56rem){.contact-layout{grid-template-columns:minmax(0,1fr) minmax(0,var(--contact-aside-width))}}
+diff --git a/apps/site/src/templates/ContactForm.astro b/apps/site/src/templates/ContactForm.astro
+index 7b7cd0c..23d4840 100644
+--- a/apps/site/src/templates/ContactForm.astro
++++ b/apps/site/src/templates/ContactForm.astro
+@@ -1,32 +1,37 @@
+ ---
+ import {getEnquiryContexts} from '../../../../packages/content/enquiry-contexts.mjs';
++import ContactDetails from '../components/ui/ContactDetails.astro';
++import SocialLinks from '../components/ui/SocialLinks.astro';
++import {contactChannels} from '../../../../packages/content/contact.mjs';
+ import Field from '../components/ui/Field.astro';
+ import type {LocalizedContent} from '../../../../packages/content/types';
+ import {project} from '../lib/content';
+ interface Props {content:LocalizedContent}
+ const {content}=Astro.props;const el=content.locale==='el';
+ const contexts=getEnquiryContexts(content);
++const channels=contactChannels(content.settings,content.locale);
++const email=channels.direct.find(link=>link.id==='email')!;
+ ---
+ <section><div class="wrap"><h2>{el?'Ας μιλήσουμε':'Let’s talk'}</h2><p>{el?'Τα πεδία με * είναι υποχρεωτικά.':'Fields marked * are required.'}</p>
+-<form id="contact-form" action="/api/contact" method="post" data-locale={content.locale}>
++<div class="contact-layout"><form id="contact-form" action="/api/contact" method="post" data-locale={content.locale}>
+ <Field name="name" label={el?'Όνομα':'Name'} required maxlength={120} autocomplete="name"/>
+ <Field name="email" label={el?'Email':'Email'} type="email" required maxlength={254} autocomplete="email"/>
+ <Field name="phone" label={el?'Τηλέφωνο':'Phone'} type="tel" maxlength={40} autocomplete="tel"/>
+ <div class="field"><label for="contextId">{el?'Θέμα ενδιαφέροντος':'Area of interest'}</label><select id="contextId" name="contextId"><option value="">{el?'Γενική ερώτηση':'General enquiry'}</option>{contexts.map(context=><option value={context.id}>{context.title}</option>)}</select></div>
+ <Field name="message" label={el?'Μήνυμα':'Message'} required minlength={20} maxlength={5000} multiline/>
+ <label class="check"><input type="checkbox" name="privacyAccepted" id="privacyAccepted" aria-describedby="privacyAccepted-error" required/>{el?'Έχω διαβάσει την':'I have read the'} <a href={'/'+content.locale+'/privacy'}>{el?'πολιτική απορρήτου':'privacy notice'}</a> *</label><span id="privacyAccepted-error" class="field-error"></span>
+ {project.profile!=='enquiries'&&<><label class="check"><input type="checkbox" name="marketingConsent"/>{el?'Θέλω να λαμβάνω ενημερώσεις μέσω email (προαιρετικό).':'Send me useful email updates (optional).'}</label><div class="field"><label for="interest">{el?'Ενημερώσεις':'Updates'}</label><select name="interest" id="interest">{project.interests.map(i=><option value={i.id}>{i.label}</option>)}</select></div></>}
+ <input type="hidden" name="turnstileToken" value="local-preview"/>
+ <div id="form-errors" tabindex="-1" role="alert" hidden></div><button type="submit">{el?'Αποστολή μηνύματος':'Send message'}</button><p id="form-status" role="status" aria-live="polite"></p>
+-<noscript><p>{el?'Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email.':'This form needs JavaScript. You can also email us directly.'} <a href={'mailto:'+content.settings.contact.email}>{content.settings.contact.email}</a></p></noscript>
+-</form></div></section>
++<noscript><p>{el?'Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email.':'This form needs JavaScript. You can also email us directly.'} <a href={email.href}>{email.label}</a></p></noscript>
++</form><aside class="contact-aside"><ContactDetails channels={channels} locale={content.locale}/><SocialLinks links={channels.social} locale={content.locale} variant="labeled"/></aside></div></div></section>
+ <script>
+ const form=document.querySelector<HTMLFormElement>('#contact-form');
+ if(form){
+  const context=form.querySelector<HTMLSelectElement>('#contextId')!;
+  const requestedContext=new URLSearchParams(location.search).get('contextId');
+  if(requestedContext&&Array.from(context.options).some(option=>option.value===requestedContext))context.value=requestedContext;
+  form.noValidate=true;
+  let requestKey=crypto.randomUUID();
+  const el=form.dataset.locale==='el';
+  const summary=form.querySelector<HTMLElement>('#form-errors')!;
+diff --git a/apps/site/tests/contact-social.test.ts b/apps/site/tests/contact-social.test.ts
+new file mode 100644
+index 0000000..d2ddc0d
+--- /dev/null
++++ b/apps/site/tests/contact-social.test.ts
+@@ -0,0 +1,31 @@
++import {it,expect} from 'vitest';
++import {experimental_AstroContainer as AstroContainer} from 'astro/container';
++import Layout from '../src/layouts/Layout.astro';
++import ContactForm from '../src/templates/ContactForm.astro';
++import {contents} from '../src/lib/content';
++const fixture=(locale:string,showInHeader=false)=>{const content=structuredClone(contents.find(c=>c.locale===locale)!);content.settings.contact={email:'hello+team?subject=x@example.com',phone:'+30 (210) 123-4567',address:'First <script>\nSecond & third'};content.settings.social={instagram:'https://instagram.com/example',linkedin:'https://linkedin.com/company/example',facebook:'https://facebook.com/example',whatsapp:'+302101234567',showInHeader};return content;};
++const social=['https://instagram.com/example','https://linkedin.com/company/example','https://facebook.com/example','https://wa.me/302101234567'];
++function links(html:string){return [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map(m=>({attributes:m[1],body:m[2]}));}
++it.each(['en','el'])('renders shared labeled Contact and footer destinations in %s with safe text and decorative icons',async locale=>{
++ const container=await AstroContainer.create();const content=fixture(locale);const form=await container.renderToString(ContactForm,{props:{content}});const layout=await container.renderToString(Layout,{props:{content,title:'Fixture',description:'Fixture',path:'/'+locale,alternates:content.pages[0].alternates}});const footer=layout.match(/<footer\b[^>]*>([\s\S]*?)<\/footer>/)![1];
++ for(const html of [form,footer]){expect(html).toContain('href="tel:+302101234567"');expect(html).toContain('href="mailto:hello%2Bteam%3Fsubject%3Dx%40example.com"');expect(html).toContain('First &lt;script&gt;');expect(html).toContain('Second &amp; third');expect(html).toContain(locale==='el'?'Στοιχεία επικοινωνίας':'Contact details');expect(html).toContain(locale==='el'?'Ακολουθήστε μας':'Follow us');
++ for(const href of social){const link=links(html).find(a=>a.attributes.includes('href="'+href+'"'))!;expect(link).toBeDefined();expect(link.attributes).toContain('target="_blank"');expect(link.attributes).toContain('rel="noopener noreferrer"');expect(link.body).toContain(locale==='el'?'ανοίγει σε νέα καρτέλα':'opens in a new tab');expect(link.body).not.toMatch(/<span class="visually-hidden">(?:Instagram|LinkedIn|Facebook|WhatsApp)/);}
++ for(const link of links(html).filter(a=>/href="(?:tel:|mailto:)/.test(a.attributes)))expect(link.attributes).not.toMatch(/target=|rel=/);
++ const svgs=[...html.matchAll(/<svg\b([^>]*)>/g)];expect(svgs.length).toBe(7);for(const [,attrs]of svgs){expect(attrs).toContain('aria-hidden="true"');expect(attrs).toContain('focusable="false"');expect(attrs).toContain('width="16"');expect(attrs).toContain('height="16"');expect(attrs).toContain('fill="currentColor"');}expect(html).not.toMatch(/<script>|<img|<use\b/);
++ }
++ expect(form.indexOf('<form')).toBeLessThan(form.indexOf('<aside'));expect(form).toContain('action="/api/contact" method="post"');for(const name of ['name','email','message','privacyAccepted'])expect(form).toMatch(new RegExp('<(?:input|textarea)[^>]*name="'+name+'"[^>]*required'));
++ expect(footer).toContain(content.settings.brand.tagline);expect(footer).toContain(content.settings.legal.businessName);expect(footer).toContain('/'+locale+'/privacy');expect(layout.match(/<header[\s\S]*?<\/header>/)![0]).not.toContain('instagram.com');
++});
++it.each(['en','el'])('shows only configured header icons when enabled in %s, retaining navigation and language',async locale=>{
++ const container=await AstroContainer.create();const content=fixture(locale,true);content.settings.social.linkedin='';content.settings.social.facebook='';const html=await container.renderToString(Layout,{props:{content,title:'Fixture',description:'Fixture',path:'/'+locale,alternates:content.pages[0].alternates}});const header=html.match(/<header[\s\S]*?<\/header>/)![0];expect(header).toContain('aria-label="'+(locale==='el'?'Ακολουθήστε μας — κεφαλίδα':'Follow us — header')+'"');expect(header).toContain('class="visually-hidden">Instagram');expect(header).toContain('class="visually-hidden">WhatsApp');expect(header).not.toMatch(/linkedin.com|facebook.com/);expect(header).toContain(locale==='el'?'Κύρια πλοήγηση':'Main navigation');expect(header).toContain(locale==='el'?'Γλώσσα':'Language');expect(header).toContain(locale==='el'?'ανοίγει σε νέα καρτέλα':'opens in a new tab');
++});
++it('omits all empty social groups and address while keeping unsupported phone as escaped text',async()=>{
++ const container=await AstroContainer.create();const content=fixture('en',true);content.settings.social={instagram:'',linkedin:'',facebook:'',whatsapp:'',showInHeader:true};content.settings.contact.address='';content.settings.contact.phone='Ask <desk> & team';const form=await container.renderToString(ContactForm,{props:{content}});const layout=await container.renderToString(Layout,{props:{content,title:'Fixture',description:'Fixture',path:'/en',alternates:[]}});for(const html of [form,layout]){expect(html).not.toContain('Follow us');expect(html).not.toContain('href="tel:');expect(html).toContain('Ask &lt;desk&gt; &amp; team');expect(html).not.toContain('contact-address');}
++});
++
++it.each(['en','el'])('names each social landmark by placement in %s',async locale=>{
++ const container=await AstroContainer.create(),content=fixture(locale,true);
++ const form=await container.renderToString(ContactForm,{props:{content}});
++ const layout=await container.renderToString(Layout,{props:{content,title:'Fixture',description:'Fixture',path:'/'+locale,alternates:[]}});
++ for(const [html,label] of [[form,locale==='el'?'Ακολουθήστε μας — επικοινωνία':'Follow us — contact'],[layout,locale==='el'?'Ακολουθήστε μας — κεφαλίδα':'Follow us — header'],[layout,locale==='el'?'Ακολουθήστε μας — υποσέλιδο':'Follow us — footer']])expect(html).toContain('aria-label="'+label+'"');
++});
+diff --git a/apps/site/vitest.config.ts b/apps/site/vitest.config.ts
+index 30a2222..22b8d50 100644
+--- a/apps/site/vitest.config.ts
++++ b/apps/site/vitest.config.ts
+@@ -1,5 +1,5 @@
+ import {getViteConfig} from 'astro/config';
+ import {fileURLToPath} from 'node:url';
+ const root=fileURLToPath(new URL('./',import.meta.url));
+-const config={root,test:{include:['tests/footer.test.ts','tests/showcase.test.ts','tests/composition-b.test.ts','tests/composition-b-media.test.ts','tests/domain-rendering.test.ts','tests/rooms.test.ts','tests/media-optimization.test.ts']}};
++const config={root,test:{include:['tests/contact-social.test.ts','tests/footer.test.ts','tests/showcase.test.ts','tests/composition-b.test.ts','tests/composition-b-media.test.ts','tests/domain-rendering.test.ts','tests/rooms.test.ts','tests/media-optimization.test.ts']}};
+ export default getViteConfig(config,{root});
+diff --git a/docs/ARCHITECTURE.md b/docs/ARCHITECTURE.md
+index c010ad0..8bc8bbc 100644
+--- a/docs/ARCHITECTURE.md
++++ b/docs/ARCHITECTURE.md
+@@ -11,21 +11,21 @@ This is the isolated Business Starter v2 Foundation with Compositions A, B and C
+ | templates/sections.ts | Eleven static section Astro imports, exhaustive renderer map, registered variant validation; no component-path lookup |
+ | packages/design-system | Reviewed theme JSON/validator and generated semantic CSS; neutral theme uses self-hosted Noto Sans for Greek/Latin |
+ | packages/contracts, email | Bounded API schemas, escaping/token helpers and plain email rendering |
+ | worker | Contact, enquiries/newsletter/nurture gating, SQL consent lifecycle, reviewed campaign snapshots, delivery/queue/workflow, protected operations and localized asset fallback |
+ | migrations | Initial schema for a new project database; contains no subscriber records |
+ | tina | Native editor collections, rich-text projection and detached save validation; browser imports contain no filesystem adapter |
+ | scripts | Configuration, local migration/startup, owned processes, input-only content generation and local smoke |
+ 
+ `pnpm configure` explicitly runs the CMS descriptor generator after project/content validation and emits ignored local URLs, Worker bindings, the backend manifest, migration input, theme CSS and asset headers. Backend manifest IDs and URLs come from the same read/localize/publicRoutes pipeline as the site. Enquiry context IDs are the deduplicated union of public Offering and registered enquiry-enabled domain records in every configured locale, so independently published translations remain valid contact choices. The localized contact form and manifest.enquiryContexts share packages/content/enquiry-contexts.mjs; domain eligibility is already determined by the existing publication projection, including each locale’s owned index dependency. The Worker validates the existing bounded scalar contextId against that union, without trusting a client locale or switching on domain names. Legacy offerings/articles/campaigns/routes manifest arrays retain their contracts. Static contact pages preselect only a context present in their localized option set from the existing contextId query parameter. Articles in the manifest are exactly the active default-locale article set. SEO/RSS/email summaries use plain SEO or `plainText` extraction. All canonical routes omit a trailing slash; offering detail paths follow the configured offerings page slug, and people have `/LOCALE/people/SLUG` routes. The root redirects to the default locale. Workers Static Assets serves public locale pages and nearest localized 404.html files directly; root/API/newsletter/CMS/admin boundaries remain explicitly Worker-first. Astro dev middleware and the retained Worker fallback also preserve localized errors. See [static asset routing](STATIC_ASSET_ROUTING.md) for ownership, runtime proof and quota limits.
+ 
+-The public layout has one H1, semantic sections, simple navigation/footer, canonical metadata, available-language links and feeds. The public surface has no modal, social layer, visitor-state system or financial-specific branding; native CMS media selection supplies explicit local content images. The contact template owns native fields, required consent, inline validation, a focusable error summary, preserved retry keys, disabled duplicate submissions, timeout/retry feedback and server validation. JavaScript is required to submit the JSON API; a direct email alternative is provided. Hosted form protection is intentionally not configured in this local foundation.
++The public layout has one H1, semantic sections, simple navigation/footer, canonical metadata, available-language links and feeds. The public surface has no modal, visitor-state system or financial-specific branding; shared contact/social links use static explicit-prop components and a browser-safe destination projection; native CMS media selection supplies explicit local content images. The contact template owns native fields, required consent, inline validation, a focusable error summary, preserved retry keys, disabled duplicate submissions, timeout/retry feedback and server validation. JavaScript is required to submit the JSON API; a direct email alternative is provided. Hosted form protection is intentionally not configured in this local foundation.
+ 
+ ## Local use
+ 
+ Use Node 22.x or 24.x and pnpm 10.13.1:
+ 
+ ```text
+ pnpm install --frozen-lockfile
+ pnpm check
+ pnpm test
+ pnpm build
+@@ -95,10 +95,16 @@ The CMS descriptor has a testable `createCmsDescriptor(root, project, registry?)
+ 
+ ## Composition C registration boundaries
+ 
+ The generic domain framework separates browser-safe content registrations in packages/content/domain-registry.mjs, optional Page/section registrations in packages/content/module-extensions.mjs, Tina factories in tina/domains/index.ts and server-only Astro detail renderers in apps/site/src/templates/domains/index.ts. Rooms is the only production registration; test-only workshops/lessons prove independent extension contracts. A business module adds its own contracts/handlers and entries at those seams rather than adding collection-name branches to loading, catalog, localization, routes or native validation.
+ 
+ Tina's getNativeDomainAdapters discovers only enabled definitions, requires matching native registrations and supplies their schema/rich paths/identity guard to the existing detached save/catalog pipeline. buildDomainCollections verifies matching collection names/paths and disables Delete/folder creation. Disabled collections are not queried through absent GraphQL types. Native validation returns original values and ASTs; module-owned identity wrappers protect nested business references on top of the shared immutable saved identity/draft-creation guard.
+ 
+ The static route template dispatches registered domain details and retains the existing editorial markup in EditorialDetail.astro. Domain renderer coverage is checked before build; duplicate/missing registrations fail actionably. Section renderers remain in the existing templates/sections.ts registration map, with type/variant coverage derived from the content section definitions. Disabled known sections retain their copy and native fields while disappearing from public projection and creation choices.
+ 
+ Keep domain schemas acyclic: use the independent limits.mjs and rich-text.mjs primitives, not the schema/section aggregators. Read [developer extensions](DOMAIN_EXTENSIONS.md) for the exact registration recipe and two approved helper corrections after the framework refactor. [Rooms authoring](ROOMS_AUTHORING.md) covers native draft/recovery/index publication; [C evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md) records accepted Tasks 1–6, local-only native/Worker/static scopes and approved whole-branch review with completed local closeout. Module enablement requires owned-stack shutdown, configure and restart; original images retain existing safety/performance limits.
++
++## Contact/social rendering and acceptance
++
++`packages/content/contact.mjs` supplies safe ordered destinations to explicit-prop `ContactDetails`, `SocialLinks` and decorative `ContactIcon` components. Contact keeps a form-first DOM and a 56rem aside split; footer and optional header consume the same shared Settings values. Distinct localized social navigation names identify each placement. No browser SDK, remote icons, app probes or new dependency is required. [Contact/social authoring](CONTACT_SOCIAL.md) documents tokens, localization, clears and static rebuilds.
++
++The narrow public/native acceptance driver reuses established runtime/fixture ownership. Static fixtures use caller-known byte owners; the contact native test supplies an additive optional `expectedBytes` guard to the existing single `captureNative` owner. Installed GraphQL variable coercion precedes request/schema/serializer projection, including input-field ordering, before UI save dispatch. Raw native legal/translation ASTs remain separate from canonical Markdown serialization. Foreign equal-JSON/different-byte edits revoke claims and block regeneration. Existing helper callers retain their prior behavior.
+diff --git a/docs/CONTACT_SOCIAL.md b/docs/CONTACT_SOCIAL.md
+new file mode 100644
+index 0000000..6a5f16e
+--- /dev/null
++++ b/docs/CONTACT_SOCIAL.md
+@@ -0,0 +1,32 @@
++# Contact and social channels
++
++Settings owns contact destinations in `content/settings/site.json`. In Tina, open **Settings → site → Contact** for required email, optional phone and address, or **Social channels** for Instagram, LinkedIn, Facebook, WhatsApp and **Show social icons in header**. These shared fields are available in each functional profile. Greek address copy belongs in **Translations → Ελληνικά → Contact**. Email, phone, social destinations and the header toggle cannot be overridden in translations.
++
++Missing/null `social` defaults to empty channels and `showInHeader: false`; existing seed content requires no migration. Individual missing/null/blank channel values clear to empty strings. Strings trim; the toggle accepts actual booleans only. Clearing a field and saving removes the corresponding link, icon and empty group on the next render.
++
++Instagram, LinkedIn and Facebook accept HTTPS URLs, at most 2048 characters, on their respective exact platform domain or a subdomain. Credentials, nondefault ports, HTTP, suffix lookalikes, unsafe encoding and alternate redirect domains such as `fb.me` are rejected. Valid paths, queries and fragments remain intact. WhatsApp accepts `+` followed by 8–15 digits (first digit nonzero), with no spaces, separators or URL. Its helper example is illustrative; do not guess a country code. The generated destination is `https://wa.me/` followed by the digits without `+`.
++
++Phone remains optional display text of at most 100 characters. Callable display syntax contains 3–20 ASCII digits, at most one leading `+`, and only spaces, hyphens, parentheses or periods as separators. Recognized values become `tel:` destinations without separators. Other nonempty values remain escaped text without a fabricated dial link. Email remains required and its complete validated mailbox is URI encoded after `mailto:`. Address is escaped localized text with line breaks preserved; there is no map provider.
++
++Contact retains its required form and hero. The form comes first in the DOM and on narrow screens; at 56rem the details/social aside sits beside it. Contact and footer show labeled direct links, address and configured socials. The header shows only configured social/WhatsApp icons when explicitly enabled. Social order is Instagram, LinkedIn, Facebook, WhatsApp; direct order is phone then email. Empty groups disappear. EN/EL labels include a localized new-tab indication and distinct Contact/footer/header navigation names; other configured languages use the existing English UI-label fallback.
++
++Direct phone/email links use the current browsing context. Social/WhatsApp links use a new tab with `rel="noopener noreferrer"`. Standard HTTPS links allow the browser/OS to offer an installed app when supported. Native-app opening cannot be guaranteed; no custom-scheme probe, tracking or visitor storage is added. No links need to be opened to verify their destinations.
++
++Geometry defaults live in `apps/site/src/styles/foundations.css`: `--contact-icon-size: 1.125rem`, `--social-icon-size: 1.25rem`, `--contact-link-gap: .625rem`, `--social-link-gap: .5rem`, `--contact-link-target: 44px`, `--contact-aside-width: 22rem`. Existing semantic colors, focus, radius and page spacing remain authoritative. The decorative inline icon subset has pinned provenance and its full license in [third-party notices](THIRD_PARTY_NOTICES.md).
++
++Save through Tina and reload the editor/public page to check changes. Local Astro content watching refreshes the public view; hosted static output requires a successful rebuild and publication through the separately authorized hosting workflow. Native validation preserves original rich-text ASTs while validating detached data. The installed Markdown serializer may add its normal trailing newline when saving an otherwise untouched notice; the acceptance proof compares untouched native ASTs and separately checks exact installed-serializer bytes.
++
++## Local acceptance
++
++Stop the owned public/CMS launcher first. The two phases run sequentially:
++
++```powershell
++pnpm test:contact-social -- --public
++pnpm test:contact-social -- --native
++```
++
++The public phase builds five exact-owned Settings fixtures and serves actual static output through the existing private Worker harness: no socials, all socials/header off, all socials/header on, one social, and long contact/address with an unsupported phone. Each fixture covers EN/EL at 375/768/1440 with JavaScript on/off, exact destinations/attributes/order, 44px targets, form-first layout, focus, overflow, screenshots and representative axe checks. External navigation is intercepted; no platform, dialer or mail client is opened.
++
++The native phase starts its own indexed Tina/Astro tree, reads the indexed original Settings values, and performs three actual UI saves: set four channels/header on; clear Instagram and WhatsApp; turn the header off. It checks bilingual public updates and reloads the editor to prove retained clears/values. A mutation is admitted only for one exact update of `settings/site.json`. Before dispatch, installed GraphQL input coercion, the active schema and installed serializer derive complete expected bytes. A single native source owner compares those exact bytes before claiming them, and compares raw legal/translation ASTs with the pre-edit indexed values. Only read-only public checks may retry through Astro HMR navigation invalidation; saves are never retried.
++
++The driver retains source hashes, full canonical snapshots, command/PID/timing/exit records and cleanup ledgers under ignored `.generated/media-optimization/acceptance-*` directories (historical helper naming). Each phase independently stops owned runtimes and restores only exact-owned files; any source conflict or unconfirmed shutdown prevents regeneration. Preserve retained backups/conflict bytes for manual review. Neither phase starts the main launcher or migrates source D1. These are local acceptance checks, not hosted-provider or complete accessibility certification. See [acceptance evidence](superpowers/plans/2026-10-20-starter-v2-contact-social-evidence.md) for actual runs, failures and source timing.
+diff --git a/docs/CONTENT_MODEL.md b/docs/CONTENT_MODEL.md
+index 23665fc..bc37fad 100644
+--- a/docs/CONTENT_MODEL.md
++++ b/docs/CONTENT_MODEL.md
+@@ -37,23 +37,24 @@ Localized pages remove translations and the separate copy container. Their secti
+ 
+ Offerings and people own { contentId, slug, status, publishAt?, title, description, body, seoDescription, translations }. People additionally own localized role. Article authorId and offeringId are shared optional IDs. Native null/blank relationship values normalize to absent; supplied IDs must resolve even on drafts. A related unpublished or missing-locale person/offering prevents article publication in that locale.
+ 
+ Articles require publishAt in the base and every supplied translation. It is both the publication schedule and human-visible/feed publication timestamp. updatedAt is optional per locale and cannot precede that locale's publishAt. ISO timestamps accept offsets and are compared as instants with Date.parse. Public article dates and feeds use these explicit timestamps rather than build time.
+ 
+ Settings own shared identity, contact destinations and navigation structure:
+ 
+ - brand: { name, tagline }
+ - legal: { businessName, privacyVersion, notice }
+ - contact: { email, phone, address }
++- optional shared social: { instagram, linkedin, facebook, whatsapp, showInHeader } (empty strings and false by default)
+ - ordered navigation: [{ pageId, label }]
+ 
+-Settings translations contain exactly { brand: { tagline }, legal: { notice }, contact: { address }, navigation: { [pageId]: label } }. Every shared navigation ID requires a translated label; stale label IDs fail. Translations cannot override brand name, business identity, consent version, email/phone or navigation order/relationships. legal.privacyVersion is shared, nonempty and at most 80 characters; the seed value sample-v1 supplies consent provenance, with review flags still false. Page hero/About copy never belongs in settings.
++Settings translations contain exactly { brand: { tagline }, legal: { notice }, contact: { address }, navigation: { [pageId]: label } }. Every shared navigation ID requires a translated label; stale label IDs fail. Translations cannot override brand name, business identity, consent version, email/phone, social destinations/header toggle or navigation order/relationships. legal.privacyVersion is shared, nonempty and at most 80 characters; the seed value sample-v1 supplies consent provenance, with review flags still false. Page hero/About copy never belongs in settings.
+ 
+ Canonical locale keys use hyphens, for example en-US. Tina native field names encode regional locales with underscores (for example pt_BR), and Tina serializes that native key to JSON. readContent and native save validation normalize those keys to canonical pt-BR only on detached projections. Duplicate canonical/encoded aliases, unconfigured locales and default-language translation entries fail. The original editor values and ASTs remain unchanged. This is native integration, not a legacy content adapter.
+ 
+ ## Text and safe rendering
+ 
+ Exported LIMITS are title 200, SEO 300, Markdown summary 10,000, and Markdown body 100,000 characters. renderRichText escapes raw HTML, downgrades H1 to H2 and disables Markdown images. renderInlineRichText(body, { links: false }) retains emphasis while removing anchors for whole-card links. plainText(body, limit?) extracts text and truncates by Unicode code point without splitting surrogate pairs.
+ 
+ isSafeLink is shared with native link validation. HTTP(S), mailto, tel, internal relative paths, fragments and queries are supported. Unsafe schemes, controls, protocol-relative links, backslashes, encoded bypasses and credentialed HTTP URLs are rejected. Encoded spaces in paths/queries remain supported. Rich-text controls must not expose image/embed tools; Composition B media uses explicit shared source references with localized alt/caption. Stage 3A derives responsive static media without changing these canonical fields; see [media optimization](MEDIA_OPTIMIZATION.md). Safe rendering does not parse or mutate Tina ASTs.
+ 
+ ## Exports
+@@ -66,21 +67,21 @@ Shared declarations live in packages/content/types.ts, re-exported through schem
+ ## Draft campaign copy
+ 
+ ContentSnapshot additionally contains campaigns: Campaign[], loaded from the optional content/campaigns folder only for newsletter/nurture; enquiries ignores that folder and returns an empty array. Campaign is { contentId, subject, intro, articleId?, interest }. Subject is nonempty, at most 150 characters and cannot contain CR/LF; intro is plain text at most 2,000 characters; articleId blank/null normalizes to absent. Supplied articleId must identify a currently published default-locale article and interest must match project.interests. IDs are globally unique with other content records. Campaigns have no public route, translation/fallback, publication lifecycle or send operation. LocalizedContent does not expose them.
+ 
+ Schemas additionally export campaignSchema. catalog.mjs holds the browser-safe cross-record validator shared by readContent and CMS save validation. The canonical rich fields additionally reject raw HTML, images, unsupported Markdown nodes, unsafe link destinations and headings other than H2/H3 at validation; descriptions allow inline emphasis/links without headings. The renderer remains defensive when called directly with unvalidated strings.
+ 
+ ## Native authoring and Foundation boundary
+ 
+ Native UI roundtrips verify bilingual offering description/body Markdown, cleared optional SEO, editor reload and public output. A Pages save verifies optional visibility and protected hero controls. Native JSON serializes rich text through the installed CLI serializer; datetime mutation values follow the installed backend Date/ISO behavior. The test ownership helper uses the active generated schema and request inputs, never newly saved disk bytes as its expected model. Exact original bytes are restored only after complete-record ownership validation. See QUICKSTART.md for opt-in commands and conflicts.
+ 
+-The registry includes eleven section types: room-list plus hero, rich-text, offering-list, people-list, article-list, CTA, FAQ, steps, media-text and gallery. Composition A supports Standard draft creation and optional composition/navigation authoring; Composition B adds nested copy and original local images. Composition C adds optional Rooms (default disabled) and registered domain routes; Stage 3A implements responsive static media; remaining Stage 3 defers social/motion/visitor controls and hosted-provider verification; stage 4 defers presets, safe initialization and releases. See COMPOSITION_AUTHORING.md for current editor limits.
++The registry includes eleven section types: room-list plus hero, rich-text, offering-list, people-list, article-list, CTA, FAQ, steps, media-text and gallery. Composition A supports Standard draft creation and optional composition/navigation authoring; Composition B adds nested copy and original local images. Composition C adds optional Rooms (default disabled) and registered domain routes; Stage 3A implements responsive static media; Stage 3B adds shared contact/social destinations; remaining Stage 3 defers motion/visitor controls and hosted-provider verification; stage 4 defers presets, safe initialization and releases. See COMPOSITION_AUTHORING.md for current editor limits.
+ 
+ ## Flat collections and protected relationship targets
+ 
+ Foundation documents live directly in their collection folders. Native folder and nested-folder creation are explicitly disabled on every collection, including protected Pages, and nested native save paths fail before data-layer queries or persistence. The filesystem loader rejects subfolders in active collections with an actionable path; it does not recursively publish documents. Dormant disabled articles and inactive campaign folders remain unread.
+ 
+ Offerings, People and Articles are protected from native Delete because canonical `offeringId`, `authorId` and campaign `articleId` remain stable scalar IDs. Native Delete bypasses `beforeSubmit`; the save catalog guard alone cannot protect references. Loader/catalog dangling-ID rejection remains mandatory. Stage 2 must provide relationship-aware authoring/deletion before enabling these deletes. No full CRUD engine or path-based relationship conversion is part of Foundation.
+ 
+ Published editorial slug changes require explicit redirects from previous published URLs before hosted release. This remains a mandatory stage 2 authoring and release-gate obligation; Foundation has no redirects subsystem. `404` is reserved alongside the other system prefixes. Settings `legal.notice` renders as localized safe rich-text blocks outside the business-name paragraph in both locales, using the same renderer/link localization as editorial bodies.
+ 
+ ## Composition A wire boundary
+@@ -119,10 +120,14 @@ Each browser-safe domain definition owns its schema, declared index Page filenam
+ 
+ Module Page templates and section definitions register statically in packages/content/module-extensions.mjs. PageTemplateMap and SectionCopyMap are augmentable type seams. Disabled section schemas/copy remain registered to round-trip dormant content, while enabled guards hide chooser/public output. Declared disabled Pages are excluded before parsing; their navigation references may stay stored but are hidden publicly and from new destination choices. Unknown Page IDs still fail. Native updates enforce the declared filename/template/contentId together, and special Page-template creation remains forbidden.
+ 
+ Domain-owned schema modules import shared LIMITS from packages/content/limits.mjs and safety helpers from rich-text.mjs. They must not import schemas.mjs or section-registry.mjs, which consume these registrations. Existing public LIMITS re-exports remain compatible.
+ 
+ ## Rooms and enquiry contracts
+ 
+ Rooms binds key `rooms`, native collection `room`, flat folder `content/rooms`, owned Page `rooms.json`/`rooms`/`rooms`, section `room-list`/native `room_list`. `modules.rooms` is an explicit boolean default false; unknown module keys reject. Source/localized Room types augment keyed maps. Shared guest count (integer 1–100), images (0–20), amenities (0–40), item IDs/source/order/crop belong to the default locale; exact localized image/amenity membership is required without fallback. See [Rooms authoring](ROOMS_AUTHORING.md) for text/media bounds and immutable saved identity.
+ 
+ Public Room availability requires the same locale's published index and Room at source.now, with no inherited schedule. The shared index slug owns `/LOCALE/INDEX_SLUG/ROOM_SLUG`. Generic finalization supplies reciprocal alternatives. `getEnquiryContexts(content)` yields localized `{id,kind,title,path}` public choices; `getAcceptedEnquiryContexts(contents)` yields the union `{id,kind}` in manifest.enquiryContexts. Existing Offering kind is `offering`; Rooms kind is `rooms`. The Worker retains scalar contextId storage and rejects unavailable IDs without a domain-specific branch or migration. [C evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md) distinguishes accepted task verification from the approved whole-branch review and completed local closeout.
++
++## Shared contact projection
++
++`packages/content/contact.mjs` owns optional channel normalization and the browser-safe ordered link projection. `settings.social` stays at the shared root in both EN/EL localized results; address alone can be translated. Native missing/null/blank optional clears normalize without rewriting the existing seed. Read [contact/social rules](CONTACT_SOCIAL.md) for platform allowlists, WhatsApp international syntax, phone display compatibility, encoded mailbox destinations and per-placement behavior.
+diff --git a/docs/QUICKSTART.md b/docs/QUICKSTART.md
+index afbb6a8..6ae92ca 100644
+--- a/docs/QUICKSTART.md
++++ b/docs/QUICKSTART.md
+@@ -43,21 +43,21 @@ pnpm test:profiles
+ ```
+ 
+ Profile verification serially configures enquiries/newsletter/nurture and enquiries with articles disabled. It builds native CMS and static pages, dry-runs the Worker, migrates only local D1, starts its own Worker for browser/API checks and stops that exact process tree. It restores exact owned `project.json` bytes after success/failure, preserves external edits on conflict, and regenerates local configuration. Run `pnpm build` afterward to restore default static output, since the final profile has articles disabled. All local port overrides apply. Native CMS builds must not run beside a live watcher. Each profile command has a 120-second timeout, configurable with PROFILE_STAGE_TIMEOUT_MS, and retains stage output under .generated/evidence/profile-commands.log. Timeout kills only the process tree that command created.
+ 
+ The public suite covers EN/EL Home/About/Contact/offering/article at 375/768/1440px, focus, language targets, safe prose, overflow and form feedback. Representative axe scans and manual screenshots supplement this evidence; they do not certify complete accessibility compliance. Evidence lives in ignored `.generated/evidence` and the committed [Foundation evidence](superpowers/plans/2026-10-16-starter-v2-foundation-evidence.md).
+ 
+ ## Configuration and deferred work
+ 
+ `project.json` selects profile, independently optional articles, languages and design defaults. Theme JSON owns semantic brand tokens. Default sending and marketing are false, review flags are false, and all identities/addresses are honest sample placeholders. `pnpm doctor` validates local configuration; `pnpm deploy:check` intentionally reports hosted CMS, protection, account, secret, legal/content and sample nurture blockers.
+ 
+-Composition A completes the first stage 2 authoring slice. Composition B adds FAQ, steps, media/text and gallery. Composition C adds the optional Rooms extension and static domain registrations, with Tasks 1–7 and whole-branch review approved at `7a12969`; local closeout is complete. Stage 3A implements responsive static media; see [media policy and rebuilds](MEDIA_OPTIMIZATION.md). Remaining Stage 3 work includes social, motion, visitor controls and hosted-provider verification. Stage 4 owns business presets, safe destination initialization and release/tagging. No presets, initializer, migration guide, production delivery, deployment, tagging or remote setup is included here. See [content ownership](CONTENT_MODEL.md), [architecture](ARCHITECTURE.md) and [source provenance](SOURCE_INVENTORY.md).
++Composition A completes the first stage 2 authoring slice. Composition B adds FAQ, steps, media/text and gallery. Composition C adds the optional Rooms extension and static domain registrations, with Tasks 1–7 and whole-branch review approved at `7a12969`; local closeout is complete. Stage 3A implements responsive static media; see [media policy and rebuilds](MEDIA_OPTIMIZATION.md). Stage 3B implements shared contact/social channels; see [authoring, link rules and local acceptance](CONTACT_SOCIAL.md). Remaining Stage 3 work includes motion, visitor controls and hosted-provider verification. Stage 4 owns business presets, safe destination initialization and release/tagging. No presets, initializer, migration guide, production delivery, deployment, tagging or remote setup is included here. See [content ownership](CONTENT_MODEL.md), [architecture](ARCHITECTURE.md) and [source provenance](SOURCE_INVENTORY.md).
+ 
+ ## Local native build note
+ 
+ The pinned CLI 4.0.1 intermittently stalled at `Indexing local files` during repeated isolated local builds. Canonical configuration validation and generated schema/type output had completed. A datalayer startup/client connection race is an inference from installed CLI code, not a proven upstream diagnosis. The approved local workaround passes the supported `--skip-indexing` only in `--cms-build` mode. This still validates canonical content and builds the native schema/client/editor bundle; it has no local query consumer. `dev:cms` retains full indexing, proven native queries and real UI saves. No dependency upgrade, reconnect patch, hosted build change or production claim is included. Tina advertises its query endpoint as `http://localhost:4010/graphql`; use that host for CMS_QUERY_URL (the OS may bind IPv6). E2E_CMS_URL instead points to the public site origin serving /cms.
+ 
+ ## Foundation authoring safeguards
+ 
+ All native collections explicitly disable Create folder and Create nested folder. Store JSON documents directly in each collection folder; nested native save paths are rejected before validation queries or persistence. The public loader fails with the offending active subfolder and a move-to-collection instruction, rather than silently omitting nested documents. Disabled article folders and campaign folders outside newsletter/nurture remain unread.
+ 
+ Native Delete is disabled for Offerings, People and Articles because their stable scalar IDs are relationship targets. Native deletion does not run the save catalog guard. Foundation preserves those IDs and its dangling-relationship validation; stage 2 must add relationship-aware authoring/deletion before exposing deletion. Settings creation/deletion and Page deletion/rename remain protected; only Standard draft creation is enabled.
+@@ -110,10 +110,14 @@ This opt-in public suite uses an owned temporary Standard seed and known image b
+ 
+ Read [Composition authoring](COMPOSITION_AUTHORING.md) before adding nested items or images, [sample provenance](STARTER_SAMPLE_ASSETS.md) before replacing the neutral illustrations, and [Composition B evidence](superpowers/plans/2026-10-18-starter-v2-composition-b-evidence.md) for actual verification and limits.
+ 
+ ## Composition C local use and verification
+ 
+ Rooms defaults to disabled in `project.json` (`modules.rooms: false`), independently of profile/articles. Stop the exact owned launcher before toggling it; run `pnpm configure`, then restart `pnpm dev:cms`. The dormant bilingual index remains draft and no Room records ship. Create native flat drafts and explicitly publish each locale's index and Room; enabling alone does not change Home/navigation. See [Rooms authoring](ROOMS_AUTHORING.md) and [developer extensions](DOMAIN_EXTENSIONS.md).
+ 
+ With owned launchers stopped, `pnpm test:composition-c` runs cleanup faults plus the pure/static/browser and five representative build modes. `pnpm test:composition-c -- --gates` adds the seven global gates; `node scripts/verify-composition-c.mjs --gates-only` runs those gates alone. The harness owns fixtures/processes, snapshots all canonical project/content/uploads inputs, retains conflicts and refuses regeneration after unsafe cleanup. It requires installed browsers at `.generated/browsers`; it builds its own static baseline and uses health/static Workers without D1. The separate Task 5 Worker capture suite requires initialized local D1 and an existing static baseline. Neither provisions cloud resources. Native saves remain a separate opt-in `E2E_CMS_URL` suite against the owned indexed stack.
+ 
+ The accepted final-source C evidence is segmented (six full/public tests plus corrected pure matrix and seven global gates); the final full entry invocation itself exited 1 and is retained. Read [C evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md) for actual commands/results, narrow scopes and approved whole-branch review with completed local closeout. Do not run the broad harness just to reconfirm historical evidence or during concurrent editing. Local audits are not hosted readiness or accessibility certification.
++
++## Shared contact and social channels
++
++Author shared contact details and optional Instagram/LinkedIn/Facebook/WhatsApp in Settings; Contact and footer update together, with header icons off by default. Clear optional fields to remove their links. See [contact/social authoring and exact-owned acceptance](CONTACT_SOCIAL.md). Hosted static sites require a rebuild after saves.
+diff --git a/docs/THIRD_PARTY_NOTICES.md b/docs/THIRD_PARTY_NOTICES.md
+new file mode 100644
+index 0000000..d05c8b5
+--- /dev/null
++++ b/docs/THIRD_PARTY_NOTICES.md
+@@ -0,0 +1,40 @@
++# Third-party notices
++
++## Bootstrap Icons subset
++
++Source: https://github.com/twbs/icons/tree/ce0e49dd063243118a115f17ad1fe1fe7576d552 (v1.13.1). The GitHub commit endpoint verified this exact commit on 2026-10-19. Seven original SVGs were fetched only from the pinned raw.githubusercontent.com paths below. SHA256 values describe their original UTF-8 bytes. Only path d and optional fill-rule are retained in contact-icons.mjs; dimensions, currentColor and decorative accessibility attributes are supplied by ContactIcon.astro. No remote assets are requested at runtime. Logo usage is not a legal certification.
++
++| Upstream source path | SHA256 |
++| --- | --- |
++| `icons/telephone.svg` | `00eb2fbe421d2c50a5cdabfa837a8e0dc45b65cf91c69fe5970fe5885aa52aa1` |
++| `icons/envelope.svg` | `46354ede34e6acffd9828377884007ae3090db3b892e4b4a8fb8eec3e1017d63` |
++| `icons/geo-alt.svg` | `04ea4a9f3df177701826a941c77119eedce03e102f0f7697d77ae10ff453cb08` |
++| `icons/instagram.svg` | `19e53b107d19b81cc92217e9389b5d1cf98a7637ed965a5d07d6e84e8d200cb0` |
++| `icons/linkedin.svg` | `ddcbb2735eea12f090ea0ee371d1b9a3462531dc11efd0e944adc2d38c71e2df` |
++| `icons/facebook.svg` | `fccefddbce24b7acef96fcdb75aa9bc37dc1d6e725efa8b32eca6b619ff153ff` |
++| `icons/whatsapp.svg` | `dc1de80c69f87f91ff4570e40baf8ff824a6fb81e617a9e054c26907cd608647` |
++| `LICENSE` | `0fb3e11bd57e896c5a512afd64864d28a37de45d19835016c87ca1ad19ead969` |
++
++### Full upstream MIT license
++
++The MIT License (MIT)
++
++Copyright (c) 2019-2024 The Bootstrap Authors
++
++Permission is hereby granted, free of charge, to any person obtaining a copy
++of this software and associated documentation files (the "Software"), to deal
++in the Software without restriction, including without limitation the rights
++to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++copies of the Software, and to permit persons to whom the Software is
++furnished to do so, subject to the following conditions:
++
++The above copyright notice and this permission notice shall be included in
++all copies or substantial portions of the Software.
++
++THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
++THE SOFTWARE.
+diff --git a/docs/superpowers/plans/2026-10-19-starter-v2-contact-social.md b/docs/superpowers/plans/2026-10-19-starter-v2-contact-social.md
+new file mode 100644
+index 0000000..06c6a83
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-19-starter-v2-contact-social.md
+@@ -0,0 +1,112 @@
++# Stage 3B Contact and Social Implementation Plan
++
++> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
++
++**Goal:** Author shared contact/social destinations once in Tina and render them consistently in Contact, footer and an optional header group.
++
++**Architecture:** A strict optional settings object defaults on detached parsing. One browser-safe projection produces safe link data; small static Astro components render three placements. Existing native save validation and source/process ownership stay authoritative.
++
++**Tech Stack:** Existing Astro 7.3.6, TinaCMS, Zod, TypeScript, Vitest, Playwright and Cloudflare static assets. Vendored licensed SVG subset; no dependency upgrade or runtime icon library.
++
++**Spec:** [Contact/social design](../specs/2026-10-19-starter-v2-contact-social-design.md).
++
++Status: Tasks 1–3 implemented and independently accepted; Task 4 local native/public/seven-gate candidate verified on 2026-10-20. Independent Task 4 and whole-branch reviews, evidence archival and original launcher readiness restoration remain pending with the controller. See [actual evidence and failure history](2026-10-20-starter-v2-contact-social-evidence.md). The approved medium subagent/task-review and most-capable medium final-review method remains authoritative.
++
++## Global Constraints
++
++- Work only C:/Projects/bizness-starter-v2, codex/starter-v2-contact-social, from accepted media closeout 3519bcd plus planning commits. Both original reference repositories remain read-only.
++- Preserve schemaVersion 2, existing Pages/editor AST/publication/profile boundaries, neutral design and required Contact form. No seed rewrite to insert optional defaults.
++- settings.social defaults to {instagram:'',linkedin:'',facebook:'',whatsapp:'',showInHeader:false}; shared fields cannot appear in translations. Missing/null native clear states follow the spec exactly.
++- Three platform URLs use HTTPS with exact base/subdomain platform matching, max2048 characters, no credentials/nondefault port or unsafe encoded bypass. WhatsApp matches ^\+[1-9][0-9]{7,14}$ and becomes https://wa.me/<digits>.
++- Keep existing phone display compatibility; supported callable syntax and encoded email URI follow the spec. Do not guess country codes or open external apps during tests.
++- Direct tel/mailto use no new tab. Social/WhatsApp HTTPS uses target=_blank and rel="noopener noreferrer", accessible localized new-tab wording, fixed channel order and no ghost groups.
++- Tokens: --contact-icon-size:1.125rem; --social-icon-size:1.25rem; --contact-link-gap:.625rem; --social-link-gap:.5rem; --contact-link-target:44px; --contact-aside-width:22rem. Contact splits at56rem, form-first DOM/mobile order. Existing semantic theme colors/focus/radius remain authoritative.
++- English Markdown, EN/EL public strings, current English fallback for other configured locales. No AXIA assets, source content, real social accounts or new dependencies.
++- Before canonical configure/check/test/build/CMS commands, verify and stop the owned launcher tree; preserve exact inventory for final restoration. No overlapping checkout commands. Restore only owned expected bytes and refuse regeneration after conflict.
++- No hosted setup, sending, deployment, merge, push, tag or release. Keep branch as-is at closeout. No animation, tracking or visitor storage.
++
++## Review Focus
++
++1. Old settings omit social, and a nondefault localization reconstructs Settings: both locales must retain identical shared destinations (Task1).
++2. Tina clears nested optional fields to null/omitted or leaves a null parent: saves must succeed and removed channels disappear on subsequent render (Tasks1/2/4).
++3. Attacker-like URL values exploit host suffixes, credentials, encoded controls or query/fragment injection in email: reject unsafe social values and encode direct email destinations (Task1).
++4. Header enabled with no channels or long contact values at375px: no empty regions, duplicate accessible names, reduced targets or overflow (Task3/4).
++5. Native save targets an unowned record, or shutdown/restoration fails: reject before dispatch, preserve foreign bytes and still run independent cleanup; never regenerate unsafe state (Task4).
++
++## File and interface map
++
++- packages/content/contact.mjs + contact.d.mts: pure schema, fixed channel registry and destination projection; schemas.mjs/types.ts/localize.mjs wire normalized settings.
++- tina/fields/contact.ts: reusable labeled contact/social field groups; tina/collections/settings.ts consumes them. Existing tina/validation.ts/document codecs remain the save boundary, amended only if needed for detached new fields.
++- apps/site/src/components/ui/ContactIcon.astro, ContactDetails.astro, SocialLinks.astro: explicit-prop static rendering. packages/design-system/contact-icons.mjs + contact-icons.d.mts: pinned allowlisted SVG path data, no raw CMS markup. docs/THIRD_PARTY_NOTICES.md records source commit/files/checksums and retained license.
++- apps/site/src/templates/ContactForm.astro and layouts/Layout.astro: placement integration. styles/foundations.css owns new geometry tokens; global.css owns only scoped component/layout styles.
++- tests/contact-channels.test.ts, tests/cms-contact-social.test.ts, apps/site/tests/contact-social.test.ts: contract/native validation/component tests.
++- e2e/contact-social.spec.ts, e2e/contact-social-cms.spec.ts, e2e/helpers/contact-social-native-admission.ts, tests/contact-social-native-admission.test.ts: public/native proof and exact pre-dispatch admission.
++- scripts/verify-contact-social.mjs: narrow stopped-stack acceptance driver; package.json exposes test:contact-social. Reuse current ports, runtime, cleanup and evidence primitives rather than duplicating generic infrastructure.
++- docs/CONTACT_SOCIAL.md plus updates to CONTENT_MODEL.md, ARCHITECTURE.md, QUICKSTART.md; acceptance evidence in docs/superpowers/plans/2026-10-19-starter-v2-contact-social-evidence.md.
++
++### Task 1: Pure settings and destination contracts
++
++**Files:** Create packages/content/contact.mjs, contact.d.mts, tests/contact-channels.test.ts. Modify schemas.mjs, types.ts and localize.mjs; update declarations/barrel only when consumed through that public API.
++
++**Consumes:** Existing isSafeLink(value), settingsSchema, SettingsCopy, localizeContent and tests/fixtures/content/factory.ts helpers.
++
++**Produces:** SocialSettings, ContactLink and ContactChannels exactly as specified; SOCIAL_CHANNELS; socialSettingsSchema; phoneHref(value:string):string|undefined; contactChannels(settings:SettingsCopy,locale:string):ContactChannels. SettingsCopy.social is normalized and required in parsed output.
++
++- [ ] Write table-driven tests: absent/null parent and fields => all empty/false; actual boolean accepted, 'false' rejected; unknown keys and translated social rejected. Existing settingsDocument parses without rewriting input; both EN/EL localized settings retain equal social values and remain detached.
++- [ ] Test projection assertions, including:
++
++```ts
++expect(phoneHref('+30 (210) 123-4567')).toBe('tel:+302101234567');
++expect(phoneHref('Reception ext 2')).toBeUndefined();
++expect(contactChannels(settings,'el').social.map(x=>x.id))
++  .toEqual(['instagram','linkedin','facebook','whatsapp']);
++```
++
++Supply settings with all four valid channels; assert WhatsApp href https://wa.me/302101234567 and external=true. Direct email label remains original while href uses encodeURIComponent(mailbox). Blank phone produces neither phone link nor phoneText; unsupported phone stays in phoneText.
++- [ ] Cover URL boundaries: valid provider base/www/country subdomain and path/query/fragment; reject provider.com.evil.test, evilprovider.com, HTTP, protocol-relative, userinfo, port8443, javascript:, encoded controls/backslashes and wrong-platform URLs. WhatsApp rejects local number, URL, spaces, leading zero country code and over15 digits. A mailbox with literal ?/# cannot introduce href parameters.
++- [ ] Run pnpm exec vitest run tests/contact-channels.test.ts and retain meaningful RED; implement strict pure contracts and locale wiring; rerun GREEN plus tests/content-schema.test.ts and tests/content-documents.test.ts. No production singleton or filesystem import enters the pure module. Commit verified candidate; independent task review records acceptance afterward.
++
++### Task 2: Native Settings authoring
++
++**Files:** Create tina/fields/contact.ts, tests/cms-contact-social.test.ts. Modify tina/collections/settings.ts; amend tina/validation.ts only if shared projection needs explicit wiring.
++
++**Consumes:** Task1 socialSettingsSchema and normalized settings contract; existing text/object field factories and installed native-save validation.
++
++**Produces:** contactFields() and socialFields(), each returning TinaField[]. Settings exposes one shared Social channels group and the existing translated address only; no translated social URLs/toggle.
++
++- [ ] Write failing schema/validation tests: labeled Instagram/LinkedIn/Facebook URL inputs, WhatsApp international-number helper and Show social icons in header boolean exist once; EN/EL translations contain no shared destinations. Every functional profile exposes these fields.
++- [ ] Validate native rich AST objects on unrelated legal.notice remain identical after detached save checks. Verify actual-shaped null clears/parent-null/defaults and invalid social save field paths through the existing validation entry, not a newly fabricated bypass. Invalid booleans and destinations must fail before persistence.
++- [ ] Run pnpm exec vitest run tests/cms-contact-social.test.ts; capture RED, implement field factories/shared validation, run GREEN plus tests/cms-save.test.ts and tests/cms-schema.test.ts. Regenerate only with the owned stack stopped. Commit and obtain independent review.
++
++### Task 3: Shared static components and placements
++
++**Files:** Create three UI components and the icon registry/declaration listed above, tests in apps/site/tests/contact-social.test.ts and docs/THIRD_PARTY_NOTICES.md. Modify Layout.astro, ContactForm.astro, foundations.css and scoped global.css.
++
++**Consumes:** Task1 ContactChannels/contactChannels. ContactDetails props {channels:ContactChannels;locale:string}; SocialLinks props {links:ContactLink[];locale:string;variant:'labeled'|'icons'}; ContactIcon props {name:ContactLink['id']|'address'}. No global content lookup inside these components.
++
++**Produces:** Common data/rendering behavior in all placements, vendored static icons and semantic styles.
++
++- [ ] Write actual Astro-container tests: exact email/tel/WhatsApp/social href and target/rel; escaped phone/address; decorative SVG attributes; icon-only links have platform/new-tab accessible text. Empty social arrays produce no social nav/heading. With showInHeader=false Contact/footer links remain but header has none; true shows only configured icons.
++- [ ] Preserve footer identity/legal/privacy and required form fields/action/script. Test icon-only header vs labeled Contact/footer, both locales, empty address and unsupported phoneText. Ensure no raw URL or CMS SVG reaches set:html and no remote icon/script request is introduced.
++- [ ] Run pnpm exec vitest run --config apps/site/vitest.config.ts apps/site/tests/contact-social.test.ts; retain RED. Vendor the seven SVGs from a verified pinned upstream commit, strip unrelated SVG attributes, retain source/license metadata and create allowlisted components. Do not install an icon package.
++- [ ] Integrate form-first responsive aside at56rem; footer groups and optional header nav; use exact token defaults and current semantic colors. Add no extra hero/eyebrow or decorative animation. Rerun focused GREEN and the existing site component suite. Commit and obtain independent review.
++
++### Task 4: Actual native/static acceptance and handoff
++
++**Files:** Create the public/native specs, narrow admission helper/test, driver and evidence/runtime guide listed above. Modify package.json script entry and existing ownership/quickstart docs; no production schema/endpoint expansion.
++
++**Consumes:** All prior task interfaces. Existing createCmsSources(paths,backupRoot,options), createCmsEvidence(directory), native document-path/installed-serializer helpers, exact owned runtime shutdown and cleanup primitives. Do not use preexisting media acceptance claims as evidence for these new fields.
++
++**Produces:** assertContactSettingsMutation(body:unknown,sourcePath:string):void for exactly one update/settings/site.json; test:contact-social driver with --public and --native modes, explicit logs/snapshots/exits and safe source/runtime cleanup.
++
++- [ ] Before canonical edits, fault-test wrong target, collection, create/delete/multiple mutation refusal with zero dispatch; restoration conflict preserves foreign bytes; failed child shutdown prevents regeneration while independent restoration is attempted. Keep tests temporary-root owned; retain deliberate failure evidence. Run pnpm exec vitest run tests/contact-social-native-admission.test.ts RED/GREEN before live writes.
++- [ ] Native UI: open actual Settings, set all four channels/toggle, perform a real save, clear one URL and WhatsApp, save again, turn header off, save again. Before every dispatch derive complete expected bytes from installed request/schema/serializer and admit only owned target. Assert source bytes, untouched translations/legal ASTs, public EN/EL updates and cleared-link absence. Restore only exact owned source bytes; no direct mutation API standing in for UI proof.
++- [ ] Public static proof: temporary exact-owned settings fixtures for no socials/headeroff, all socials/headeroff, all socials/headeron, one remaining social, long contact/address and unsupported phone. Build and serve via existing static Worker harness; inspect EN/EL375/768/1440, JS/noJS, all three placements, 44px targets, keyboard focus, no overflow, exact href/rel/new-tab labeling and representative axe. Intercept external navigation; do not contact platforms, dial or invoke mail clients. Record screenshots and no added browser/runtime transformation dependency.
++- [ ] Driver exposes pnpm test:contact-social -- --public and --native, each with stopped-stack checks and independent cleanup. Native mode owns its Tina/Astro tree and may not start the main launcher/migrate source D1. Restore canonical output after successful restoration; refuse after conflict. Retain every command executable/args/cwd/PID/start/end/exit, complete source inventory/hashes and owned-process stop proof.
++- [ ] Run public/native phases sequentially, then seven gates: pnpm check, pnpm test, pnpm build, pnpm worker:check, pnpm cms:local-build, pnpm test:static-routing, pnpm test:showcase-builds. Each must have explicit exit0; retain failures/repairs/source timing honestly. Do not broadly rerun unchanged gates after documentation-only edits.
++- [ ] Document CMS paths, defaults, tokens, per-placement behavior, optional clears, phone/URL restrictions, locale ownership, app-launch limits and hosted rebuild requirement. Update original spec status only after evidence. Commit verified candidate and obtain independent task review.
++- [ ] Obtain most-capable medium whole-branch review; one batched fix wave and one scoped re-review if needed, adjudicating residuals explicitly. Archive complete raw reports/rulings before verified scratch removal. Restore original local site/CMS, verify actual public/CMS/Tina read-only readiness, and preserve this local branch. No remote operations.
++
++## Plan self-review
++
++Coverage: Task1 owns all data/default/safety/localization requirements; Task2 owns editor exposure/detached validation; Task3 owns rendering/icons/tokens/form order; Task4 owns native persistence, actual public behavior, process/source faults, final gates and documentation. Every Review Focus input class has a named owning test. Contracts use the same normalized SocialSettings, ContactLink/Channels and component props throughout. Existing settings remain valid with no data migration. No product dependency upgrade, secret, outbound action or unrelated stage is required. Written artifact review precedes implementation; the preserved execution method is subagent-driven at medium with independent gates.
+diff --git a/docs/superpowers/plans/2026-10-20-starter-v2-contact-social-evidence.md b/docs/superpowers/plans/2026-10-20-starter-v2-contact-social-evidence.md
+new file mode 100644
+index 0000000..a8b09f8
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-20-starter-v2-contact-social-evidence.md
+@@ -0,0 +1,44 @@
++# Stage 3B contact/social local acceptance evidence
++
++Date: 2026-10-20. Verified local candidate based on accepted Tasks 1–3 at 3093f65. Independent Task 4/whole-branch review, raw-evidence archival and original launcher readiness restoration remain controller-owned. This record does not claim those later steps are complete.
++
++## Final acceptance
++
++- Native: `pnpm test:contact-social -- --native`, attempt 7, exit 0, `.generated/media-optimization/acceptance-KCY5qC`. Three actual UI saves set all four channels/header on, clear Instagram/WhatsApp, then disable header. Exact complete bytes were derived before dispatch through installed GraphQL variable coercion, active schema, native projection and pinned installed serializer. The single owner compared exact bytes before claim. All three raw legal/translation ASTs matched pre-edit indexed `_values`; 25 successful UI queries and a fresh final editor reload proved retained values/clears. EN/EL public checks passed after every save. Read-attempt records retain one third-save EN HMR `ERR_ABORTED` followed by a successful read; no save was retried.
++- Public: `pnpm test:contact-social -- --public`, attempt 4, exit 0, `.generated/media-optimization/acceptance-RwqtcL`. Five fixtures × EN/EL × 375/768/1440 × JS/no-JS = 60 contexts. Exact placement destinations/order/attributes, localized new-tab wording, 44px direct/social targets, form-first DOM/mobile geometry, desktop aside, no overflow and focused links passed. Ten representative axe scans reported zero violations. Screenshots were retained; fresh Greek 375px all-on and English 1440px long-fixture images were visually inspected. This is representative local evidence, not complete accessibility certification.
++- Static fixture sources use the accepted caller-known byte owner. Each fixture's Worker stop, original source restoration and canonical rebuild succeeded; all ten fixture/canonical build commands exited 0. The complete mapping is in `.superpowers/sdd/2026-10-19-starter-v2-contact-social/task-4-public-final-index.json`.
++- Canonical inventory: all 16 project/content/upload hashes match the original baseline, including absent seed social defaults. Configured ports 4330/8790/4010/9010 were free and no relevant owned Node/Workerd/Chromium process remained before the gate run and after closeout checks. The original main launcher remains stopped for controller review.
++
++## Seven sequential gates
++
++Exact commands used Node to invoke the installed pnpm 10.13.1 entry at `C:/Users/Vag/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs`, cwd `C:/Projects/bizness-starter-v2`. Full executable/args/cwd/PID/start/end/exit/log fields are retained in `.generated/media-optimization/acceptance-V2qmjt/commands.json`. Times below are UTC.
++
++| Gate | PID | Started | Ended | Exit |
++| --- | --- | --- | --- | --- |
++| pnpm check | 20136 | 2026-10-20T04:09:47.191Z | 2026-10-20T04:10:02.873Z | 0 |
++| pnpm test | 14044 | 2026-10-20T04:10:02.993Z | 2026-10-20T04:10:24.310Z | 0 |
++| pnpm build | 13236 | 2026-10-20T04:10:24.438Z | 2026-10-20T04:10:29.601Z | 0 |
++| pnpm worker:check | 15896 | 2026-10-20T04:10:29.728Z | 2026-10-20T04:10:32.467Z | 0 |
++| pnpm cms:local-build | 5904 | 2026-10-20T04:10:32.589Z | 2026-10-20T04:11:10.471Z | 0 |
++| pnpm test:static-routing | 28060 | 2026-10-20T04:11:10.591Z | 2026-10-20T04:11:19.456Z | 0 |
++| pnpm test:showcase-builds | 39788 | 2026-10-20T04:11:19.573Z | 2026-10-20T04:11:32.000Z | 0 |
++
++Check: 57 Astro files, zero errors/warnings/hints. Full test: 889 root passed, one conditional live-CMS query skip, plus 31 site tests passed. The separate real native suite above supplies actual indexed/save proof. The local CMS gate compiled the editor and stopped its own Tina process. Static routing/showcase gates retained their own guarded runtime/build evidence and restored local output.
++
++## Failures, repairs and source timing
++
++The earlier 2026-10-19 public attempt 1 found duplicate social navigation names via axe; the only product correction in Task 4 adds localized placement names, preserving visible headings. Public attempt 2 passed four fixtures but its long fixture matched an existing form email fallback as well as the aside; narrowing to `.contact-link` fixed the test selector. Public attempt 3 passed five fixtures/60 contexts at the earlier semantic static-source ownership implementation. Attempt 4 above supersedes that proof after known-byte ownership and stronger geometry/order assertions.
++
++Native attempt 1 stalled before the first save on an unassociated text-field label. Attempt 2 captured expanded DOM, used real text input names, then timed out before a save on the checkbox label including helper text. All controls now use captured actual input names and bounded action timeouts. Attempt 3 reached one save but correctly rejected exact byte ownership: raw request key order differs from GraphQL-coerced input order. Cleanup preserved the unclaimed bytes and refused regeneration. A separate read-only deterministic reconstruction from the raw wire, captured schema, installed GraphQL coercion and serializer produced the exact current hash `f29627fb5e7cd0d1efa53041d763c61a3aaf2249dea1dead2f8713fe156a6908`; all other original sources matched. The controller authorized only that hash to the verified original backup hash `45a65bbaf8411f420a44d7173c62d09bc3ff135cec6823c59bc99cfd2c0b39bb`, with immediate hash checks. Reconstruction/recovery scripts/logs and conflict bytes remain retained.
++
++Attempt 4 proved exact bytes, then exposed an incorrect comparison of baseline Markdown strings against the installed serializer's normal trailing newline. It fully restored/rebuilt. The corrected boundary compares pre-edit indexed native ASTs without normalization. Attempt 5 proved three saves/ASTs/bytes but the final public navigation was aborted by Astro HMR; cleanup fully restored/rebuilt. Attempt 6 was the first complete native exit 0. Attempt 7 added explicit read-attempt/invocation logging and fatal non-HMR navigation propagation, and passed on the final harness source.
++
++Focused evidence retains a genuine same-JSON/different-byte claim regression RED/GREEN and installed GraphQL field-order assertion RED/GREEN; 25 focused native/admission/compatibility tests passed. The original inherited 11-case RED was a missing-module collection failure (no executed tests), followed by 11 GREEN; it must not be described as 11 assertion-level RED failures. A first exact-byte GREEN attempt also failed because a line-ending-sensitive edit missed the guard; its corrected run passed. A first reconstruction attempt used a nonexistent top-level GraphQL export; the pinned execution-module export corrected it. These failures remain in raw logs.
++
++Initial gate check failed TS7023 inference in three fault-test mutation callbacks; adding explicit return annotations was the only test change between native/public success and the corrected seven gates. The seven-gate source inventory stayed byte-stable throughout. A final diff check then found two extra EOF blank lines in SocialLinks/Layout; removing only those trailing blank lines was followed by 31 actual-render tests, exit 0, `.generated/media-optimization/acceptance-Do2ASJ`. Final documentation/status/evidence edits followed verification. No behavior change occurred after final native/public success. No unchanged broad gates were repeated after documentation/EOF-only edits.
++
++## Retained records and limits
++
++Raw task logs/rulings are under `.superpowers/sdd/2026-10-19-starter-v2-contact-social`; per-run commands, snapshots, source hashes, fixtures, screenshots, axe reports, native requests/schema/SDL/serializer hashes and shutdown ledgers remain under the named ignored acceptance directories. `task-4-final-evidence-index.json` records exact source timing; `task-4-final-canonical.json` and `task-4-final-processes.json` retain closeout inventory. Raw archival is still assigned to the controller; no retained evidence was removed here.
++
++Source restoration remains a best-effort compare-before-write guard rather than an atomic filesystem lock. Exact-byte mode is additive on the existing single native owner; older helper callers retain their behavior. No dependency, generic native projection, product schema, source seed, source-reference repository, source D1 migration or main launcher was changed by this task. No external social/mail/tel action or remote operation occurred. Hosted rebuild/provider verification and application-launch behavior remain outside local proof. See [authoring and rebuild guidance](../../CONTACT_SOCIAL.md).
+diff --git a/docs/superpowers/specs/2026-10-19-starter-v2-contact-social-design.md b/docs/superpowers/specs/2026-10-19-starter-v2-contact-social-design.md
+new file mode 100644
+index 0000000..fd74f9f
+--- /dev/null
++++ b/docs/superpowers/specs/2026-10-19-starter-v2-contact-social-design.md
+@@ -0,0 +1,87 @@
++# Stage 3B — Shared contact and social channels
++
++Date: 2026-10-19. Status: Implemented and locally verified candidate as of 2026-10-20; Tasks 1–3 accepted, Task 4 and whole-branch reviews pending. Base: accepted media closeout 3519bcd. Repository: C:/Projects/bizness-starter-v2. Branch: codex/starter-v2-contact-social.
++
++## Intent and success
++
++Provide reusable, CMS-owned contact/social information for future services, trades, accommodation and studio websites. Preserve the neutral design, canonical ownership, EN/EL consistency and static architecture. One change in Settings must reach Contact and the footer, and optionally the header after local regeneration or a hosted rebuild. Empty optional channels must leave no dead links, icons, headings or gaps. Preserve access to the Contact form, which remains primary and cannot be hidden.
++
++The user approved preparing the Stage 3B spec and implementation plan, using the existing subagent method with independent review. The subsequently approved implementation now has [local acceptance evidence](../plans/2026-10-20-starter-v2-contact-social-evidence.md); independent final reviews/closeout remain pending, and no production delivery is claimed. All Markdown is English.
++
++## Alternatives and selected approach
++
++1. **Fixed typed fields plus a shared pure projection — selected.** Three social URLs and one WhatsApp number have clear validation, labels, icons and predictable CMS forms. A new platform later extends one explicit registry/contract and its tests.
++2. A free-form channel list supports arbitrary platforms immediately, but introduces editor-managed types, ordering, labels and icon selection without a present requirement.
++3. Separate markup in every placement is initially smaller, but duplicates destination safety, accessible labels and rendering behavior.
++
++Use option 1. Do not add a runtime plugin system, social SDK, icon npm dependency, analytics or embedded feeds.
++
++## Canonical settings and localization
++
++Keep schemaVersion 2 and all current fields. Add optional shared root settings.social, normalized to:
++
++```ts
++interface SocialSettings {
++  instagram: string;
++  linkedin: string;
++  facebook: string;
++  whatsapp: string;
++  showInHeader: boolean;
++}
++```
++
++Missing/null social object defaults to all strings empty and showInHeader=false. Each URL/number accepts missing, null, empty and whitespace-only native clear states and normalizes to ''. Supplied strings trim. showInHeader accepts missing/null as false, accepts actual booleans only, and rejects string booleans. Unknown social keys reject. Root settings.social and its fields cannot be overridden in translations.
++
++Existing content must build unchanged with this object absent; do not rewrite the seed merely to insert defaults. SettingsCopy gains the fully normalized social object. Both default and nondefault localization explicitly retain it: localize.mjs currently reconstructs nondefault settings and would otherwise omit a new root property. Return detached values; never mutate source/native objects.
++
++contact.email remains required. Existing phone display strings retain their max-100-character schema contract; address remains localized text. Normalize null/absent optional phone/address to '' to support native clears. Do not tighten unrelated persisted phone strings or silently invent a callable number. A recognized phone contains 3–20 ASCII digits, at most one leading +, and only spaces, hyphens, parentheses and periods as display separators; strip separators for tel:. Nonempty unsupported display strings remain visible as escaped text, without a fabricated telephone link. CMS helper text documents this limitation. Email href encodes the complete validated mailbox as a URI component after mailto: so query/fragment characters cannot become injected parameters; visible email stays unchanged.
++
++## Destination rules and public link model
++
++Add browser-safe packages/content/contact.mjs and matching .d.mts; no filesystem, Tina or Astro imports. Reuse isSafeLink for final destinations. Export SOCIAL_CHANNELS in fixed Instagram, LinkedIn, Facebook, WhatsApp order, socialSettingsSchema, phoneHref(value:string):string|undefined and contactChannels(settings:SettingsCopy,locale:string):ContactChannels.
++
++ContactChannels is {direct:ContactLink[],social:ContactLink[],phoneText?:string,address?:string}. ContactLink is {id:'email'|'phone'|'instagram'|'linkedin'|'facebook'|'whatsapp';label:string;href:string;external:boolean}. Direct order is phone then email. labels are the visible phone/mailbox for direct links and platform names for socials; phoneText appears only for an unsupported nonempty phone. Address is escaped text, with line breaks preserved; no map/geolocation provider.
++
++Social URL strings are at most 2048 characters and must pass isSafeLink, use HTTPS, have no credentials or nondefault port, and have exactly the platform base hostname or a subdomain of instagram.com, linkedin.com or facebook.com respectively. Reject suffix spoofing, protocol-relative URLs, HTTP, unsafe/encoded control or backslash bypasses, userinfo and wrong-platform URLs. Preserve valid paths, queries and fragments. This intentional platform allowlist does not accept fb.me or custom redirect domains in this slice.
++
++WhatsApp stores an international number matching ^\+[1-9][0-9]{7,14}$, not a URL or display string. Generate https://wa.me/<digits-without-plus>. Blank means absent. No prefilled message, visitor data or country guessing.
++
++Direct links use tel:/mailto: without target=_blank. HTTPS social/WhatsApp links use target=_blank and rel="noopener noreferrer". They provide a localized accessible new-tab indication. Standard URLs let the OS/browser offer an installed application when supported; the website cannot guarantee native-app launch and adds no custom-scheme probes or timers.
++
++## Components and visual treatment
++
++Create ContactIcon.astro for allowlisted inline SVGs, ContactDetails.astro for direct links/address, and SocialLinks.astro for social links. All receive explicit data/locale props; no global content loader. SVGs are decorative aria-hidden=true, focusable=false with explicit dimensions/currentColor. Anchor names remain textual, including when visually hidden in the header.
++
++Use a small vendored subset of Bootstrap Icons (telephone, envelope, geo-alt, instagram, linkedin, facebook, whatsapp), after pinning an upstream commit and retaining source paths/checksums and the full MIT notice. No icon font, remote asset, package installation or raw CMS SVG. Upstream license: https://github.com/twbs/icons/blob/main/LICENSE (verified 2026-10-19). Logo usage is not a legal certification.
++
++Contact: retain its required form and existing hero. Within the existing form section, use a form-first DOM and a compact details/social aside: two columns at >=56rem, stacked form-first below. Give the social group its own small localized heading only when at least one channel exists. Avoid adding a second hero, eyebrow, CTA band or a long block before the form.
++
++Footer: retain brand/tagline, legal notice and Privacy. Group direct contact/address and socials clearly, using the same components and data as Contact. No empty columns or artificial separators. Keep the existing top separation and page wrap.
++
++Header: render only configured social/WhatsApp icons when showInHeader=true. Default false. Use a named social navigation region distinct from main navigation and language controls. Wrap without hiding links or reducing touch targets on small screens; no new menu subsystem or altered language selector.
++
++Contact/footer links use icon plus visible label; header uses icon plus visually hidden accessible label. New-tab wording: EN 'opens in a new tab', EL 'ανοίγει σε νέα καρτέλα'. Group headings: EN 'Contact details' / 'Follow us'; EL 'Στοιχεία επικοινωνίας' / 'Ακολουθήστε μας'. Existing configured languages beyond EL follow the existing English UI-label fallback.
++
++New component geometry defaults live in foundations.css: --contact-icon-size:1.125rem, --social-icon-size:1.25rem, --contact-link-gap:.625rem, --social-link-gap:.5rem, --contact-link-target:44px, --contact-aside-width:22rem. Colors/focus/radius use current semantic theme tokens; no platform brand colors, AXIA-specific styling or generated CSS edits. Link wrapping, keyboard focus and contrast must remain clear. No new motion is added.
++
++## CMS and validation
++
++Settings gains a Social channels group containing the three labeled URL fields, international WhatsApp number with example +302101234567, and Show social icons in header boolean. The WhatsApp example is helper text, never a populated real destination. Contact fields gain clear formatting guidance. Shared data is outside translations and visible for every functional profile.
++
++Use the shared social schema at read/build and existing detached native-save validation boundaries. Keep original rich-text ASTs and unrelated native values untouched. Invalid saves fail before persistence with a field path; valid select/edit/clear persists through Tina's actual installed serializer. Native empty fields must not leave GraphQL errors or ghost links after a subsequent save.
++
++## Verification and ownership
++
++Four implementation/review units: pure contract/projection; CMS authoring; shared components/integration; actual native/static/browser acceptance and docs. Use fresh medium implementers and independent medium reviewers, then most-capable medium whole-branch review and one batched final fix wave if needed. Preserve the chosen method; do not spawn implementation while written artifacts await review.
++
++Capture exact source/reference HEADs and canonical project/content/uploads snapshot. Before configure/check/build/CMS/full tests, verify and stop only the currently owned launcher tree using recorded PID, creation time and paths; do not kill by port/name. Pure temporary-root tests may run separately. Reuse existing owned cleanup/evidence primitives, not broad restoration or a new generic framework. Native saves admit only settings/site.json update operations before dispatch and derive complete expected bytes from the actual request/schema/installed serializer. Preserve unknown editor changes; independent cleanup still runs and regeneration is refused after unsafe restoration.
++
++Cover old settings with no social object, all native clear shapes, invalid URLs/numbers/booleans, locale projection, per-placement visibility, exact link attributes and safe escaping. Actual browser checks EN/EL at 375/768/1440, keyboard focus, no overflow, no-JS rendering and representative axe. Do not click external links, open email clients or dial during automation; inspect exact destinations instead. Native UI proof sets all new fields, clears one, toggles header display, saves again, verifies public freshness and restores exact owned bytes.
++
++Sequential checkout gates: pnpm check, pnpm test, pnpm build, pnpm worker:check, pnpm cms:local-build, pnpm test:static-routing and pnpm test:showcase-builds. Keep failed runs and explicit command exits. Required native proof is separate from any opt-in general-suite skip. Restore the original local stack after acceptance. No hosted setup, sending, deployment, merge, push, tag, legal certification or source-repository writes.
++
++## Non-goals and self-review
++
++Newsletter modal, cookies, visitor storage, motion, reservations/payments/accounts, presets/initializer, production forms and provider setup remain separate work. No Worker endpoint or database change is needed for static contact destinations.
++
++Self-review: one owner per field; root social retained explicitly in both locale projections; missing/default/native-null behavior defined; phone compatibility and app-launch limits stated; all placement/empty states defined; icon provenance and token owners specified; acceptance does not trigger external actions; no placeholders or product implementation claims.
+diff --git a/e2e/contact-social-cms.spec.ts b/e2e/contact-social-cms.spec.ts
+new file mode 100644
+index 0000000..5f4e200
+--- /dev/null
++++ b/e2e/contact-social-cms.spec.ts
+@@ -0,0 +1,38 @@
++import {test,expect} from '@playwright/test';
++import {readFileSync,realpathSync} from 'node:fs';
++import {join,resolve,dirname} from 'node:path';
++import {createRequire} from 'node:module';
++import {pathToFileURL} from 'node:url';
++import {createCmsSources} from './helpers/cms-source-ownership';
++import {createCmsEvidence} from './helpers/cms-evidence';
++import {assertContactSettingsMutation,coerceContactSettingsVariables} from './helpers/contact-social-native-admission';
++import {expectedNativeDocument,type Schema,type Mutation} from './helpers/native-document';
++import {mediaRuntime,cleanupMediaBrowser} from './helpers/media-optimization-runtime';
++import {createMediaAcceptanceRun} from '../scripts/media-optimization-acceptance.mjs';
++import {canonicalSnapshot,assertCanonicalSnapshot} from '../scripts/composition-c-snapshot.mjs';
++import {resolvePorts,assertPortsFree} from '../scripts/ports.mjs';
++import {hash,writeEvidence} from './helpers/media-optimization-acceptance';
++test('actual Settings edit clear toggle with pre-dispatch installed serializer proof',async({browser})=>{
++ test.setTimeout(600000);const directory=process.env.CONTACT_ACCEPTANCE_DIRECTORY!,path='content/settings/site.json',before=canonicalSnapshot(),ports=resolvePorts();let expected={...before};const runtimes:ReturnType<typeof mediaRuntime>[]=[];const run=createMediaAcceptanceRun({expected:()=>expected,isStopped:()=>runtimes.every(r=>r.closed())});const sources=createCmsSources([path],join(directory,'settings-source')),evidence=createCmsEvidence(directory);let prior=JSON.parse(sources.originalBytes(path)),pending:any,baselineNative:any;const saves:any[]=[];let context:Awaited<ReturnType<typeof browser.newContext>>|undefined;
++ try{await assertPortsFree(ports);await run.build();runtimes.push(mediaRuntime(directory,'tina',[resolve('node_modules/@tinacms/cli/bin/tinacms'),'dev','--port',String(ports.tina),'--datalayer-port',String(ports.datalayer),'--noTelemetry']));await expect.poll(()=>runtimes[0].output(),{timeout:120000}).toMatch(/TinaCMS Dev Server is active/);runtimes.push(mediaRuntime(directory,'astro',[resolve('apps/site/node_modules/astro/bin/astro.mjs'),'dev','--host','127.0.0.1','--port',String(ports.site)],resolve('apps/site')));await expect.poll(async()=>{try{return(await fetch('http://127.0.0.1:'+ports.site+'/en/contact')).status;}catch{return 0;}},{timeout:60000}).toBe(200);
++ const schema:Schema=JSON.parse(readFileSync('tina/__generated__/_schema.json','utf8'));writeEvidence(directory,'installed-schema.json',schema);const schemaSDL=readFileSync('tina/__generated__/schema.gql','utf8');writeEvidence(directory,'installed-sdl.json',{sha256:hash(schemaSDL),text:schemaSDL});const require=createRequire(import.meta.url),serializerPath=realpathSync(resolve(dirname(require.resolve('@tinacms/cli')),'../../graphql/dist/index.js')),graphql=await import(pathToFileURL(serializerPath).href);writeEvidence(directory,'installed-serializer.json',{path:serializerPath,sha256:hash(readFileSync(serializerPath))});context=await browser.newContext();context.setDefaultTimeout(15000);await context.route('**/*',route=>{const url=new URL(route.request().url());return ['127.0.0.1','localhost'].includes(url.hostname)?route.continue():route.abort();});const page=await context.newPage(),publicPage=await context.newPage();let queries=0;page.on('response',r=>{if(r.url().endsWith('/graphql')&&r.status()===200&&!/mutation\b/.test(r.request().postData()||''))queries++;});
++ await page.route('**/graphql',async route=>{const body=route.request().postDataJSON();if(route.request().method()==='POST'&&/\bmutation\b/.test(body?.query||'')){pending=undefined;try{assertContactSettingsMutation(body,path);sources.assertUnchanged();assertCanonicalSnapshot(expected);const request:Mutation=coerceContactSettingsVariables(body,schemaSDL),complete=await expectedNativeDocument(request,schema,prior),bytes=graphql.stringifyFile(complete,'.json',false);pending={request,complete,bytes,sha256:hash(bytes)};writeEvidence(directory,'pre-dispatch-'+saves.length+'.json',{...pending,wire:body});}catch(error){pending=undefined;await route.abort('blockedbyclient');writeEvidence(directory,'refused.json',{body,error:String(error)});return;}}await route.continue();});
++ async function open(){await page.goto('http://127.0.0.1:'+ports.site+'/cms/index.html?contact='+Date.now()+'#/collections/edit/settings/site');const enter=page.getByRole('button',{name:'Enter Edit Mode',exact:true});await expect(enter.or(page.getByRole('button',{name:'Save',exact:true})).first()).toBeVisible({timeout:60000});if(await enter.isVisible())await enter.click();await expect(page.getByRole('button',{name:'Save',exact:true})).toBeVisible({timeout:60000});}
++ async function save(){pending=undefined;const response=page.waitForResponse(r=>r.request().method()==='POST'&&(r.request().postData()||'').includes('updateDocument'));await page.getByRole('button',{name:'Save',exact:true}).click();expect((await(await response).json()).errors||[]).toEqual([]);expect(pending).toBeTruthy();await evidence.captureNative(sources,path,pending.request,schema,()=>true,pending.bytes);expect(readFileSync(path,'utf8')).toBe(pending.bytes);expected[path]=pending.sha256;assertCanonicalSnapshot(expected);expect(pending.request.params.settings.translations).toEqual(baselineNative.translations);expect(pending.request.params.settings.legal).toEqual(baselineNative.legal);if(saves.length){expect(pending.request.params.settings.legal).toEqual(saves[0].request.params.settings.legal);expect(pending.request.params.settings.translations).toEqual(saves[0].request.params.settings.translations);}prior=pending.complete;saves.push(pending);writeEvidence(directory,'saves.json',saves);}
++ async function publicProof(count:number,header:number){
++  const rows:any[]=[],attempts:any[]=[];
++  try{for(const locale of ['en','el']){let fatal:unknown;await expect.poll(async()=>{
++   const row:any={locale,started:new Date().toISOString()};attempts.push(row);
++   try{await publicPage.goto('http://127.0.0.1:'+ports.site+'/'+locale+'/contact');}
++   catch(error){row.error=String(error);row.outcome=/net::ERR_ABORTED/.test(String(error))?'hmr-navigation-aborted':'fatal-navigation';if(row.outcome==='fatal-navigation')fatal=error;return !!fatal;}
++   try{await expect(publicPage.locator('main .social-link')).toHaveCount(count);await expect(publicPage.locator('footer .social-link')).toHaveCount(count);await expect(publicPage.locator('header .social-link')).toHaveCount(header);if(count===2)await expect(publicPage.locator('a[href*="instagram.com"],a[href*="wa.me"]')).toHaveCount(0);row.outcome='matched';return true;}
++   catch(error){row.outcome='awaiting-content-reload';row.error=String(error);return false;}
++   finally{row.ended=new Date().toISOString();}
++  },{timeout:30000}).toBe(true);if(fatal)throw fatal;rows.push({locale,count,header,hrefs:await publicPage.locator('.social-link').evaluateAll(es=>es.map(e=>e.getAttribute('href')))});}}
++  finally{writeEvidence(directory,'public-after-save-'+saves.length+'.json',{rows,attempts});}
++ }
++ const indexed=await(await fetch('http://localhost:'+ports.tina+'/graphql',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({query:'query { settings(relativePath: "site.json") { _values } }'})})).json() as any;expect(indexed.errors||[]).toEqual([]);baselineNative=indexed.data.settings._values;writeEvidence(directory,'baseline-indexed-settings.json',indexed);await open();writeEvidence(directory,'initial-controls.json',await page.locator('input,button').evaluateAll(es=>es.map(e=>({tag:e.tagName,text:e.textContent,name:e.getAttribute('name'),type:e.getAttribute('type')}))));
++ const group=page.getByText('Social channels',{exact:true});await group.click();writeEvidence(directory,'expanded-social-dom.json',await page.locator('input,button,label').evaluateAll(es=>es.map(e=>({tag:e.tagName,text:e.textContent,name:e.getAttribute('name'),type:e.getAttribute('type'),id:e.id,html:e.outerHTML}))));
++ await page.locator('input[name="social.instagram"]').fill('https://instagram.com/example-contact');await page.locator('input[name="social.linkedin"]').fill('https://www.linkedin.com/company/example-contact');await page.locator('input[name="social.facebook"]').fill('https://facebook.com/example-contact');await page.locator('input[name="social.whatsapp"]').fill('+302101234567');await page.locator('input[name="social.showInHeader"]').check();await save();await publicProof(4,4);await page.locator('input[name="social.instagram"]').fill('');await page.locator('input[name="social.whatsapp"]').fill('');await save();await publicProof(2,2);await page.locator('input[name="social.showInHeader"]').uncheck();await save();await publicProof(2,0);await open();await page.getByText('Social channels',{exact:true}).click();await expect(page.locator('input[name="social.instagram"]')).toHaveValue('');await expect(page.locator('input[name="social.whatsapp"]')).toHaveValue('');await expect(page.locator('input[name="social.linkedin"]')).toHaveValue('https://www.linkedin.com/company/example-contact');await expect(page.locator('input[name="social.facebook"]')).toHaveValue('https://facebook.com/example-contact');await expect(page.locator('input[name="social.showInHeader"]')).not.toBeChecked();expect(queries).toBeGreaterThan(0);writeEvidence(directory,'indexed-query-proof.json',{successfulQueries:queries,saves:saves.length,translationsAndLegalPreserved:true});await page.screenshot({path:join(directory,'native-final.png'),fullPage:true});
++ }catch(error){writeEvidence(directory,'failure.json',{error:String(error),stack:error instanceof Error?error.stack:undefined,saves:saves.length,pending});throw error;}finally{await cleanupMediaBrowser({closeBrowser:()=>context?.close(),stops:runtimes.map((r,i)=>({id:'runtime-'+i,stop:()=>r.stop()})),restores:[{id:'settings',restore:()=>sources.restore()}],assertInputs:()=>{expected={...before};assertCanonicalSnapshot(before);},regenerate:[{id:'canonical-build',run:()=>run.build()}],record:x=>writeEvidence(directory,'native-cleanup.json',x)});run.finish();}
++});
+diff --git a/e2e/contact-social.spec.ts b/e2e/contact-social.spec.ts
+new file mode 100644
+index 0000000..6cd75c8
+--- /dev/null
++++ b/e2e/contact-social.spec.ts
+@@ -0,0 +1,24 @@
++import {test,expect} from '@playwright/test';
++import AxeBuilder from '@axe-core/playwright';
++import {readFileSync,mkdirSync} from 'node:fs';
++import {join} from 'node:path';
++import {createMediaOptimizationFixture} from './helpers/media-optimization-fixture';
++import {createMediaAcceptanceRun} from '../scripts/media-optimization-acceptance.mjs';
++import {canonicalSnapshot,assertCanonicalSnapshot} from '../scripts/composition-c-snapshot.mjs';
++import {workerFor,hash,writeEvidence} from './helpers/media-optimization-acceptance';
++const all={instagram:'https://instagram.com/example-contact',linkedin:'https://www.linkedin.com/company/example-contact',facebook:'https://facebook.com/example-contact',whatsapp:'+302101234567',showInHeader:false};
++const modes=[{name:'none',social:{}},{name:'all-off',social:all},{name:'all-on',social:{...all,showInHeader:true}},{name:'one',social:{facebook:all.facebook}},{name:'long',social:{...all,showInHeader:true},long:true}];
++for(const mode of modes)test('built contact '+mode.name,async({browser})=>{
++ test.setTimeout(600000);const directory=join(process.env.CONTACT_ACCEPTANCE_DIRECTORY!,mode.name);mkdirSync(directory,{recursive:true});
++ const path='content/settings/site.json',before=canonicalSnapshot();let expected={...before},stopped=true;const fixture=createMediaOptimizationFixture({documents:[path]});writeEvidence(directory,'fixture-owner.json',{directory:fixture.directory});const original=JSON.parse(readFileSync(path,'utf8'));const run=createMediaAcceptanceRun({expected:()=>expected,isStopped:()=>stopped});let runtime:Awaited<ReturnType<typeof workerFor>>|undefined;
++ try{fixture.assertInputs();const settings={...original,contact:{...original.contact,phone:'+30 (210) 123-4567'},social:mode.social,...(mode.long?{contact:{email:'long.contact+tag@example.com',phone:'Call reception extension ABC',address:'A very long descriptive business address '.repeat(5)+'\nSecond address line'},translations:{...original.translations,el:{...original.translations.el,contact:{address:'Μεγάλη διεύθυνση επικοινωνίας '.repeat(6)}}}}:{})};const bytes=JSON.stringify(settings,null,2)+'\n';fixture.replaceDocument(path,bytes);expected[path]=hash(bytes);assertCanonicalSnapshot(expected);await run.build();runtime=await workerFor(directory);stopped=false;writeEvidence(directory,'runtime.json',{port:runtime.port,started:new Date().toISOString(),privateState:join(directory,'runtime')});
++ const evidence:any[]=[];for(const locale of ['en','el'])for(const width of [375,768,1440])for(const js of [true,false]){const context=await browser.newContext({viewport:{width,height:900},javaScriptEnabled:js});try{const origin='http://127.0.0.1:'+runtime.port;await context.route('**/*',route=>route.request().url().startsWith(origin)?route.continue():route.abort());const page=await context.newPage();expect((await page.goto(origin+'/'+locale+'/contact'))!.status()).toBe(200);await expect(page.locator('main form')).toHaveCount(1);const geometry=await page.evaluate(()=>{const form=document.querySelector('main form')!,aside=document.querySelector('main aside')!,f=form.getBoundingClientRect(),a=aside.getBoundingClientRect();return {formFirst:!!(form.compareDocumentPosition(aside)&Node.DOCUMENT_POSITION_FOLLOWING),form:{x:f.x,y:f.y,bottom:f.bottom},aside:{x:a.x,y:a.y}};});expect(geometry.formFirst).toBe(true);if(width<896)expect(geometry.aside.y).toBeGreaterThanOrEqual(geometry.form.bottom);else expect(geometry.aside.x).toBeGreaterThan(geometry.form.x);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
++ const count=Object.entries(mode.social).filter(([k,v])=>k!=='showInHeader'&&v).length;await expect(page.locator('main .social-link')).toHaveCount(count);await expect(page.locator('footer .social-link')).toHaveCount(count);await expect(page.locator('header .social-link')).toHaveCount((mode.social as any).showInHeader?count:0);
++ const links=await page.locator('.social-link').evaluateAll(es=>es.map(e=>({href:e.getAttribute('href'),target:e.getAttribute('target'),rel:e.getAttribute('rel'),text:e.textContent,w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height})));for(const link of links){expect(link.target).toBe('_blank');expect(link.rel).toBe('noopener noreferrer');expect(link.text).toContain(locale==='el'?'ανοίγει σε νέα καρτέλα':'opens in a new tab');expect(link.w).toBeGreaterThanOrEqual(44);expect(link.h).toBeGreaterThanOrEqual(44);expect([all.instagram,all.linkedin,all.facebook,'https://wa.me/302101234567']).toContain(link.href);}
++ const destinations=['instagram','linkedin','facebook','whatsapp'].filter(id=>(mode.social as any)[id]).map(id=>id==='whatsapp'?'https://wa.me/302101234567':(mode.social as any)[id]);for(const placement of ['main','footer','header']){const actual=await page.locator(placement+' .social-link').evaluateAll(es=>es.map(e=>e.getAttribute('href')));expect(actual).toEqual(placement==='header'&&!(mode.social as any).showInHeader?[]:destinations);}if(!count)await expect(page.locator('.social-group')).toHaveCount(0);
++ if(!mode.long)await expect(page.locator('main .contact-link[href^="tel:"]')).toHaveAttribute('href','tel:+302101234567');
++ for(const a of await page.locator('.contact-link').all()){const box=await a.boundingBox();expect(box!.width).toBeGreaterThanOrEqual(44);expect(box!.height).toBeGreaterThanOrEqual(44);expect(await a.getAttribute('target')).toBeNull();expect((await a.getAttribute('href'))!).toMatch(/^(mailto:|tel:)/);}
++ if(mode.long){await expect(page.locator('main a[href^="tel:"]')).toHaveCount(0);await expect(page.locator('main .contact-details')).toContainText('Call reception extension ABC');await expect(page.locator('main .contact-link[href^="mailto:"]')).toHaveAttribute('href','mailto:long.contact%2Btag%40example.com');}
++ if(js&&width===375){const audit=await new AxeBuilder({page}).analyze();writeEvidence(directory,'axe-'+locale+'.json',audit);expect(audit.violations).toEqual([]);await page.screenshot({path:join(directory,locale+'-375.png'),fullPage:true});for(const a of await page.locator('.contact-link,.social-link').all()){await a.focus();expect(await a.evaluate(e=>e===document.activeElement&&getComputedStyle(e).outlineStyle!=='none')).toBe(true);}const a=page.locator('.contact-link').first();await a.focus();await page.keyboard.press('Tab');expect(await page.evaluate(()=>document.activeElement?.tagName)).toBe('A');}if(js&&width===1440)await page.screenshot({path:join(directory,locale+'-1440.png'),fullPage:true});evidence.push({locale,width,js,links,geometry,destinations,noOverflow:true});}finally{await context.close();}}writeEvidence(directory,'matrix.json',evidence);
++ }finally{await fixture.cleanup({stops:[{id:'worker',stop:async()=>{await runtime?.stop();stopped=true;writeEvidence(directory,'shutdown.json',{confirmed:true,ended:new Date().toISOString()});}}],regenerate:[{id:'canonical-build',run:()=>{expected={...before};return run.build();}}]});run.finish();}
++});
+diff --git a/e2e/helpers/cms-source-ownership.ts b/e2e/helpers/cms-source-ownership.ts
+index 1e1f6e1..979f182 100644
+--- a/e2e/helpers/cms-source-ownership.ts
++++ b/e2e/helpers/cms-source-ownership.ts
+@@ -51,40 +51,42 @@ export function createCmsSources(paths: string[], backupRoot = '.generated/cms-r
+   const reject = (path: string, current: string, expected: unknown, message: string): never => {
+     owned.delete(path);
+     rejected.add(path);
+     writeFileSync(join(backup, backupName(path) + '.unclaimed.json'), current);
+     writeFileSync(
+       join(backup, backupName(path) + '.expected.json'),
+       JSON.stringify(expected, null, 2),
+     );
+     throw Error(message + ': ' + path + '; retained originals/current/expected in ' + backup);
+   };
+-  const capture = (path: string, expected: unknown, predicate: Predicate) => {
++  const capture = (path: string, expected: unknown, predicate: Predicate, expectedBytes?: string) => {
+     path = sourcePath(path);
+     const current = readFileSync(path, 'utf8');
++    if (expectedBytes !== undefined && current !== expectedBytes)
++      return reject(path, current, { expectedBytes }, 'Unexpected saved document bytes');
+     let parsed;
+     try {
+       parsed = JSON.parse(current);
+     } catch {
+       return reject(path, current, expected, 'Unexpected saved document');
+     }
+     if (!isDeepStrictEqual(parsed, expected))
+       return reject(path, current, expected, 'Unexpected saved document');
+     let matches = false;
+     try {
+       matches = predicate(parsed);
+     } catch {
+       return reject(path, current, expected, 'Expected edit missing');
+     }
+     if (!matches) return reject(path, current, expected, 'Expected edit missing');
+     // Claim only this complete, expected record, never arbitrary finally-observed bytes.
+-    owned.set(path, current);
++    owned.set(path, expectedBytes ?? current);
+   };
+   return {
+     backup,
+     backupFor,
+     originalBytes: (path: string) => {const bytes=originals.get(sourcePath(path));if(bytes===undefined)throw Error('Original source was absent');return bytes;},
+     originalState: (path:string) => {const bytes=originals.get(sourcePath(path));return bytes===undefined?{exists:false}:{exists:true,bytes};},
+     owns: (path: string) => owned.has(sourcePath(path)),
+     assertUnchanged() {
+       for (const [path, original] of originals) {
+         try {
+@@ -104,28 +106,28 @@ export function createCmsSources(paths: string[], backupRoot = '.generated/cms-r
+     },
+     createAbsent(path: string, expected: unknown, predicate: Predicate) {
+       path = sourcePath(path);
+       if (originals.get(path) !== undefined)
+         throw Error('Fixture must be initially absent: ' + path);
+       // Exclusive creation also protects a file appearing after the original snapshot.
+       writeFileSync(path, JSON.stringify(expected, null, 2) + '\n', { flag: 'wx' });
+       capture(path, expected, predicate);
+     },
+     capture,
+-    async captureNative(path: string, mutation: Omit<Mutation,'operation'> & {operation?:Mutation['operation']}, schema: Schema, predicate: Predicate) {
++    async captureNative(path: string, mutation: Omit<Mutation,'operation'> & {operation?:Mutation['operation']}, schema: Schema, predicate: Predicate, expectedBytes?: string) {
+       path = sourcePath(path);
+       const request:Mutation={...mutation,operation:mutation.operation??'update'};
+       try {
+         if(nativeDocumentPath(request,schema)!==path)throw Error('Mutation source does not match the backed-up file: '+path);
+         const priorBytes=owned.get(path)??originals.get(path);
+         const expected=await expectedNativeDocument(request,schema,priorBytes===undefined?undefined:JSON.parse(priorBytes));
+-        capture(path, expected, predicate);
++        capture(path, expected, predicate, expectedBytes);
+       } catch(error) {
+         // A failed new proof revokes any earlier claim. Keep the inputs when no
+         // expected record could be derived; they are never treated as owned bytes.
+         if(!rejected.has(path)) reject(path,existsSync(path)?readFileSync(path,'utf8'):JSON.stringify({exists:false}),{unprovenMutation:request},error instanceof Error?error.message:String(error));
+         throw error;
+       }
+     },
+     async restore(cleanup: () => void | Promise<void> = () => {}) {
+       const conflicts = new Set(rejected);
+       for (const [path, original] of originals) {
+diff --git a/e2e/helpers/contact-social-native-admission.ts b/e2e/helpers/contact-social-native-admission.ts
+new file mode 100644
+index 0000000..439957d
+--- /dev/null
++++ b/e2e/helpers/contact-social-native-admission.ts
+@@ -0,0 +1,30 @@
++import {resolve} from 'node:path';
++import {createRequire} from 'node:module';
++const require=createRequire(import.meta.url);
++const graphqlPath=require.resolve('graphql',{paths:[require.resolve('@tinacms/cli')]});
++const {parse,buildSchema,getOperationAST}=require(graphqlPath);
++const {getVariableValues}=createRequire(graphqlPath)('graphql/execution/values');
++/** Narrow wire admission. No request is dispatched until this and full serializer proof pass. */
++export function assertContactSettingsMutation(body:unknown,sourcePath:string):void {
++ const refuse=()=>{throw Error('Contact native mutation refused: expected one exact update/settings/site.json');};
++ if(!body||typeof body!=='object'||Array.isArray(body))return refuse();
++ const b=body as any,v=b.variables;
++ if(typeof b.query!=='string'||!v||v.collection!=='settings'||v.relativePath!=='site.json'||!v.params?.settings||Object.keys(v.params).length!==1||resolve(sourcePath)!==resolve('content/settings/site.json'))return refuse();
++ let ast:any;try{ast=parse(b.query);}catch{return refuse();}
++ if(ast.definitions.length!==1)return refuse();
++ const op=ast.definitions[0];
++ if(op.kind!=='OperationDefinition'||op.operation!=='mutation'||op.selectionSet.selections.length!==1)return refuse();
++ const field=op.selectionSet.selections[0];
++ if(field.kind!=='Field'||field.name.value!=='updateDocument'||field.alias||field.directives.length||op.directives.length)return refuse();
++ const args=field.arguments;
++ if(args.length!==3||!['collection','relativePath','params'].every(name=>args.some((a:any)=>a.name.value===name&&a.value.kind==='Variable'&&a.value.name.value===name)))return refuse();
++}
++
++/** Installed GraphQL coercion orders input fields before the resolver/serializer sees them. */
++export function coerceContactSettingsVariables(body:any,schemaSDL:string){
++ const operation=getOperationAST(parse(body.query));
++ if(!operation)throw Error('Contact native coercion: missing operation');
++ const {coerced,errors}=getVariableValues(buildSchema(schemaSDL),operation.variableDefinitions,body.variables);
++ if(errors?.length)throw Error('Contact native coercion: '+errors.map((error:Error)=>error.message).join('; '));
++ return {...coerced,operation:'update' as const};
++}
+diff --git a/package.json b/package.json
+index 35025a8..afc2a7c 100644
+--- a/package.json
++++ b/package.json
+@@ -19,21 +19,22 @@
+     "worker:check": "pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json",
+     "db:local": "pnpm configure && node scripts/wrangler.mjs d1 migrations apply DB --local --config wrangler.generated.json",
+     "doctor": "node scripts/doctor.mjs",
+     "deploy:check": "node scripts/doctor.mjs --production",
+     "smoke:local": "node scripts/smoke-local.mjs",
+     "test:e2e": "playwright test",
+     "test:composition-c": "node scripts/verify-composition-c.mjs",
+     "test:media-optimization": "node scripts/verify-media-optimization.mjs",
+     "test:profiles": "node scripts/verify-profiles.mjs",
+     "test:showcase-builds": "node scripts/verify-showcase-builds.mjs",
+-    "test:static-routing": "pnpm build && node scripts/verify-static-routing.mjs"
++    "test:static-routing": "pnpm build && node scripts/verify-static-routing.mjs",
++    "test:contact-social": "node scripts/verify-contact-social.mjs"
+   },
+   "dependencies": {
+     "@fontsource/noto-sans": "5.2.8",
+     "aws4fetch": "1.0.20",
+     "jose": "6.2.12",
+     "markdown-it": "14.3.2",
+     "sharp": "0.35.5",
+     "zod": "4.6.5"
+   },
+   "devDependencies": {
+diff --git a/packages/content/contact.d.mts b/packages/content/contact.d.mts
+new file mode 100644
+index 0000000..42ba1f9
+--- /dev/null
++++ b/packages/content/contact.d.mts
+@@ -0,0 +1,7 @@
++import type {ZodType} from 'zod';
++import type {SettingsCopy,SocialSettings,ContactLink,ContactChannels} from './types';
++export type {SocialSettings,ContactLink,ContactChannels} from './types';
++export const SOCIAL_CHANNELS:readonly ['instagram','linkedin','facebook','whatsapp'];
++export const socialSettingsSchema:ZodType<SocialSettings,unknown>;
++export function phoneHref(value:string):string|undefined;
++export function contactChannels(settings:SettingsCopy,locale:string):ContactChannels;
+diff --git a/packages/content/contact.mjs b/packages/content/contact.mjs
+new file mode 100644
+index 0000000..203e0b8
+--- /dev/null
++++ b/packages/content/contact.mjs
+@@ -0,0 +1,46 @@
++import {z} from 'zod';
++import {isSafeLink} from './rich-text.mjs';
++
++export const SOCIAL_CHANNELS=Object.freeze(['instagram','linkedin','facebook','whatsapp']);
++const clearedString=z.preprocess(value=>value==null?'':value,z.string().trim());
++function platformUrl(platform){
++ return clearedString.pipe(z.string().max(2048).refine(value=>{
++  if(!value)return true;
++  if(!isSafeLink(value))return false;
++  try{
++   const url=new URL(value);
++   return url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&
++    (url.hostname===platform+'.com'||url.hostname.endsWith('.'+platform+'.com'));
++  }catch{return false;}
++ },'Use a safe HTTPS URL on '+platform+'.com'));
++}
++export const socialSettingsSchema=z.preprocess(value=>value==null?{}:value,z.strictObject({
++ instagram:platformUrl('instagram'),linkedin:platformUrl('linkedin'),facebook:platformUrl('facebook'),
++ whatsapp:clearedString.pipe(z.string().refine(value=>!value||/^\+[1-9][0-9]{7,14}$/.test(value),'Use an international number such as +302101234567')),
++ showInHeader:z.preprocess(value=>value==null?false:value,z.boolean()),
++}));
++
++export function phoneHref(value){
++ if(!/^\+?[0-9 ().-]+$/.test(value.replace(/^ +/,'')))return undefined;
++ const number=value.replace(/[ ().-]/g,'');
++ if(!/^\+?[0-9]{3,20}$/.test(number))return undefined;
++ const href='tel:'+number;
++ return isSafeLink(href)?href:undefined;
++}
++
++export function contactChannels(settings,locale){
++ const direct=[],social=[];
++ const phone=settings.contact.phone;
++ const phoneLink=phoneHref(phone);
++ if(phoneLink)direct.push({id:'phone',label:phone,href:phoneLink,external:false});
++ const email='mailto:'+encodeURIComponent(settings.contact.email);
++ if(isSafeLink(email))direct.push({id:'email',label:settings.contact.email,href:email,external:false});
++ const labels={instagram:'Instagram',linkedin:'LinkedIn',facebook:'Facebook',whatsapp:'WhatsApp'};
++ for(const id of SOCIAL_CHANNELS){
++  const value=settings.social[id];
++  if(!value)continue;
++  const href=id==='whatsapp'?'https://wa.me/'+value.slice(1):value;
++  if(isSafeLink(href))social.push({id,label:labels[id],href,external:true});
++ }
++ return {direct,social,...(phone.trim()&&!phoneLink?{phoneText:phone}:{}),...(settings.contact.address.trim()?{address:settings.contact.address}:{})};
++}
+diff --git a/packages/content/localize.mjs b/packages/content/localize.mjs
+index adaedcf..b58c162 100644
+--- a/packages/content/localize.mjs
++++ b/packages/content/localize.mjs
+@@ -3,21 +3,21 @@ import {getDisabledDomainPages} from './domain-registry.mjs';
+ import {sectionDefinitions,sectionEnabled} from './section-registry.mjs';
+ import { activeRecords, requiredPage, joinPath } from './publication.mjs';
+ 
+ export function localizeContent(source,locale,project,registry) {
+  if(!project.languages.some(l=>l.code===locale))throw new Error('Unconfigured locale: '+locale);
+  const {translations,...baseSettings}=source.settings;
+  const translation=translations[locale];
+  if(locale!==project.locale&&!translation)throw new Error('Missing required settings translation for locale '+locale);
+  const settings=structuredClone(locale===project.locale?baseSettings:{
+   brand:{...baseSettings.brand,...translation.brand},legal:{...baseSettings.legal,...translation.legal},
+-  contact:{...baseSettings.contact,...translation.contact},
++  contact:{...baseSettings.contact,...translation.contact},social:baseSettings.social,
+   navigation:baseSettings.navigation.map(item=>({...item,label:translation.navigation[item.pageId]})),
+  });
+  const disabledIds=new Set(getDisabledDomainPages(project,registry).map(page=>page.contentId));
+  source={...source,pages:source.pages.filter(page=>!disabledIds.has(page.contentId))};
+  const active=activeRecords(source,locale,project);
+  for(const page of source.pages) {
+   if(requiredPage(page,project)&&!active.pages.some(p=>p.contentId===page.contentId))
+    throw new Error('Required page '+page.contentId+' has no published translation for locale '+locale);
+  }
+  const availableIds=new Set(active.pages.map(p=>p.contentId));
+diff --git a/packages/content/schemas.mjs b/packages/content/schemas.mjs
+index fa01c38..ba1bf49 100644
+--- a/packages/content/schemas.mjs
++++ b/packages/content/schemas.mjs
+@@ -1,10 +1,11 @@
++import {socialSettingsSchema} from './contact.mjs';
+ import {modulePageTemplates} from './module-extensions.mjs';
+ import { z } from 'zod';
+ import { isSafeMarkdown } from './rich-text.mjs';
+ import { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas, sectionDefinitions } from './section-registry.mjs';
+ export { LIMITS, SECTION_TYPES, linkSchema, sectionCopySchemas, sectionDefinitions } from './section-registry.mjs';
+ export const PAGE_TEMPLATES = Object.freeze(['home','about','contact','standard','offerings','insights',...modulePageTemplates]);
+ if(new Set(PAGE_TEMPLATES).size!==PAGE_TEMPLATES.length)throw Error('Duplicate Page template registration');
+ export const SURFACES = Object.freeze(['default','muted','accent']);
+ const title = z.string().trim().min(1).max(LIMITS.title);
+ const richSummary = z.string().max(LIMITS.description).refine(value=>isSafeMarkdown(value,true),'Description allows safe inline emphasis and links only');
+@@ -58,30 +59,32 @@ const editorial = extra => z.strictObject({
+  translations:translations(z.strictObject({...publication,...prose,...extra.localized})),
+ });
+ export const offeringSchema=editorial({shared:{},localized:{}});
+ export const personSchema=editorial({shared:{role:title},localized:{role:title}});
+ const optionalId=z.preprocess(value=>value==null || (typeof value==='string'&&!value.trim())?undefined:value,identifier.optional());
+ const articleDates={publishAt:z.iso.datetime({offset:true}),updatedAt:z.iso.datetime({offset:true}).optional()};
+ export const articleSchema=editorial({shared:{authorId:optionalId,offeringId:optionalId,...articleDates},localized:articleDates}).superRefine((article,ctx)=>{
+  for(const [value,path] of [[article,[]],...Object.entries(article.translations).map(([locale,translation])=>[translation,['translations',locale]])])
+   if(value.updatedAt&&Date.parse(value.updatedAt)<Date.parse(value.publishAt))ctx.addIssue({code:'custom',path:[...path,'updatedAt'],message:'updatedAt must not precede publishAt'});
+ });
++const optionalContactText=max=>z.preprocess(value=>value==null?'':value,z.string().max(max));
+ const settingsCopy = {
++ social:socialSettingsSchema,
+  brand:z.strictObject({name:title,tagline:z.string().max(300)}),
+  legal:z.strictObject({businessName:title,privacyVersion:z.string().trim().min(1).max(80),notice:richBody}),
+- contact:z.strictObject({email:z.email(),phone:z.string().max(100),address:z.string().max(1000)}),
++ contact:z.strictObject({email:z.email(),phone:optionalContactText(100),address:optionalContactText(1000)}),
+  navigation:z.array(z.strictObject({label:title,pageId:fieldId})),
+ };
+ const localizedSettingsCopy = {
+  brand:z.strictObject({tagline:z.string().max(300)}),
+  legal:z.strictObject({notice:richBody}),
+- contact:z.strictObject({address:z.string().max(1000)}),
++ contact:z.strictObject({address:optionalContactText(1000)}),
+  navigation:z.record(fieldId,title),
+ };
+ export const settingsSchema=z.strictObject({...settingsCopy,translations:translations(z.strictObject(localizedSettingsCopy))}).superRefine((settings,ctx)=>{
+  const ids=settings.navigation.map(n=>n.pageId);
+  if(new Set(ids).size!==ids.length)ctx.addIssue({code:'custom',path:['navigation'],message:'Navigation page IDs must be unique'});
+  for(const [locale,translation] of Object.entries(settings.translations)) {
+   for(const id of ids)if(!Object.hasOwn(translation.navigation,id))ctx.addIssue({code:'custom',path:['translations',locale,'navigation',id],message:'Missing translated navigation label'});
+   for(const id of Object.keys(translation.navigation))if(!ids.includes(id))ctx.addIssue({code:'custom',path:['translations',locale,'navigation',id],message:'Stale translated navigation page ID'});
+  }
+ });
+diff --git a/packages/content/types.ts b/packages/content/types.ts
+index b150bd8..6081af6 100644
+--- a/packages/content/types.ts
++++ b/packages/content/types.ts
+@@ -26,21 +26,24 @@ export interface SectionReference {id:string;_template:SectionType;variant:Secti
+ export interface PageCopy {sections:Record<string,SectionCopy>}
+ export interface PageTranslation extends Publication {meta:Meta;copy:PageCopy}
+ export interface Page extends Publication {contentId:string;_template:PageTemplate;slug:string;meta:Meta;sections:SectionReference[];copy:PageCopy;translations:Record<string,PageTranslation>}
+ export interface EditorialCopy extends Publication {title:string;description:string;body:string;seoDescription:string}
+ export interface Offering extends EditorialCopy {contentId:string;slug:string;translations:Record<string,EditorialCopy>}
+ export interface PersonCopy extends EditorialCopy {role:string}
+ export interface Person extends PersonCopy {contentId:string;slug:string;translations:Record<string,PersonCopy>}
+ export interface ArticleCopy extends EditorialCopy {publishAt:string;updatedAt?:string}
+ export interface Article extends ArticleCopy {contentId:string;slug:string;authorId?:string;offeringId?:string;translations:Record<string,ArticleCopy>}
+ export interface NavigationItem {label:string;pageId:string}
+-export interface SettingsCopy {brand:{name:string;tagline:string};legal:{businessName:string;privacyVersion:string;notice:string};contact:{email:string;phone:string;address:string};navigation:NavigationItem[]}
++export interface SocialSettings {instagram:string;linkedin:string;facebook:string;whatsapp:string;showInHeader:boolean}
++export interface ContactLink {id:'email'|'phone'|'instagram'|'linkedin'|'facebook'|'whatsapp';label:string;href:string;external:boolean}
++export interface ContactChannels {direct:ContactLink[];social:ContactLink[];phoneText?:string;address?:string}
++export interface SettingsCopy {social:SocialSettings;brand:{name:string;tagline:string};legal:{businessName:string;privacyVersion:string;notice:string};contact:{email:string;phone:string;address:string};navigation:NavigationItem[]}
+ export interface SettingsTranslation {brand:{tagline:string};legal:{notice:string};contact:{address:string};navigation:Record<string,string>}
+ export interface Settings extends SettingsCopy {translations:Record<string,SettingsTranslation>}
+ export interface Campaign {contentId:string;subject:string;intro:string;articleId?:string;interest:string}
+ export interface ContentSnapshot {settings:Settings;pages:Page[];offerings:Offering[];people:Person[];articles:Article[];campaigns:Campaign[];domains:DomainRecords;now:string}
+ export interface Alternate {locale:string;path:string}
+ export interface RouteFields {path:string;alternates:Alternate[]}
+ export type LocalizedSection = {[K in SectionType]:Omit<SectionReference,'_template'> & {_template:K;copy:SectionCopyMap[K]}}[SectionType];
+ export interface LocalizedPage extends Omit<Page,'translations'|'sections'|'copy'>,RouteFields {sections:LocalizedSection[]}
+ export type LocalizedOffering = Omit<Offering,'translations'> & RouteFields;
+ export type LocalizedPerson = Omit<Person,'translations'> & RouteFields;
+diff --git a/packages/design-system/contact-icons.d.mts b/packages/design-system/contact-icons.d.mts
+new file mode 100644
+index 0000000..3bac904
+--- /dev/null
++++ b/packages/design-system/contact-icons.d.mts
+@@ -0,0 +1,2 @@
++import type {ContactLink} from '../content/types';
++export const contactIcons:Readonly<Record<ContactLink['id']|'address',readonly {d:string;fillRule?:'evenodd'|'nonzero'}[]>>;
+diff --git a/packages/design-system/contact-icons.mjs b/packages/design-system/contact-icons.mjs
+new file mode 100644
+index 0000000..f181a36
+--- /dev/null
++++ b/packages/design-system/contact-icons.mjs
+@@ -0,0 +1,42 @@
++// Bootstrap Icons v1.13.1, commit ce0e49dd063243118a115f17ad1fe1fe7576d552. Full license and source hashes: docs/THIRD_PARTY_NOTICES.md.
++// Static allowlist: never accepts markup or URLs from content.
++export const contactIcons = Object.freeze({
++  "phone": [
++    {
++      "d": "M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"
++    }
++  ],
++  "email": [
++    {
++      "d": "M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"
++    }
++  ],
++  "address": [
++    {
++      "d": "M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"
++    },
++    {
++      "d": "M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"
++    }
++  ],
++  "instagram": [
++    {
++      "d": "M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"
++    }
++  ],
++  "linkedin": [
++    {
++      "d": "M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"
++    }
++  ],
++  "facebook": [
++    {
++      "d": "M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"
++    }
++  ],
++  "whatsapp": [
++    {
++      "d": "M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"
++    }
++  ]
++});
+diff --git a/scripts/verify-contact-social.mjs b/scripts/verify-contact-social.mjs
+new file mode 100644
+index 0000000..c3e4b6f
+--- /dev/null
++++ b/scripts/verify-contact-social.mjs
+@@ -0,0 +1,12 @@
++import {readFileSync,writeFileSync,readdirSync,existsSync} from 'node:fs';
++import {createHash} from 'node:crypto';
++import {createMediaAcceptanceRun} from './media-optimization-acceptance.mjs';
++import {join} from 'node:path';
++const args=process.argv.slice(2).filter(x=>x!=='--');
++if(args.length!==1||!['--public','--native'].includes(args[0]))throw Error('Usage: pnpm test:contact-social -- --public|--native');
++const run=createMediaAcceptanceRun();let failure;const invocation={executable:process.execPath,args:process.argv.slice(1),cwd:process.cwd(),pid:process.pid,started:new Date().toISOString(),ended:null,exitCode:null};writeFileSync(join(run.directory,'invocation.json'),JSON.stringify(invocation,null,2));
++const walk=p=>existsSync(p)?readdirSync(p,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(join(p,e.name)):[join(p,e.name)]):[];
++const inputs=['package.json','pnpm-lock.yaml','project.json',...['packages','apps/site/src','tina/collections','tina/fields','scripts','tests','e2e'].flatMap(walk)].filter(p=>!/(__generated__|node_modules)/.test(p));
++writeFileSync(join(run.directory,'source-hashes.json'),JSON.stringify(Object.fromEntries(inputs.map(p=>[p,createHash('sha256').update(readFileSync(p)).digest('hex')])),null,2));
++try{await run.command(['node_modules/@playwright/test/cli.js','test',args[0]==='--public'?'e2e/contact-social.spec.ts':'e2e/contact-social-cms.spec.ts','--reporter=list','--output='+join(run.directory,'browser-results')],{env:{CONTACT_ACCEPTANCE_DIRECTORY:run.directory,PLAYWRIGHT_BROWSERS_PATH:join(process.cwd(),'.generated/browsers')}});}catch(error){failure=error;}
++try{run.finish();}catch(error){failure??=error;}invocation.ended=new Date().toISOString();invocation.exitCode=failure?1:0;writeFileSync(join(run.directory,'invocation.json'),JSON.stringify(invocation,null,2));console.log('Contact/social evidence: '+run.directory);if(failure)throw failure;
+diff --git a/tests/cms-contact-social.test.ts b/tests/cms-contact-social.test.ts
+new file mode 100644
+index 0000000..966b82b
+--- /dev/null
++++ b/tests/cms-contact-social.test.ts
+@@ -0,0 +1,130 @@
++import { describe, expect, it } from 'vitest';
++import { readFileSync, readdirSync } from 'node:fs';
++import type { TinaField } from 'tinacms';
++import { parseProject } from '../packages/config/project.mjs';
++import { buildCollections } from '../tina/collections';
++
++const project = parseProject(JSON.parse(readFileSync('project.json', 'utf8')));
++const seed = () => JSON.parse(readFileSync('content/settings/site.json', 'utf8'));
++const fieldsOf = (field: TinaField): TinaField[] => 'fields' in field ? field.fields ?? [] : [];
++const find = (fields: TinaField[], name: string) => fields.find(field => field.name === name)!;
++const settingsFor = (profile = project.profile) => buildCollections({ ...project, profile }).find(c => c.name === 'settings')!;
++
++describe('shared native contact and social authoring', () => {
++  for (const profile of ['enquiries', 'newsletter', 'nurture'] as const) {
++    it(`exposes one labeled shared social group in ${profile}`, () => {
++      const fields = settingsFor(profile).fields!;
++      const groups = fields.filter(field => field.name === 'social');
++      expect(groups).toHaveLength(1);
++      expect(groups[0].label).toBe('Social channels');
++      expect(fieldsOf(groups[0]).map(({name, type, label}) => ({name, type, label}))).toEqual([
++        { name: 'instagram', type: 'string', label: 'Instagram URL' },
++        { name: 'linkedin', type: 'string', label: 'LinkedIn URL' },
++        { name: 'facebook', type: 'string', label: 'Facebook URL' },
++        { name: 'whatsapp', type: 'string', label: 'WhatsApp international number' },
++        { name: 'showInHeader', type: 'boolean', label: 'Show social icons in header' },
++      ]);
++      for (const name of ['instagram', 'linkedin', 'facebook']) {
++        expect(find(fieldsOf(groups[0]), name).description).toMatch(/HTTPS/);
++      }
++      expect(find(fieldsOf(groups[0]), 'whatsapp').description).toMatch(/\+302101234567/);
++      expect(find(fieldsOf(groups[0]), 'whatsapp')).not.toHaveProperty('defaultValue');
++      for (const translation of fieldsOf(find(fields, 'translations'))) {
++        expect(fieldsOf(translation).map(field => field.name)).not.toContain('social');
++        expect(fieldsOf(find(fieldsOf(translation), 'contact')).map(field => field.name)).toEqual(['address']);
++      }
++    });
++  }
++
++  it('explains required email and supported phone display formatting', () => {
++    const fields = fieldsOf(find(settingsFor().fields!, 'contact'));
++    expect(find(fields, 'email')).toMatchObject({type: 'string', label: 'Email', required: true});
++    expect(find(fields, 'phone').description).toMatch(/3.?20.*digits/i);
++    expect(find(fields, 'phone').description).toMatch(/spaces.*hyphens.*parentheses.*periods/i);
++    expect(find(fields, 'phone').description).toMatch(/display.*without.*link/i);
++    expect(find(fields, 'address').description).toMatch(/translat/i);
++  });
++});
++
++// The real collection hook runs the detached schema/catalog guard before Tina persists.
++const folders: Record<string, string> = {
++  settings: 'settings', page: 'pages', offering: 'offerings', person: 'people', article: 'articles', campaign: 'campaigns',
++};
++function catalogCms() {
++  return { api: { tina: { request: async (query: string) => {
++    const collection = /\{(\w+)Connection/.exec(query)![1];
++    return { [collection + 'Connection']: {
++      edges: readdirSync('content/' + folders[collection]).filter(file => file.endsWith('.json')).map(file => ({ node: {
++        _values: JSON.parse(readFileSync('content/' + folders[collection] + '/' + file, 'utf8')),
++        _sys: { relativePath: file },
++      } })),
++      pageInfo: { hasNextPage: false, endCursor: null },
++    } };
++  } } } };
++}
++const submit = (values: any, cms: any = catalogCms()) => settingsFor().ui!.beforeSubmit!({
++  values, cms, form: { crudType: 'update', path: 'content/settings/site.json' },
++} as any);
++
++describe('installed Settings save hook contact/social guard', () => {
++  it.each([
++    undefined, null, {},
++    { instagram: null, linkedin: null, facebook: null, whatsapp: null, showInHeader: null },
++    { instagram: '', linkedin: '   ', facebook: null, whatsapp: '', showInHeader: false },
++    { instagram: ' https://www.instagram.com/example-studio ', linkedin: 'https://linkedin.com/company/example-studio', facebook: 'https://facebook.com/example-studio', whatsapp: '+302101234567', showInHeader: true },
++  ])('accepts native clear/default or configured social values without rewriting input: %j', async social => {
++    const values = seed();
++    if (social !== undefined) values.social = social;
++    values.contact.phone = null;
++    values.contact.address = null;
++    values.translations.el.contact.address = null;
++    const before = structuredClone(values);
++    expect(await submit(values)).toBe(values);
++    expect(values).toEqual(before);
++  });
++
++  it('preserves exact unrelated legal rich AST nodes, metadata and undefined properties', async () => {
++    const values = seed();
++    values.social = { instagram: 'https://instagram.com/example-studio', showInHeader: true };
++    const leaf = { type: 'text', text: 'Native notice', bold: true, id: 'opaque-leaf' };
++    const link = { type: 'a', url: '/en/privacy', target: undefined, id: 'opaque-link', children: [leaf] };
++    const ast = { type: 'root', children: [{ type: 'p', id: 123, children: [link, {text: ''}] }] };
++    values.legal.notice = ast;
++    values.translations.el.legal.notice = structuredClone(ast);
++    const translated = values.translations.el.legal.notice;
++    const before = structuredClone(values);
++    expect(await submit(values)).toBe(values);
++    expect(values).toEqual(before);
++    expect(values.legal.notice).toBe(ast);
++    expect(values.translations.el.legal.notice).toBe(translated);
++    expect(ast.children[0].children[0]).toBe(link);
++    expect(link.children[0]).toBe(leaf);
++    expect(Object.hasOwn(link, 'target')).toBe(true);
++  });
++
++  it.each([
++    ['instagram', 'http://instagram.com/example-studio'],
++    ['linkedin', 'https://linkedin.com.evil.test/company/example'],
++    ['facebook', 'https://instagram.com/example-studio'],
++    ['whatsapp', '302101234567'],
++    ['showInHeader', 'false'],
++    ['showInHeader', 1],
++  ])('rejects invalid social.%s with a field path before catalog/persistence', async (field, value) => {
++    const values = seed();
++    values.social = { [field]: value };
++    const before = structuredClone(values);
++    // An invalid candidate must fail before any catalog I/O; persistence follows this hook.
++    const cms = { api: { tina: { request: async () => { throw Error('Unexpected catalog request'); } } } };
++    await expect(submit(values, cms)).rejects.toMatchObject({ issues: expect.arrayContaining([
++      expect.objectContaining({path: ['social', field]}),
++    ]) });
++    expect(values).toEqual(before);
++  });
++
++  it.each(['social', 'email', 'phone'])('rejects shared %s overrides inside Greek Settings copy', async field => {
++    const values = seed();
++    if (field === 'social') values.translations.el.social = { instagram: 'https://instagram.com/example-studio' };
++    else values.translations.el.contact[field] = 'shared override';
++    await expect(submit(values)).rejects.toThrow();
++  });
++});
+diff --git a/tests/contact-channels.test.ts b/tests/contact-channels.test.ts
+new file mode 100644
+index 0000000..221df4c
+--- /dev/null
++++ b/tests/contact-channels.test.ts
+@@ -0,0 +1,100 @@
++import {describe,expect,it} from 'vitest';
++import {settingsSchema} from '../packages/content/schemas.mjs';
++import {normalizeSettingsDocument} from '../packages/content/documents.mjs';
++import {localizeContent} from '../packages/content/localize.mjs';
++import {fixture,normalizedSettings,project,settingsDocument} from './fixtures/content/factory';
++import {contactChannels,phoneHref} from '../packages/content/contact.mjs';
++import {readContent} from '../packages/content/read.mjs';
++
++const emptySocial={instagram:'',linkedin:'',facebook:'',whatsapp:'',showInHeader:false};
++
++describe('shared social settings',()=>{
++ it.each([undefined,null,{}, {instagram:null,linkedin:null,facebook:null,whatsapp:null,showInHeader:null}, {instagram:'  ',linkedin:'',facebook:'\t',whatsapp:'\n'}])('normalizes native clear state %j',social=>{
++  expect(settingsSchema.parse({...normalizedSettings(),social}).social).toEqual(emptySocial);
++ });
++ it.each([true,false])('accepts actual header boolean %s',showInHeader=>{
++  expect(settingsSchema.parse({...normalizedSettings(),social:{showInHeader}}).social.showInHeader).toBe(showInHeader);
++ });
++ it.each([{showInHeader:'false'},{unknown:''}])('rejects invalid social fields %j',social=>{
++  expect(settingsSchema.safeParse({...normalizedSettings(),social}).success).toBe(false);
++ });
++ it('rejects translated social data',()=>{
++  const settings:any=normalizedSettings();settings.translations.el.social={instagram:''};
++  expect(settingsSchema.safeParse(settings).success).toBe(false);
++ });
++ it.each([undefined,null])('normalizes cleared optional phone/address %j',clear=>{
++  const settings:any=normalizedSettings();settings.contact.phone=clear;settings.contact.address=clear;settings.translations.el.contact.address=clear;
++  const parsed=settingsSchema.parse(settings);
++  expect(parsed.contact).toEqual({email:'hello@example.com',phone:'',address:''});
++  expect(parsed.translations.el.contact.address).toBe('');
++ });
++ it('preserves arbitrary existing phone display text and its length bound',()=>{
++  const settings=normalizedSettings();settings.contact.phone='Reception ext 2';
++  expect(settingsSchema.parse(settings).contact.phone).toBe('Reception ext 2');
++  settings.contact.phone='1'.repeat(101);expect(settingsSchema.safeParse(settings).success).toBe(false);
++ });
++ it('parses an existing document without inserting defaults into input',()=>{
++  const raw=settingsDocument();delete raw.social;const original=structuredClone(raw);
++  expect(normalizeSettingsDocument(raw).social).toEqual(emptySocial);expect(raw).toEqual(original);
++ });
++ it('retains detached equal shared settings in both locales',()=>{
++  const {root,write}=fixture();const raw=settingsDocument();raw.social={instagram:' https://www.instagram.com/example?view=1#profile ',linkedin:'',facebook:'',whatsapp:'+302101234567',showInHeader:true};write('settings/site.json',raw);
++  const source=readContent(root,project);const before=structuredClone(source);
++  const en=localizeContent(source,'en',project),el=localizeContent(source,'el',project);
++  const want={instagram:'https://www.instagram.com/example?view=1#profile',linkedin:'',facebook:'',whatsapp:'+302101234567',showInHeader:true};
++  expect(en.settings.social).toEqual(want);expect(el.settings.social).toEqual(want);
++  en.settings.social.instagram='';expect(el.settings.social).toEqual(want);expect(source).toEqual(before);
++ });
++});
++
++describe('platform destination validation',()=>{
++ const platforms=['instagram','linkedin','facebook'] as const;
++ for(const platform of platforms){
++  it.each([`https://${platform}.com`,`https://www.${platform}.com/example?view=1#profile`,`https://gr.${platform}.com/a%20b`,`https://${platform}.com:443/profile`])(`accepts ${platform} destination %s`,value=>{
++   const social:any={[platform]:` ${value} `};expect(settingsSchema.parse({...normalizedSettings(),social}).social[platform]).toBe(value);
++  });
++  it.each([`https://${platform}.com.evil.test`,`https://evil${platform}.com`,`http://${platform}.com`,`//${platform}.com`,`https://user@${platform}.com`,`https://${platform}.com:8443`,`javascript:alert(1)`,`https://${platform}.com/%0a`,`https://${platform}.com/%255c`,`https://${platform}.com/\\evil`,`https://${platform}.com/%00`,`https://${platform}.com/${'x'.repeat(2048)}`,...platforms.filter(other=>other!==platform).map(other=>`https://${other}.com/example`)])(`rejects ${platform} destination %s`,value=>{
++   const result=settingsSchema.safeParse({...normalizedSettings(),social:{[platform]:value}});expect(result.success).toBe(false);
++   if(!result.success)expect(result.error.issues.some(issue=>issue.path.join('.')===`social.${platform}`)).toBe(true);
++  });
++ }
++ it.each(['+12345678','+123456789012345'])('accepts international WhatsApp boundary %s',whatsapp=>{
++  expect(settingsSchema.parse({...normalizedSettings(),social:{whatsapp}}).social.whatsapp).toBe(whatsapp);
++ });
++ it.each(['2101234567','https://wa.me/302101234567','+30 2101234567','+012345678','+1234567','+1234567890123456',12345678])('rejects invalid WhatsApp value %s',whatsapp=>{
++  expect(settingsSchema.safeParse({...normalizedSettings(),social:{whatsapp}}).success).toBe(false);
++ });
++});
++
++describe('contact channel projection',()=>{
++ it.each([
++  ['+30 (210) 123-4567','tel:+302101234567'],[' +30 (210) 123-4567 ','tel:+302101234567'],['123','tel:123'],['1'.repeat(20),'tel:'+'1'.repeat(20)],[' (123).45-67 ','tel:1234567'],
++  ['',undefined],['   ',undefined],['Reception ext 2',undefined],['12',undefined],['1'.repeat(21),undefined],['12+345',undefined],['++123',undefined],['１２３',undefined],['123\n456',undefined],['123/456',undefined],
++ ])('projects phone %j to %s',async(value,want)=>{
++  expect(phoneHref(value)).toBe(want);
++ });
++ it('orders and safely projects all channels without mutating settings',async()=>{
++  
++  const settings={...normalizedSettings(),contact:{email:'hello?team#desk@example.com',phone:'+30 (210) 123-4567',address:'Studio\nAthens'},social:{instagram:'https://instagram.com/example',linkedin:'https://www.linkedin.com/company/example',facebook:'https://gr.facebook.com/example',whatsapp:'+302101234567',showInHeader:false}};
++  const before=structuredClone(settings);const actual=contactChannels(settings,'el');
++  expect(actual).toEqual({direct:[{id:'phone',label:'+30 (210) 123-4567',href:'tel:+302101234567',external:false},{id:'email',label:'hello?team#desk@example.com',href:'mailto:hello%3Fteam%23desk%40example.com',external:false}],social:[{id:'instagram',label:'Instagram',href:'https://instagram.com/example',external:true},{id:'linkedin',label:'LinkedIn',href:'https://www.linkedin.com/company/example',external:true},{id:'facebook',label:'Facebook',href:'https://gr.facebook.com/example',external:true},{id:'whatsapp',label:'WhatsApp',href:'https://wa.me/302101234567',external:true}],address:'Studio\nAthens'});
++  expect(actual.social.map((link:any)=>link.id)).toEqual(['instagram','linkedin','facebook','whatsapp']);
++  expect(settings).toEqual(before);actual.direct[0].label='changed';expect(settings).toEqual(before);
++ });
++ it.each(['','   '])('omits blank phone %j and empty groups',async phone=>{
++  const settings=settingsSchema.parse({...normalizedSettings(),contact:{email:'hello@example.com',phone,address:'   '}});
++  expect(contactChannels(settings,'en')).toEqual({direct:[{id:'email',label:'hello@example.com',href:'mailto:hello%40example.com',external:false}],social:[]});
++ });
++ it('keeps unsupported phone display text without inventing a destination',async()=>{
++  const settings=settingsSchema.parse({...normalizedSettings(),contact:{email:'hello@example.com',phone:'Reception ext 2',address:''}});
++  expect(contactChannels(settings,'en')).toEqual({direct:[{id:'email',label:'hello@example.com',href:'mailto:hello%40example.com',external:false}],social:[],phoneText:'Reception ext 2'});
++ });
++});
++
++it.each([
++ ['hello+team@example.com','mailto:hello%2Bteam%40example.com'],
++ ['hello?subject=x#desk@example.com','mailto:hello%3Fsubject%3Dx%23desk%40example.com'],
++])('encodes the entire mailbox %s without introducing URI parameters', (email,href)=>{
++ const settings={...normalizedSettings(),contact:{email,phone:'',address:''}};
++ expect(contactChannels(settings,'en').direct).toEqual([{id:'email',label:email,href,external:false}]);
++});
+\ No newline at end of file
+diff --git a/tests/contact-social-native-admission.test.ts b/tests/contact-social-native-admission.test.ts
+new file mode 100644
+index 0000000..230b473
+--- /dev/null
++++ b/tests/contact-social-native-admission.test.ts
+@@ -0,0 +1,44 @@
++import {it,expect,afterEach,vi} from 'vitest';
++import {join} from 'node:path';
++import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
++import {ownedTempRoots} from './helpers/owned-temp-roots';
++import {assertContactSettingsMutation,coerceContactSettingsVariables} from '../e2e/helpers/contact-social-native-admission';
++import {createCmsSources} from '../e2e/helpers/cms-source-ownership';
++import {createMediaOptimizationFixture} from '../e2e/helpers/media-optimization-fixture';
++import {cleanupMediaOptimization} from '../e2e/helpers/media-optimization-cleanup';
++const roots=ownedTempRoots('contact-native-fault-');
++afterEach(({task})=>roots.cleanup(task.result?.state==='fail'));
++const query='mutation Update($collection: String!, $relativePath: String!, $params: DocumentUpdateMutation!) { updateDocument(collection: $collection, relativePath: $relativePath, params: $params) { __typename } }';
++const body=()=>({query,variables:{collection:'settings',relativePath:'site.json',params:{settings:{social:{instagram:'https://instagram.com/example'}}}}});
++it('admits only the actual Settings update request',()=>expect(()=>assertContactSettingsMutation(body(),'content/settings/site.json')).not.toThrow());
++for(const [name,alter] of Object.entries({target:(b:any):unknown=>b.variables.relativePath='other.json',collection:(b:any):unknown=>b.variables.collection='page',create:(b:any):unknown=>b.query=b.query.replaceAll('updateDocument','createDocument'),delete:(b:any):unknown=>b.query=b.query.replaceAll('updateDocument','deleteDocument'),multiple:(b:any):unknown=>b.query=b.query.replace('{ updateDocument','{ other: updateDocument(collection: $collection, relativePath: $relativePath, params: $params) { __typename } updateDocument'),literal:(b:any):unknown=>b.query=b.query.replace('collection: $collection','collection: "page"'),alias:(b:any):unknown=>b.query=b.query.replace('{ updateDocument','{ alias: updateDocument'),traversal:(b:any):unknown=>b.variables.relativePath='../site.json'}))it('refuses '+name+' before dispatch',()=>{const b=body();alter(b);const dispatch=vi.fn();expect(()=>{assertContactSettingsMutation(b,'content/settings/site.json');dispatch();}).toThrow();expect(dispatch).not.toHaveBeenCalled();});
++it('preserves foreign bytes after restoration conflict',async()=>{const root=roots.create(),path=join(root,'site.json');writeFileSync(path,'{"original":true}');const owner=createCmsSources([path],join(root,'backup'));writeFileSync(path,'{"foreign":true}');await expect(owner.restore()).rejects.toThrow(/Concurrent edits/);expect(readFileSync(path,'utf8')).toBe('{"foreign":true}');});
++it('failed child stop still attempts independent restoration and blocks regeneration',async()=>{const root=roots.create(),path=join(root,'site.json');writeFileSync(path,'{"original":true}');const owner=createCmsSources([path],join(root,'backup'));const regen=vi.fn(),restore=vi.fn(()=>owner.restore());let ledger:any;await expect(cleanupMediaOptimization({stops:[{id:'child',stop:()=>{throw Error('deliberate shutdown refusal');}}],restores:[{id:'settings',restore}],assertInputs:()=>expect(readFileSync(path,'utf8')).toBe('{"original":true}'),regenerate:[{id:'build',run:regen}],record:x=>{ledger=x;}})).rejects.toThrow();expect(restore).toHaveBeenCalledOnce();expect(regen).not.toHaveBeenCalled();expect(ledger.regeneration[0].status).toBe('skipped');});
++
++it('rejects same-JSON foreign bytes before a native claim, revokes older claim and blocks regeneration',async()=>{
++ const root=roots.create(),path=join(root,'site.json');writeFileSync(path,'{"social":{}}');
++ const owner=createCmsSources([path],join(root,'backup'));
++ const schema:any={collections:[{name:'settings',path:root,format:'json',fields:[{name:'social',type:'object',fields:[{name:'instagram',type:'string'}]}]}]};
++ const request:any={collection:'settings',relativePath:'site.json',params:{settings:{social:{instagram:'https://instagram.com/example'}}}};
++ const known='{"social":{"instagram":"https://instagram.com/example"}}';
++ writeFileSync(path,known);await owner.captureNative(path,request,schema,()=>true,known);expect(owner.owns(path)).toBe(true);
++ const foreign=JSON.stringify(JSON.parse(known),null,4)+'\n';writeFileSync(path,foreign);
++ await expect(owner.captureNative(path,request,schema,()=>true,known)).rejects.toThrow(/Unexpected saved document bytes/);
++ expect(owner.owns(path)).toBe(false);const regenerate=vi.fn();
++ await expect(cleanupMediaOptimization({stops:[],restores:[{id:'settings',restore:()=>owner.restore()}],assertInputs:()=>{},regenerate:[{id:'build',run:regenerate}],record:()=>{}})).rejects.toThrow();
++ expect(readFileSync(path,'utf8')).toBe(foreign);expect(regenerate).not.toHaveBeenCalled();
++});
++
++it('static known-byte fixture preserves foreign formatting and refuses regeneration',async()=>{
++ const root=roots.create();mkdirSync(join(root,'content/settings'),{recursive:true});writeFileSync(join(root,'project.json'),'{}');const path=join(root,'content/settings/site.json');writeFileSync(path,'{"social":{}}');
++ const fixture=createMediaOptimizationFixture({root,documents:['content/settings/site.json']});const known='{"social":{"facebook":"https://facebook.com/example"}}';fixture.replaceDocument('content/settings/site.json',known);
++ const foreign=JSON.stringify(JSON.parse(known),null,4)+'\n';writeFileSync(path,foreign);const regenerate=vi.fn();
++ expect(()=>fixture.assertInputs()).toThrow(/snapshot conflict/);await expect(fixture.cleanup({regenerate:[{id:'build',run:regenerate}]})).rejects.toThrow();expect(readFileSync(path,'utf8')).toBe(foreign);expect(regenerate).not.toHaveBeenCalled();
++});
++
++it('coerces raw Settings variable key order through the installed GraphQL input schema before exact serializer expectations',()=>{
++ const raw=body();raw.variables.params.settings={navigation:['Home'],social:{instagram:'https://instagram.com/example'}} as any;
++ const sdl='type Query { ok: Boolean } type Mutation { updateDocument(collection:String!,relativePath:String!,params:DocumentUpdateMutation!): String } input DocumentUpdateMutation { settings:SettingsInput } input SettingsInput { social:SocialInput navigation:[String] } input SocialInput { instagram:String }';
++ const request=coerceContactSettingsVariables(raw,sdl);
++ expect(Object.keys(request.params.settings)).toEqual(['social','navigation']);expect(request.params.settings).toEqual(raw.variables.params.settings);expect(Object.keys(raw.variables.params.settings)).toEqual(['navigation','social']);
++});
+diff --git a/tests/fixtures/content/factory.ts b/tests/fixtures/content/factory.ts
+index 257469d..986af35 100644
+--- a/tests/fixtures/content/factory.ts
++++ b/tests/fixtures/content/factory.ts
+@@ -11,20 +11,21 @@ export const normalizedPage = (id='home',template='home',slug='') => ({
+  copy:{sections:{intro:{title:'Hello',description:'A **clear** introduction.'},[id==='privacy'?'privacy_details':'details']:{title:'More',body:'A useful paragraph.'}}},
+  translations:{el:{status:'published',meta:{title:'Σελίδα'},copy:{sections:{intro:{title:'Γεια',description:'Μια εισαγωγή.'},[id==='privacy'?'privacy_details':'details']:{title:'Περισσότερα',body:'Μια παράγραφος.'}}}}}
+ });
+ export const editorial = (kind='offering',id='sample') => ({
+  contentId:id,slug:id,status:'published',title:'A sample',description:'A **useful** summary.',body:'## Details\n\nUseful information.',
+  ...(kind==='person'?{role:'Guide'}:{}),
+  ...(kind==='article'?{publishAt:'2025-01-01T09:00:00Z'}:{}),
+  translations:{el:{status:'published',title:'Δείγμα',description:'Μια περίληψη.',body:'## Λεπτομέρειες',...(kind==='person'?{role:'Οδηγός'}:{}),...(kind==='article'?{publishAt:'2025-01-02T09:00:00Z'}:{})}}
+ });
+ export const normalizedSettings = () => ({
++ social:{instagram:'',linkedin:'',facebook:'',whatsapp:'',showInHeader:false},
+  brand:{name:'Example Studio',tagline:'Space for useful work'},legal:{businessName:'Example Studio',privacyVersion:'sample-v1',notice:'Example content for review.'},
+  contact:{email:'hello@example.com',phone:'',address:''},
+  navigation:[{label:'Home',pageId:'home'},{label:'Articles',pageId:'insights'}],
+  translations:{el:{brand:{tagline:'Χώρος για χρήσιμη εργασία'},legal:{notice:'Ενδεικτικό περιεχόμενο.'},contact:{address:''},navigation:{home:'Αρχική',insights:'Άρθρα'}}}
+ });
+ const dirs:string[]=[];
+ afterEach(()=>{for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+ export function fixture() {
+  const root=mkdtempSync(join(tmpdir(),'starter-content-'));dirs.push(root);
+  const write=(path:string,value:unknown)=>{const file=join(root,'content',path);mkdirSync(join(file,'..'),{recursive:true});writeFileSync(file,JSON.stringify(value));};
+@@ -37,13 +38,14 @@ export function fixture() {
+ }
+ 
+ // Domain helpers and serialized helpers are deliberately distinct.
+ export function pageDocument(id='home',template='home',slug='') {
+  const value:any=normalizedPage(id,template,slug);
+  for(const copy of [value.copy,...Object.values(value.translations).map((t:any)=>t.copy)])copy.sections=Object.entries(copy.sections).map(([id,copy]:any)=>({id,_template:value.sections.find((s:any)=>s.id===id)._template,...copy}));
+  return value;
+ }
+ export function settingsDocument() {
+  const value:any=normalizedSettings();
++ delete value.social;
+  for(const translation of Object.values(value.translations) as any[])translation.navigation=Object.entries(translation.navigation).map(([pageId,label])=>({pageId,label}));
+  return value;
+ }
+diff --git a/tina/collections/settings.ts b/tina/collections/settings.ts
+index aaf947d..4b58355 100644
+--- a/tina/collections/settings.ts
++++ b/tina/collections/settings.ts
+@@ -1,39 +1,41 @@
+ import {createElement as h} from 'react';
+ import {getDisabledDomainPages} from '../../packages/content/domain-registry.mjs';
+ import type { ProjectConfig } from '../../packages/config/project.mjs';
+ import { navigationLabels } from '../fields/section-copy';
+ import { NavigationControls } from '../fields/navigation';
+ import { text, object } from '../fields/common';
++import { contactFields, socialFields } from '../fields/contact';
+ import { rich } from '../fields/rich-text';
+ import { collection } from './common';
+ export function settings(p: ProjectConfig) {
+   const disabledPageFiles=[...getDisabledDomainPages(p).map(page=>page.filename),...(!p.articles?['insights.json']:[])];
+   const navigation=()=>({...navigationLabels(),ui:{component:(props:any)=>h(NavigationControls,{...props,disabledPageFiles})}});
+   const translated = [
+     object('brand', [text('tagline')]),
+     object('legal', [rich('notice')]),
+-    object('contact', [text('address')]),
++    object('contact', contactFields().filter(field => field.name === 'address')),
+     navigation(),
+   ];
+   return {
+     ...collection(
+       'settings',
+       'content/settings',
+       [
+         object('brand', [text('name'), text('tagline')]),
+         object('legal', [
+           text('businessName'),
+           text('privacyVersion'),
+           rich('notice'),
+         ]),
+-        object('contact', [text('email'), text('phone'), text('address')]),
++        object('contact', contactFields()),
++        { ...object('social', socialFields()), label: 'Social channels' },
+         navigation(),
+         object(
+           'translations',
+           p.languages
+             .filter((l) => l.code !== p.locale)
+             .map((l) => ({
+               ...object(l.code.replaceAll('-', '_'), translated),
+               label: l.label,
+             })),
+         ),
+diff --git a/tina/fields/contact.ts b/tina/fields/contact.ts
+new file mode 100644
+index 0000000..2e5fe81
+--- /dev/null
++++ b/tina/fields/contact.ts
+@@ -0,0 +1,58 @@
++import type { TinaField } from 'tinacms';
++import { text } from './common';
++
++export function contactFields(): TinaField[] {
++  return [
++    {
++      ...text('email'),
++      type: 'string',
++      ui: undefined,
++      label: 'Email',
++      required: true,
++      description: 'Required contact mailbox, shared across languages.',
++    },
++    {
++      ...text('phone'),
++      type: 'string',
++      ui: undefined,
++      label: 'Phone',
++      description: 'Optional display number. Callable numbers use 3–20 ASCII digits, an optional leading +, and spaces, hyphens, parentheses or periods. Other display text appears without a telephone link. Do not guess a country code.',
++    },
++    {
++      ...text('address'),
++      type: 'string',
++      label: 'Address',
++      description: 'Optional address text; translate it for each language. Line breaks are preserved.',
++      ui: { component: 'textarea' },
++    },
++  ];
++}
++
++export function socialFields(): TinaField[] {
++  return [
++    ...[
++      ['instagram', 'Instagram', 'instagram.com'],
++      ['linkedin', 'LinkedIn', 'linkedin.com'],
++      ['facebook', 'Facebook', 'facebook.com'],
++    ].map(([name, label, domain]): TinaField => ({
++      ...text(name),
++      type: 'string',
++      ui: undefined,
++      label: `${label} URL`,
++      description: `Optional HTTPS URL on ${domain} or one of its subdomains. Leave blank to hide this channel.`,
++    })),
++    {
++      ...text('whatsapp'),
++      type: 'string',
++      ui: undefined,
++      label: 'WhatsApp international number',
++      description: 'Optional international number: + followed by 8–15 digits, for example +302101234567. Use no spaces or separators; do not enter a URL or guess a country code. Leave blank to hide WhatsApp.',
++    },
++    {
++      name: 'showInHeader',
++      type: 'boolean',
++      label: 'Show social icons in header',
++      description: 'Show configured social channels in the header. Off by default.',
++    },
++  ];
++}

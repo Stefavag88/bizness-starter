@@ -1,0 +1,423 @@
+
+> business-starter-v2@2.0.0-dev check C:\Projects\bizness-starter-v2
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\bizness-starter-v2\apps\site
+> astro check
+
+07:09:57 [types] Generated 105ms
+07:09:57 [check] Getting diagnostics for Astro files in C:\Projects\bizness-starter-v2\apps\site...
+Result (57 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+
+> business-starter-v2@2.0.0-dev test C:\Projects\bizness-starter-v2
+> pnpm configure && vitest run && pnpm test:footer
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+owned failure
+node:internal/modules/cjs/loader:1424
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\Vag\AppData\Local\Temp\media-acceptance-kROW9o\node_modules\@playwright\test\cli.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1064:22)
+    at Module._load (node:internal/modules/cjs/loader:1227:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v24.12.0
+node:internal/modules/cjs/loader:1424
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\Vag\AppData\Local\Temp\media-acceptance-V1Jarb\node_modules\@playwright\test\cli.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1064:22)
+    at Module._load (node:internal/modules/cjs/loader:1227:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v24.12.0
+Media acceptance no-mutation smoke
+restored baseline command
+(node:32104) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25396) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+sole child closed
+later eligible child
+(node:24732) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+later eligible child
+later eligible child
+(node:2336) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14996) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19336) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  79 passed | 1 skipped (80)
+      Tests  889 passed | 1 skipped (890)
+   Start at  07:10:04
+   Duration  13.66s (tests 66%, import 25%, transform 7%, worker 1%)
+
+    Isolate  80 workers spawned · ~346ms startup each (spawn + environment, per file)
+             at least ~1.11s faster with isolate: false — reuses workers across files instead of one per file
+
+
+> business-starter-v2@2.0.0-dev test:footer C:\Projects\bizness-starter-v2
+> vitest run --config apps/site/vitest.config.ts
+
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+
+ Test Files  8 passed (8)
+      Tests  31 passed (31)
+   Start at  07:10:21
+   Duration  2.58s (transform 58%, import 36%, tests 5%)
+
+  Transform  transforming modules took 9.65s · 58% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+
+
+> business-starter-v2@2.0.0-dev build C:\Projects\bizness-starter-v2
+> pnpm configure && pnpm --filter @starter/site build
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ build C:\Projects\bizness-starter-v2\apps\site
+> node scripts/build.mjs
+
+07:10:28 [vite] Re-optimizing dependencies because vite config has changed
+07:10:28 [types] Generated 205ms
+07:10:28 [build] output: "static"
+07:10:28 [build] mode: "static"
+07:10:28 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:10:28 [build] Collecting build info...
+07:10:28 [build] ✓ Completed in 234ms.
+07:10:28 [build] Building static entrypoints...
+07:10:29 [vite] ✓ built in 268ms
+07:10:29 [vite] ✓ built in 118ms
+07:10:29 [build] Rearranging server assets...
+
+ generating static routes 
+07:10:29   ├─ /404.html (+17ms) 
+07:10:29   ├─ /design-system/index.html (+51ms) 
+07:10:29   ├─ /en/404/index.html (+4ms) 
+07:10:29   ├─ /el/404/index.html (+3ms) 
+07:10:29   ├─ /en/feed.xml (+3ms) 
+07:10:29   ├─ /el/feed.xml (+2ms) 
+07:10:29   ├─ /en/about/index.html (+4ms) 
+07:10:29   ├─ /en/contact/index.html (+3ms) 
+07:10:29   ├─ /en/index.html (+3ms) 
+07:10:29   ├─ /en/insights/index.html (+2ms) 
+07:10:29   ├─ /en/privacy/index.html (+3ms) 
+07:10:29   ├─ /en/services/index.html (+2ms) 
+07:10:29   ├─ /en/services/planning-session/index.html (+2ms) 
+07:10:29   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:10:29   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:10:29   ├─ /el/about/index.html (+2ms) 
+07:10:29   ├─ /el/contact/index.html (+2ms) 
+07:10:29   ├─ /el/index.html (+2ms) 
+07:10:29   ├─ /el/insights/index.html (+2ms) 
+07:10:29   ├─ /el/privacy/index.html (+2ms) 
+07:10:29   ├─ /el/services/index.html (+2ms) 
+07:10:29   ├─ /el/services/planning-session/index.html (+2ms) 
+07:10:29   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:10:29   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:10:29   ├─ /index.html (+2ms) 
+07:10:29 ✓ Completed in 269ms.
+
+07:10:29 [build] ✓ Completed in 721ms.
+07:10:29 [build] 23 page(s) built in 1.09s
+07:10:29 [build] Complete!
+
+> business-starter-v2@2.0.0-dev worker:check C:\Projects\bizness-starter-v2
+> pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ ⛅️ wrangler 4.148.0 (update available 4.151.2)
+───────────────────────────────────────────────
+✨ Read 201 files from the assets directory C:\Projects\bizness-starter-v2\apps\site\dist
+Total Upload: 879.81 KiB / gzip: 148.43 KiB
+Your Worker has access to the following bindings:
+Binding                                                                     Resource                  
+env.OUTBOUND (business-starter-v2-outbound)                                 Queue                     
+env.DB (business-starter-v2-db)                                             D1 Database               
+env.ASSETS                                                                  Assets                    
+env.ENVIRONMENT ("local")                                                   Environment Variable      
+env.PROFILE ("enquiries")                                                   Environment Variable      
+env.SITE_URL ("https://example.com")                                        Environment Variable      
+env.LOCAL_SITE_URL ("http://127.0.0.1:4330")                                Environment Variable      
+env.LOCAL_WORKER_URL ("http://127.0.0.1:8790")                              Environment Variable      
+env.LOCAL_ORIGINS ("["http://127.0.0.1:4330","http://127....")              Environment Variable      
+env.SES_REGION ("eu-west-1")                                                Environment Variable      
+env.SES_SENDER ("Example Studio <hello@example.com>")                       Environment Variable      
+env.NOTIFICATION_EMAIL ("owner@example.com")                                Environment Variable      
+env.ALLOWED_RECIPIENTS ("")                                                 Environment Variable      
+env.SES_CONFIGURATION_SET ("starter-transactional")                         Environment Variable      
+env.SNS_TOPIC_ARN ("")                                                      Environment Variable      
+env.ACCESS_ISSUER ("")                                                      Environment Variable      
+env.ACCESS_AUDIENCE ("")                                                    Environment Variable      
+env.ADMIN_EMAILS ("[]")                                                     Environment Variable      
+env.EDITOR_EMAILS ("[]")                                                    Environment Variable      
+env.SENDING_ENABLED ("false")                                               Environment Variable      
+env.MARKETING_ENABLED ("false")                                             Environment Variable      
+env.SEND_INTERVAL_MS ("1000")                                               Environment Variable      
+
+--dry-run: exiting now.
+
+> business-starter-v2@2.0.0-dev cms:local-build C:\Projects\bizness-starter-v2
+> node scripts/dev.mjs --cms-build
+
+Configured enquiries / local. No cloud resources were created.
+Owned tina process 33156
+Starting Tina build
+server listening on port 4010
+│
+○  Tina build complete ────────────────────────────────────╮
+│                                                          │
+│  🦙 Tina Config                                          │
+│     API url:            http://localhost:4010/graphql    │
+│                                                          │
+│  🤖 Auto-generated files                                 │
+│     GraphQL Client:     tina/__generated__/client.ts     │
+│     Typescript Types:   tina/__generated__/types.ts      │
+│     Static HTML file:   apps/site/public/cms/index.html  │
+│                                                          │
+│                                                          │
+├──────────────────────────────────────────────────────────╯
+Stopping owned development processes
+
+> business-starter-v2@2.0.0-dev test:static-routing C:\Projects\bizness-starter-v2
+> pnpm build && node scripts/verify-static-routing.mjs
+
+
+> business-starter-v2@2.0.0-dev build C:\Projects\bizness-starter-v2
+> pnpm configure && pnpm --filter @starter/site build
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ build C:\Projects\bizness-starter-v2\apps\site
+> node scripts/build.mjs
+
+07:11:15 [types] Generated 88ms
+07:11:15 [build] output: "static"
+07:11:15 [build] mode: "static"
+07:11:15 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:11:15 [build] Collecting build info...
+07:11:15 [build] ✓ Completed in 117ms.
+07:11:15 [build] Building static entrypoints...
+07:11:15 [vite] ✓ built in 287ms
+07:11:15 [vite] ✓ built in 114ms
+07:11:15 [build] Rearranging server assets...
+
+ generating static routes 
+07:11:15   ├─ /404.html (+16ms) 
+07:11:15   ├─ /design-system/index.html (+56ms) 
+07:11:15   ├─ /en/404/index.html (+3ms) 
+07:11:15   ├─ /el/404/index.html (+2ms) 
+07:11:15   ├─ /en/feed.xml (+2ms) 
+07:11:15   ├─ /el/feed.xml (+2ms) 
+07:11:15   ├─ /en/about/index.html (+3ms) 
+07:11:15   ├─ /en/contact/index.html (+3ms) 
+07:11:15   ├─ /en/index.html (+2ms) 
+07:11:15   ├─ /en/insights/index.html (+4ms) 
+07:11:15   ├─ /en/privacy/index.html (+2ms) 
+07:11:15   ├─ /en/services/index.html (+2ms) 
+07:11:15   ├─ /en/services/planning-session/index.html (+2ms) 
+07:11:15   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:11:15   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:11:15   ├─ /el/about/index.html (+2ms) 
+07:11:15   ├─ /el/contact/index.html (+2ms) 
+07:11:15   ├─ /el/index.html (+2ms) 
+07:11:15   ├─ /el/insights/index.html (+2ms) 
+07:11:15   ├─ /el/privacy/index.html (+2ms) 
+07:11:15   ├─ /el/services/index.html (+2ms) 
+07:11:15   ├─ /el/services/planning-session/index.html (+1ms) 
+07:11:15   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:11:15   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:11:15   ├─ /index.html (+3ms) 
+07:11:15 ✓ Completed in 265ms.
+
+07:11:15 [build] ✓ Completed in 743ms.
+07:11:15 [build] 23 page(s) built in 994ms
+07:11:15 [build] Complete!
+Built routing acceptance passed: public assets/misses bypass Worker; explicit privileged routes invoke real Worker.
+
+> business-starter-v2@2.0.0-dev test:showcase-builds C:\Projects\bizness-starter-v2
+> node scripts/verify-showcase-builds.mjs
+
+Configured enquiries / staging. No cloud resources were created.
+07:11:23 [types] Generated 71ms
+07:11:23 [build] output: "static"
+07:11:23 [build] mode: "static"
+07:11:23 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:11:23 [build] Collecting build info...
+07:11:23 [build] ✓ Completed in 99ms.
+07:11:23 [build] Building static entrypoints...
+07:11:23 [vite] ✓ built in 279ms
+07:11:23 [vite] ✓ built in 105ms
+07:11:23 [build] Rearranging server assets...
+
+ generating static routes 
+07:11:23   ├─ /404.html (+23ms) 
+07:11:23   ├─ /en/404/index.html (+4ms) 
+07:11:23   ├─ /el/404/index.html (+2ms) 
+07:11:23   ├─ /en/feed.xml (+2ms) 
+07:11:23   ├─ /el/feed.xml (+2ms) 
+07:11:23   ├─ /en/about/index.html (+4ms) 
+07:11:23   ├─ /en/contact/index.html (+3ms) 
+07:11:23   ├─ /en/index.html (+2ms) 
+07:11:24   ├─ /en/insights/index.html (+2ms) 
+07:11:24   ├─ /en/privacy/index.html (+3ms) 
+07:11:24   ├─ /en/services/index.html (+2ms) 
+07:11:24   ├─ /en/services/planning-session/index.html (+2ms) 
+07:11:24   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:11:24   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:11:24   ├─ /el/about/index.html (+2ms) 
+07:11:24   ├─ /el/contact/index.html (+2ms) 
+07:11:24   ├─ /el/index.html (+2ms) 
+07:11:24   ├─ /el/insights/index.html (+2ms) 
+07:11:24   ├─ /el/privacy/index.html (+2ms) 
+07:11:24   ├─ /el/services/index.html (+2ms) 
+07:11:24   ├─ /el/services/planning-session/index.html (+2ms) 
+07:11:24   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:11:24   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:11:24   ├─ /index.html (+3ms) 
+07:11:24 ✓ Completed in 212ms.
+
+07:11:24 [build] ✓ Completed in 862ms.
+07:11:24 [build] 22 page(s) built in 1.13s
+07:11:24 [build] Complete!
+Configured enquiries / production. No cloud resources were created.
+07:11:27 [types] Generated 77ms
+07:11:27 [build] output: "static"
+07:11:27 [build] mode: "static"
+07:11:27 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:11:27 [build] Collecting build info...
+07:11:27 [build] ✓ Completed in 116ms.
+07:11:27 [build] Building static entrypoints...
+07:11:27 [vite] ✓ built in 270ms
+07:11:27 [vite] ✓ built in 101ms
+07:11:27 [build] Rearranging server assets...
+
+ generating static routes 
+07:11:27   ├─ /404.html (+24ms) 
+07:11:27   ├─ /en/404/index.html (+4ms) 
+07:11:27   ├─ /el/404/index.html (+2ms) 
+07:11:27   ├─ /en/feed.xml (+2ms) 
+07:11:27   ├─ /el/feed.xml (+2ms) 
+07:11:27   ├─ /en/about/index.html (+4ms) 
+07:11:27   ├─ /en/contact/index.html (+3ms) 
+07:11:27   ├─ /en/index.html (+2ms) 
+07:11:27   ├─ /en/insights/index.html (+2ms) 
+07:11:27   ├─ /en/privacy/index.html (+3ms) 
+07:11:27   ├─ /en/services/index.html (+2ms) 
+07:11:27   ├─ /en/services/planning-session/index.html (+2ms) 
+07:11:27   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:11:27   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:11:27   ├─ /el/about/index.html (+2ms) 
+07:11:27   ├─ /el/contact/index.html (+2ms) 
+07:11:27   ├─ /el/index.html (+2ms) 
+07:11:27   ├─ /el/insights/index.html (+2ms) 
+07:11:27   ├─ /el/privacy/index.html (+2ms) 
+07:11:27   ├─ /el/services/index.html (+2ms) 
+07:11:27   ├─ /el/services/planning-session/index.html (+1ms) 
+07:11:27   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:11:27   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:11:27   ├─ /index.html (+3ms) 
+07:11:27 ✓ Completed in 208ms.
+
+07:11:27 [build] ✓ Completed in 644ms.
+07:11:27 [build] 22 page(s) built in 803ms
+07:11:27 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+07:11:30 [types] Generated 82ms
+07:11:30 [build] output: "static"
+07:11:30 [build] mode: "static"
+07:11:30 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+07:11:30 [build] Collecting build info...
+07:11:30 [build] ✓ Completed in 112ms.
+07:11:31 [build] Building static entrypoints...
+07:11:31 [vite] ✓ built in 281ms
+07:11:31 [vite] ✓ built in 115ms
+07:11:31 [build] Rearranging server assets...
+
+ generating static routes 
+07:11:31   ├─ /404.html (+18ms) 
+07:11:31   ├─ /design-system/index.html (+62ms) 
+07:11:31   ├─ /en/404/index.html (+3ms) 
+07:11:31   ├─ /el/404/index.html (+2ms) 
+07:11:31   ├─ /en/feed.xml (+2ms) 
+07:11:31   ├─ /el/feed.xml (+2ms) 
+07:11:31   ├─ /en/about/index.html (+3ms) 
+07:11:31   ├─ /en/contact/index.html (+3ms) 
+07:11:31   ├─ /en/index.html (+2ms) 
+07:11:31   ├─ /en/insights/index.html (+2ms) 
+07:11:31   ├─ /en/privacy/index.html (+2ms) 
+07:11:31   ├─ /en/services/index.html (+2ms) 
+07:11:31   ├─ /en/services/planning-session/index.html (+2ms) 
+07:11:31   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+07:11:31   ├─ /en/people/studio-guide/index.html (+2ms) 
+07:11:31   ├─ /el/about/index.html (+2ms) 
+07:11:31   ├─ /el/contact/index.html (+2ms) 
+07:11:31   ├─ /el/index.html (+2ms) 
+07:11:31   ├─ /el/insights/index.html (+2ms) 
+07:11:31   ├─ /el/privacy/index.html (+2ms) 
+07:11:31   ├─ /el/services/index.html (+2ms) 
+07:11:31   ├─ /el/services/planning-session/index.html (+2ms) 
+07:11:31   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+07:11:31   ├─ /el/people/studio-guide/index.html (+2ms) 
+07:11:31   ├─ /index.html (+3ms) 
+07:11:31 ✓ Completed in 276ms.
+
+07:11:31 [build] ✓ Completed in 738ms.
+07:11:31 [build] 23 page(s) built in 986ms
+07:11:31 [build] Complete!
+Seven-gate evidence: C:\Projects\bizness-starter-v2\.generated\media-optimization\acceptance-V2qmjt
