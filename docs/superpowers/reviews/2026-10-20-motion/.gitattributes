@@ -1,1 +1,2 @@
 runner/** -text -whitespace
+*.log -text -whitespace
