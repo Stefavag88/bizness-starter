@@ -179,7 +179,7 @@ test('explicit bilingual Settings navigation uses saved Pages, shared order and 
       .getByRole('textbox', { name: 'New navigation label', exact: true })
       .fill('Navigation test EN');
     await page
-      .getByRole('button', { name: 'Add navigation item', exact: true })
+      .getByRole('button', { name: 'Add page to menu', exact: true })
       .click();
     const before = mutations;
     await page.getByRole('button', { name: 'Save', exact: true }).click();

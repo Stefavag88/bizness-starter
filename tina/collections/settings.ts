@@ -10,7 +10,7 @@ import { rich } from '../fields/rich-text';
 import { collection } from './common';
 export function settings(p: ProjectConfig) {
   const disabledPageFiles=[...getDisabledDomainPages(p).map(page=>page.filename),...(!p.articles?['insights.json']:[])];
-  const navigation=()=>({...navigationLabels(),ui:{component:(props:any)=>h(NavigationControls,{...props,disabledPageFiles})}});
+  const navigation=()=>({...navigationLabels(),ui:{component:(props:any)=>h(NavigationControls,{...props,disabledPageFiles,languages:p.languages,defaultLocale:p.locale})}});
   const translated = [
     ...newsletterFields(p,{translated:true}),
     object('brand', [text('tagline')]),

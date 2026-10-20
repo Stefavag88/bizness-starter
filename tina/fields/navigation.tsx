@@ -12,6 +12,7 @@ import {
   moveNavigationItem,
   removeNavigationItem,
   setNavigationLabel,
+  setNavigationDestination,
 } from '../../packages/content/navigation.mjs';
 export function applyNavigation(
   form: any,
@@ -48,7 +49,7 @@ export function NavigationControls(props: any) {
   return h(Suspense, { fallback: null }, h(NativeNavigation, props));
 }
 export function visibleNativePages(edges:readonly any[],excludedFiles:readonly string[]){return edges.filter(edge=>!excludedFiles.includes(edge.node._sys?.relativePath)).map(edge=>edge.node._values);}
-export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }: any) {
+export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[], languages=[], defaultLocale="en" }: any) {
   const form = tinaForm.finalForm;
   const values = useSyncExternalStore(
     (callback) => form.subscribe(callback, { values: true }),
@@ -104,26 +105,46 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
       return false;
     }
   };
+  const pageName = (id: string) => id.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  const languageName = (code: string) => {
+    const configured = languages.find((language: any) => language.code.replaceAll('-', '_') === code);
+    try { return new Intl.DisplayNames(['en'], { type: 'language' }).of(configured?.code || code.replaceAll('_', '-')) || code; }
+    catch { return configured?.label || code; }
+  };
   return h(
     'div',
-    {},
+    { role: 'group', 'aria-label': locale ? 'Translated menu labels' : 'Main navigation', style: { margin: '12px 0 24px' } },
+    h('h2', { style: { margin: 0, fontSize: 18, fontWeight: 600, color: '#1e293b' } }, locale ? 'Translated menu labels' : 'Main navigation'),
     h(
       'p',
       {},
       locale
-        ? 'Enter a label for every shared destination. Shared navigation controls the order.'
-        : 'Choose saved Pages explicitly. Enter a label in each configured language before saving.',
+        ? 'Edit the menu text for this language. Pages and their order are managed in Main navigation.'
+        : 'Choose which pages appear in the website menu and in what order. Add a menu label in every language before saving. Page content is edited under Pages.',
     ),
     error && h('p', { role: 'alert' }, error),
     ...navigationLabelEntries(values, locale).map((item, index) =>
       h(
         'fieldset',
         { key: item.pageId, 'data-navigation-id': item.pageId },
-        h('legend', {}, item.pageId),
+        h('legend', {}, `${index + 1}. ${item.label.trim() || pageName(item.pageId)}`),
+        ...(!locale ? [h('label', {}, 'Linked page',
+          h('select', {
+            'aria-label': 'Linked page for ' + item.pageId,
+            value: item.pageId,
+            disabled: !loaded,
+            onChange: (e: any) => run(v => setNavigationDestination(v, item.pageId, e.target.value, pages.map(p => p.contentId))),
+          },
+          h('option', { value: item.pageId }, pageName(item.pageId)),
+          ...pages.filter(p => !values.navigation.some(entry => entry.pageId === p.contentId)).map(p =>
+            h('option', { key: p.contentId, value: p.contentId }, pageName(p.contentId) + (p.slug ? ' /' + p.slug : ''))),
+          )),
+          h('p', {}, 'Changing the linked page keeps the menu position and language labels. Removing this link does not delete the page.'),
+        ] : [h('p', {}, `Linked page: ${pageName(item.pageId)}. Change the destination in Main navigation.`)]),
         h(
           'label',
           {},
-          'Label for ' + item.pageId,
+          `${languageName(locale || defaultLocale)} menu label`,
           h('input', {
             'aria-label': 'Label for ' + item.pageId,
             type: 'text',
@@ -140,7 +161,7 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
                 h(
                   'label',
                   { key },
-                  key + ' label for ' + item.pageId,
+                  `${languageName(key)} menu label`,
                   h('input', {
                     'aria-label': key + ' label for ' + item.pageId,
                     type: 'text',
@@ -191,11 +212,12 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
     ),
     ...(!locale
       ? [
-          h('fieldset', {}, h('legend', {}, 'Add navigation link'),
+          h('fieldset', { style: { background: '#f8fafc' } }, h('legend', {}, 'Add page to menu'),
+          h('p', {}, 'Select an existing page, enter its menu label, then add the labels for the other languages above.'),
           h(
             'label',
             {},
-            'Saved Page destination',
+            'Page to link to',
             h(
               'select',
               {
@@ -206,7 +228,7 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
               h(
                 'option',
                 { value: '' },
-                loaded ? 'Choose a saved Page' : 'Loading saved Pages',
+                loaded ? 'Choose an existing page' : 'Loading pages…',
               ),
               ...pages
                 .filter(
@@ -219,7 +241,7 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
                   h(
                     'option',
                     { key: p.contentId, value: p.contentId },
-                    p.contentId + ' /' + p.slug,
+                    pageName(p.contentId) + (p.slug ? ' /' + p.slug : ''),
                   ),
                 ),
             ),
@@ -227,12 +249,12 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
           h(
             'button',
             { type: 'button', onClick: () => setRefresh((n) => n + 1) },
-            'Refresh saved Pages',
+            'Refresh available pages',
           ),
           h(
             'label',
             {},
-            'New navigation label',
+            `${languageName(defaultLocale)} menu label`,
             h('input', {
               'aria-label': 'New navigation label',
               value: label,
@@ -259,7 +281,7 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
                 }
               },
             },
-            'Add navigation item',
+            'Add page to menu',
           )),
         ]
       : []),

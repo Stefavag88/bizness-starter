@@ -26,3 +26,10 @@ export function setNavigationLabel<T extends NavigationDraft>(
   pageId: string,
   label: string,
 ): T;
+
+export function setNavigationDestination<T extends NavigationDraft>(
+  values: T,
+  pageId: string,
+  destination: string,
+  availablePageIds: readonly string[],
+): T;

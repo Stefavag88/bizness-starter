@@ -102,3 +102,21 @@ export function setNavigationLabel(values, localeKey, pageId, label) {
     },
   };
 }
+
+// A destination is shared structure; translated labels stay attached to the menu item.
+export function setNavigationDestination(values, pageId, destination, availablePageIds) {
+  indexOf(values, pageId);
+  if (typeof destination !== 'string' || !idPattern.test(destination) || !availablePageIds.includes(destination))
+    throw Error('Choose an existing saved Page.');
+  if (destination === pageId) return values;
+  if (values.navigation.some(item => item.pageId === destination))
+    throw Error('This page is already in the menu.');
+  const replace = items => items.map(item => item.pageId === pageId ? { ...item, pageId: destination } : item);
+  return {
+    ...values,
+    navigation: replace(values.navigation),
+    translations: Object.fromEntries(Object.entries(values.translations || {}).map(([locale, translation]) => [
+      locale, { ...translation, navigation: replace(translation.navigation) },
+    ])),
+  };
+}

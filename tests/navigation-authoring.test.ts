@@ -244,6 +244,33 @@ it('renders editable locale labels beside shared controls so a rejected save can
     }),
   );
   expect(translated).not.toContain('Move navigation');
-  expect(translated).not.toContain('Add navigation item');
+  expect(translated).not.toContain('Add page to menu');
   expect(translated).toContain('aria-label="Label for about"');
+});
+
+
+describe('editing a navigation destination', () => {
+  it('replaces the shared page and every translated reference, preserving labels, order and unrelated ASTs', async () => {
+    const { setNavigationDestination } = await import('../packages/content/navigation.mjs');
+    const original = draft();
+    original.translations.el.navigation.reverse();
+    const before = structuredClone(original);
+    const next = setNavigationDestination(original, 'home', 'about', ['home', 'insights', 'about']);
+    expect(next.navigation).toEqual([{ pageId: 'about', label: 'Home' }, original.navigation[1]]);
+    for (const key of ['el', 'pt_BR']) {
+      expect(next.translations[key].navigation).toEqual(original.translations[key].navigation.map((item: any) => item.pageId === 'home' ? { ...item, pageId: 'about' } : item));
+      expect(next.translations[key].legal).toBe(original.translations[key].legal);
+    }
+    expect(next.legal).toBe(original.legal);
+    expect(original).toEqual(before);
+    expect(setNavigationDestination(next, 'about', 'about', ['about'])).toBe(next);
+  });
+  it('rejects unavailable, duplicate, malformed and stale destinations without changing the draft', async () => {
+    const { setNavigationDestination } = await import('../packages/content/navigation.mjs');
+    const original = draft(), before = structuredClone(original);
+    for (const [from, to] of [['home','insights'],['home','missing'],['home','Bad ID'],['stale','about']]) {
+      expect(() => setNavigationDestination(original, from, to, ['home','insights','about','Bad ID'])).toThrow();
+    }
+    expect(original).toEqual(before);
+  });
 });
