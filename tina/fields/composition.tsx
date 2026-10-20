@@ -1,4 +1,5 @@
 import { cmsElement as h } from './controls';
+import { editorLabel } from './common';
 import {
   lazy,
   Suspense,
@@ -211,10 +212,11 @@ export function SectionControls({
   return h(
     'div',
     {},
+    h('h2', { style: { margin: 0, fontSize: 18, fontWeight: 600, color: '#1e293b' } }, 'Page sections'),
     h(
       'p',
       {},
-      'Compose shared sections. New sections start hidden. Translations edit copy only.',
+      'Set section visibility, layout and order here. Edit headings and text under Section content. New sections start hidden; translations share this structure.',
     ),
     error && h('p', { role: 'alert' }, error),
     ...values.sections.map((section, index) => {
@@ -223,7 +225,8 @@ export function SectionControls({
         'fieldset',
         { key: section.id, 'data-section-id': section.id },
         project&&!sectionEnabled(definition(section._template),project)&&h('p',{},'This section is dormant while its module is disabled. Its copy is retained and it is omitted from public output.'),
-        h('legend', {}, section.id),
+        h('legend', {}, `${index + 1}. ${editorLabel(definition(section._template).type)}`),
+        h('p', {}, `Section ID: ${section.id}${state.required ? ' · Required section' : ''}`),
         h(
           'label',
           {},
@@ -340,7 +343,7 @@ export function SectionControls({
             },
             h('option', { value: '' }, 'Choose section type'),
             ...availableSections(articles,project).map((d) =>
-              h('option', { key: d.type, value: d.type }, d.type),
+              h('option', { key: d.type, value: d.type }, editorLabel(d.type)),
             ),
           ),
         ),
@@ -405,7 +408,8 @@ export function SectionCopyControls({ input, field, tinaForm }: any) {
       h(
         'fieldset',
         { key: entry.id, 'data-copy-id': entry.id },
-        h('legend', {}, entry.id),
+        h('legend', {}, entry.title || editorLabel(definition(entry._template).type)),
+        h('p', {}, `Section ID: ${entry.id}`),
         h(RegisteredFields, {
           tinaForm,
           fields: copyChildFields(field, entry, index),

@@ -40,7 +40,7 @@ async function root(page: Page) {
 }
 async function copyEditor(page: Page, locale = "en") {
   if (locale === "en")
-    await page.getByRole("button", { name: "copy", exact: true }).click();
+    await page.getByRole("button", { name: "Section content", exact: true }).click();
   else {
     await page
       .getByRole("button", { name: "Translations", exact: true })
@@ -206,7 +206,7 @@ test("native nested authoring saves, rejected-save correction, media selection a
     await page.locator("[name=contentId]").fill(name.replaceAll("-", "_"));
     await page.locator("[name=slug]").fill(name);
     await page.getByRole("textbox", { name: "My_Document" }).fill(name);
-    await page.getByRole("button", { name: "meta", exact: true }).click();
+    await page.getByRole("button", { name: "Page title and SEO", exact: true }).click();
     await page.locator('[name="meta.title"]').fill("Composition B acceptance");
     await root(page);
     await save(

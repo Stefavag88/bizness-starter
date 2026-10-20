@@ -146,7 +146,7 @@ test('explicit bilingual Settings navigation uses saved Pages, shared order and 
     await page.locator('[name=contentId]').fill(id);
     await page.locator('[name=slug]').fill(name);
     await page.getByRole('textbox', { name: 'My_Document' }).fill(name);
-    await page.getByRole('button', { name: 'meta', exact: true }).click();
+    await page.getByRole('button', { name: 'Page title and SEO', exact: true }).click();
     await page
       .locator('[name="meta.title"]')
       .fill('Navigation native destination');
@@ -206,7 +206,7 @@ test('explicit bilingual Settings navigation uses saved Pages, shared order and 
     );
     await editSettings();
     await page
-      .getByRole('button', { name: 'translations', exact: true })
+      .getByRole('button', { name: 'Translations', exact: true })
       .click();
     await page.getByRole('button', { name: 'Ελληνικά', exact: true }).click();
     writeFileSync(

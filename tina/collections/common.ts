@@ -10,7 +10,7 @@ export function collection(
 ): Collection {
   return {
     name,
-    label: name === 'person' ? 'People' : name[0].toUpperCase() + name.slice(1),
+    label: ({ page: 'Pages', offering: 'Offerings', person: 'People', article: 'Articles', campaign: 'Campaigns', settings: 'Settings' } as Record<string, string>)[name] || name,
     path,
     format: 'json',
     fields,

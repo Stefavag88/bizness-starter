@@ -130,7 +130,7 @@ test('Standard native creation, batched bilingual composition, public ID associa
     await page.locator('[name=contentId]').fill(name.replaceAll('-', '_'));
     await page.locator('[name=slug]').fill(name);
     await page.getByRole('textbox', { name: 'My_Document' }).fill(name);
-    await page.getByRole('button', { name: 'meta', exact: true }).click();
+    await page.getByRole('button', { name: 'Page title and SEO', exact: true }).click();
     await page.locator('[name="meta.title"]').fill('Composition native page');
     await root(page);
     await save(
@@ -180,7 +180,7 @@ test('Standard native creation, batched bilingual composition, public ID associa
     await page
       .getByRole('button', { name: 'Initialize Ελληνικά copy', exact: true })
       .click();
-    await page.getByRole('button', { name: 'copy', exact: true }).click();
+    await page.getByRole('button', { name: 'Section content', exact: true }).click();
     await page.locator('[name="copy.sections.1.title"]').fill('English first');
     await page.locator('[name="copy.sections.2.title"]').fill('English second');
     await bold(page, 1, 'English first rich prose');
@@ -304,7 +304,7 @@ test('Standard native creation, batched bilingual composition, public ID associa
         ),
     );
     await reload();
-    await page.getByRole('button', { name: 'copy', exact: true }).click();
+    await page.getByRole('button', { name: 'Section content', exact: true }).click();
     await expect(
       page.locator('[contenteditable=true]').nth(1).locator('strong'),
     ).toHaveText('English second rich prose');
@@ -362,7 +362,7 @@ test('Standard native creation, batched bilingual composition, public ID associa
       (d) => d.sections[1]._template === 'cta',
     );
     await open(page, 'collections/edit/page/' + collisionName);
-    await page.getByRole('button', { name: 'copy', exact: true }).click();
+    await page.getByRole('button', { name: 'Section content', exact: true }).click();
     await page
       .locator('[name="copy.sections.1.title"]')
       .fill('Edited independent CTA');
@@ -375,7 +375,7 @@ test('Standard native creation, batched bilingual composition, public ID associa
       collisionPath,
     );
     await open(page, 'collections/edit/page/' + collisionName);
-    await page.getByRole('button', { name: 'copy', exact: true }).click();
+    await page.getByRole('button', { name: 'Section content', exact: true }).click();
     await expect(page.locator('[name="copy.sections.1.title"]')).toHaveValue(
       'Edited independent CTA',
     );
@@ -490,7 +490,7 @@ test('native required regions, read-only identity and Standard-only creation rej
     await page
       .getByRole('textbox', { name: 'My_Document' })
       .fill(invalid === 'nested' ? 'nested/' + filename : filename);
-    await page.getByRole('button', { name: 'meta', exact: true }).click();
+    await page.getByRole('button', { name: 'Page title and SEO', exact: true }).click();
     await page.locator('[name="meta.title"]').fill('Rejected draft');
     await root(page);
     if (invalid === 'published')
@@ -608,7 +608,7 @@ test('native rejected incomplete create and initialized locale retain a correcti
     await page.locator('[name=slug]').fill(name);
     await page.getByRole('textbox', { name: 'My_Document' }).fill(name);
     await rejectSave('incomplete-create-rejected');
-    await page.getByRole('button', { name: 'meta', exact: true }).click();
+    await page.getByRole('button', { name: 'Page title and SEO', exact: true }).click();
     await page.locator('[name="meta.title"]').fill('Recovered native draft');
     await root(page);
     await expect(page.locator('[name=slug]')).toHaveValue(name);
@@ -620,7 +620,7 @@ test('native rejected incomplete create and initialized locale retain a correcti
     await expect(
       page.getByRole('button', { name: 'Save', exact: true }),
     ).toBeDisabled();
-    await page.getByRole('button', { name: 'copy', exact: true }).click();
+    await page.getByRole('button', { name: 'Section content', exact: true }).click();
     await page
       .locator('[name="copy.sections.0.title"]')
       .fill('Unsaved English hero');
@@ -630,7 +630,7 @@ test('native rejected incomplete create and initialized locale retain a correcti
       .getByRole('button', { name: 'Initialize Ελληνικά copy', exact: true })
       .click();
     await rejectSave('initialized-locale-rejected');
-    await page.getByRole('button', { name: 'copy', exact: true }).click();
+    await page.getByRole('button', { name: 'Section content', exact: true }).click();
     await expect(page.locator('[name="copy.sections.0.title"]')).toHaveValue(
       'Unsaved English hero',
     );
@@ -681,7 +681,7 @@ test('native rejected incomplete create and initialized locale retain a correcti
     await expect(
       page.getByRole('button', { name: 'Save', exact: true }),
     ).toBeDisabled();
-    await page.getByRole('button', { name: 'copy', exact: true }).click();
+    await page.getByRole('button', { name: 'Section content', exact: true }).click();
     await expect(page.locator('[name="copy.sections.0.title"]')).toHaveValue(
       'Unsaved English hero',
     );

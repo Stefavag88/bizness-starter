@@ -3,7 +3,7 @@ import {roomListCopyFields} from '../domains/rooms/fields';
 import { lazy, Suspense } from 'react';
 import type { TinaField, Template } from 'tinacms';
 import { sectionDefinitions } from '../../packages/content/section-registry.mjs';
-import { text, object, link } from './common';
+import { text, object, link, editorLabel } from './common';
 import { SectionCopyControls } from './composition';
 import {FixedSectionItems} from './section-items';
 import { rich } from './rich-text';
@@ -37,7 +37,7 @@ export function sectionCopyFields(type: string): TinaField[] {
 export const sectionCopyTemplates: Template[] = sectionDefinitions.map(definition => ({
   name: definition.nativeName,
   ...(definition.type !== definition.nativeName ? { nameOverride: definition.type } : {}),
-  label: definition.type,
+  label: editorLabel(definition.type),
   fields: sectionCopyFields(definition.type),
 }));
 
