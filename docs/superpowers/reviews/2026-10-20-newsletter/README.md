@@ -36,4 +36,4 @@ The full native/public run and the focused preferences run are complementary ind
 
 No hosted protection adapter/widget/CSP provisioning, real sending/provider account, deployment, optional tracking integration or generic cookie-consent platform was added. Hosted signup remains fallback-only without authentic protection. Existing confirmation emails/token pages remain English. Browser suppression is convenience, not subscription proof, consent storage or unsubscribe.
 
-Independent final review: pending. No push, merge, deployment or release tag.
+Independent final review completed with one Important finding. It was fixed in one author RED/GREEN pass, including genuine BFCache restoration and safe teardown; the post-fix suite passed 967 root +41 site tests (1008), checks and build. One documentation Minor remains deferred. See [final review and resolution](FINAL_REVIEW.md). No push, merge, deployment or release tag.

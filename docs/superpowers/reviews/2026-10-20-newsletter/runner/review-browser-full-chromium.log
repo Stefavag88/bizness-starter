@@ -1,0 +1,39 @@
+
+Running 1 test using 1 worker
+
+(node:37636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 e2e\newsletter.spec.ts:67:1 › public cached navigation restores one signup handler and safe fallbacks (4.0m)
+
+
+  1) e2e\newsletter.spec.ts:67:1 › public cached navigation restores one signup handler and safe fallbacks 
+
+    Test timeout of 240000ms exceeded.
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-cached-n-f59a6--handler-and-safe-fallbacks\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\newsletter-public-cached-n-f59a6--handler-and-safe-fallbacks\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\newsletter-public-cached-n-f59a6--handler-and-safe-fallbacks\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\newsletter-public-cached-n-f59a6--handler-and-safe-fallbacks\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\newsletter.spec.ts:67:1 › public cached navigation restores one signup handler and safe fallbacks 
+Newsletter evidence: C:\Projects\bizness-starter-v2\.generated\newsletter\acceptance-K6fTTU
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: C:\Projects\bizness-starter-v2\node_modules\@playwright\test\cli.js test e2e/newsletter.spec.ts e2e/newsletter-cms.spec.ts --grep cached navigation
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0

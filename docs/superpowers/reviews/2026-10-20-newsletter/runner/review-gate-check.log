@@ -1,0 +1,39 @@
+
+> business-starter-v2@2.0.0-dev check C:\Projects\bizness-starter-v2
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+apps/site/src/scripts/visitor-experience.ts(8,23): error TS2488: Type 'NodeListOf<HTMLElement>' must have a '[Symbol.iterator]()' method that returns an iterator.
+apps/site/src/scripts/visitor-experience.ts(9,24): error TS2488: Type 'NodeListOf<HTMLElement>' must have a '[Symbol.iterator]()' method that returns an iterator.
+apps/site/src/scripts/visitor-experience.ts(30,20): error TS2488: Type 'NodeListOf<HTMLElement>' must have a '[Symbol.iterator]()' method that returns an iterator.
+apps/site/src/scripts/visitor-experience.ts(31,24): error TS2488: Type 'NodeListOf<HTMLElement>' must have a '[Symbol.iterator]()' method that returns an iterator.
+apps/site/src/scripts/visitor-experience.ts(32,22): error TS2488: Type 'NodeListOf<HTMLButtonElement>' must have a '[Symbol.iterator]()' method that returns an iterator.
+apps/site/src/scripts/visitor-experience.ts(34,23): error TS2488: Type 'NodeListOf<Element>' must have a '[Symbol.iterator]()' method that returns an iterator.
+apps/site/src/scripts/visitor-experience.ts(39,22): error TS2488: Type 'NodeListOf<HTMLButtonElement>' must have a '[Symbol.iterator]()' method that returns an iterator.
+apps/site/src/scripts/visitor-experience.ts(45,22): error TS2488: Type 'NodeListOf<HTMLDialogElement>' must have a '[Symbol.iterator]()' method that returns an iterator.
+ ELIFECYCLE  Command failed with exit code 2.
+
+> business-starter-v2@2.0.0-dev check C:\Projects\bizness-starter-v2
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\bizness-starter-v2\apps\site
+> astro check
+
+15:51:25 [vite] Re-optimizing dependencies because vite config has changed
+15:51:25 [types] Generated 233ms
+15:51:25 [check] Getting diagnostics for Astro files in C:\Projects\bizness-starter-v2\apps\site...
+Result (70 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+

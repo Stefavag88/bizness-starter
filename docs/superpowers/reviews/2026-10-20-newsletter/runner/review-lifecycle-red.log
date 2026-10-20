@@ -1,0 +1,20 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/visitor-lifecycle.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/visitor-lifecycle.test.ts [ tests/visitor-lifecycle.test.ts ]
+Error: Cannot find module '../apps/site/src/scripts/visitor-lifecycle' imported from C:/Projects/bizness-starter-v2/tests/visitor-lifecycle.test.ts
+ ❯ tests/visitor-lifecycle.test.ts:2:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  15:39:25
+   Duration  244ms (worker 97%, environment 3%)
+

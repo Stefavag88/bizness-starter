@@ -40,9 +40,19 @@
     "sha256": "a282dab90c8b97ce624a47d7d2ff8edf4e74f9f3164de710f9b045e76df72a44"
   },
   {
+    "source": "review fix / local closeout record",
+    "artifact": "closeout-processes-after-fix.json",
+    "sha256": "0d8e7735b8e66b66f23711d089bf6fe0a57589cd36c92ef4d921d1e20898b22e"
+  },
+  {
     "source": "local closeout/review record",
     "artifact": "closeout-processes.json",
     "sha256": "edec4a061f9e0cdd5be564f6901981d970c0a5e7492283cf913e0d10ab4e3d46"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "closeout-runtime-after-fix.json",
+    "sha256": "80bab73ffd8a247288a25175543614b505d58bfc6dbb2b7278516a8fbc1d1d5c"
   },
   {
     "source": "local closeout/review record",
@@ -63,6 +73,11 @@
     "source": ".superpowers/sdd/2026-10-20-starter-v2-newsletter-preferences/combined-unit.log",
     "artifact": "combined-unit.log",
     "sha256": "04b198e40900cb8f598de17d80ddf4435903d0032b1fdd70446660c8821b8f22"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "default-profile-browser-after-fix.json",
+    "sha256": "8e39671d35a710b94e07636025c30f8a1c7805d1adb00c9c3969f580d264bcd1"
   },
   {
     "source": "local closeout/review record",
@@ -222,7 +237,7 @@
   {
     "source": ".superpowers/sdd/2026-10-20-starter-v2-newsletter-preferences/progress.md",
     "artifact": "ledger.txt",
-    "sha256": "05626484b6e273c23870914ec0f68bd54bcc685fd4cc57a2a3eae855ebb566dc"
+    "sha256": "b15fcb1746f043a6d63dbc34be7fadccaa482e145d3c0403829b492c78d155b0"
   },
   {
     "source": ".superpowers/sdd/2026-10-20-starter-v2-newsletter-preferences/modal-only-green.log",
@@ -273,6 +288,96 @@
     "source": ".superpowers/sdd/2026-10-20-starter-v2-newsletter-preferences/preferences-acceptance.log",
     "artifact": "preferences-acceptance.log",
     "sha256": "dd26f354d376b7f5e6cf8b084d4aee17db2a535870a76772fbe919be013f43e0"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-61e52ae..9e62cc6.diff",
+    "sha256": "d0d81e0e40f924951cd5b66d0d2dfb9961b15aad47dcda898fc0efd54b227aa4"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-browser-full-chromium.log",
+    "sha256": "005e609004b3e313d2f7e666e62de80330001c15713841b1ba15c06397ea5200"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-browser-green.log",
+    "sha256": "41f91da0e559110194d10197b117e6695229affaaa4bf7c5e1d33c4d7141c991"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-browser-history-back.log",
+    "sha256": "d4eb419e15298c773fd2a6e8f71e058d3cf8e289bce8ed4e6d3d72e84b20e714"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-browser-red.log",
+    "sha256": "059e20da075940088965a94cca3c8ead4e95b09fc64582ab2935c1d21843c055"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-fix/browser/matrix.json",
+    "sha256": "34707731781a56ab7bfae581cb8999de60c5c0068d7ee5ed436d8eec3377c4c6"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-fix/browser/runtime-dev-0.json",
+    "sha256": "e6a5802226823611e2346daee518b47dd3d0188da69c3ed2a9586d372f574813"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-fix/command.json",
+    "sha256": "9593a496cf8d2eab97d11c83fb95aab69aae56e62b9b5f21ec17e6702c5614ed"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-fix/inputs-after.json",
+    "sha256": "61eef0151b08a681a558ddb4fd2c57289252c8fb0d5fb5c5f16e49dd05160b96"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-fix/inputs.json",
+    "sha256": "61eef0151b08a681a558ddb4fd2c57289252c8fb0d5fb5c5f16e49dd05160b96"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-gate-build.log",
+    "sha256": "c4ad9065b245451c38517a15ec8ea3ea61e598c3a91611c541b7a4953ab8418a"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-gate-check.log",
+    "sha256": "0e17aa805a81881485102ed815da852774595573a12fc44b1a14751f135c1cc3"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-gate-test.log",
+    "sha256": "42b8e0cb32a06acdc81f67d15058a9ab465607eb9a0a1e864bb853debac52417"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-gates-runner.log",
+    "sha256": "dadf63d1d7edcef8afca9a4bd5c2e05a083899f2a06dbefdd104a9a112b2a180"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-gates.json",
+    "sha256": "e7e34b7e3ecf1195fd69477a5f4cc210f3f82d52aa32c65ebda2ae512686c60a"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-lifecycle-red.log",
+    "sha256": "e50078b0685e30bf816c890b8e5ce30340a6c52f022d01d98bebdc6bb73b5cbf"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-unit-green.log",
+    "sha256": "b67788b1adbc1f4c9e265822e133ccd4806a66ddd84b7a8a6a24a2c3e52ce002"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "review-unit-red.log",
+    "sha256": "c29093a9df2dadd5a985533565d85db8a6ad621005babfd45621c62ce69d5609"
   },
   {
     "source": ".superpowers/sdd/2026-10-20-starter-v2-newsletter-preferences/task-1-check.log",
@@ -348,6 +453,11 @@
     "source": ".superpowers/sdd/2026-10-20-starter-v2-newsletter-preferences/task-3-tests.log",
     "artifact": "task-3-tests.log",
     "sha256": "eddfd41a96a620961af5ff0554fb1232fc86ae6e858d7808bfb54cd03f5930f6"
+  },
+  {
+    "source": "review fix / local closeout record",
+    "artifact": "task-4-tests.log",
+    "sha256": "a6ede22cbc80621addc07be75db3ab8075278e28325e612f449c01b25108f919"
   },
   {
     "source": "local closeout/review record",

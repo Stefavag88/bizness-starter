@@ -1,0 +1,18 @@
+[
+  {
+    "cacheProof": {
+      "marker": "b14f12da-0ff0-47cd-9129-d71ed4b87f03",
+      "shows": [
+        false,
+        true,
+        true
+      ]
+    },
+    "originalMarker": "b14f12da-0ff0-47cd-9129-d71ed4b87f03"
+  },
+  {
+    "oneSubmit": true,
+    "noEmailNavigation": true,
+    "restoredPreferences": true
+  }
+]

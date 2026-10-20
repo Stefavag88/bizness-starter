@@ -1,0 +1,36 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/visitor-lifecycle.test.ts (0 test)
+ ❯ tests/newsletter-form.test.ts (6 tests | 1 failed) 40ms
+   × does not announce acceptance after controller teardown 5ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/visitor-lifecycle.test.ts [ tests/visitor-lifecycle.test.ts ]
+Error: Cannot find module '../apps/site/src/scripts/visitor-lifecycle' imported from C:/Projects/bizness-starter-v2/tests/visitor-lifecycle.test.ts
+ ❯ tests/visitor-lifecycle.test.ts:2:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/newsletter-form.test.ts > does not announce acceptance after controller teardown
+AssertionError: expected 'accepted' to be 'error' // Object.is equality
+
+Expected: "error"
+Received: "accepted"
+
+ ❯ tests/newsletter-form.test.ts:12:293
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 5 passed (6)
+   Start at  15:40:59
+   Duration  473ms (import 49%, transform 29%, tests 16%, worker 6%)
+

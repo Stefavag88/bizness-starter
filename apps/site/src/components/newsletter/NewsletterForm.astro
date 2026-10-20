@@ -4,7 +4,7 @@ import type {NewsletterExperience} from '../../../../../packages/content/newslet
 interface Props {model:NewsletterExperience;locale:string;placement:'modal'|'footer'}
 const {model,locale,placement}=Astro.props;const id=`newsletter-${placement}`;
 ---
-<form data-newsletter-form hidden>
+<form method="post" data-newsletter-form hidden>
  <fieldset><legend class="visually-hidden">{model.emailLabel}</legend>
  <div class="newsletter-input-row"><div class="field"><label for={`${id}-email`}>{model.emailLabel}</label><input id={`${id}-email`} type="email" name="email" autocomplete="email" maxlength="254" required/></div><button type="submit">{model.submitLabel}<svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5h18v14H3zM3 5l9 7 9-7"/></svg></button></div>
  <div class="newsletter-consent"><label for={`${id}-consent`}><input id={`${id}-consent`} type="checkbox" name="consent" required/> <span>{model.consentLabel}</span></label> <a href={model.privacyHref}>{model.privacyLinkLabel}</a></div>

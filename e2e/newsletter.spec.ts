@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect,chromium} from '@playwright/test';
 import {writeFileSync,readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {newsletterFixture} from './helpers/newsletter-fixture';
@@ -62,4 +62,13 @@ test('public live-tab preferences reset and manual signup with blocked storage',
  // The renderer's modal-only fallback is also checked with JavaScript genuinely disabled.
  const owned=readFileSync(f.sourcePath,'utf8'),settings=JSON.parse(owned);settings.newsletterPrompt.footerMode='off';expect(readFileSync(f.sourcePath,'utf8')).toBe(owned);writeFileSync(f.sourcePath,JSON.stringify(settings,null,2));const nojs=await browser.newContext({javaScriptEnabled:false});try{const page=await nojs.newPage();await page.goto(f.cms+'/el');await expect(page.locator('[data-newsletter-fallback]')).toBeVisible();expect(await page.locator('[data-newsletter-fallback]').getAttribute('href')).toBe('/el/contact');rows.push({modalOnlyNoJsContact:true});}finally{await nojs.close();}
  }finally{writeFileSync(join(f.directory,'matrix.json'),JSON.stringify(rows,null,2));await f.stop();}
+});
+
+test('public cached navigation restores one signup handler and safe fallbacks',async()=>{
+ test.setTimeout(240000);const f=await newsletterFixture('lifecycle');const browser=await chromium.launch({channel:'chromium',ignoreDefaultArgs:['--disable-back-forward-cache']});const context=await browser.newContext();const page=await context.newPage();page.setDefaultNavigationTimeout(20000);page.setDefaultTimeout(15000);const rows:any[]=[];
+ try{await f.start();await context.addInitScript(()=>{(window as any).__cacheProof={marker:crypto.randomUUID(),shows:[]};addEventListener('pageshow',event=>(window as any).__cacheProof.shows.push(event.persisted));});await page.goto(f.base+'/en');await expect(page.locator('#newsletter-footer-email')).toBeVisible();
+ await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true})));await expect(page.locator('.newsletter-footer form')).toBeHidden();await expect(page.locator('[data-newsletter-fallback]')).toBeVisible();await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));await expect(page.locator('#newsletter-footer-email')).toBeVisible();
+ const cdp=await context.newCDPSession(page);await cdp.send('Page.enable');cdp.on('Page.backForwardCacheNotUsed',event=>rows.push({cacheMiss:event}));const marker=await page.evaluate(()=>(window as any).__cacheProof.marker);await page.goto(f.base+'/en/about',{waitUntil:'domcontentloaded'});await page.evaluate(()=>{setTimeout(()=>history.back(),0)});await expect(page).toHaveURL(f.base+'/en');await expect(page.locator('#newsletter-footer-email')).toBeVisible();const proof=await page.evaluate(()=>(window as any).__cacheProof);rows.push({cacheProof:proof,originalMarker:marker});expect(proof.marker).toBe(marker);expect(proof.shows).toContain(true);
+ let submissions=0;await page.route('**/api/newsletter/subscribe',route=>{submissions++;return route.fulfill({status:202,contentType:'application/json',body:'{}'});});await page.locator('#newsletter-footer-email').fill('cached-local@example.com');await page.locator('#newsletter-footer-consent').check();await page.locator('.newsletter-footer button[type=submit]').click();await expect(page.locator('.newsletter-footer [data-newsletter-receipt]')).toBeVisible();expect(submissions).toBe(1);expect(page.url()).not.toContain('email=');expect(page.url()).not.toContain('cached-local');await page.locator('[data-preferences-open-footer]').click();await expect(page.locator('[data-preferences-dialog]')).toBeVisible();rows.push({oneSubmit:true,noEmailNavigation:true,restoredPreferences:true});
+ }finally{writeFileSync(join(f.directory,'matrix.json'),JSON.stringify(rows,null,2));try{await f.stop();}finally{await context.close();await browser.close();}}
 });

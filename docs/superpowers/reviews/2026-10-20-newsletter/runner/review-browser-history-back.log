@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:39876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ok 1 e2e\newsletter.spec.ts:67:1 › public cached navigation restores one signup handler and safe fallbacks (21.6s)
+
+  1 passed (23.0s)
+Newsletter evidence: C:\Projects\bizness-starter-v2\.generated\newsletter\acceptance-goo1Od

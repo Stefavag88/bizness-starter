@@ -1,0 +1,51 @@
+
+Running 1 test using 1 worker
+
+(node:18940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 e2e\newsletter.spec.ts:67:1 › public cached navigation restores one signup handler and safe fallbacks (21.0s)
+
+
+  1) e2e\newsletter.spec.ts:67:1 › public cached navigation restores one signup handler and safe fallbacks 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "75e4cefe-c31e-4a81-8dbb-a7f3ceeb6651"
+    Received: "7238780d-8d07-4216-86f8-8a8eb57963cd"
+
+      69 |  try{await f.start();await context.addInitScript(()=>{(window as any).__cacheProof={marker:crypto.randomUUID(),shows:[]};addEventListener('pageshow',event=>(window as any).__cacheProof.shows.push(event.persisted));});await page.goto(f.base+'/en');await expect(page.locator('#newsletter-footer-email')).toBeVisible();
+      70 |  await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true})));await expect(page.locator('.newsletter-footer form')).toBeHidden();await expect(page.locator('[data-newsletter-fallback]')).toBeVisible();await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));await expect(page.locator('#newsletter-footer-email')).toBeVisible();
+    > 71 |  const marker=await page.evaluate(()=>(window as any).__cacheProof.marker);await page.goto(f.base+'/en/about');await page.goBack();await expect(page.locator('#newsletter-footer-email')).toBeVisible();const proof=await page.evaluate(()=>(window as any).__cacheProof);rows.push({cacheProof:proof,originalMarker:marker});expect(proof.marker).toBe(marker);expect(proof.shows).toContain(true);
+         |                                                                                                                                                                                                                                                                                                                                                    ^
+      72 |  let submissions=0;await page.route('**/api/newsletter/subscribe',route=>{submissions++;return route.fulfill({status:202,contentType:'application/json',body:'{}'});});await page.locator('#newsletter-footer-email').fill('cached-local@example.com');await page.locator('#newsletter-footer-consent').check();await page.locator('.newsletter-footer button[type=submit]').click();await expect(page.locator('.newsletter-footer [data-newsletter-receipt]')).toBeVisible();expect(submissions).toBe(1);expect(page.url()).not.toContain('email=');expect(page.url()).not.toContain('cached-local');await page.locator('[data-preferences-open-footer]').click();await expect(page.locator('[data-preferences-dialog]')).toBeVisible();rows.push({oneSubmit:true,noEmailNavigation:true,restoredPreferences:true});
+      73 |  }finally{writeFileSync(join(f.directory,'matrix.json'),JSON.stringify(rows,null,2));await context.close();await browser.close();await f.stop();}
+      74 | });
+        at C:\Projects\bizness-starter-v2\e2e\newsletter.spec.ts:71:340
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\newsletter-public-cached-n-f59a6--handler-and-safe-fallbacks\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\newsletter-public-cached-n-f59a6--handler-and-safe-fallbacks\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\newsletter-public-cached-n-f59a6--handler-and-safe-fallbacks\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\newsletter-public-cached-n-f59a6--handler-and-safe-fallbacks\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\newsletter.spec.ts:67:1 › public cached navigation restores one signup handler and safe fallbacks 
+Newsletter evidence: C:\Projects\bizness-starter-v2\.generated\newsletter\acceptance-afoM6m
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: C:\Projects\bizness-starter-v2\node_modules\@playwright\test\cli.js test e2e/newsletter.spec.ts e2e/newsletter-cms.spec.ts --grep cached navigation
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0

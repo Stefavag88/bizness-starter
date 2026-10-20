@@ -1,0 +1,13 @@
+{
+  "args": [
+    "test",
+    "e2e/newsletter.spec.ts",
+    "e2e/newsletter-cms.spec.ts",
+    "--grep",
+    "cached navigation"
+  ],
+  "started": "2026-10-20T12:49:15.880Z",
+  "pid": 41592,
+  "ended": "2026-10-20T12:49:39.541Z",
+  "exitCode": 0
+}

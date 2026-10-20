@@ -138,12 +138,12 @@ No Worker subscription/schema migration is planned: reuse its existing endpoint 
 
 ## Final independent review and completion
 
-- [ ] Prepare one review package covering all feature commits against `61e52ae`, requirements, test evidence and honest limitations. Use the preserved inline execution ledger and requesting-code-review skill. No task-level reviewers.
-- [ ] Request one fresh independent final reviewer on the skill-prescribed most capable model. Apply Critical/Important fixes with focused RED/GREEN proof and one fix pass; disclose deferred Minor findings. Do not silently expand into deployment/provider work.
-- [ ] Verify final diff/status and any affected checks, commit review fixes/evidence separately, then report what is available, how to opt in, and the remaining hosted protection/sending work. Do not push/deploy without authorization.
+- [x] Prepare one review package covering all feature commits against `61e52ae`, requirements, test evidence and honest limitations. Use the preserved inline execution ledger and requesting-code-review skill. No task-level reviewers.
+- [x] Request one fresh independent final reviewer on the skill-prescribed most capable model. Apply Critical/Important fixes with focused RED/GREEN proof and one fix pass; disclose deferred Minor findings. Do not silently expand into deployment/provider work.
+- [x] Verify final diff/status and any affected checks, commit review fixes/evidence separately, then report what is available, how to opt in, and the remaining hosted protection/sending work. Do not push/deploy without authorization.
 
 ## Plan self-review
 
 The four tasks cover settings/native serialization, browser state/scheduling, both UI surfaces/API integration, and real acceptance/docs. Review Focus cases map to explicit tests. Interfaces above are shared across tasks; defaults and bounds match the approved spec. This plan does not change the default functional profile or add a generic consent/script platform. A tiny shared bootstrap remains present while newsletter controller loading stays capability-gated.
 
-Execution method is already chosen. The user approved the written plan and inline execution. Implementation tasks are complete; independent final review remains.
+Execution method is already chosen. The user approved the written plan and inline execution. Implementation and the independent review/fix pass are complete; one documentation Minor is deferred.
