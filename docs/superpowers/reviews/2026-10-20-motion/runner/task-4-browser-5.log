@@ -1,0 +1,142 @@
+
+> business-starter-v2@2.0.0-dev test:motion C:\Projects\bizness-starter-v2
+> node scripts/verify-motion.mjs
+
+
+Running 2 tests using 1 worker
+
+(node:22852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 e2e\motion.spec.ts:15:35 › detached motion true (30.4s)
+(node:39012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ok 2 e2e\motion.spec.ts:15:35 › detached motion false (20.5s)
+
+
+  1) e2e\motion.spec.ts:15:35 › detached motion true ───────────────────────────────────────────────
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator: locator('[data-sample-language="en"]')
+    Expected: hidden
+    Error: strict mode violation: locator('[data-sample-language="en"]') resolved to 3 elements:
+        1) <div lang="en" hidden="" data-sample-language="en">…</div> aka locator('div').filter({ hasText: 'Enabled link buttonDisabled' }).first()
+        2) <div lang="en" hidden="" class="wrap cards" data-sample-language="en">…</div> aka locator('div').filter({ hasText: 'Sample cardClear copy with' }).first()
+        3) <div lang="en" hidden="" data-sample-language="en">…</div> aka getByText('A clear introductionClear copy with emphasis and useful information.ContactText')
+
+    Call log:
+      - Expect "toBeHidden" locator('[data-sample-language="en"]') with timeout 15000ms
+      - waiting for locator('[data-sample-language="en"]')
+
+
+      73 |  }
+      74 |  if(enabled){
+    > 75 |   const context=await browser.newContext();try{const page=await context.newPage();await page.goto(base+'/design-system');const toggle=page.locator('#showcase-motion');await expect(toggle).toBeEnabled();await toggle.uncheck();await expect(page.locator('#showcase-main')).toHaveAttribute('data-motion','off');await toggle.check();await page.locator('#showcase-language').selectOption('el');await expect(page.locator('[data-sample-language="en"]')).toBeHidden();await page.locator('#showcase-theme').selectOption('trades');await page.goBack();await page.locator('#showcase-reset').click();await expect(toggle).toBeChecked();}finally{await context.close();}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      76 |  }
+      77 |  writeFileSync(join(root,'matrix.json'),JSON.stringify(matrix,null,2));
+      78 |  }finally{server.closeAllConnections();await new Promise<void>((done,reject)=>server.close(e=>e?reject(e):done()));writeFileSync(join(root,'shutdown.json'),JSON.stringify({closed:true,port:address.port,ended:new Date().toISOString()}));}
+        at C:\Projects\bizness-starter-v2\e2e\motion.spec.ts:75:447
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-5.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-6.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-7.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-9.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-8.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-10.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-11.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-12.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-13.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-14.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-15.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-17.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #17: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-16.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #18: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-18.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #19: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-19.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\motion-detached-motion-true\error-context.md
+
+    attachment #21: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\motion-detached-motion-true\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\motion.spec.ts:15:35 › detached motion true ────────────────────────────────────────────────
+  1 passed (55.2s)
+Motion evidence: C:\Projects\bizness-starter-v2\.generated\motion\acceptance-kVMtDB
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: C:\Projects\bizness-starter-v2\node_modules\@playwright\test\cli.js test e2e/motion.spec.ts
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
+ ELIFECYCLE  Command failed with exit code 1.

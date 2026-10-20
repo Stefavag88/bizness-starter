@@ -1,6 +1,6 @@
 # Starter v2 Shared Motion Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Deliver opt-in, configurable entrance and interaction motion across the static starter while preserving readable, accessible fallback output.
 
@@ -93,12 +93,16 @@
 
 ## Final review and local handoff
 
-- [ ] Whole-branch review against the approved spec and Task 1 baseline: no Critical/Important findings remain. Resolve findings with targeted regressions and rerun appropriate final gates. Preserve separate task review reports and a coverage matrix; do not reframe failed attempts as accepted evidence.
-- [ ] Confirm only the deliberate `project.design.motion.enabled:true` local demonstration change persists; canonical content/themes, source repositories and unrelated local data remain unchanged.
-- [ ] Restart `pnpm dev:cms`, record exact owned session/PIDs and verify Home/Contact EN/EL, CMS and indexed Tina query readiness. Report commit IDs, test outcomes, local links and any measured limitations. No push/merge/deployment/tag is part of this plan.
+- [x] Whole-branch review against the approved spec and Task 1 baseline: no Critical/Important findings remain. Resolve findings with targeted regressions and rerun appropriate final gates. Preserve separate task review reports and a coverage matrix; do not reframe failed attempts as accepted evidence.
+- [x] Confirm only the deliberate `project.design.motion.enabled:true` local demonstration change persists; canonical content/themes, source repositories and unrelated local data remain unchanged.
+- [x] Restart `pnpm dev:cms`, record exact owned session/PIDs and verify Home/Contact EN/EL, CMS and indexed Tina query readiness. Report commit IDs, test outcomes, local links and any measured limitations. No push/merge/deployment/tag is part of this plan.
 
 ## Plan self-review
 
 All approved design sections map to Tasks 1–4: config/tokens (1), safe lifecycle/fallback (2), explicit renderers/interactions/showcase (3), actual computed-value/browser/failure checks and docs (4). The five Review Focus cases have named owner tasks and assertions. Shared API names and defaults match across tasks. This is a proposed implementation plan, not a claim that effects are implemented or tested.
 
 Execution method: inline implementation, per-task checks and commits, one independent final review. Written plan and revised execution method approved by the user on 2026-10-20.
+
+## Delivery
+
+Completed on 2026-10-20; independent review ACCEPT with no blocking findings. The two narrow M1 browser-test gaps are deferred and qualified in [the final review](../reviews/2026-10-20-motion/final-review.md). All eight gates passed; normal local stack restored. No hosted deployment or sending verification is claimed.

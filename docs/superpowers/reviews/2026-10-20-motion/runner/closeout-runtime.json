@@ -1,0 +1,40 @@
+{
+  "indexed": {
+    "data": {
+      "settings": {
+        "__typename": "Settings"
+      },
+      "page": {
+        "__typename": "PageHome"
+      }
+    }
+  },
+  "checked": "2026-10-20T10:50:53.2466614+03:00",
+  "session": 93100,
+  "checks": [
+    {
+      "url": "http://127.0.0.1:4330/en",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4330/el",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4330/en/contact",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4330/el/contact",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4330/cms/index.html",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8790/api/health",
+      "status": 200
+    }
+  ]
+}

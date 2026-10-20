@@ -1,0 +1,40 @@
+
+> business-starter-v2@2.0.0-dev worker:check C:\Projects\bizness-starter-v2
+> pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ ⛅️ wrangler 4.148.0 (update available 4.151.2)
+───────────────────────────────────────────────
+✨ Read 204 files from the assets directory C:\Projects\bizness-starter-v2\apps\site\dist
+Total Upload: 879.83 KiB / gzip: 148.44 KiB
+Your Worker has access to the following bindings:
+Binding                                                                     Resource                  
+env.OUTBOUND (business-starter-v2-outbound)                                 Queue                     
+env.DB (business-starter-v2-db)                                             D1 Database               
+env.ASSETS                                                                  Assets                    
+env.ENVIRONMENT ("local")                                                   Environment Variable      
+env.PROFILE ("enquiries")                                                   Environment Variable      
+env.SITE_URL ("https://example.com")                                        Environment Variable      
+env.LOCAL_SITE_URL ("http://127.0.0.1:4330")                                Environment Variable      
+env.LOCAL_WORKER_URL ("http://127.0.0.1:8790")                              Environment Variable      
+env.LOCAL_ORIGINS ("["http://127.0.0.1:4330","http://127....")              Environment Variable      
+env.SES_REGION ("eu-west-1")                                                Environment Variable      
+env.SES_SENDER ("Example Studio <hello@example.com>")                       Environment Variable      
+env.NOTIFICATION_EMAIL ("owner@example.com")                                Environment Variable      
+env.ALLOWED_RECIPIENTS ("")                                                 Environment Variable      
+env.SES_CONFIGURATION_SET ("starter-transactional")                         Environment Variable      
+env.SNS_TOPIC_ARN ("")                                                      Environment Variable      
+env.ACCESS_ISSUER ("")                                                      Environment Variable      
+env.ACCESS_AUDIENCE ("")                                                    Environment Variable      
+env.ADMIN_EMAILS ("[]")                                                     Environment Variable      
+env.EDITOR_EMAILS ("[]")                                                    Environment Variable      
+env.SENDING_ENABLED ("false")                                               Environment Variable      
+env.MARKETING_ENABLED ("false")                                             Environment Variable      
+env.SEND_INTERVAL_MS ("1000")                                               Environment Variable      
+
+--dry-run: exiting now.

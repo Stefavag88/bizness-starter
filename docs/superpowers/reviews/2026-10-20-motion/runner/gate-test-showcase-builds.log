@@ -1,0 +1,131 @@
+
+> business-starter-v2@2.0.0-dev test:showcase-builds C:\Projects\bizness-starter-v2
+> node scripts/verify-showcase-builds.mjs
+
+Configured enquiries / staging. No cloud resources were created.
+10:44:53 [types] Generated 69ms
+10:44:53 [build] output: "static"
+10:44:53 [build] mode: "static"
+10:44:53 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+10:44:53 [build] Collecting build info...
+10:44:53 [build] ✓ Completed in 97ms.
+10:44:53 [build] Building static entrypoints...
+10:44:54 [vite] ✓ built in 289ms
+10:44:54 [vite] ✓ built in 123ms
+10:44:54 [build] Rearranging server assets...
+
+ generating static routes 
+10:44:54   ├─ /404.html (+16ms) 
+10:44:54   ├─ /en/404/index.html (+4ms) 
+10:44:54   ├─ /el/404/index.html (+3ms) 
+10:44:54   ├─ /en/feed.xml (+2ms) 
+10:44:54   ├─ /el/feed.xml (+2ms) 
+10:44:54   ├─ /en/about/index.html (+4ms) 
+10:44:54   ├─ /en/contact/index.html (+4ms) 
+10:44:54   ├─ /en/index.html (+3ms) 
+10:44:54   ├─ /en/insights/index.html (+3ms) 
+10:44:54   ├─ /en/privacy/index.html (+3ms) 
+10:44:54   ├─ /en/services/index.html (+2ms) 
+10:44:54   ├─ /en/services/planning-session/index.html (+2ms) 
+10:44:54   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+10:44:54   ├─ /en/people/studio-guide/index.html (+2ms) 
+10:44:54   ├─ /el/about/index.html (+2ms) 
+10:44:54   ├─ /el/contact/index.html (+2ms) 
+10:44:54   ├─ /el/index.html (+2ms) 
+10:44:54   ├─ /el/insights/index.html (+2ms) 
+10:44:54   ├─ /el/privacy/index.html (+2ms) 
+10:44:54   ├─ /el/services/index.html (+2ms) 
+10:44:54   ├─ /el/services/planning-session/index.html (+2ms) 
+10:44:54   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+10:44:54   ├─ /el/people/studio-guide/index.html (+2ms) 
+10:44:54   ├─ /index.html (+3ms) 
+10:44:54 ✓ Completed in 215ms.
+
+10:44:54 [build] ✓ Completed in 904ms.
+10:44:54 [build] 22 page(s) built in 1.05s
+10:44:54 [build] Complete!
+Configured enquiries / production. No cloud resources were created.
+10:44:57 [types] Generated 71ms
+10:44:57 [build] output: "static"
+10:44:57 [build] mode: "static"
+10:44:57 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+10:44:57 [build] Collecting build info...
+10:44:57 [build] ✓ Completed in 99ms.
+10:44:57 [build] Building static entrypoints...
+10:44:58 [vite] ✓ built in 284ms
+10:44:58 [vite] ✓ built in 126ms
+10:44:58 [build] Rearranging server assets...
+
+ generating static routes 
+10:44:58   ├─ /404.html (+18ms) 
+10:44:58   ├─ /en/404/index.html (+4ms) 
+10:44:58   ├─ /el/404/index.html (+3ms) 
+10:44:58   ├─ /en/feed.xml (+2ms) 
+10:44:58   ├─ /el/feed.xml (+2ms) 
+10:44:58   ├─ /en/about/index.html (+4ms) 
+10:44:58   ├─ /en/contact/index.html (+3ms) 
+10:44:58   ├─ /en/index.html (+3ms) 
+10:44:58   ├─ /en/insights/index.html (+3ms) 
+10:44:58   ├─ /en/privacy/index.html (+3ms) 
+10:44:58   ├─ /en/services/index.html (+2ms) 
+10:44:58   ├─ /en/services/planning-session/index.html (+2ms) 
+10:44:58   ├─ /en/insights/a-useful-first-question/index.html (+5ms) 
+10:44:58   ├─ /en/people/studio-guide/index.html (+3ms) 
+10:44:58   ├─ /el/about/index.html (+2ms) 
+10:44:58   ├─ /el/contact/index.html (+2ms) 
+10:44:58   ├─ /el/index.html (+2ms) 
+10:44:58   ├─ /el/insights/index.html (+2ms) 
+10:44:58   ├─ /el/privacy/index.html (+2ms) 
+10:44:58   ├─ /el/services/index.html (+2ms) 
+10:44:58   ├─ /el/services/planning-session/index.html (+2ms) 
+10:44:58   ├─ /el/insights/a-useful-first-question/index.html (+3ms) 
+10:44:58   ├─ /el/people/studio-guide/index.html (+2ms) 
+10:44:58   ├─ /index.html (+3ms) 
+10:44:58 ✓ Completed in 215ms.
+
+10:44:58 [build] ✓ Completed in 945ms.
+10:44:58 [build] 22 page(s) built in 1.08s
+10:44:58 [build] Complete!
+Configured enquiries / local. No cloud resources were created.
+10:45:02 [types] Generated 83ms
+10:45:02 [build] output: "static"
+10:45:02 [build] mode: "static"
+10:45:02 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+10:45:02 [build] Collecting build info...
+10:45:02 [build] ✓ Completed in 113ms.
+10:45:02 [build] Building static entrypoints...
+10:45:02 [vite] ✓ built in 288ms
+10:45:02 [vite] ✓ built in 171ms
+10:45:02 [build] Rearranging server assets...
+
+ generating static routes 
+10:45:02   ├─ /404.html (+17ms) 
+10:45:02   ├─ /design-system/index.html (+44ms) 
+10:45:03   ├─ /en/404/index.html (+3ms) 
+10:45:03   ├─ /el/404/index.html (+3ms) 
+10:45:03   ├─ /en/feed.xml (+2ms) 
+10:45:03   ├─ /el/feed.xml (+2ms) 
+10:45:03   ├─ /en/about/index.html (+3ms) 
+10:45:03   ├─ /en/contact/index.html (+3ms) 
+10:45:03   ├─ /en/index.html (+3ms) 
+10:45:03   ├─ /en/insights/index.html (+3ms) 
+10:45:03   ├─ /en/privacy/index.html (+2ms) 
+10:45:03   ├─ /en/services/index.html (+2ms) 
+10:45:03   ├─ /en/services/planning-session/index.html (+2ms) 
+10:45:03   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+10:45:03   ├─ /en/people/studio-guide/index.html (+2ms) 
+10:45:03   ├─ /el/about/index.html (+2ms) 
+10:45:03   ├─ /el/contact/index.html (+2ms) 
+10:45:03   ├─ /el/index.html (+2ms) 
+10:45:03   ├─ /el/insights/index.html (+2ms) 
+10:45:03   ├─ /el/privacy/index.html (+2ms) 
+10:45:03   ├─ /el/services/index.html (+2ms) 
+10:45:03   ├─ /el/services/planning-session/index.html (+2ms) 
+10:45:03   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+10:45:03   ├─ /el/people/studio-guide/index.html (+2ms) 
+10:45:03   ├─ /index.html (+2ms) 
+10:45:03 ✓ Completed in 255ms.
+
+10:45:03 [build] ✓ Completed in 1.03s.
+10:45:03 [build] 23 page(s) built in 1.27s
+10:45:03 [build] Complete!

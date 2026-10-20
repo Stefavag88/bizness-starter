@@ -1,8 +1,8 @@
 # Motion implementation evidence
 
-The user selected inline implementation with one independent final review. The accepted design and plan are under `docs/superpowers/`. Final review is pending at this checkpoint.
+The user selected inline implementation with one independent final review. The accepted design and plan are under `docs/superpowers/`. Independent final review: ACCEPT. See final-review.md and closeout.md.
 
-`gates.json` records eight completed verification commands with owned PIDs, timestamps and exit code 0. Complete local gate logs remain under `.superpowers/sdd/2026-10-20-starter-v2-motion/` until final archive closeout. Root tests: 924 passed, one existing conditional skip; site renderer tests: 36 passed. Type/Astro checks: 60 files, zero errors/warnings/hints.
+`gates.json` records eight completed verification commands with owned PIDs, timestamps and exit code 0. Complete raw gate logs and runner records are archived byte-for-byte under `runner/`; scratch is removed after committed-blob verification. Root tests: 924 passed, one existing conditional skip; site renderer tests: 36 passed. Type/Astro checks: 60 files, zero errors/warnings/hints.
 
 Final detached browser acceptance: `.generated/motion/acceptance-LCICjx/`. Both on/off scenarios passed: 36 language/viewport/JS-preference contexts with seven routes each, plus focus, encoded/malformed hashes, unsupported/throwing APIs, touch-pointer and showcase preview controls. Eight representative axe scans (Rooms detail) reported zero violations. Custom 950 ms / 32 px / 120 ms / 240 ms parameters reached actual built CSS and native animation timings. Off mode requested no entrance controller. All owned servers closed and source inventories matched.
 

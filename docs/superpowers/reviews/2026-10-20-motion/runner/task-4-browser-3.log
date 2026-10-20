@@ -1,0 +1,64 @@
+
+> business-starter-v2@2.0.0-dev test:motion C:\Projects\bizness-starter-v2
+> node scripts/verify-motion.mjs
+
+
+Running 2 tests using 1 worker
+
+(node:25324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 e2e\motion.spec.ts:15:35 › detached motion true (20.3s)
+(node:23468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ok 2 e2e\motion.spec.ts:15:35 › detached motion false (19.7s)
+
+
+  1) e2e\motion.spec.ts:15:35 › detached motion true ───────────────────────────────────────────────
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      53 |     if(path==='/motion-sample'&&mode!=='no-js'){
+      54 |      const targets=page.locator('[data-motion-reveal]');const target=targets.last();
+    > 55 |      if(enabled&&mode==='normal')await expect.poll(()=>page.evaluate(()=>(window as any).__observed)).toBeGreaterThan(0);
+         |                                                                                                       ^
+      56 |      await target.scrollIntoViewIfNeeded();
+      57 |      if(enabled&&mode==='normal'){
+      58 |       await expect.poll(()=>page.evaluate(()=>(window as any).__motion.length)).toBeGreaterThan(0);
+        at C:\Projects\bizness-starter-v2\e2e\motion.spec.ts:55:103
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\motion-detached-motion-true\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\motion-detached-motion-true\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\motion.spec.ts:15:35 › detached motion true ────────────────────────────────────────────────
+  1 passed (42.6s)
+Motion evidence: C:\Projects\bizness-starter-v2\.generated\motion\acceptance-7kVwP6
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: C:\Projects\bizness-starter-v2\node_modules\@playwright\test\cli.js test e2e/motion.spec.ts
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
+ ELIFECYCLE  Command failed with exit code 1.

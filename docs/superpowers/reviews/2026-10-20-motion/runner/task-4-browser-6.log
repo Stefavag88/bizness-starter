@@ -1,0 +1,16 @@
+
+> business-starter-v2@2.0.0-dev test:motion C:\Projects\bizness-starter-v2
+> node scripts/verify-motion.mjs
+
+
+Running 2 tests using 1 worker
+
+(node:16532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ok 1 e2e\motion.spec.ts:15:35 › detached motion true (32.2s)
+
+  ok 2 e2e\motion.spec.ts:15:35 › detached motion false (19.5s)
+
+  2 passed (53.4s)
+Motion evidence: C:\Projects\bizness-starter-v2\.generated\motion\acceptance-YykElB

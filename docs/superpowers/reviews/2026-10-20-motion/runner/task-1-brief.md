@@ -1,0 +1,12 @@
+### Task 1: Configuration and generated semantic tokens
+
+**Files:** Modify `packages/config/project.mjs`, `packages/config/project.d.mts`, `scripts/design.mjs`, `apps/site/src/styles/foundations.css`, affected expectations in `tests/project-config.test.ts`; create `packages/design-system/motion.mjs`, `.d.mts`, `tests/motion-config.test.ts`.
+
+**Interfaces:** Export `MotionConfig {enabled:boolean;durationMs:number;distancePx:number;staggerMs:number;interactionMs:number}` and make `ProjectConfig.design.motion` normalized/required after parsing. Export `motionCSS(motion: MotionConfig): string`; its numeric input is validated before interpolation. Generated CSS emits `--motion-duration`, `--motion-distance`, `--motion-stagger`, `--motion-interaction-duration`; foundation owns `--motion-max-delay:300ms`, `--motion-ease:cubic-bezier(.22,1,.36,1)` and `--motion-interaction-ease:ease-out`.
+
+- [ ] Write configuration tests with existing `project` fixture: `expect(parseProject(raw).design.motion).toEqual({enabled:false,durationMs:600,distancePx:18,staggerMs:70,interactionMs:180})`; missing `design` and partial `motion` normalize without changing input. Tables reject strings, null, fractional/out-of-range numbers, non-boolean enablement and unknown nested keys. Explicit zero distance/stagger/interaction and all inclusive bounds pass. Update previous exact design-equality tests to include the normalized default, preserving their original assertions.
+- [ ] Run `pnpm exec vitest run tests/project-config.test.ts tests/motion-config.test.ts`; observe the new assertions fail against the current schema, not only an import/collection error.
+- [ ] Add strict nested schema defaults, declaration type and pure token emitter. An absent motion object is normalized once by `parseProject`; the emitter consumes that normalized result. Have `generateDesign` append emitted values to the same ignored generated CSS. Keep theme registry output and CMS/editor content unchanged.
+- [ ] Add assertions for custom `{durationMs:950,distancePx:32,staggerMs:120,interactionMs:240}` emitting `950ms`, `32px`, `120ms`, `240ms`, with deterministic output and no arbitrary string interpolation. Run focused tests and `pnpm exec tsc --noEmit`; inspect an actual `pnpm configure` output, then retain canonical project bytes unchanged in this task.
+- [ ] Commit `feat(motion): add validated project settings and semantic tokens`. Author checks config compatibility, safe CSS generation and absence of manual generated edits; resolve findings before Task 2.
+

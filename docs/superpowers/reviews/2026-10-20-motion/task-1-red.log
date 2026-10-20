@@ -1,0 +1,73 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/motion-config.test.ts (17 tests | 4 failed) 20ms
+   × defaults absent and partial motion without mutating input 7ms
+   × accepts inclusive motion boundaries {"durationMs":100,"distancePx":0,"staggerMs":0,"interactionMs":0} 1ms
+   × accepts inclusive motion boundaries {"durationMs":1200,"distancePx":48,"staggerMs":150,"interactionMs":400} 0ms
+   × emits configured units deterministically and rejects unvalidated interpolation 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/motion-config.test.ts > defaults absent and partial motion without mutating input
+AssertionError: expected undefined to deeply equal { enabled: false, …(4) }
+
+- Expected:
+{
+  "distancePx": 18,
+  "durationMs": 600,
+  "enabled": false,
+  "interactionMs": 180,
+  "staggerMs": 70,
+}
+
++ Received:
+undefined
+
+ ❯ tests/motion-config.test.ts:7:42
+      5| it('defaults absent and partial motion without mutating input',()=>{
+      6|  const raw=JSON.parse(JSON.stringify(project)); delete raw.design.moti…
+      7|  expect(parseProject(raw).design.motion).toEqual(defaults);
+       |                                          ^
+      8|  expect(raw.design.motion).toBeUndefined(); delete raw.design;
+      9|  expect(parseProject(raw).design.motion).toEqual(defaults);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/motion-config.test.ts > accepts inclusive motion boundaries {"durationMs":100,"distancePx":0,"staggerMs":0,"interactionMs":0}
+ FAIL  tests/motion-config.test.ts > accepts inclusive motion boundaries {"durationMs":1200,"distancePx":48,"staggerMs":150,"interactionMs":400}
+ZodError: [
+  {
+    "code": "unrecognized_keys",
+    "keys": [
+      "motion"
+    ],
+    "path": [
+      "design"
+    ],
+    "message": "Unrecognized key: \"motion\""
+  }
+]
+ ❯ parseProject packages/config/project.mjs:40:58
+     38|   if (new Set(p.interests.map(i=>i.id)).size !== p.interests.length) c…
+     39| });
+     40| export function parseProject(raw) { return projectSchema.parse(raw); }
+       |                                                          ^
+     41|
+ ❯ tests/motion-config.test.ts:13:190
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/motion-config.test.ts > emits configured units deterministically and rejects unvalidated interpolation
+Error: Cannot find module '/packages/design-system/motion.mjs' imported from C:/Projects/bizness-starter-v2/tests/motion-config.test.ts
+ ❯ tests/motion-config.test.ts:15:20
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 13 passed (17)
+   Start at  10:24:32
+   Duration  411ms (import 59%, transform 28%, tests 10%, worker 3%)
+

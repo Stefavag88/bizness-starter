@@ -1,0 +1,55 @@
+
+> business-starter-v2@2.0.0-dev build C:\Projects\bizness-starter-v2
+> pnpm configure && pnpm --filter @starter/site build
+
+
+> business-starter-v2@2.0.0-dev configure C:\Projects\bizness-starter-v2
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ build C:\Projects\bizness-starter-v2\apps\site
+> node scripts/build.mjs
+
+10:30:41 [types] Generated 103ms
+10:30:41 [build] output: "static"
+10:30:41 [build] mode: "static"
+10:30:41 [build] directory: C:\Projects\bizness-starter-v2\apps\site\dist\
+10:30:41 [build] Collecting build info...
+10:30:41 [build] ✓ Completed in 127ms.
+10:30:41 [build] Building static entrypoints...
+10:30:41 [vite] ✓ built in 300ms
+10:30:41 [vite] ✓ built in 128ms
+10:30:41 [build] Rearranging server assets...
+
+ generating static routes 
+10:30:42   ├─ /404.html (+14ms) 
+10:30:42   ├─ /design-system/index.html (+48ms) 
+10:30:42   ├─ /en/404/index.html (+3ms) 
+10:30:42   ├─ /el/404/index.html (+3ms) 
+10:30:42   ├─ /en/feed.xml (+2ms) 
+10:30:42   ├─ /el/feed.xml (+2ms) 
+10:30:42   ├─ /en/about/index.html (+3ms) 
+10:30:42   ├─ /en/contact/index.html (+3ms) 
+10:30:42   ├─ /en/index.html (+2ms) 
+10:30:42   ├─ /en/insights/index.html (+2ms) 
+10:30:42   ├─ /en/privacy/index.html (+3ms) 
+10:30:42   ├─ /en/services/index.html (+2ms) 
+10:30:42   ├─ /en/services/planning-session/index.html (+2ms) 
+10:30:42   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+10:30:42   ├─ /en/people/studio-guide/index.html (+2ms) 
+10:30:42   ├─ /el/about/index.html (+2ms) 
+10:30:42   ├─ /el/contact/index.html (+2ms) 
+10:30:42   ├─ /el/index.html (+2ms) 
+10:30:42   ├─ /el/insights/index.html (+3ms) 
+10:30:42   ├─ /el/privacy/index.html (+2ms) 
+10:30:42   ├─ /el/services/index.html (+2ms) 
+10:30:42   ├─ /el/services/planning-session/index.html (+2ms) 
+10:30:42   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+10:30:42   ├─ /el/people/studio-guide/index.html (+2ms) 
+10:30:42   ├─ /index.html (+2ms) 
+10:30:42 ✓ Completed in 251ms.
+
+10:30:42 [build] ✓ Completed in 1.01s.
+10:30:42 [build] 23 page(s) built in 1.27s
+10:30:42 [build] Complete!

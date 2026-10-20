@@ -1,0 +1,95 @@
+
+> business-starter-v2@2.0.0-dev test:motion C:\Projects\bizness-starter-v2
+> node scripts/verify-motion.mjs
+
+
+Running 2 tests using 1 worker
+
+(node:29872) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 e2e\motion.spec.ts:12:35 › detached motion true (5.9s)
+(node:31140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  2 e2e\motion.spec.ts:12:35 › detached motion false (5.9s)
+
+
+  1) e2e\motion.spec.ts:12:35 › detached motion true ───────────────────────────────────────────────
+
+    Error: /offerings/guidance
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+      43 |   try{
+      44 |    for(const path of ['', '/contact','/offerings/guidance','/insights/a-good-start','/motion-sample','/rooms']){
+    > 45 |     const response=await page.goto(base+'/'+locale+path);expect(response?.status(),path).toBe(200);
+         |                                                                                          ^
+      46 |     await expect(page.locator('h1')).toBeVisible();expect(await page.locator('header [data-motion-reveal],footer [data-motion-reveal],form [data-motion-reveal],h1[data-motion-reveal]').count()).toBe(0);
+      47 |     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      48 |     if(path==='/motion-sample'&&mode!=='no-js'){
+        at C:\Projects\bizness-starter-v2\e2e\motion.spec.ts:45:90
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\motion-detached-motion-true\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-true\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\motion-detached-motion-true\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) e2e\motion.spec.ts:12:35 › detached motion false ──────────────────────────────────────────────
+
+    Error: /offerings/guidance
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+      43 |   try{
+      44 |    for(const path of ['', '/contact','/offerings/guidance','/insights/a-good-start','/motion-sample','/rooms']){
+    > 45 |     const response=await page.goto(base+'/'+locale+path);expect(response?.status(),path).toBe(200);
+         |                                                                                          ^
+      46 |     await expect(page.locator('h1')).toBeVisible();expect(await page.locator('header [data-motion-reveal],footer [data-motion-reveal],form [data-motion-reveal],h1[data-motion-reveal]').count()).toBe(0);
+      47 |     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      48 |     if(path==='/motion-sample'&&mode!=='no-js'){
+        at C:\Projects\bizness-starter-v2\e2e\motion.spec.ts:45:90
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-false\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\motion-detached-motion-false\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\motion-detached-motion-false\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\motion-detached-motion-false\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    e2e\motion.spec.ts:12:35 › detached motion true ────────────────────────────────────────────────
+    e2e\motion.spec.ts:12:35 › detached motion false ───────────────────────────────────────────────
+Motion evidence: C:\Projects\bizness-starter-v2\.generated\motion\acceptance-V0XNdu
+file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51
+        if (code !== 0) throw Error('Command exit ' + code + ': ' + args.join(' '));
+                              ^
+
+Error: Command exit 1: C:\Projects\bizness-starter-v2\node_modules\@playwright\test\cli.js test e2e/motion.spec.ts
+    at ChildProcess.<anonymous> (file:///C:/Projects/bizness-starter-v2/scripts/owned-command.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.12.0
+ ELIFECYCLE  Command failed with exit code 1.

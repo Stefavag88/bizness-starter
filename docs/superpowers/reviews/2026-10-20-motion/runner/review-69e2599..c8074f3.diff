@@ -1,0 +1,1352 @@
+# Review package: 69e2599..HEAD
+
+## Commits
+c8074f3 test(motion): verify shared effects and document extension contract
+1299aac feat(motion): integrate shared effects and local showcase
+9e59e0b feat(motion): add accessible fail-open entrance controller
+cf59ea8 feat(motion): add validated project settings and semantic tokens
+
+## Files changed
+ apps/site/src/components/showcase/Showcase.astro   |   3 +-
+ apps/site/src/components/ui/Card.astro             |   2 +-
+ apps/site/src/components/ui/SectionImage.astro     |   6 +-
+ apps/site/src/layouts/Layout.astro                 |   5 +-
+ apps/site/src/layouts/ShowcaseLayout.astro         |   3 +-
+ apps/site/src/scripts/design-preview.ts            |  17 ++-
+ apps/site/src/scripts/motion-entry.ts              |   7 ++
+ apps/site/src/scripts/motion.ts                    | 113 +++++++++++++++++++
+ apps/site/src/styles/foundations.css               |   2 +
+ apps/site/src/styles/motion.css                    |  13 +++
+ .../src/templates/domains/rooms/RoomList.astro     |   2 +-
+ apps/site/src/templates/sections/ArticleList.astro |   2 +-
+ apps/site/src/templates/sections/Cta.astro         |   2 +-
+ apps/site/src/templates/sections/Faq.astro         |   2 +-
+ apps/site/src/templates/sections/Gallery.astro     |   2 +-
+ apps/site/src/templates/sections/Hero.astro        |   2 +-
+ apps/site/src/templates/sections/MediaText.astro   |   2 +-
+ .../site/src/templates/sections/OfferingList.astro |   2 +-
+ apps/site/src/templates/sections/PeopleList.astro  |   2 +-
+ apps/site/src/templates/sections/RichText.astro    |   2 +-
+ apps/site/src/templates/sections/Steps.astro       |   2 +-
+ apps/site/tests/motion.test.ts                     |  22 ++++
+ apps/site/vitest.config.ts                         |   2 +-
+ docs/ARCHITECTURE.md                               |   4 +
+ docs/DESIGN_SYSTEM_SHOWCASE.md                     |   4 +
+ docs/MOTION.md                                     |  41 +++++++
+ docs/QUICKSTART.md                                 |   4 +
+ .../plans/2026-10-20-starter-v2-motion-evidence.md |   5 +
+ .../plans/2026-10-20-starter-v2-motion.md          |  48 ++++-----
+ .../reviews/2026-10-20-motion/README.md            |  11 ++
+ .../reviews/2026-10-20-motion/gates.json           |  58 ++++++++++
+ .../reviews/2026-10-20-motion/progress.md          |   9 ++
+ .../specs/2026-10-20-starter-v2-motion-design.md   |   2 +-
+ e2e/motion.spec.ts                                 | 119 +++++++++++++++++++++
+ package.json                                       |   1 +
+ packages/config/project.d.mts                      |   4 +-
+ packages/config/project.mjs                        |   7 +-
+ packages/design-system/motion.d.mts                |   2 +
+ packages/design-system/motion.mjs                  |   6 ++
+ project.json                                       |   2 +-
+ scripts/design.mjs                                 |   3 +-
+ scripts/verify-motion.mjs                          |  20 ++++
+ tests/fixtures/motion/scene.ts                     |  27 +++++
+ tests/motion-config.test.ts                        |  21 ++++
+ tests/motion-runtime.test.ts                       |  41 +++++++
+ tests/project-config.test.ts                       |   2 +-
+ 46 files changed, 606 insertions(+), 52 deletions(-)
+
+## Diff
+diff --git a/apps/site/src/components/showcase/Showcase.astro b/apps/site/src/components/showcase/Showcase.astro
+index 8d1cf9d..a65a945 100644
+--- a/apps/site/src/components/showcase/Showcase.astro
++++ b/apps/site/src/components/showcase/Showcase.astro
+@@ -10,26 +10,27 @@ import Card from '../ui/Card.astro';
+ import RichText from '../ui/RichText.astro';
+ interface Props {contents:LocalizedContent[]}
+ const groups=Astro.props.contents.filter(c=>c.locale==='en'||c.locale==='el').map(createShowcaseSamples);
+ const defaultLocale=groups.find(c=>c.locale===project.locale)?.locale??groups[0]?.locale;
+ const home=Astro.props.contents.find(c=>c.locale===project.locale)?.pages.find(p=>p._template==='home')?.path??'/'+project.locale;
+ const theme=themes[project.design.theme as keyof typeof themes];
+ const roles=['surface','textPrimary','textMuted','brandAccent','border','controlBorder','focus','actionPrimary','actionHover','onAction','feedbackError','feedbackSuccess','errorSurface','successSurface','surfaceMuted','noticeSurface'] as const;
+ const token=(role:string)=>'--color-'+role.replace(/[A-Z]/g,c=>'-'+c.toLowerCase());
+ ---
+ <header class="wrap showcase-shell" lang="en"><div><p>Preview only</p><h1>Business Starter v2</h1><p>Design-system showcase</p></div><a href={home}>Back to homepage</a></header>
+-<main id="showcase-main">
++<main id="showcase-main" data-motion={project.design.motion.enabled?'on':'off'}>
+ <div class="wrap showcase-shell" lang="en"><p>Presentation themes are independent of business presets. For permanent theme and density settings, edit <code>project.json</code>; theme tokens live in <code>packages/design-system/themes/</code>.</p>
+ {groups.length>0?<div id="showcase-toolbar" class="showcase-toolbar" data-default-theme={project.design.theme} data-default-density={project.design.density} data-default-language={defaultLocale}>
+ <label for="showcase-theme">Theme<select id="showcase-theme" disabled>{Object.entries(themes).map(([key,value])=><option value={key} selected={key===project.design.theme}>{value.label}</option>)}</select></label>
+ <label for="showcase-density">Density<select id="showcase-density" disabled>{['compact','comfortable','spacious'].map(value=><option value={value} selected={value===project.design.density}>{value}</option>)}</select></label>
+ <label for="showcase-language">Sample language<select id="showcase-language" disabled>{groups.map(group=><option value={group.locale} selected={group.locale===defaultLocale}>{project.languages.find(l=>l.code===group.locale)?.label}</option>)}</select></label>
++<label for="showcase-motion">Motion preview / Κίνηση<input type="checkbox" id="showcase-motion" checked={project.design.motion.enabled} data-default-enabled={String(project.design.motion.enabled)} disabled/></label>
+ <button id="showcase-reset" type="button" disabled>Reset preview</button></div>:<p>No supported sample languages are configured. Configure English or Greek to view samples.</p>}
+ <noscript><p>JavaScript enables preview controls. Configured-default examples remain available below.</p></noscript>
+ <nav aria-label="Showcase sections"><a href="#showcase-foundations">Foundations</a><a href="#showcase-controls">Controls</a><a href="#showcase-cards">Cards</a><a href="#showcase-sections">Section examples</a></nav>
+ <section id="showcase-foundations"><h2>Foundations</h2><p>Self-hosted Noto Sans supports Greek and Latin at the same type sizes.</p><div class="showcase-swatches">{roles.map(role=><div class="showcase-swatch"><span aria-hidden="true" class={'showcase-color showcase-color-'+role}></span><code>{token(role)}</code><span data-color-token={role}>{theme.primitiveColors[theme.semanticColors[role] as keyof typeof theme.primitiveColors]}</span></div>)}</div>
+ <dl><dt>--radius-control</dt><dd data-theme-token="radius">{theme.radius}</dd><dt>--section-space</dt><dd data-theme-token="sectionSpace">{theme.sectionSpace}px</dd><dt>--section-space-mobile</dt><dd data-theme-token="mobileSectionSpace">{theme.mobileSectionSpace}px</dd></dl><p>Density multiplies shared section spacing by 0.75, 1 or 1.25. Hero retains its existing component spacing. Layout metadata is informational; registered section variants are demonstrated.</p></section></div>
+ <div class="wrap showcase-shell" lang="en"><h2 id="showcase-controls">Controls</h2><p>Demonstration fields do not submit. Help, error and disabled states are explicitly labelled.</p></div>
+ {groups.map(group=>{const el=group.locale==='el';const prefix='showcase-'+group.locale+'-control';const contact=group.content.pages.find(p=>p._template==='contact')!.path;return <div data-sample-language={group.locale} hidden={group.locale!==defaultLocale} lang={group.locale}>
+ <div class="wrap showcase-controls"><Button href={contact} label={el?'Ενεργός σύνδεσμος':'Enabled link button'} locale={group.locale}/><button type="button" disabled>{el?'Ανενεργό κουμπί δείγματος':'Disabled sample button'}</button><Field name={prefix+'-help'} label={el?'Πεδίο με βοήθεια':'Field with help'} help={el?'Ενδεικτική βοήθεια.':'Example help text.'}/><Field name={prefix+'-error'} label={el?'Πεδίο με σφάλμα':'Field with error'} error={el?'Ενδεικτικό σφάλμα.':'Example error state.'}/><Field name={prefix+'-disabled'} label={el?'Ανενεργό πεδίο':'Disabled field'} disabled/><RichText locale={group.locale} body={el?'**Έντονο**, *πλάγιο* και [σύνδεσμος]('+contact+').':'**Strong**, *emphasis* and a [link]('+contact+').'}/></div></div>;})}
+ <div class="wrap showcase-shell" lang="en"><h2 id="showcase-cards">Cards</h2></div>
+ {groups.map(group=><div class="wrap cards" data-sample-language={group.locale} hidden={group.locale!==defaultLocale} lang={group.locale}><Card record={group.content.offerings[0]} locale={group.locale}/></div>)}
+diff --git a/apps/site/src/components/ui/Card.astro b/apps/site/src/components/ui/Card.astro
+index 0a2ab9f..82e2040 100644
+--- a/apps/site/src/components/ui/Card.astro
++++ b/apps/site/src/components/ui/Card.astro
+@@ -1,6 +1,6 @@
+ ---
+ import Description from './Description.astro';
+ interface Props {record:{path:string;title:string;description:string};locale:string}
+ const {record,locale}=Astro.props;
+ ---
+-<article class="card"><h3><a href={record.path}>{record.title}</a></h3><Description text={record.description} locale={locale}/></article>
++<article class="card" data-motion-reveal><h3><a href={record.path}>{record.title}</a></h3><Description text={record.description} locale={locale}/></article>
+diff --git a/apps/site/src/components/ui/SectionImage.astro b/apps/site/src/components/ui/SectionImage.astro
+index 4a5080c..6048515 100644
+--- a/apps/site/src/components/ui/SectionImage.astro
++++ b/apps/site/src/components/ui/SectionImage.astro
+@@ -1,13 +1,13 @@
+ ---
+ import {rich} from '../../lib/content';
+ import type {ResolvedMedia,Crop} from '../../lib/section-media';
+ import {imageSizes,type ImageLayout} from '../../../../../packages/media/layout.mjs';
+ import type {ImageCandidate} from '../../../../../packages/media/optimization.mjs';
+-interface Props {media:ResolvedMedia;layout:ImageLayout;itemCount?:number;alt:string;caption?:string;crop:Crop;ratio:'landscape'|'gallery';locale:string}
+-const {media,layout,itemCount=1,alt,caption,crop,ratio,locale}=Astro.props;
++interface Props {revealCaption?:boolean;media:ResolvedMedia;layout:ImageLayout;itemCount?:number;alt:string;caption?:string;crop:Crop;ratio:'landscape'|'gallery';locale:string}
++const {revealCaption=false,media,layout,itemCount=1,alt,caption,crop,ratio,locale}=Astro.props;
+ const imgFamily=media.format==='webp'?media.webp:media.fallback;
+ const fallback=imgFamily.at(-1);
+ const sizes=imageSizes(layout,itemCount);
+ const srcset=(candidates:ImageCandidate[])=>candidates.map(image=>`${image.src} ${image.width}w`).join(', ');
+ ---
+-<figure class="section-image"><div class:list={['image-frame','frame-'+ratio]}>{fallback?<picture>{media.format!=='webp'&&media.webp.length>0&&<source type="image/webp" srcset={srcset(media.webp)} sizes={sizes}/>}<img src={fallback.src} srcset={srcset(imgFamily)} sizes={sizes} width={fallback.width} height={fallback.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/></picture>:<img src={media.src} width={media.width} height={media.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/>}</div>{caption&&<figcaption set:html={rich(caption,locale,true)}/>}</figure>
++<figure class="section-image"><div class:list={['image-frame','frame-'+ratio]}>{fallback?<picture>{media.format!=='webp'&&media.webp.length>0&&<source type="image/webp" srcset={srcset(media.webp)} sizes={sizes}/>}<img src={fallback.src} srcset={srcset(imgFamily)} sizes={sizes} width={fallback.width} height={fallback.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/></picture>:<img src={media.src} width={media.width} height={media.height} alt={alt} loading="lazy" decoding="async" class={'crop-'+crop}/>}</div>{caption&&<figcaption data-motion-reveal={revealCaption || undefined} set:html={rich(caption,locale,true)}/>}</figure>
+diff --git a/apps/site/src/layouts/Layout.astro b/apps/site/src/layouts/Layout.astro
+index 1b41289..6ecf894 100644
+--- a/apps/site/src/layouts/Layout.astro
++++ b/apps/site/src/layouts/Layout.astro
+@@ -1,20 +1,21 @@
+ ---
+ import '../styles/foundations.css';
+ import '../styles/themes.generated.css';
+ import '../styles/global.css';
++import '../styles/motion.css';
+ import '@fontsource/noto-sans/400.css';
+ import '@fontsource/noto-sans/600.css';
+ import ContactDetails from '../components/ui/ContactDetails.astro';
+ import SocialLinks from '../components/ui/SocialLinks.astro';
+ import {contactChannels} from '../../../../packages/content/contact.mjs';
+ import RichText from '../components/ui/RichText.astro';
+ import {project} from '../lib/content';
+ import type {LocalizedContent,Alternate} from '../../../../packages/content/types';
+ interface Props {content:LocalizedContent;title:string;description:string;path:string;alternates:Alternate[];noindex?:boolean}
+ const {content,title,description,path,alternates,noindex=false}=Astro.props;const {settings,locale}=content;const el=locale==='el';const channels=contactChannels(settings,locale);
+ ---
+-<!doctype html><html lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>{title} | {settings.brand.name}</title><meta name="description" content={description}/><link rel="canonical" href={project.siteUrl+path}/>{noindex&&<meta name="robots" content="noindex"/>}{alternates.map(a=><link rel="alternate" hreflang={a.locale} href={project.siteUrl+a.path}/>)}{content.feedPath&&<link rel="alternate" type="application/rss+xml" title={settings.brand.name} href={content.feedPath}/>}</head><body>
++<!doctype html><html data-motion={project.design.motion.enabled?'on':'off'} lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>{title} | {settings.brand.name}</title><meta name="description" content={description}/><link rel="canonical" href={project.siteUrl+path}/>{noindex&&<meta name="robots" content="noindex"/>}{alternates.map(a=><link rel="alternate" hreflang={a.locale} href={project.siteUrl+a.path}/>)}{content.feedPath&&<link rel="alternate" type="application/rss+xml" title={settings.brand.name} href={content.feedPath}/>}</head><body>
+ <a class="skip" href="#main">{el?'Μετάβαση στο περιεχόμενο':'Skip to content'}</a>
+ <header class="wrap"><a class="brand" href={content.pages.find(p=>p._template==='home')?.path}>{settings.brand.name}</a><nav aria-label={el?'Κύρια πλοήγηση':'Main navigation'}>{settings.navigation.map(n=><a href={content.pages.find(p=>p.contentId===n.pageId)!.path} aria-current={content.pages.find(p=>p.contentId===n.pageId)?.path===path?'page':undefined}>{n.label}</a>)}</nav><nav aria-label={el?'Γλώσσα':'Language'}>{alternates.map(a=><a href={a.path} lang={a.locale} hreflang={a.locale} aria-current={a.locale===locale?'true':undefined}>{project.languages.find(l=>l.code===a.locale)?.label}</a>)}</nav>{settings.social.showInHeader&&<SocialLinks links={channels.social} locale={locale} variant="icons" placement="header"/>}</header>
+ <main id="main"><slot/></main><footer class="wrap"><div class="footer-groups"><div class="footer-identity"><p>{settings.brand.tagline}</p><p>{settings.legal.businessName}</p><RichText body={settings.legal.notice} locale={locale}/><a href={content.pages.find(p=>p.contentId==='privacy')?.path}>{el?'Απόρρητο':'Privacy'}</a></div><ContactDetails channels={channels} locale={locale}/><SocialLinks links={channels.social} locale={locale} variant="labeled" placement="footer"/></div></footer>
+-</body></html>
++<script src="../scripts/motion-entry.ts"></script></body></html>
+diff --git a/apps/site/src/layouts/ShowcaseLayout.astro b/apps/site/src/layouts/ShowcaseLayout.astro
+index 3e35721..54ce2cb 100644
+--- a/apps/site/src/layouts/ShowcaseLayout.astro
++++ b/apps/site/src/layouts/ShowcaseLayout.astro
+@@ -1,12 +1,13 @@
+ ---
+ import '../styles/foundations.css';
+ import '../styles/themes.generated.css';
+ import '../styles/global.css';
++import '../styles/motion.css';
+ import '../styles/showcase.css';
+ import '@fontsource/noto-sans/400.css';
+ import '@fontsource/noto-sans/600.css';
+ import {project} from '../lib/content';
+ interface Props {locale:string}
+ const {locale}=Astro.props;
+ ---
+-<!doctype html><html lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="robots" content="noindex,nofollow"/><title>Business Starter v2 — Design system</title></head><body class="showcase"><a class="skip" href="#showcase-main" lang="en">Skip to content</a><slot/><script src="../scripts/design-preview.ts"></script></body></html>
++<!doctype html><html data-motion="off" lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="robots" content="noindex,nofollow"/><title>Business Starter v2 — Design system</title></head><body class="showcase"><a class="skip" href="#showcase-main" lang="en">Skip to content</a><slot/><script src="../scripts/design-preview.ts"></script></body></html>
+diff --git a/apps/site/src/scripts/design-preview.ts b/apps/site/src/scripts/design-preview.ts
+index 78129de..fb2935b 100644
+--- a/apps/site/src/scripts/design-preview.ts
++++ b/apps/site/src/scripts/design-preview.ts
+@@ -1,27 +1,40 @@
+ import {previewURL,resolvePreviewState,type PreviewOptions,type PreviewState} from '../lib/design-preview';
+ import themes from '../../../../packages/design-system/themes.generated.json';
+ const toolbar=document.querySelector<HTMLElement>('#showcase-toolbar');
+ if(toolbar){
+  const theme=document.querySelector<HTMLSelectElement>('#showcase-theme')!;
+  const density=document.querySelector<HTMLSelectElement>('#showcase-density')!;
+  const language=document.querySelector<HTMLSelectElement>('#showcase-language')!;
++ const motion=document.querySelector<HTMLInputElement>('#showcase-motion')!;
++ const motionRoot=document.querySelector<HTMLElement>('#showcase-main')!;
++ let stopMotion:(()=>void)|undefined;
++ let generation=0;
++ function refreshMotion(){
++  const request=++generation;stopMotion?.();stopMotion=undefined;
++  motionRoot.dataset.motion=motion.checked?'on':'off';
++  if(motion.checked) void import('./motion').then(({initMotion})=>{if(request===generation)stopMotion=initMotion(motionRoot);}).catch(()=>{});
++ }
++ motion.addEventListener('change',refreshMotion);
++ window.addEventListener('pagehide',()=>{++generation;stopMotion?.();});
+  const reset=document.querySelector<HTMLButtonElement>('#showcase-reset')!;
+  const options:PreviewOptions={themes:Object.keys(themes),languages:Array.from(language.options,o=>o.value),defaults:{theme:toolbar.dataset.defaultTheme!,density:toolbar.dataset.defaultDensity as PreviewState['density'],lang:toolbar.dataset.defaultLanguage!}};
+  function apply(state:PreviewState){
++  ++generation;stopMotion?.();stopMotion=undefined;
+   // Recover focus before hiding any currently focused language sample.
+   const groups=document.querySelectorAll<HTMLElement>('[data-sample-language]');
+   if(Array.from(groups).some(group=>group.dataset.sampleLanguage!==state.lang&&group.contains(document.activeElement))) language.focus();
+   document.documentElement.dataset.theme=state.theme;document.documentElement.dataset.density=state.density;document.documentElement.lang=state.lang;
+   theme.value=state.theme;density.value=state.density;language.value=state.lang;
+   groups.forEach(group=>{group.hidden=group.dataset.sampleLanguage!==state.lang;});
+   const selected=themes[state.theme as keyof typeof themes];
+   document.querySelectorAll<HTMLElement>('[data-color-token]').forEach(element=>{const role=element.dataset.colorToken as keyof typeof selected.semanticColors;element.textContent=selected.primitiveColors[selected.semanticColors[role] as keyof typeof selected.primitiveColors];});
+   document.querySelectorAll<HTMLElement>('[data-theme-token]').forEach(element=>{const key=element.dataset.themeToken as 'radius'|'sectionSpace'|'mobileSectionSpace';element.textContent=String(selected[key])+(key==='radius'?'':'px');});
++  refreshMotion();
+  }
+  apply(resolvePreviewState(new URL(location.href).searchParams,options));
+- [theme,density,language,reset].forEach(control=>{control.disabled=false;});
++ [theme,density,language,reset,motion].forEach(control=>{control.disabled=false;});
+  [theme,density,language].forEach(control=>control.addEventListener('change',()=>{const state=resolvePreviewState(new URLSearchParams({theme:theme.value,density:density.value,lang:language.value}),options);history.pushState(null,'',previewURL(new URL(location.href),state));apply(state);}));
+- reset.addEventListener('click',()=>{history.pushState(null,'',previewURL(new URL(location.href),null));apply(options.defaults);});
++ reset.addEventListener('click',()=>{motion.checked=motion.dataset.defaultEnabled==='true';history.pushState(null,'',previewURL(new URL(location.href),null));apply(options.defaults);});
+  window.addEventListener('popstate',()=>apply(resolvePreviewState(new URL(location.href).searchParams,options)));
+ }
+ 
+diff --git a/apps/site/src/scripts/motion-entry.ts b/apps/site/src/scripts/motion-entry.ts
+new file mode 100644
+index 0000000..01838cc
+--- /dev/null
++++ b/apps/site/src/scripts/motion-entry.ts
+@@ -0,0 +1,7 @@
++// This tiny bootstrap is shared. Disabled sites never request the controller chunk.
++if (document.documentElement.dataset.motion === 'on') {
++ let stop:(()=>void)|undefined;
++ let ended=false;
++ window.addEventListener('pagehide',()=>{ended=true;stop?.();},{once:true});
++ void import('./motion').then(({initMotion})=>{if(!ended)stop=initMotion(document);}).catch(()=>{});
++}
+diff --git a/apps/site/src/scripts/motion.ts b/apps/site/src/scripts/motion.ts
+new file mode 100644
+index 0000000..5f7e3b9
+--- /dev/null
++++ b/apps/site/src/scripts/motion.ts
+@@ -0,0 +1,113 @@
++const owners = new WeakMap<Document | HTMLElement, () => void>();
++
++/** Visible HTML is the baseline. Animations never commit a hidden inline state. */
++export function initMotion(root: Document | HTMLElement): () => void {
++  const previous = owners.get(root);
++  if (previous) return previous;
++  const doc = root.nodeType === 9 ? root as Document : root.ownerDocument!;
++  const scope = root.nodeType === 9 ? doc.documentElement : root as HTMLElement;
++  const win = doc.defaultView;
++  let observer: IntersectionObserver | undefined;
++  let preference: MediaQueryList | undefined;
++  let disposed = false;
++  const active = new Map<HTMLElement, Animation>();
++  const pending = new Set<HTMLElement>();
++  const cancel = (target: HTMLElement) => {
++    pending.delete(target);
++    try { observer?.unobserve(target); } catch { /* cancellation remains fail-open */ }
++    const animation = active.get(target);
++    active.delete(target);
++    try { animation?.cancel(); } catch { /* no committed styles to restore */ }
++  };
++  const fragment = () => {
++    const hash = win?.location.hash.slice(1);
++    if (!hash) return null;
++    let id = hash;
++    try { id = decodeURIComponent(hash); } catch { /* literal malformed IDs can still exist */ }
++    return doc.getElementById(id);
++  };
++  const reveal = (node: Node | null) => {
++    if (node) for (const target of new Set([...pending, ...active.keys()])) {
++      if (target === node || target.contains(node)) cancel(target);
++    }
++  };
++  const onFocus = (event: Event) => reveal(event.target as Node | null);
++  const onHash = () => reveal(fragment());
++  const onPreference = () => {
++    if (preference?.matches) for (const target of [...active.keys()]) cancel(target);
++  };
++  const dispose = () => {
++    if (disposed) return;
++    disposed = true;
++    for (const target of [...active.keys()]) cancel(target);
++    pending.clear();
++    try { observer?.disconnect(); } catch { /* best effort release */ }
++    doc.removeEventListener('focusin', onFocus);
++    win?.removeEventListener('hashchange', onHash);
++    preference?.removeEventListener('change', onPreference);
++    owners.delete(root);
++  };
++  try {
++    if (!win || scope.dataset.motion !== 'on' || typeof win.IntersectionObserver !== 'function' || typeof scope.animate !== 'function') return dispose;
++    preference = win.matchMedia('(prefers-reduced-motion: reduce)');
++    if (preference.matches) return dispose;
++    const style = win.getComputedStyle(scope);
++    const number = (name: string, unit: string) => {
++      const value = style.getPropertyValue(name).trim();
++      const actualUnit = unit === 'ms' && value.endsWith('s') && !value.endsWith('ms') ? 's' : unit;
++      if (!value.endsWith(actualUnit)) throw Error('Missing motion token: ' + name);
++      const result = Number(value.slice(0, -actualUnit.length)) * (actualUnit === 's' ? 1000 : 1);
++      if (!Number.isFinite(result) || result < 0) throw Error('Invalid motion token: ' + name);
++      return result;
++    };
++    const duration = number('--motion-duration', 'ms');
++    const distance = number('--motion-distance', 'px');
++    const stagger = number('--motion-stagger', 'ms');
++    const maximum = number('--motion-max-delay', 'ms');
++    const easing = style.getPropertyValue('--motion-ease').trim();
++    const targets = Array.from(root.querySelectorAll<HTMLElement>('[data-motion-reveal]'))
++      .filter(target => !target.parentElement?.closest('[data-motion-reveal]') && !target.closest('[hidden]'));
++    const delays = new Map<HTMLElement, number>();
++    const groupCounts = new Map<Element, number>();
++    const hashTarget = fragment();
++    for (const target of targets) {
++      const group = target.closest('[data-motion-group]');
++      const index = group ? groupCounts.get(group) || 0 : 0;
++      if (group) groupCounts.set(group, index + 1);
++      delays.set(target, Math.min(index * stagger, maximum));
++      const rect = target.getBoundingClientRect();
++      const visible = rect.top < win.innerHeight && rect.bottom > 0 && rect.left < win.innerWidth && rect.right > 0;
++      if (visible || target.contains(doc.activeElement) || (hashTarget && target.contains(hashTarget))) continue;
++      pending.add(target);
++    }
++    observer = new win.IntersectionObserver(entries => {
++      if (disposed) return;
++      try {
++        for (const entry of entries) {
++          const target = entry.target as HTMLElement;
++          if (!entry.isIntersecting || !pending.has(target)) continue;
++          pending.delete(target);
++          observer?.unobserve(target);
++          if (preference?.matches || target.closest('[hidden]') || target.contains(doc.activeElement)) continue;
++          const destination = fragment();
++          if (destination && target.contains(destination)) continue;
++          const hasTranslation = win.getComputedStyle(target).translate !== 'none';
++          const frames: Keyframe[] = hasTranslation ? [{opacity: 0}, {opacity: 1}] : [
++            {opacity: 0, translate: `0 ${distance}px`}, {opacity: 1, translate: '0 0'},
++          ];
++          const animation = target.animate(frames, {duration, delay: delays.get(target) || 0, easing, fill: 'none'});
++          active.set(target, animation);
++          // Both completion and cancellation release handles; rejected finished is consumed.
++          const release = () => { if (active.get(target) === animation) active.delete(target); };
++          void animation.finished.then(release, release);
++        }
++      } catch { dispose(); }
++    }, {threshold: 0});
++    owners.set(root, dispose);
++    doc.addEventListener('focusin', onFocus);
++    win.addEventListener('hashchange', onHash);
++    preference.addEventListener('change', onPreference);
++    for (const target of pending) observer.observe(target);
++  } catch { dispose(); }
++  return dispose;
++}
+diff --git a/apps/site/src/styles/foundations.css b/apps/site/src/styles/foundations.css
+index cefd792..5fe8608 100644
+--- a/apps/site/src/styles/foundations.css
++++ b/apps/site/src/styles/foundations.css
+@@ -1,3 +1,5 @@
+ :root {--space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-6:1.5rem;--space-8:2rem;--space-12:3rem;--content-width:72rem;--reading-width:44rem;}
+ *{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0}img,svg{max-width:100%}button,input,select,textarea{font:inherit}a{overflow-wrap:anywhere}h1,h2,h3,p{overflow-wrap:anywhere}button,a,input,textarea,select{touch-action:manipulation}
+ :root{--contact-icon-size:1.125rem;--social-icon-size:1.25rem;--contact-link-gap:.625rem;--social-link-gap:.5rem;--contact-link-target:44px;--contact-aside-width:22rem}
++
++:root{--motion-max-delay:300ms;--motion-ease:cubic-bezier(.22,1,.36,1);--motion-interaction-ease:ease-out}
+diff --git a/apps/site/src/styles/motion.css b/apps/site/src/styles/motion.css
+new file mode 100644
+index 0000000..2242102
+--- /dev/null
++++ b/apps/site/src/styles/motion.css
+@@ -0,0 +1,13 @@
++/* Colour feedback remains available independently of decorative movement. */
++.button,.card h3 a,.social-link{transition:color var(--motion-interaction-duration) var(--motion-interaction-ease),background-color var(--motion-interaction-duration) var(--motion-interaction-ease),border-color var(--motion-interaction-duration) var(--motion-interaction-ease)}
++[data-motion="on"]{--motion-hover-distance:-2px}
++[data-motion="off"]{--motion-hover-distance:0px}
++@media(hover:hover) and (pointer:fine){
++ .button,.card h3 a,.social-link{transition:color var(--motion-interaction-duration) var(--motion-interaction-ease),background-color var(--motion-interaction-duration) var(--motion-interaction-ease),border-color var(--motion-interaction-duration) var(--motion-interaction-ease),transform var(--motion-interaction-duration) var(--motion-interaction-ease)}
++ .button:hover,.card h3 a:hover,.social-link:hover{transform:translateY(var(--motion-hover-distance,0px))}
++}
++.button:focus-visible,.card h3 a:focus-visible,.social-link:focus-visible{transition:none;transform:none}
++@media(prefers-reduced-motion:reduce){
++ [data-motion]{--motion-hover-distance:0px;--motion-stagger:0ms}
++ .button,.card h3 a,.social-link{transition:none;transform:none}
++}
+diff --git a/apps/site/src/templates/domains/rooms/RoomList.astro b/apps/site/src/templates/domains/rooms/RoomList.astro
+index b40cb48..8853925 100644
+--- a/apps/site/src/templates/domains/rooms/RoomList.astro
++++ b/apps/site/src/templates/domains/rooms/RoomList.astro
+@@ -1,11 +1,11 @@
+ ---
+ import Description from '../../../components/ui/Description.astro';
+ import SectionImage from '../../../components/ui/SectionImage.astro';
+ import {resolveSectionMedia} from '../../../lib/section-media';
+ import {getDomainRecords} from '../../../../../../packages/content/domain-publication.mjs';
+ import type {LocalizedSection,LocalizedContent} from '../../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'room-list'}>;content:LocalizedContent;locale:string}
+ const {section,content,locale}=Astro.props;
+ const rooms=await Promise.all(getDomainRecords(content,'rooms').map(async record=>({record,image:record.images[0],media:await resolveSectionMedia(record.images[0]?.media,{pageId:record.contentId,sectionId:section.id,itemId:record.images[0]?.id})})));
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/>{rooms.length?<div class="cards">{rooms.map(({record,image,media})=><article class="card">{media&&<SectionImage layout="room-card" itemCount={rooms.length} media={media} alt={image.alt} crop={image.media.crop} ratio="landscape" locale={locale}/>}<h3><a href={record.path}>{record.title}</a></h3><Description text={record.description} locale={locale}/><p>{locale==='el'?'Έως':'Up to'} {record.maxGuests} {locale==='el'?'επισκέπτες':'guests'}</p></article>)}</div>:<p>{section.copy.emptyMessage}</p>}</div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/></div>{rooms.length?<div class="cards" data-motion-group>{rooms.map(({record,image,media})=><article class="card">{media&&<SectionImage layout="room-card" itemCount={rooms.length} media={media} alt={image.alt} crop={image.media.crop} ratio="landscape" locale={locale}/>}<div data-motion-reveal><h3><a href={record.path}>{record.title}</a></h3><Description text={record.description} locale={locale}/><p>{locale==='el'?'Έως':'Up to'} {record.maxGuests} {locale==='el'?'επισκέπτες':'guests'}</p></div></article>)}</div>:<p>{section.copy.emptyMessage}</p>}</div></section>
+diff --git a/apps/site/src/templates/sections/ArticleList.astro b/apps/site/src/templates/sections/ArticleList.astro
+index 994c79f..df8dc2a 100644
+--- a/apps/site/src/templates/sections/ArticleList.astro
++++ b/apps/site/src/templates/sections/ArticleList.astro
+@@ -1,8 +1,8 @@
+ ---
+ import Description from '../../components/ui/Description.astro';
+ import Card from '../../components/ui/Card.astro';
+ import type {LocalizedSection,LocalizedContent} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'article-list'}>;content:LocalizedContent;locale:string}
+ const {section,content,locale}=Astro.props;
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/><div class="cards">{content.articles.map(record=><Card record={record} locale={locale}/>)}</div></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/></div><div class="cards" data-motion-group>{content.articles.map(record=><Card record={record} locale={locale}/>)}</div></div></section>
+diff --git a/apps/site/src/templates/sections/Cta.astro b/apps/site/src/templates/sections/Cta.astro
+index ce641ec..a5e4bb9 100644
+--- a/apps/site/src/templates/sections/Cta.astro
++++ b/apps/site/src/templates/sections/Cta.astro
+@@ -1,8 +1,8 @@
+ ---
+ import Description from '../../components/ui/Description.astro';
+ import Button from '../../components/ui/Button.astro';
+ import type {LocalizedSection} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'cta'}>;locale:string}
+ const {section,locale}=Astro.props;
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/><Button {...section.copy.link} locale={locale}/></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap" data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/><Button {...section.copy.link} locale={locale}/></div></section>
+diff --git a/apps/site/src/templates/sections/Faq.astro b/apps/site/src/templates/sections/Faq.astro
+index 6fb49e9..511908d 100644
+--- a/apps/site/src/templates/sections/Faq.astro
++++ b/apps/site/src/templates/sections/Faq.astro
+@@ -1,8 +1,8 @@
+ ---
+ import RichText from '../../components/ui/RichText.astro';
+ import {rich} from '../../lib/content';
+ import type {LocalizedSection} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'faq'}>;locale:string}
+ const {section,locale}=Astro.props;
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><div class="description" set:html={rich(section.copy.description,locale,true)}/><div class="faq-items">{section.copy.items.map(item=>section.variant==='expanded'?<div class="faq-item"><h3>{item.question}</h3><RichText body={item.answer} locale={locale}/></div>:<details class="faq-item"><summary>{item.question}</summary><RichText body={item.answer} locale={locale}/></details>)}</div></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><div class="description" set:html={rich(section.copy.description,locale,true)}/></div><div class="faq-items">{section.copy.items.map(item=>section.variant==='expanded'?<div class="faq-item"><h3>{item.question}</h3><RichText body={item.answer} locale={locale}/></div>:<details class="faq-item"><summary>{item.question}</summary><RichText body={item.answer} locale={locale}/></details>)}</div></div></section>
+diff --git a/apps/site/src/templates/sections/Gallery.astro b/apps/site/src/templates/sections/Gallery.astro
+index 09b53c3..0f2bf88 100644
+--- a/apps/site/src/templates/sections/Gallery.astro
++++ b/apps/site/src/templates/sections/Gallery.astro
+@@ -1,10 +1,10 @@
+ ---
+ import Description from '../../components/ui/Description.astro';
+ import SectionImage from '../../components/ui/SectionImage.astro';
+ import {resolveSectionMedia} from '../../lib/section-media';
+ import type {LocalizedSection} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'gallery'}>;locale:string;pageId?:string}
+ const {section,locale,pageId='unknown'}=Astro.props;
+ const items=section.enabled===false?[]:await Promise.all((section.items||[]).map(async item=>({id:item.id,media:await resolveSectionMedia(item.media,{pageId,sectionId:section.id,itemId:item.id}),crop:item.media!.crop,copy:section.copy.items.find(copy=>copy.id===item.id)!})));
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/><ul class:list={['gallery',{'gallery-featured':section.variant==='featured'}]}>{items.map((item,index)=><li data-gallery-item={item.id}><SectionImage layout={section.variant==='featured'?(index===0?'gallery-featured-lead':'gallery-featured-item'):'gallery'} itemCount={items.length} media={item.media!} alt={item.copy.alt} caption={item.copy.caption} crop={item.crop} ratio="gallery" locale={locale}/></li>)}</ul></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/></div><ul data-motion-group class:list={['gallery',{'gallery-featured':section.variant==='featured'}]}>{items.map((item,index)=><li data-gallery-item={item.id}><SectionImage layout={section.variant==='featured'?(index===0?'gallery-featured-lead':'gallery-featured-item'):'gallery'} itemCount={items.length} media={item.media!} alt={item.copy.alt} caption={item.copy.caption} revealCaption crop={item.crop} ratio="gallery" locale={locale}/></li>)}</ul></div></section>
+diff --git a/apps/site/src/templates/sections/Hero.astro b/apps/site/src/templates/sections/Hero.astro
+index 49b84f0..783f1a7 100644
+--- a/apps/site/src/templates/sections/Hero.astro
++++ b/apps/site/src/templates/sections/Hero.astro
+@@ -1,8 +1,8 @@
+ ---
+ import Description from '../../components/ui/Description.astro';
+ import Button from '../../components/ui/Button.astro';
+ import type {LocalizedSection} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'hero'}>;locale:string;primary?:boolean}
+ const {section,locale,primary=false}=Astro.props;const {copy}=section;const Heading=primary?'h1':'h2';
+ ---
+-<section class="hero" data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><Heading id={section.id}>{copy.title}</Heading><Description text={copy.description} locale={locale}/>{copy.link&&<Button {...copy.link} locale={locale}/>}</div></section>
++<section class="hero" data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap" data-motion-reveal={!primary || undefined}><Heading id={section.id}>{copy.title}</Heading><Description text={copy.description} locale={locale}/>{copy.link&&<Button {...copy.link} locale={locale}/>}</div></section>
+diff --git a/apps/site/src/templates/sections/MediaText.astro b/apps/site/src/templates/sections/MediaText.astro
+index 84b1fcd..036a145 100644
+--- a/apps/site/src/templates/sections/MediaText.astro
++++ b/apps/site/src/templates/sections/MediaText.astro
+@@ -1,11 +1,11 @@
+ ---
+ import RichText from '../../components/ui/RichText.astro';
+ import Button from '../../components/ui/Button.astro';
+ import SectionImage from '../../components/ui/SectionImage.astro';
+ import {resolveSectionMedia} from '../../lib/section-media';
+ import type {LocalizedSection} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'media-text'}>;locale:string;pageId?:string}
+ const {section,locale,pageId='unknown'}=Astro.props;
+ const media=section.enabled===false?undefined:await resolveSectionMedia(section.media,{pageId,sectionId:section.id});
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class:list={['wrap','media-text',{'media-text-reversed':section.variant==='reversed','media-text-with-image':!!media}]}>{media&&section.copy.image&&<SectionImage layout="media-text" media={media} {...section.copy.image} crop={section.media!.crop} ratio="landscape" locale={locale}/>}<div class="media-text-copy"><h2 id={section.id}>{section.copy.title}</h2><RichText body={section.copy.body} locale={locale}/>{section.copy.link&&<Button {...section.copy.link} locale={locale}/>}</div></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class:list={['wrap','media-text',{'media-text-reversed':section.variant==='reversed','media-text-with-image':!!media}]}>{media&&section.copy.image&&<SectionImage layout="media-text" media={media} {...section.copy.image} crop={section.media!.crop} ratio="landscape" locale={locale}/>}<div class="media-text-copy" data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><RichText body={section.copy.body} locale={locale}/>{section.copy.link&&<Button {...section.copy.link} locale={locale}/>}</div></div></section>
+diff --git a/apps/site/src/templates/sections/OfferingList.astro b/apps/site/src/templates/sections/OfferingList.astro
+index 5ca3d53..45339ee 100644
+--- a/apps/site/src/templates/sections/OfferingList.astro
++++ b/apps/site/src/templates/sections/OfferingList.astro
+@@ -1,8 +1,8 @@
+ ---
+ import Description from '../../components/ui/Description.astro';
+ import Card from '../../components/ui/Card.astro';
+ import type {LocalizedSection,LocalizedContent} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'offering-list'}>;content:LocalizedContent;locale:string}
+ const {section,content,locale}=Astro.props;
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/><div class="cards">{content.offerings.map(record=><Card record={record} locale={locale}/>)}</div></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/></div><div class="cards" data-motion-group>{content.offerings.map(record=><Card record={record} locale={locale}/>)}</div></div></section>
+diff --git a/apps/site/src/templates/sections/PeopleList.astro b/apps/site/src/templates/sections/PeopleList.astro
+index aab160d..aa4bf73 100644
+--- a/apps/site/src/templates/sections/PeopleList.astro
++++ b/apps/site/src/templates/sections/PeopleList.astro
+@@ -1,8 +1,8 @@
+ ---
+ import Description from '../../components/ui/Description.astro';
+ import Card from '../../components/ui/Card.astro';
+ import type {LocalizedSection,LocalizedContent} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'people-list'}>;content:LocalizedContent;locale:string}
+ const {section,content,locale}=Astro.props;
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/><div class="cards">{content.people.map(record=><Card record={record} locale={locale}/>)}</div></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/></div><div class="cards" data-motion-group>{content.people.map(record=><Card record={record} locale={locale}/>)}</div></div></section>
+diff --git a/apps/site/src/templates/sections/RichText.astro b/apps/site/src/templates/sections/RichText.astro
+index 7c73fd4..6942ac1 100644
+--- a/apps/site/src/templates/sections/RichText.astro
++++ b/apps/site/src/templates/sections/RichText.astro
+@@ -1,7 +1,7 @@
+ ---
+ import RichText from '../../components/ui/RichText.astro';
+ import type {LocalizedSection} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'rich-text'}>;locale:string}
+ const {section,locale}=Astro.props;
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><RichText body={section.copy.body} locale={locale}/></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap" data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><RichText body={section.copy.body} locale={locale}/></div></section>
+diff --git a/apps/site/src/templates/sections/Steps.astro b/apps/site/src/templates/sections/Steps.astro
+index deac748..fbfc14b 100644
+--- a/apps/site/src/templates/sections/Steps.astro
++++ b/apps/site/src/templates/sections/Steps.astro
+@@ -1,8 +1,8 @@
+ ---
+ import RichText from '../../components/ui/RichText.astro';
+ import {rich} from '../../lib/content';
+ import type {LocalizedSection} from '../../../../../packages/content/types';
+ interface Props {section:Extract<LocalizedSection,{_template:'steps'}>;locale:string}
+ const {section,locale}=Astro.props;
+ ---
+-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><div class="description" set:html={rich(section.copy.description,locale,true)}/><ol class:list={['steps',{'steps-cards':section.variant==='cards'}]}>{section.copy.items.map(item=><li><h3>{item.title}</h3><RichText body={item.body} locale={locale}/></li>)}</ol></div></section>
++<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><div class="description" set:html={rich(section.copy.description,locale,true)}/></div><ol data-motion-group class:list={['steps',{'steps-cards':section.variant==='cards'}]}>{section.copy.items.map(item=><li data-motion-reveal><h3>{item.title}</h3><RichText body={item.body} locale={locale}/></li>)}</ol></div></section>
+diff --git a/apps/site/tests/motion.test.ts b/apps/site/tests/motion.test.ts
+new file mode 100644
+index 0000000..05a01ca
+--- /dev/null
++++ b/apps/site/tests/motion.test.ts
+@@ -0,0 +1,22 @@
++import {it,expect} from 'vitest';
++import {experimental_AstroContainer as AstroContainer} from 'astro/container';
++import {sectionRenderer} from '../src/templates/sections';
++import Layout from '../src/layouts/Layout.astro';
++import {contents} from '../src/lib/content';
++it('keeps primary hero visible and enhances non-primary copy',async()=>{
++ const container=await AstroContainer.create();const Hero=sectionRenderer('hero','default');
++ const props={section:{id:'intro',_template:'hero',variant:'default',appearance:{surface:'default'},copy:{title:'Hello',description:'Text'}},locale:'en'};
++ expect(await container.renderToString(Hero,{props:{...props,primary:true}})).not.toContain('data-motion-reveal');
++ expect(await container.renderToString(Hero,{props:{...props,primary:false}})).toContain('data-motion-reveal');
++});
++it.each(['offering-list','people-list','article-list'])('marks %s copy and cards as separate targets',async type=>{
++ const container=await AstroContainer.create();const Renderer=sectionRenderer(type as any,'default');const content=contents[0];
++ const html=await container.renderToString(Renderer,{props:{section:{id:'list',_template:type,variant:'default',appearance:{surface:'default'},copy:{title:'List',description:'Description'}},content,locale:'en'}});
++ expect(html).toContain('data-motion-group');expect(html).toContain('data-motion-reveal');
++ expect(html).not.toMatch(/data-motion-reveal[^>]*>[^]*data-motion-reveal[^>]*>[^]*<\/h2>/);
++});
++it('keeps shell navigation, footer, skip link and H1 outside entrance targets',async()=>{
++ const container=await AstroContainer.create();const html=await container.renderToString(Layout,{props:{content:contents[0],title:'Test',description:'Fixture',path:'/en',alternates:[]}});
++ expect(html).toContain('data-motion=');
++ for(const tag of ['header','footer'])expect(html.match(new RegExp(`<${tag}[^]*?</${tag}>`))![0]).not.toContain('data-motion-reveal');
++});
+diff --git a/apps/site/vitest.config.ts b/apps/site/vitest.config.ts
+index 22b8d50..646ece3 100644
+--- a/apps/site/vitest.config.ts
++++ b/apps/site/vitest.config.ts
+@@ -1,5 +1,5 @@
+ import {getViteConfig} from 'astro/config';
+ import {fileURLToPath} from 'node:url';
+ const root=fileURLToPath(new URL('./',import.meta.url));
+-const config={root,test:{include:['tests/contact-social.test.ts','tests/footer.test.ts','tests/showcase.test.ts','tests/composition-b.test.ts','tests/composition-b-media.test.ts','tests/domain-rendering.test.ts','tests/rooms.test.ts','tests/media-optimization.test.ts']}};
++const config={root,test:{include:['tests/motion.test.ts','tests/contact-social.test.ts','tests/footer.test.ts','tests/showcase.test.ts','tests/composition-b.test.ts','tests/composition-b-media.test.ts','tests/domain-rendering.test.ts','tests/rooms.test.ts','tests/media-optimization.test.ts']}};
+ export default getViteConfig(config,{root});
+diff --git a/docs/ARCHITECTURE.md b/docs/ARCHITECTURE.md
+index 8bc8bbc..f8e9ff4 100644
+--- a/docs/ARCHITECTURE.md
++++ b/docs/ARCHITECTURE.md
+@@ -101,10 +101,14 @@ Tina's getNativeDomainAdapters discovers only enabled definitions, requires matc
+ 
+ The static route template dispatches registered domain details and retains the existing editorial markup in EditorialDetail.astro. Domain renderer coverage is checked before build; duplicate/missing registrations fail actionably. Section renderers remain in the existing templates/sections.ts registration map, with type/variant coverage derived from the content section definitions. Disabled known sections retain their copy and native fields while disappearing from public projection and creation choices.
+ 
+ Keep domain schemas acyclic: use the independent limits.mjs and rich-text.mjs primitives, not the schema/section aggregators. Read [developer extensions](DOMAIN_EXTENSIONS.md) for the exact registration recipe and two approved helper corrections after the framework refactor. [Rooms authoring](ROOMS_AUTHORING.md) covers native draft/recovery/index publication; [C evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md) records accepted Tasks 1–6, local-only native/Worker/static scopes and approved whole-branch review with completed local closeout. Module enablement requires owned-stack shutdown, configure and restart; original images retain existing safety/performance limits.
+ 
+ ## Contact/social rendering and acceptance
+ 
+ `packages/content/contact.mjs` supplies safe ordered destinations to explicit-prop `ContactDetails`, `SocialLinks` and decorative `ContactIcon` components. Contact keeps a form-first DOM and a 56rem aside split; footer and optional header consume the same shared Settings values. Distinct localized social navigation names identify each placement. No browser SDK, remote icons, app probes or new dependency is required. [Contact/social authoring](CONTACT_SOCIAL.md) documents tokens, localization, clears and static rebuilds.
+ 
+ The narrow public/native acceptance driver reuses established runtime/fixture ownership. Static fixtures use caller-known byte owners; the contact native test supplies an additive optional `expectedBytes` guard to the existing single `captureNative` owner. Installed GraphQL variable coercion precedes request/schema/serializer projection, including input-field ordering, before UI save dispatch. Raw native legal/translation ASTs remain separate from canonical Markdown serialization. Foreign equal-JSON/different-byte edits revoke claims and block regeneration. Existing helper callers retain their prior behavior.
++
++## Shared motion
++
++See [MOTION](MOTION.md) for opt-in project settings, generated tokens, renderer markers, reduced-motion/no-JavaScript fallback and the transient local showcase control. The local example enables motion; omitted settings stay disabled.
+diff --git a/docs/DESIGN_SYSTEM_SHOWCASE.md b/docs/DESIGN_SYSTEM_SHOWCASE.md
+index 3e660bb..9a9e45c 100644
+--- a/docs/DESIGN_SYSTEM_SHOWCASE.md
++++ b/docs/DESIGN_SYSTEM_SHOWCASE.md
+@@ -35,10 +35,14 @@ Composition B includes FAQ default/expanded, steps default/cards, media-text def
+ 
+ Each EN/EL sample group includes the existing six examples plus all eight new pairs through sectionRenderer(type, variant), with unique locale/instance/control IDs. FAQ disclosures are native details/summary and work by keyboard without JavaScript; expanded FAQ is ordinary readable text. Media and gallery use the actual server metadata adapter and SectionImage, including intrinsic dimensions and fixed crops. Preview choices remain detached from canonical Home/brand.
+ 
+ The two [original abstract sample PNGs](STARTER_SAMPLE_ASSETS.md) are normal reusable native-picker assets under public/uploads/starter-samples. They intentionally remain available in staging/production alongside ordinary shared business assets. They are not the dedicated showcase JS/CSS, which must remain absent from those builds. The real build inventory verifier still rejects dedicated preview entries/selectors; no production post-build deletion or CSP relaxation is used.
+ 
+ Composition B's separate public fixture matrix covers all eight variants in EN/EL at 375/768/1440 and representative four-theme/three-density combinations without an unbounded cross-product. Representative axe scans and manually inspected screenshots are evidence, not an accessibility certification. Historical showcase acceptance remains unchanged; see [new evidence](superpowers/plans/2026-10-18-starter-v2-composition-b-evidence.md).
+ 
+ ## Composition C renderer boundary
+ 
+ Rooms render through the static server domain registry and reuse shared card, prose and original-image components. These imports must not pull the dedicated showcase layout, controller or styles into public staging/production assets. `pnpm test:composition-c` owns bilingual public fixtures and five representative build/CMS/Worker modes. `pnpm test:showcase-builds` checks actual staging/production inventories after these imports; every internal configure/build command now also checks complete canonical project/content/uploads snapshots and free project ports, and source conflicts block final regeneration even after an independent project restore succeeds.
++
++## Shared motion
++
++See [MOTION](MOTION.md) for opt-in project settings, generated tokens, renderer markers, reduced-motion/no-JavaScript fallback and the transient local showcase control. The local example enables motion; omitted settings stay disabled.
+diff --git a/docs/MOTION.md b/docs/MOTION.md
+new file mode 100644
+index 0000000..62ac01a
+--- /dev/null
++++ b/docs/MOTION.md
+@@ -0,0 +1,41 @@
++# Shared motion
++
++Motion is optional public presentation configured in `project.json`. Existing projects that omit it remain motion-disabled. The local example explicitly enables it. Functional profiles, content records and Tina fields are unchanged.
++
++```json
++{"design":{"theme":"neutral","density":"comfortable","motion":{"enabled":true,"durationMs":600,"distancePx":18,"staggerMs":70,"interactionMs":180}}}
++```
++
++| Setting | Default | Accepted values |
++| --- | --- | --- |
++| enabled | false | boolean |
++| durationMs | 600 | integer 100–1200 |
++| distancePx | 18 | integer 0–48 |
++| staggerMs | 70 | integer 0–150 |
++| interactionMs | 180 | integer 0–400 |
++
++Unknown keys, nulls, numeric strings and out-of-range values fail validation. Partial motion objects receive defaults. Run `pnpm configure` after a permanent configuration change; the normal launcher watches the input. Static hosting requires rebuilding for permanent changes.
++
++## Tokens and extension
++
++`packages/config/project.mjs` validates values; `packages/design-system/motion.mjs` emits CSS through `scripts/design.mjs`. Edit source configuration, never `themes.generated.css`. The generated variables are `--motion-duration`, `--motion-distance`, `--motion-stagger` and `--motion-interaction-duration`. Foundation CSS owns `--motion-max-delay:300ms`, `--motion-ease:cubic-bezier(.22,1,.36,1)` and `--motion-interaction-ease:ease-out`.
++
++Place `data-motion-reveal` on a copy wrapper or text card. Put `data-motion-group` on the nearest common group ancestor for sibling stagger. Do not nest entrance targets. Groups cap the total delay at 300 ms. Reuse the shared layout/controller; do not add a page-specific script or permanent hidden state.
++
++`initMotion(root: Document | HTMLElement): () => void` in `apps/site/src/scripts/motion.ts` consumes a root with `data-motion="on"`. Its return value disposes owned observers, listeners and animations. Repeated initialization of an active root returns the same disposer. Completed targets do not replay within that initialization. Explicit disposal/reinitialization in the local showcase starts a new preview session.
++
++## Behaviour and accessibility
++
++Only offscreen eligible targets are observed at initialization. The primary hero/H1, navigation, footer/legal content, skip links and contact form/errors remain outside entrance effects. Media/text animates copy; gallery animates captions; Rooms animates card copy without moving its image. Ordinary editorial paragraphs are not automatically traversed.
++
++Targets animate opacity and individual vertical translation once, preserving existing transforms. An existing individual translate receives fade-only enhancement. Default HTML/CSS remains visible, with no hidden/pending class or committed inline styles. During stagger delay an element can be visible before its brief entrance starts; this favours readable fallback over pre-hiding content. Initially visible content does not animate.
++
++Focus and fragment navigation cancel relevant animations immediately. Encoded and malformed fragment IDs are handled without constructing CSS selectors. Changing the operating-system reduced-motion preference cancels active movement and blocks new decorative movement. Initial reduced motion or unavailable APIs skips enhancement. JavaScript failures leave ordinary content visible; no retry overlay or loading state is added.
++
++Buttons, card links and social links share targeted colour transitions. Decorative hover translation applies only to fine hover pointers, with static immediate keyboard focus. Reduced motion removes transitions and movement; project off removes decorative movement while preserving colour feedback. No animation library, cookie, storage, tracking or external request is introduced. A small shared bootstrap may load on disabled pages, but their entrance-controller chunk is not requested.
++
++## Local preview and verification
++
++The local-only `/design-system` page has a transient Motion preview checkbox. It uses the real renderer markers and controller, observes only visible language samples and cleans up before theme/language changes. Reset returns to the configured state. It does not save settings or change published content. Existing staging/production showcase exclusion remains in force.
++
++Run `pnpm test:motion` with the main stack stopped. It builds detached on/off fixtures with custom values, Composition B and Rooms, serves their static files on owned ephemeral loopback listeners, and runs EN/EL browser checks at 375/768/1440 px, including reduced/no-JavaScript contexts. Evidence and retained fixture inputs live under ignored `.generated/motion/`. The driver verifies a source inventory before/after; it does not overwrite canonical files or restore unknown editor bytes. Evidence reports distinguish automated coverage from manual checks and hosted verification, which remains outside this feature.
+diff --git a/docs/QUICKSTART.md b/docs/QUICKSTART.md
+index 6ae92ca..d1d4f43 100644
+--- a/docs/QUICKSTART.md
++++ b/docs/QUICKSTART.md
+@@ -114,10 +114,14 @@ Read [Composition authoring](COMPOSITION_AUTHORING.md) before adding nested item
+ 
+ Rooms defaults to disabled in `project.json` (`modules.rooms: false`), independently of profile/articles. Stop the exact owned launcher before toggling it; run `pnpm configure`, then restart `pnpm dev:cms`. The dormant bilingual index remains draft and no Room records ship. Create native flat drafts and explicitly publish each locale's index and Room; enabling alone does not change Home/navigation. See [Rooms authoring](ROOMS_AUTHORING.md) and [developer extensions](DOMAIN_EXTENSIONS.md).
+ 
+ With owned launchers stopped, `pnpm test:composition-c` runs cleanup faults plus the pure/static/browser and five representative build modes. `pnpm test:composition-c -- --gates` adds the seven global gates; `node scripts/verify-composition-c.mjs --gates-only` runs those gates alone. The harness owns fixtures/processes, snapshots all canonical project/content/uploads inputs, retains conflicts and refuses regeneration after unsafe cleanup. It requires installed browsers at `.generated/browsers`; it builds its own static baseline and uses health/static Workers without D1. The separate Task 5 Worker capture suite requires initialized local D1 and an existing static baseline. Neither provisions cloud resources. Native saves remain a separate opt-in `E2E_CMS_URL` suite against the owned indexed stack.
+ 
+ The accepted final-source C evidence is segmented (six full/public tests plus corrected pure matrix and seven global gates); the final full entry invocation itself exited 1 and is retained. Read [C evidence](superpowers/plans/2026-10-18-starter-v2-composition-c-evidence.md) for actual commands/results, narrow scopes and approved whole-branch review with completed local closeout. Do not run the broad harness just to reconfirm historical evidence or during concurrent editing. Local audits are not hosted readiness or accessibility certification.
+ 
+ ## Shared contact and social channels
+ 
+ Author shared contact details and optional Instagram/LinkedIn/Facebook/WhatsApp in Settings; Contact and footer update together, with header icons off by default. Clear optional fields to remove their links. See [contact/social authoring and exact-owned acceptance](CONTACT_SOCIAL.md). Hosted static sites require a rebuild after saves.
++
++## Shared motion
++
++See [MOTION](MOTION.md) for opt-in project settings, generated tokens, renderer markers, reduced-motion/no-JavaScript fallback and the transient local showcase control. The local example enables motion; omitted settings stay disabled.
+diff --git a/docs/superpowers/plans/2026-10-20-starter-v2-motion-evidence.md b/docs/superpowers/plans/2026-10-20-starter-v2-motion-evidence.md
+new file mode 100644
+index 0000000..567e300
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-20-starter-v2-motion-evidence.md
+@@ -0,0 +1,5 @@
++# Shared motion verification — 2026-10-20
++
++Design and inline execution were approved by the user. Implementation commits are `cf59ea8` (configuration/tokens), `9e59e0b` (controller) and `1299aac` (integration); the verification commit includes the production-minified time-unit regression and browser acceptance.
++
++See [the evidence archive](../reviews/2026-10-20-motion/README.md) and [motion guide](../../MOTION.md). All eight required gates passed before this documentation checkpoint. Browser fixtures leave canonical content unchanged; the only deliberate project change is the local motion opt-in. Independent final review and normal-stack handoff are recorded separately after this checkpoint.
+diff --git a/docs/superpowers/plans/2026-10-20-starter-v2-motion.md b/docs/superpowers/plans/2026-10-20-starter-v2-motion.md
+index 3e2b3e2..c654958 100644
+--- a/docs/superpowers/plans/2026-10-20-starter-v2-motion.md
++++ b/docs/superpowers/plans/2026-10-20-starter-v2-motion.md
+@@ -12,21 +12,21 @@
+ 
+ ## Global Constraints
+ 
+ - Do not change page composition, typography, colours, content ownership or routing. Project Markdown is English; public control copy is EN/EL.
+ - `enabled: false`; `durationMs: 600` (integer 100–1200); `distancePx: 18` (integer 0–48); `staggerMs: 70` (integer 0–150); `interactionMs: 180` (integer 0–400). Maximum total group delay is 300 ms.
+ - Motion is developer configuration, not a CMS field, functional profile or section template. Missing configuration defaults safely; strict nested validation rejects unknown keys.
+ - No hidden/pending CSS state, animation library, persistence, cookies, tracking, external requests, parallax or scroll hijacking.
+ - Primary hero/H1, header navigation, footer legal content, contact fields/errors and skip links are excluded. Focus and fragment destinations appear immediately; reduced motion takes priority.
+ - `pnpm configure` owns generated CSS. No manual edits to generated artifacts, unsafe inline configuration, provider setup, deployment or sending changes.
+ - Stop the exact owned local stack before configuration/CMS changes or lifecycle-owning tests. Both original source repositories remain read-only. Preserve unknown local editor bytes.
+-- Preserve the requested method: one fresh implementer and independent reviewer per task, sequential dependencies, then whole-branch review. Do not start until the user reviews this written plan. Use the existing agreed medium implementation setting; do not change model settings without authorization or the applicable skill.
++- Execution approved on 2026-10-20: implement inline with per-task tests/commits and one independent whole-branch review at the end. This user-selected method supersedes per-task implementer/reviewer dispatch.
+ 
+ ## Review Focus
+ 
+ 1. Deep links with encoded/malformed fragment IDs: no selector exception, hidden destination or blocked navigation (Tasks 2 and 4).
+ 2. Nested targets, large groups and multiple observer callbacks: no duplicate animations, compounded movement or delay above 300 ms (Tasks 2 and 3).
+ 3. APIs that exist but throw/reject, teardown during animation and repeated initialization: readable output and no leaked listeners or unhandled promises (Task 2).
+ 4. Theme/language preview switches and focus in a sample being hidden: stale sample observers are disposed; existing focus recovery remains intact (Tasks 3 and 4).
+ 5. Existing transforms, sticky touch hover and disabled-project bundles: interaction/entrance effects coexist, touch remains usable and the entrance controller is not requested when disabled (Tasks 3 and 4).
+ 
+ ## File responsibilities and handoff
+@@ -40,65 +40,65 @@
+ - Showcase layout/component/script: transient on/off demonstration using the actual controller; preserve current theme/density/language contracts.
+ - `tests/motion-config.test.ts`, `tests/motion-runtime.test.ts`: meaningful configuration and lifecycle regressions; a new scoped browser acceptance spec and driver prove actual rendering under fixtures.
+ - New `docs/MOTION.md`: configuration, tokens, marker/extension convention, fallback and known limits; update current architecture/quickstart/showcase guides.
+ 
+ ### Task 1: Configuration and generated semantic tokens
+ 
+ **Files:** Modify `packages/config/project.mjs`, `packages/config/project.d.mts`, `scripts/design.mjs`, `apps/site/src/styles/foundations.css`, affected expectations in `tests/project-config.test.ts`; create `packages/design-system/motion.mjs`, `.d.mts`, `tests/motion-config.test.ts`.
+ 
+ **Interfaces:** Export `MotionConfig {enabled:boolean;durationMs:number;distancePx:number;staggerMs:number;interactionMs:number}` and make `ProjectConfig.design.motion` normalized/required after parsing. Export `motionCSS(motion: MotionConfig): string`; its numeric input is validated before interpolation. Generated CSS emits `--motion-duration`, `--motion-distance`, `--motion-stagger`, `--motion-interaction-duration`; foundation owns `--motion-max-delay:300ms`, `--motion-ease:cubic-bezier(.22,1,.36,1)` and `--motion-interaction-ease:ease-out`.
+ 
+-- [ ] Write configuration tests with existing `project` fixture: `expect(parseProject(raw).design.motion).toEqual({enabled:false,durationMs:600,distancePx:18,staggerMs:70,interactionMs:180})`; missing `design` and partial `motion` normalize without changing input. Tables reject strings, null, fractional/out-of-range numbers, non-boolean enablement and unknown nested keys. Explicit zero distance/stagger/interaction and all inclusive bounds pass. Update previous exact design-equality tests to include the normalized default, preserving their original assertions.
+-- [ ] Run `pnpm exec vitest run tests/project-config.test.ts tests/motion-config.test.ts`; observe the new assertions fail against the current schema, not only an import/collection error.
+-- [ ] Add strict nested schema defaults, declaration type and pure token emitter. An absent motion object is normalized once by `parseProject`; the emitter consumes that normalized result. Have `generateDesign` append emitted values to the same ignored generated CSS. Keep theme registry output and CMS/editor content unchanged.
+-- [ ] Add assertions for custom `{durationMs:950,distancePx:32,staggerMs:120,interactionMs:240}` emitting `950ms`, `32px`, `120ms`, `240ms`, with deterministic output and no arbitrary string interpolation. Run focused tests and `pnpm exec tsc --noEmit`; inspect an actual `pnpm configure` output, then retain canonical project bytes unchanged in this task.
+-- [ ] Commit `feat(motion): add validated project settings and semantic tokens`. Independent reviewer checks config compatibility, safe CSS generation and absence of manual generated edits; resolve findings before Task 2.
++- [x] Write configuration tests with existing `project` fixture: `expect(parseProject(raw).design.motion).toEqual({enabled:false,durationMs:600,distancePx:18,staggerMs:70,interactionMs:180})`; missing `design` and partial `motion` normalize without changing input. Tables reject strings, null, fractional/out-of-range numbers, non-boolean enablement and unknown nested keys. Explicit zero distance/stagger/interaction and all inclusive bounds pass. Update previous exact design-equality tests to include the normalized default, preserving their original assertions.
++- [x] Run `pnpm exec vitest run tests/project-config.test.ts tests/motion-config.test.ts`; observe the new assertions fail against the current schema, not only an import/collection error.
++- [x] Add strict nested schema defaults, declaration type and pure token emitter. An absent motion object is normalized once by `parseProject`; the emitter consumes that normalized result. Have `generateDesign` append emitted values to the same ignored generated CSS. Keep theme registry output and CMS/editor content unchanged.
++- [x] Add assertions for custom `{durationMs:950,distancePx:32,staggerMs:120,interactionMs:240}` emitting `950ms`, `32px`, `120ms`, `240ms`, with deterministic output and no arbitrary string interpolation. Run focused tests and `pnpm exec tsc --noEmit`; inspect an actual `pnpm configure` output, then retain canonical project bytes unchanged in this task.
++- [x] Commit `feat(motion): add validated project settings and semantic tokens`. Author checks config compatibility, safe CSS generation and absence of manual generated edits; resolve findings before Task 2.
+ 
+ ### Task 2: Fail-open entrance lifecycle
+ 
+ **Files:** Create `apps/site/src/scripts/motion.ts`, `tests/motion-runtime.test.ts` and a focused test-only DOM/API fixture under `tests/fixtures/motion/`. No new runtime/test dependency.
+ 
+ **Interfaces:** Export `initMotion(root: Document | HTMLElement): () => void`. The owning root carries `data-motion="on"` or `"off"`. Targets use `[data-motion-reveal]`; repeated siblings share `[data-motion-group]`. Read computed token values from the root, using its document/window, without importing server adapters. Repeated init on the same active root returns its existing disposer; disposal removes its registration so an explicit later re-init is possible.
+ 
+-- [ ] Write deterministic lifecycle assertions using a small injected document/window fixture and captured observer/media listeners: off, reduced and missing APIs call animate zero times; initially visible/focused/hash-containing targets call animate zero times; crossing an offscreen eligible target calls animate once even with duplicate callbacks and re-entry. Expected delays for ten siblings at 70 ms are `[0,70,140,210,280,300,300,300,300,300]`.
+-- [ ] Run `pnpm exec vitest run tests/motion-runtime.test.ts` and observe genuine assertion failures for the missing lifecycle before implementation. Record RED/GREEN in the task report; collection failure alone is insufficient.
+-- [ ] Implement one shared observer per root and one completed-target set. Filter nested reveal markers so an animated target never contains another independently animated target. Use keyframes from opacity 0 to 1 and individual `translate` from `0 <distance>` to `0 0`, with fill `none`; preserve existing `transform`. If a target already has a non-none individual translate, use fade-only keyframes. Use configured duration/easing and bounded direct sibling indices. Unobserve consumed targets and release completed/cancelled handles.
+-- [ ] Test focusin, initial hash, hashchange, encoded IDs and malformed percent escapes using safe decoding and ID lookup rather than interpolated selectors. Fragment navigation cancels relevant handles and skips newly reached destinations/ancestors. Reduced-motion changes cancel active handles immediately and block further animation while active. A focused target is consumed without movement.
+-- [ ] Test throwing observer/animate/style APIs, rejected `finished`, preference changes mid-animation and double disposal: cancellation leaves default visible styles, disconnects owned observers and removes listeners; no rejection is left unhandled. Do not use persistent inline styles, hide classes or `commitStyles`.
+-- [ ] Run focused lifecycle/config tests and TypeScript; commit `feat(motion): add accessible fail-open entrance controller`. Independent reviewer checks all five lifecycle failure paths before Task 3.
++- [x] Write deterministic lifecycle assertions using a small injected document/window fixture and captured observer/media listeners: off, reduced and missing APIs call animate zero times; initially visible/focused/hash-containing targets call animate zero times; crossing an offscreen eligible target calls animate once even with duplicate callbacks and re-entry. Expected delays for ten siblings at 70 ms are `[0,70,140,210,280,300,300,300,300,300]`.
++- [x] Run `pnpm exec vitest run tests/motion-runtime.test.ts` and observe genuine assertion failures for the missing lifecycle before implementation. Record RED/GREEN in the task report; collection failure alone is insufficient.
++- [x] Implement one shared observer per root and one completed-target set. Filter nested reveal markers so an animated target never contains another independently animated target. Use keyframes from opacity 0 to 1 and individual `translate` from `0 <distance>` to `0 0`, with fill `none`; preserve existing `transform`. If a target already has a non-none individual translate, use fade-only keyframes. Use configured duration/easing and bounded direct sibling indices. Unobserve consumed targets and release completed/cancelled handles.
++- [x] Test focusin, initial hash, hashchange, encoded IDs and malformed percent escapes using safe decoding and ID lookup rather than interpolated selectors. Fragment navigation cancels relevant handles and skips newly reached destinations/ancestors. Reduced-motion changes cancel active handles immediately and block further animation while active. A focused target is consumed without movement.
++- [x] Test throwing observer/animate/style APIs, rejected `finished`, preference changes mid-animation and double disposal: cancellation leaves default visible styles, disconnects owned observers and removes listeners; no rejection is left unhandled. Do not use persistent inline styles, hide classes or `commitStyles`.
++- [x] Run focused lifecycle/config tests and TypeScript; commit `feat(motion): add accessible fail-open entrance controller`. Author checks all five lifecycle failure paths before Task 3.
+ 
+ ### Task 3: Renderer integration, interaction polish and showcase
+ 
+ **Files:** Modify `apps/site/src/layouts/Layout.astro`, `ShowcaseLayout.astro`, `templates/sections/{Hero,RichText,OfferingList,PeopleList,ArticleList,Cta,Faq,Steps,MediaText,Gallery}.astro`, `templates/domains/rooms/RoomList.astro`, `components/ui/{Button,Card,SocialLinks}.astro` as required, `components/showcase/Showcase.astro`, `scripts/design-preview.ts`, `styles/showcase.css`; create `scripts/motion-entry.ts`, `styles/motion.css`, focused render regression tests in `apps/site/tests/motion.test.ts` and its explicit include in `apps/site/vitest.config.ts`. Enable `project.design.motion.enabled` explicitly in `project.json` only after the integration passes.
+ 
+ **Interfaces:** Public layout emits `data-motion={project.design.motion.enabled ? 'on' : 'off'}`. Bootstrap reads that attribute and dynamically imports `./motion` only for on; initializes once and disposes on page teardown. No inline configuration script. Showcase uses a dedicated root with the same attribute/markers and an explicit EN/EL labelled checkbox, initially matching project config; turning off disposes its controller, turning on initializes it. Preview changes never persist.
+ 
+-- [ ] Add renderer assertions: no reveal marker on the primary hero/H1, form/errors/skip/header/footer; eligible heading/copy wrappers and list items have explicit markers and stable groups; shared card markers do not create nested reveal targets. Use actual Astro render tests rather than snapshotting source text. Run `pnpm exec vitest run --config apps/site/vitest.config.ts apps/site/tests/motion.test.ts` and confirm the new assertions fail.
+-- [ ] Apply markers without changing DOM semantics, IDs, section membership or source copy. Non-primary headings/copy may be grouped in existing containers. MediaText animates copy only; Gallery animates text/captions, not image/background surfaces; FAQ animates heading/intro, not expandable answer controls. Steps and list cards animate bounded items; Rooms follows its existing feature gate. Plain editorial body paragraphs remain untouched.
+-- [ ] Wire the conditional bootstrap and shared CSS. Interaction rules target `.button`, `.card h3 a` and `.social-link`, use only colour/border/opacity plus at most 2 px of decorative movement, and never `transition: all`. Use hover/fine-pointer media queries. Apply decorative movement to inner links/buttons so an entrance target is not also their moving surface. Preserve immediate static focus indication and disable movement/stagger under reduced or off modes.
+-- [ ] Add the local showcase example and on/off control. Dispose before theme/language preview swaps, retain existing language focus recovery, then initialize only currently visible sample roots. Ordinary browser back/forward and reset keep the existing preview contract; the motion checkbox is ephemeral and resetting returns to configured state. Do not extend persisted query/config/content schemas for this checkbox.
+-- [ ] Verify built HTML/bundle references for off mode: no request/import execution of the entrance-controller chunk. A small non-animating conditional bootstrap is allowed. Run focused render tests, `pnpm check`, `pnpm build`; inspect default example after explicit local enablement. Commit `feat(motion): integrate shared effects and local showcase`; independent reviewer approves integration, exclusions, bundle gating and no canonical-content changes.
++- [x] Add renderer assertions: no reveal marker on the primary hero/H1, form/errors/skip/header/footer; eligible heading/copy wrappers and list items have explicit markers and stable groups; shared card markers do not create nested reveal targets. Use actual Astro render tests rather than snapshotting source text. Run `pnpm exec vitest run --config apps/site/vitest.config.ts apps/site/tests/motion.test.ts` and confirm the new assertions fail.
++- [x] Apply markers without changing DOM semantics, IDs, section membership or source copy. Non-primary headings/copy may be grouped in existing containers. MediaText animates copy only; Gallery animates text/captions, not image/background surfaces; FAQ animates heading/intro, not expandable answer controls. Steps and list cards animate bounded items; Rooms follows its existing feature gate. Plain editorial body paragraphs remain untouched.
++- [x] Wire the conditional bootstrap and shared CSS. Interaction rules target `.button`, `.card h3 a` and `.social-link`, use only colour/border/opacity plus at most 2 px of decorative movement, and never `transition: all`. Use hover/fine-pointer media queries. Apply decorative movement to inner links/buttons so an entrance target is not also their moving surface. Preserve immediate static focus indication and disable movement/stagger under reduced or off modes.
++- [x] Add the local showcase example and on/off control. Dispose before theme/language preview swaps, retain existing language focus recovery, then initialize only currently visible sample roots. Ordinary browser back/forward and reset keep the existing preview contract; the motion checkbox is ephemeral and resetting returns to configured state. Do not extend persisted query/config/content schemas for this checkbox.
++- [x] Verify built HTML/bundle references for off mode: no request/import execution of the entrance-controller chunk. A small non-animating conditional bootstrap is allowed. Run focused render tests, `pnpm check`, `pnpm build`; inspect default example after explicit local enablement. Commit `feat(motion): integrate shared effects and local showcase`; independent reviewer approves integration, exclusions, bundle gating and no canonical-content changes.
+ 
+ ### Task 4: Browser acceptance, extension documentation and closeout
+ 
+ **Files:** Create `e2e/motion.spec.ts`, `scripts/verify-motion.mjs`, `docs/MOTION.md`, `docs/superpowers/plans/2026-10-20-starter-v2-motion-evidence.md`; modify `package.json` for `test:motion`, `docs/{ARCHITECTURE,QUICKSTART,DESIGN_SYSTEM_SHOWCASE}.md`. Use existing guarded fixture/owned-command helpers where compatible; keep browser evidence ignored under `.generated/motion/` and reports under a task-specific reviews directory.
+ 
+ **Interfaces:** `pnpm test:motion` invokes a project-owned acceptance driver, starts only isolated/owned listeners on explicitly chosen free ports, records its source/config inventory, commands/exit codes and screenshot paths, and exits nonzero on any required failed check. Use detached fixtures for motion on/off, custom parameters, Composition B and Rooms. Any in-place fixture must use known expected bytes before claim; foreign writes are preserved and reported, never restored or regenerated over.
+ 
+-- [ ] Add actual-browser cases for EN/EL at 375, 768 and 1440 px covering Home, Contact, an Offering and Article detail, a composed page with FAQ/steps/media/gallery, and enabled Rooms. On normal motion, scroll below-fold targets and inspect real animation timings/opacity/translation; scroll back and re-enter to prove no replay. With custom tokens 950/32/120/240, assert computed CSS and actual keyframe/timing values; do not treat screenshots as proof of timing.
+-- [ ] Add off, reduced, dynamic preference and JavaScript-disabled cases. Assert content is visible/readable before controller execution and after forced API failure/disposal; no controller request in off mode; hero/H1/form/error/legal/skip remain unanimated. Preserve focus and direct EN/EL encoded/invalid hash navigation; test a pre-existing transform remains unchanged and touch hover does not stick. All cases assert no horizontal overflow.
+-- [ ] Exercise showcase on/off, theme/language changes, reset and back/forward; check no hidden-language target animates and keyboard focus is recovered before hiding its sample. Assert configured motion and canonical content hashes are unchanged by preview use. Run representative accessibility scans and manual visual/keyboard review, recording scope and limitations.
+-- [ ] Write English documentation with actual config examples/defaults, semantic token ownership, marker/group extension contract, reduced/no-JS/disabled behaviour, lack of persistence and practical initial-viewport limitations. Update current guides; mark no hosted/provider/launch verification as completed.
+-- [ ] Stop the exact owned stack, then run sequentially `pnpm check`, `pnpm test`, `pnpm build`, `pnpm worker:check`, `pnpm cms:local-build`, `pnpm test:static-routing`, `pnpm test:showcase-builds`, `pnpm test:motion`. Record explicit completion/exit codes. Never run lifecycle-owning commands against an already running main stack. Restore proven fixtures before the next command; stop on ownership conflicts.
+-- [ ] Commit `test(motion): verify shared effects and document extension contract`. Independent reviewer checks requirement coverage, actual computed values, fallback failures and cleanup ownership; repair and rerun affected evidence before the whole-branch review.
++- [x] Add actual-browser cases for EN/EL at 375, 768 and 1440 px covering Home, Contact, an Offering and Article detail, a composed page with FAQ/steps/media/gallery, and enabled Rooms. On normal motion, scroll below-fold targets and inspect real animation timings/opacity/translation; scroll back and re-enter to prove no replay. With custom tokens 950/32/120/240, assert computed CSS and actual keyframe/timing values; do not treat screenshots as proof of timing.
++- [x] Add off, reduced, dynamic preference and JavaScript-disabled cases. Assert content is visible/readable before controller execution and after forced API failure/disposal; no controller request in off mode; hero/H1/form/error/legal/skip remain unanimated. Preserve focus and direct EN/EL encoded/invalid hash navigation; test a pre-existing transform remains unchanged and touch hover does not stick. All cases assert no horizontal overflow.
++- [x] Exercise showcase on/off, theme/language changes, reset and back/forward; check no hidden-language target animates and keyboard focus is recovered before hiding its sample. Assert configured motion and canonical content hashes are unchanged by preview use. Run representative accessibility scans and manual visual/keyboard review, recording scope and limitations.
++- [x] Write English documentation with actual config examples/defaults, semantic token ownership, marker/group extension contract, reduced/no-JS/disabled behaviour, lack of persistence and practical initial-viewport limitations. Update current guides; mark no hosted/provider/launch verification as completed.
++- [x] Stop the exact owned stack, then run sequentially `pnpm check`, `pnpm test`, `pnpm build`, `pnpm worker:check`, `pnpm cms:local-build`, `pnpm test:static-routing`, `pnpm test:showcase-builds`, `pnpm test:motion`. Record explicit completion/exit codes. Never run lifecycle-owning commands against an already running main stack. Restore proven fixtures before the next command; stop on ownership conflicts.
++- [x] Commit `test(motion): verify shared effects and document extension contract`. Author checks requirement coverage, actual computed values, fallback failures and cleanup ownership; repair and rerun affected evidence before the whole-branch review.
+ 
+ ## Final review and local handoff
+ 
+ - [ ] Whole-branch review against the approved spec and Task 1 baseline: no Critical/Important findings remain. Resolve findings with targeted regressions and rerun appropriate final gates. Preserve separate task review reports and a coverage matrix; do not reframe failed attempts as accepted evidence.
+ - [ ] Confirm only the deliberate `project.design.motion.enabled:true` local demonstration change persists; canonical content/themes, source repositories and unrelated local data remain unchanged.
+ - [ ] Restart `pnpm dev:cms`, record exact owned session/PIDs and verify Home/Contact EN/EL, CMS and indexed Tina query readiness. Report commit IDs, test outcomes, local links and any measured limitations. No push/merge/deployment/tag is part of this plan.
+ 
+ ## Plan self-review
+ 
+ All approved design sections map to Tasks 1–4: config/tokens (1), safe lifecycle/fallback (2), explicit renderers/interactions/showcase (3), actual computed-value/browser/failure checks and docs (4). The five Review Focus cases have named owner tasks and assertions. Shared API names and defaults match across tasks. This is a proposed implementation plan, not a claim that effects are implemented or tested.
+ 
+-Execution method is already supplied: subagent-driven implementation with a separate review per task. Await user review of this document before creating the execution checkout/branch or changing product code.
++Execution method: inline implementation, per-task checks and commits, one independent final review. Written plan and revised execution method approved by the user on 2026-10-20.
+diff --git a/docs/superpowers/reviews/2026-10-20-motion/README.md b/docs/superpowers/reviews/2026-10-20-motion/README.md
+new file mode 100644
+index 0000000..947cfa7
+--- /dev/null
++++ b/docs/superpowers/reviews/2026-10-20-motion/README.md
+@@ -0,0 +1,11 @@
++# Motion implementation evidence
++
++The user selected inline implementation with one independent final review. The accepted design and plan are under `docs/superpowers/`. Final review is pending at this checkpoint.
++
++`gates.json` records eight completed verification commands with owned PIDs, timestamps and exit code 0. Complete local gate logs remain under `.superpowers/sdd/2026-10-20-starter-v2-motion/` until final archive closeout. Root tests: 924 passed, one existing conditional skip; site renderer tests: 36 passed. Type/Astro checks: 60 files, zero errors/warnings/hints.
++
++Final detached browser acceptance: `.generated/motion/acceptance-LCICjx/`. Both on/off scenarios passed: 36 language/viewport/JS-preference contexts with seven routes each, plus focus, encoded/malformed hashes, unsupported/throwing APIs, touch-pointer and showcase preview controls. Eight representative axe scans (Rooms detail) reported zero violations. Custom 950 ms / 32 px / 120 ms / 240 ms parameters reached actual built CSS and native animation timings. Off mode requested no entrance controller. All owned servers closed and source inventories matched.
++
++Earlier attempts are retained locally as failed evidence. The first used guessed detail routes; these now come from the publication projection. Subsequent zero-animation failures led to the actual production CSS-unit defect: minification rewrites milliseconds to seconds. A failing regression now verifies both units, and the implementation passes. A later successful content matrix exposed a multi-match showcase locator; it now checks all language groups. An early exceptional showcase path lacked context cleanup and its owned test child was explicitly stopped after identity verification; context/server cleanup is now unconditional. These attempts are not successful acceptance runs.
++
++Fixtures are detached copies under the ignored acceptance directories with node_modules junctions to the installed runtime; canonical files are never overwritten. They are retained as local evidence, not recursively removed. Test server CSP matches the public asset policy. Hosted infrastructure, real sending, exhaustive browser/accessibility certification and deployment remain outside scope.
+diff --git a/docs/superpowers/reviews/2026-10-20-motion/gates.json b/docs/superpowers/reviews/2026-10-20-motion/gates.json
+new file mode 100644
+index 0000000..f409b7e
+--- /dev/null
++++ b/docs/superpowers/reviews/2026-10-20-motion/gates.json
+@@ -0,0 +1,58 @@
++[
++  {
++    "name": "check",
++    "started": "2026-10-20T07:43:17.225Z",
++    "pid": 39012,
++    "ended": "2026-10-20T07:43:33.110Z",
++    "exitCode": 0
++  },
++  {
++    "name": "test",
++    "started": "2026-10-20T07:43:33.111Z",
++    "pid": 25756,
++    "ended": "2026-10-20T07:43:55.074Z",
++    "exitCode": 0
++  },
++  {
++    "name": "build",
++    "started": "2026-10-20T07:43:55.074Z",
++    "pid": 3276,
++    "ended": "2026-10-20T07:44:00.858Z",
++    "exitCode": 0
++  },
++  {
++    "name": "worker:check",
++    "started": "2026-10-20T07:44:00.858Z",
++    "pid": 28224,
++    "ended": "2026-10-20T07:44:03.737Z",
++    "exitCode": 0
++  },
++  {
++    "name": "cms:local-build",
++    "started": "2026-10-20T07:44:03.737Z",
++    "pid": 31780,
++    "ended": "2026-10-20T07:44:41.556Z",
++    "exitCode": 0
++  },
++  {
++    "name": "test:static-routing",
++    "started": "2026-10-20T07:44:41.556Z",
++    "pid": 33180,
++    "ended": "2026-10-20T07:44:50.364Z",
++    "exitCode": 0
++  },
++  {
++    "name": "test:showcase-builds",
++    "started": "2026-10-20T07:44:50.364Z",
++    "pid": 16532,
++    "ended": "2026-10-20T07:45:03.348Z",
++    "exitCode": 0
++  },
++  {
++    "name": "test:motion",
++    "started": "2026-10-20T07:45:03.349Z",
++    "pid": 21484,
++    "ended": "2026-10-20T07:45:58.622Z",
++    "exitCode": 0
++  }
++]
+\ No newline at end of file
+diff --git a/docs/superpowers/reviews/2026-10-20-motion/progress.md b/docs/superpowers/reviews/2026-10-20-motion/progress.md
+new file mode 100644
+index 0000000..e1d7cc2
+--- /dev/null
++++ b/docs/superpowers/reviews/2026-10-20-motion/progress.md
+@@ -0,0 +1,9 @@
++# SDD ledger — plan: docs/superpowers/plans/2026-10-20-starter-v2-motion.md
++
++Baseline: 69e2599. Branch: codex/starter-v2-motion.
++Ruling: Reuse the verified clean, dedicated starter checkout on a new feature branch rather than another worktree — preserves the established installed runtime and local CMS workflow — weaker filesystem isolation if unrelated work appears.
++Execution: user selected inline with one independent final review, superseding per-task reviews.
++Pre-flight: Task 1 exports MotionConfig/token CSS consumed by Task 2 computed-style reader and Task 3 generated layout; Task 2 initMotion(root) disposer consumed by public bootstrap/showcase; Task 3 markers consumed by Task 4 browser acceptance. Names align.
++Task 1: complete (commits 69e2599..cf59ea8, tests: pnpm exec vitest run tests/project-config.test.ts tests/motion-config.test.ts →    Duration  644ms (import 53%, transform 31%, tests 14%, worker 2%))
++Task 2: complete (commits cf59ea8..9e59e0b, tests: pnpm exec vitest run tests/motion-runtime.test.ts tests/motion-config.test.ts →    Duration  401ms (import 46%, transform 40%, tests 10%, worker 4%))
++Task 3: complete (commits 9e59e0b..1299aac, tests: pnpm test:footer →              learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns)
+diff --git a/docs/superpowers/specs/2026-10-20-starter-v2-motion-design.md b/docs/superpowers/specs/2026-10-20-starter-v2-motion-design.md
+index b4a8893..faa7c31 100644
+--- a/docs/superpowers/specs/2026-10-20-starter-v2-motion-design.md
++++ b/docs/superpowers/specs/2026-10-20-starter-v2-motion-design.md
+@@ -1,14 +1,14 @@
+ # Starter v2 — Shared motion system design
+ 
+ Date: 2026-10-20
+-Status: Written design approved by the user on 2026-10-20; implementation plan awaits review.
++Status: Written design approved by the user on 2026-10-20; implementation plan and inline execution approved; implementation verification complete, final review pending.
+ Baseline: `c8be98c` on `codex/starter-v2-contact-social`.
+ 
+ ## Intent and scope
+ 
+ Add reusable, adjustable public-site motion without changing page composition, typography, colours, content ownership or routing. This is Stage 3's motion slice, following responsive media and contact/social. The CMS styling checkpoint is already committed separately.
+ 
+ The approved direction is scroll fades with bounded stagger, consistent interaction transitions, configurable timing/intensity, reduced-motion support and readable content without JavaScript. Newsletter, visitor persistence, cookie controls, hosted integrations and deployment remain separate work.
+ 
+ ## Approaches and decision
+ 
+diff --git a/e2e/motion.spec.ts b/e2e/motion.spec.ts
+new file mode 100644
+index 0000000..f781373
+--- /dev/null
++++ b/e2e/motion.spec.ts
+@@ -0,0 +1,119 @@
++import {parseProject} from '../packages/config/project.mjs';
++import {readContent} from '../packages/content/read.mjs';
++import {localizeContent} from '../packages/content/localize.mjs';
++import {test,expect} from '@playwright/test';
++import AxeBuilder from '@axe-core/playwright';
++import {createServer} from 'node:http';
++import {copyFileSync,existsSync,mkdirSync,readFileSync,writeFileSync,symlinkSync,statSync} from 'node:fs';
++import {join,resolve,dirname,extname,sep} from 'node:path';
++import {execFileSync} from 'node:child_process';
++import {runOwnedCommand} from '../scripts/owned-command.mjs';
++import {createCompositionBDocument} from './helpers/composition-b-fixture';
++import {publicIndex,publicRoom} from './helpers/composition-c-acceptance';
++test.skip(!process.env.MOTION_DIRECTORY,'Owned motion acceptance only');
++const evidence=process.env.MOTION_DIRECTORY!;
++for(const enabled of [true,false])test('detached motion '+enabled,async({browser})=>{
++ test.setTimeout(300000);
++ const root=join(evidence,enabled?'on':'off');mkdirSync(root,{recursive:true});
++ const files=execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z']).toString().split('\0').filter(Boolean);
++ for(const file of files){const dest=join(root,file);mkdirSync(dirname(dest),{recursive:true});copyFileSync(file,dest);}
++ symlinkSync(resolve('node_modules'),join(root,'node_modules'),'junction');
++ symlinkSync(resolve('apps/site/node_modules'),join(root,'apps/site/node_modules'),'junction');
++ const foundation=join(root,'apps/site/src/styles/foundations.css');writeFileSync(foundation,readFileSync(foundation,'utf8')+'\n[data-motion-reveal]:has(#text_only){transform:translateX(1px)}\n');
++ const p=JSON.parse(readFileSync('project.json','utf8'));p.modules={rooms:true};p.design.motion={enabled,durationMs:950,distancePx:32,staggerMs:120,interactionMs:240};
++ writeFileSync(join(root,'project.json'),JSON.stringify(p));
++ const write=(path:string,value:any)=>{mkdirSync(dirname(join(root,path)),{recursive:true});writeFileSync(join(root,path),JSON.stringify(value));};
++ write('content/pages/motion_sample.json',createCompositionBDocument('motion_sample'));
++ write('content/pages/rooms.json',publicIndex());write('content/rooms/motion-suite.json',publicRoom('motion-suite'));
++ const commands:any[]=[];
++ for(const args of [['scripts/configure.mjs'],['apps/site/scripts/build.mjs']]){
++  const row:any={args,started:Date.now()};commands.push(row);
++  try{await runOwnedCommand(process.execPath,args,{cwd:root,timeoutMs:120000,onStart:pid=>row.pid=pid,onOutput:()=>{}});row.exitCode=0;}catch(error){row.exitCode=1;throw error;}finally{row.ended=Date.now();writeFileSync(join(root,'commands.json'),JSON.stringify(commands,null,2));}
++ }
++ const dist=join(root,'apps/site/dist');
++ const mime:Record<string,string>={'.html':'text/html','.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml'};
++ const server=createServer((req,res)=>{
++  try{let path=resolve(dist,'.'+decodeURIComponent(new URL(req.url!,'http://local').pathname));if(path!==dist&&!path.startsWith(dist+sep))throw Error('outside fixture');if(existsSync(path)&&statSync(path).isDirectory())path=join(path,'index.html');if(!existsSync(path))path=join(path,'index.html');
++   res.setHeader('Content-Type',mime[extname(path)]||'application/octet-stream');res.setHeader('Content-Security-Policy',"default-src 'self';script-src 'self';style-src 'self';font-src 'self';img-src 'self' data:;connect-src 'self'");res.end(readFileSync(path));
++  }catch{res.statusCode=404;res.end('Not found');}
++ });
++ await new Promise<void>(done=>server.listen(0,'127.0.0.1',done));const address=server.address() as any;const base='http://127.0.0.1:'+address.port;
++ const matrix:any[]=[];
++ try{
++ for(const locale of ['en','el'])for(const width of [375,768,1440])for(const mode of ['normal','reduced','no-js']){
++  const context=await browser.newContext({viewport:{width,height:800},javaScriptEnabled:mode!=='no-js',reducedMotion:mode==='reduced'?'reduce':'no-preference'});
++  const page=await context.newPage();const requests:string[]=[];page.on('request',r=>requests.push(r.url()));const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
++  if(mode!=='no-js')await page.addInitScript(()=>{const OriginalObserver=window.IntersectionObserver;(window as any).__observed=0;window.IntersectionObserver=class extends OriginalObserver{observe(target:Element){super.observe(target);(window as any).__observed++;}};const original=Element.prototype.animate;(window as any).__motion=[];Element.prototype.animate=function(frames,options){const a=original.call(this,frames,options);(window as any).__motion.push({tag:this.tagName,marker:this.hasAttribute('data-motion-reveal'),frames:a.effect?.getKeyframes(),timing:a.effect?.getTiming()});return a;};});
++  try{
++   const content=localizeContent(readContent(root,parseProject(p)),locale,parseProject(p));
++   for(const path of ['', '/contact',content.offerings[0].path.slice(locale.length+1),content.articles[0].path.slice(locale.length+1),'/motion-sample','/rooms','/rooms/motion-suite']){
++    await page.emulateMedia({reducedMotion:mode==='reduced'?'reduce':'no-preference'});
++    const response=await page.goto(base+'/'+locale+path);expect(response?.status(),path).toBe(200);
++    await expect(page.locator('h1')).toBeVisible();expect(await page.locator('header [data-motion-reveal],footer [data-motion-reveal],form [data-motion-reveal],h1[data-motion-reveal]').count()).toBe(0);
++    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
++    if(path==='/motion-sample'&&mode!=='no-js'){
++     const targets=page.locator('[data-motion-reveal]');const target=targets.last();
++     if(enabled&&mode==='normal')await expect.poll(()=>page.evaluate(()=>(window as any).__observed)).toBeGreaterThan(0);
++     await target.scrollIntoViewIfNeeded();
++     if(enabled&&mode==='normal'){
++      await expect.poll(()=>page.evaluate(()=>(window as any).__motion.length)).toBeGreaterThan(0);
++      const calls=await page.evaluate(()=>(window as any).__motion);expect(calls.every((c:any)=>c.timing.duration===950&&c.timing.delay<=300&&c.marker)).toBe(true);
++      expect(calls.some((c:any)=>c.frames[0].translate==='0px 32px'||c.frames[0].translate==='0 32px')).toBe(true);
++      const css=await page.locator('html').evaluate(e=>getComputedStyle(e).getPropertyValue('--motion-interaction-duration').trim());expect(css).toMatch(/^(240ms|0?\.24s)$/);
++      await expect.poll(()=>page.evaluate(()=>document.getAnimations().length)).toBe(0);const count=calls.length;
++      await page.evaluate(()=>scrollTo(0,0));await target.scrollIntoViewIfNeeded();expect((await page.evaluate(()=>(window as any).__motion.length))).toBe(count);
++      await page.emulateMedia({reducedMotion:'reduce'});expect(await page.evaluate(()=>document.getAnimations().length)).toBe(0);
++     }else expect(await page.evaluate(()=>(window as any).__motion.length)).toBe(0);
++    }
++   }
++   if(mode!=='no-js'&&width===375){const audit=await new AxeBuilder({page}).analyze();writeFileSync(join(root,`axe-${locale}-${mode}.json`),JSON.stringify(audit));expect(audit.violations).toEqual([]);}
++   if(!enabled&&mode!=='no-js')expect(requests.some(url=>/\/motion\.[^/]+\.js/.test(url))).toBe(false);
++   expect(errors).toEqual([]);matrix.push({locale,width,mode,noOverflow:true});
++   if(mode==='normal'&&width===1440)await page.screenshot({path:join(root,locale+'.png'),fullPage:true});
++  }finally{await context.close();}
++ }
++ if(enabled){
++  const context=await browser.newContext();
++  try{
++   const page=await context.newPage();await page.goto(base+'/design-system');
++   const toggle=page.locator('#showcase-motion');await expect(toggle).toBeEnabled();await toggle.uncheck();
++   await expect(page.locator('#showcase-main')).toHaveAttribute('data-motion','off');await toggle.check();
++   await page.locator('[data-sample-language="en"] .button').first().focus();
++   await page.locator('#showcase-language').selectOption('el');
++   for(const group of await page.locator('[data-sample-language="en"]').all())await expect(group).toBeHidden();
++   await expect(page.locator('#showcase-language')).toBeFocused();
++   await page.locator('#showcase-theme').selectOption('trades');await page.goBack();
++   await page.locator('#showcase-reset').click();await expect(toggle).toBeChecked();
++  }finally{await context.close();}
++  for(const fault of ['focus','api-failure','unsupported','hash','touch']){
++   const context=await browser.newContext({hasTouch:fault==='touch',viewport:{width:375,height:800}});
++   try{
++    const page=await context.newPage();const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
++    await page.addInitScript(({fault})=>{
++     (window as any).__observed=0;(window as any).__attempts=0;
++     const IO=window.IntersectionObserver;
++     if(fault==='unsupported')(window as any).IntersectionObserver=undefined;
++     else window.IntersectionObserver=class extends IO{observe(target:Element){super.observe(target);(window as any).__observed++;}};
++     if(fault==='api-failure')Element.prototype.animate=function(){(window as any).__attempts++;throw Error('forced API failure');};
++    },{fault});
++    await page.goto(base+'/en/motion-sample'+(fault==='hash'?'#text%5Fonly':''));
++    const target=page.locator('[data-motion-reveal]').last();
++    if(fault==='focus'||fault==='api-failure'){
++     await expect.poll(()=>page.evaluate(()=>(window as any).__observed)).toBeGreaterThan(0);
++     await target.scrollIntoViewIfNeeded();
++     if(fault==='focus'){
++      await expect.poll(()=>target.evaluate(e=>e.getAnimations().length)).toBeGreaterThan(0);
++      expect(await target.evaluate(e=>getComputedStyle(e).transform)).toBe('matrix(1, 0, 0, 1, 1, 0)');
++      await target.locator('a').first().focus();expect(await target.evaluate(e=>e.getAnimations().length)).toBe(0);
++     }else await expect.poll(()=>page.evaluate(()=>(window as any).__attempts)).toBeGreaterThan(0);
++    }else await target.scrollIntoViewIfNeeded();
++    if(fault!=='touch')expect(await target.evaluate(e=>getComputedStyle(e).opacity)).toBe('1');
++    if(fault==='hash'){await page.goto(base+'/el/motion-sample#%zz');await expect(page.locator('h1')).toBeVisible();}
++    if(fault==='touch')expect(await page.evaluate(()=>matchMedia('(hover:hover)').matches)).toBe(false);
++    expect(errors).toEqual([]);
++   }finally{await context.close();}
++  }
++ }
++ writeFileSync(join(root,'matrix.json'),JSON.stringify(matrix,null,2));
++ }finally{server.closeAllConnections();await new Promise<void>((done,reject)=>server.close(e=>e?reject(e):done()));writeFileSync(join(root,'shutdown.json'),JSON.stringify({closed:true,port:address.port,ended:new Date().toISOString()}));}
++});
+diff --git a/package.json b/package.json
+index afc2a7c..a6eb46f 100644
+--- a/package.json
++++ b/package.json
+@@ -20,20 +20,21 @@
+     "db:local": "pnpm configure && node scripts/wrangler.mjs d1 migrations apply DB --local --config wrangler.generated.json",
+     "doctor": "node scripts/doctor.mjs",
+     "deploy:check": "node scripts/doctor.mjs --production",
+     "smoke:local": "node scripts/smoke-local.mjs",
+     "test:e2e": "playwright test",
+     "test:composition-c": "node scripts/verify-composition-c.mjs",
+     "test:media-optimization": "node scripts/verify-media-optimization.mjs",
+     "test:profiles": "node scripts/verify-profiles.mjs",
+     "test:showcase-builds": "node scripts/verify-showcase-builds.mjs",
+     "test:static-routing": "pnpm build && node scripts/verify-static-routing.mjs",
++    "test:motion": "node scripts/verify-motion.mjs",
+     "test:contact-social": "node scripts/verify-contact-social.mjs"
+   },
+   "dependencies": {
+     "@fontsource/noto-sans": "5.2.8",
+     "aws4fetch": "1.0.20",
+     "jose": "6.2.12",
+     "markdown-it": "14.3.2",
+     "sharp": "0.35.5",
+     "zod": "4.6.5"
+   },
+diff --git a/packages/config/project.d.mts b/packages/config/project.d.mts
+index e590b80..81e4a25 100644
+--- a/packages/config/project.d.mts
++++ b/packages/config/project.d.mts
+@@ -1,12 +1,14 @@
+ import type { ZodType } from 'zod';
+ export interface MediaOptimization { enabled:boolean; widths:number[]; quality:number }
++export interface MotionConfig {enabled:boolean;durationMs:number;distancePx:number;staggerMs:number;interactionMs:number}
++export const motionSchema: ZodType<MotionConfig>;
+ export interface ProjectConfig {
+   name:string; starterVersion:'2.0.0-dev'; schemaVersion:2; profile:'enquiries'|'newsletter'|'nurture'; articles:boolean; modules:{rooms:boolean};
+   locale:string; languages:{code:string;label:string}[]; siteUrl:string; environment:'local'|'staging'|'production';
+-  design:{theme:string;density:'comfortable'|'compact'|'spacious'}; legalReviewed:boolean; contentReviewed:boolean;
++  design:{theme:string;density:'comfortable'|'compact'|'spacious';motion:MotionConfig}; legalReviewed:boolean; contentReviewed:boolean;
+   interests:{id:string;label:string}[];
+   media:{optimization:MediaOptimization};
+   infrastructure:{databaseId:string;sesRegion:string;sender:string;notificationEmail:string;allowedRecipients:string[];sesConfigurationSet:string;snsTopicArn:string;accessIssuer:string;accessAudience:string;adminEmails:string[];editorEmails:string[];sendingEnabled:boolean;marketingEnabled:boolean;sendIntervalMs:number};
+ }
+ export const projectSchema: ZodType<ProjectConfig>;
+ export function parseProject(raw:unknown):ProjectConfig;
+diff --git a/packages/config/project.mjs b/packages/config/project.mjs
+index e1bffa9..f2c9e1f 100644
+--- a/packages/config/project.mjs
++++ b/packages/config/project.mjs
+@@ -15,26 +15,31 @@ const infrastructure = z.strictObject({
+   accessIssuer: z.string().default(''), accessAudience: z.string().default(''), adminEmails: accessEmails.default([]), editorEmails: accessEmails.default([]),
+   sendingEnabled: z.boolean().default(false), marketingEnabled: z.boolean().default(false), sendIntervalMs: z.number().int().min(1000).default(1000),
+ });
+ const optimization = z.strictObject({
+   enabled: z.boolean().default(true),
+   widths: z.array(z.number().int().min(160).max(2560)).min(1).max(6)
+     .refine(widths => widths.every((width, index) => index === 0 || width > widths[index - 1]), 'Media widths must be ascending and unique')
+     .default([320, 640, 960, 1440, 1920]),
+   quality: z.number().int().min(40).max(95).default(80),
+ });
++export const motionSchema = z.strictObject({
++  enabled:z.boolean().default(false), durationMs:z.number().int().min(100).max(1200).default(600),
++  distancePx:z.number().int().min(0).max(48).default(18), staggerMs:z.number().int().min(0).max(150).default(70),
++  interactionMs:z.number().int().min(0).max(400).default(180),
++});
+ export const projectSchema = z.strictObject({
+   name: z.string().regex(/^[a-z0-9-]{1,40}$/), starterVersion: z.literal('2.0.0-dev'), schemaVersion: z.literal(2),
+   profile: z.enum(['enquiries','newsletter','nurture']).default('enquiries'), articles: z.boolean().default(true),
+   modules: z.strictObject({rooms:z.boolean().default(false)}).prefault({}),
+   locale: code, languages: z.array(z.strictObject({code, label:text})).min(1), siteUrl: origin,
+   environment: z.enum(['local','staging','production']).default('local'),
+-  design: z.strictObject({theme:z.string().regex(/^[a-z0-9-]+$/).default('neutral'),density:z.enum(['comfortable','compact','spacious']).default('comfortable')}).default({theme:'neutral',density:'comfortable'}),
++  design: z.strictObject({theme:z.string().regex(/^[a-z0-9-]+$/).default('neutral'),density:z.enum(['comfortable','compact','spacious']).default('comfortable'),motion:motionSchema.prefault({})}).prefault({}),
+   media: z.strictObject({ optimization: optimization.prefault({}) }).prefault({}),
+   infrastructure: infrastructure.prefault({}), legalReviewed:z.boolean().default(false), contentReviewed:z.boolean().default(false),
+   interests:z.array(z.strictObject({id,label:text})).default([]),
+ }).superRefine((p,ctx) => {
+   if (new Set(p.languages.map(l=>l.code)).size !== p.languages.length) ctx.addIssue({code:'custom',path:['languages'],message:'Language codes must be unique'});
+   if (!p.languages.some(l=>l.code===p.locale)) ctx.addIssue({code:'custom',path:['locale'],message:'Default locale must be included in languages'});
+   if (new Set(p.interests.map(i=>i.id)).size !== p.interests.length) ctx.addIssue({code:'custom',path:['interests'],message:'Interest IDs must be unique'});
+ });
+ export function parseProject(raw) { return projectSchema.parse(raw); }
+diff --git a/packages/design-system/motion.d.mts b/packages/design-system/motion.d.mts
+new file mode 100644
+index 0000000..9820a45
+--- /dev/null
++++ b/packages/design-system/motion.d.mts
+@@ -0,0 +1,2 @@
++import type {MotionConfig} from '../config/project.mjs';
++export function motionCSS(motion:MotionConfig):string;
+diff --git a/packages/design-system/motion.mjs b/packages/design-system/motion.mjs
+new file mode 100644
+index 0000000..6e1d1a8
+--- /dev/null
++++ b/packages/design-system/motion.mjs
+@@ -0,0 +1,6 @@
++import {motionSchema} from '../config/project.mjs';
++/** Only validated numbers are interpolated; safe to construct in Node or browser. */
++export function motionCSS(raw){
++ const m=motionSchema.parse(raw ?? {});
++ return `:root{--motion-duration:${m.durationMs}ms;--motion-distance:${m.distancePx}px;--motion-stagger:${m.staggerMs}ms;--motion-interaction-duration:${m.interactionMs}ms}\n`;
++}
+diff --git a/project.json b/project.json
+index 69098a4..067699f 100644
+--- a/project.json
++++ b/project.json
+@@ -1,7 +1,7 @@
+ {
+   "name":"business-starter-v2", "starterVersion":"2.0.0-dev", "schemaVersion":2, "profile":"enquiries", "articles":true,
+   "locale":"en", "languages":[{"code":"en","label":"English"},{"code":"el","label":"Ελληνικά"}],
+-  "siteUrl":"https://example.com", "environment":"local", "design":{"theme":"neutral","density":"comfortable"},
++  "siteUrl":"https://example.com", "environment":"local", "design":{"theme":"neutral","density":"comfortable","motion":{"enabled":true}},
+   "infrastructure":{"databaseId":"00000000-0000-0000-0000-000000000000","sesRegion":"eu-west-1","sender":"Example Studio <hello@example.com>","notificationEmail":"owner@example.com","allowedRecipients":[],"sesConfigurationSet":"starter-transactional","snsTopicArn":"","accessIssuer":"","accessAudience":"","adminEmails":[],"editorEmails":[],"sendingEnabled":false,"marketingEnabled":false,"sendIntervalMs":1000},
+   "interests":[{"id":"updates","label":"Useful updates"}], "legalReviewed":false, "contentReviewed":false
+ }
+diff --git a/scripts/design.mjs b/scripts/design.mjs
+index 842aa7e..8bae7ed 100644
+--- a/scripts/design.mjs
++++ b/scripts/design.mjs
+@@ -1,17 +1,18 @@
+ import { writeFileSync, readFileSync, existsSync } from 'node:fs';
++import {motionCSS} from '../packages/design-system/motion.mjs';
+ import { themes, themeCSS, validateDesign } from '../packages/design-system/theme.mjs';
+ export function generateDesign(design) {
+   validateDesign(design);
+ 
+   const path = 'apps/site/src/styles/themes.generated.css';
+   const css =
+     '/* Generated from packages/design-system/themes. Edit theme JSON, then run pnpm configure. */\n' +
+     Object.entries(themes)
+       .map(([name, theme]) => themeCSS(name, theme))
+-      .join('\n');
++      .join('\n') + '\n' + motionCSS(design.motion);
+   const registryPath = 'packages/design-system/themes.generated.json';
+   const registry = JSON.stringify(themes, null, 2) + '\n';
+   if (!existsSync(registryPath) || readFileSync(registryPath, 'utf8') !== registry)
+     writeFileSync(registryPath, registry);
+   if (!existsSync(path) || readFileSync(path, 'utf8') !== css) writeFileSync(path, css);
+ }
+diff --git a/scripts/verify-motion.mjs b/scripts/verify-motion.mjs
+new file mode 100644
+index 0000000..25c7516
+--- /dev/null
++++ b/scripts/verify-motion.mjs
+@@ -0,0 +1,20 @@
++import {execFileSync} from 'node:child_process';
++import {createHash} from 'node:crypto';
++import {mkdirSync,mkdtempSync,readFileSync,writeFileSync} from 'node:fs';
++import {resolve,join} from 'node:path';
++import {runOwnedCommand} from './owned-command.mjs';
++const root=process.cwd();
++export function motionInventory(){
++ const files=execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:root}).toString().split('\0').filter(Boolean).sort();
++ return Object.fromEntries(files.map(path=>[path,createHash('sha256').update(readFileSync(resolve(root,path))).digest('hex')]));
++}
++if(process.argv[1]&&resolve(process.argv[1])===resolve('scripts/verify-motion.mjs')){
++ mkdirSync('.generated/motion',{recursive:true});const directory=mkdtempSync(resolve('.generated/motion/acceptance-'));
++ const before=motionInventory();writeFileSync(join(directory,'inputs.json'),JSON.stringify(before,null,2));
++ const command={args:['test','e2e/motion.spec.ts'],started:new Date().toISOString(),pid:null,ended:null,exitCode:null};
++ let failure;
++ try{await runOwnedCommand(process.execPath,[resolve('node_modules/@playwright/test/cli.js'),...command.args],{timeoutMs:600000,env:{...process.env,MOTION_DIRECTORY:directory,PLAYWRIGHT_BROWSERS_PATH:resolve('.generated/browsers')},onStart:pid=>command.pid=pid,onOutput:text=>process.stdout.write(text)});command.exitCode=0;}
++ catch(error){failure=error;command.exitCode=1;}
++ finally{command.ended=new Date().toISOString();writeFileSync(join(directory,'command.json'),JSON.stringify(command,null,2));const after=motionInventory();writeFileSync(join(directory,'inputs-after.json'),JSON.stringify(after,null,2));if(JSON.stringify(before)!==JSON.stringify(after))failure??=Error('Source inventory changed during detached acceptance');}
++ console.log('Motion evidence: '+directory);if(failure)throw failure;
++}
+diff --git a/tests/fixtures/motion/scene.ts b/tests/fixtures/motion/scene.ts
+new file mode 100644
+index 0000000..61c6695
+--- /dev/null
++++ b/tests/fixtures/motion/scene.ts
+@@ -0,0 +1,27 @@
++import {vi} from 'vitest';
++export function scene(count=1){
++ const listeners=new Map<string,Function>();
++ const target=(top=1200)=>({top,parentElement:null as any,group:null as any,children:[] as any[],hidden:false,
++  getBoundingClientRect(){return {top:this.top,bottom:this.top+50,left:0,right:100};},
++  contains(other:any){return other===this||this.children.includes(other);},
++  closest(selector:string){return selector==='[data-motion-group]'?this.group:selector==='[hidden]'&&this.hidden?this:null;},
++  animate:vi.fn(()=>({cancel:vi.fn(),finished:new Promise(()=>{})})),
++ });
++ const targets=Array.from({length:count},()=>target());
++ const group={querySelectorAll:()=>targets};targets.forEach(t=>t.group=group);
++ let callback:Function=()=>{};
++ const observer={observe:vi.fn(),unobserve:vi.fn(),disconnect:vi.fn()};
++ const media={matches:false,addEventListener:vi.fn((_:string,cb:Function)=>listeners.set('media',cb)),removeEventListener:vi.fn()};
++ const values:Record<string,string>={'--motion-duration':'600ms','--motion-distance':'18px','--motion-stagger':'70ms','--motion-max-delay':'300ms','--motion-ease':'ease-out'};
++ const html={...target(),dataset:{motion:'on'}};
++ const win={innerHeight:800,innerWidth:1200,location:{hash:''},Element:{prototype:{animate:()=>{}}},
++  matchMedia:()=>media,getComputedStyle:vi.fn((el:any)=>({getPropertyValue:(key:string)=>values[key]||'',translate:el.translation||'none'})),
++  IntersectionObserver:class {constructor(cb:Function){callback=cb;}observe=observer.observe;unobserve=observer.unobserve;disconnect=observer.disconnect;},
++  addEventListener:vi.fn((key:string,cb:Function)=>listeners.set(key,cb)),removeEventListener:vi.fn(),
++ };
++ const doc={nodeType:9,documentElement:html,defaultView:win,activeElement:null as any,
++  querySelectorAll:()=>targets,getElementById:(id:string)=>id==='destination'?targets[0]:null,
++  addEventListener:vi.fn((key:string,cb:Function)=>listeners.set(key,cb)),removeEventListener:vi.fn(),
++ };
++ return {root:doc as any,targets,observer,win,media,values,listeners,fire:(...items:any[])=>callback(items.map(target=>({target,isIntersecting:true}))),focus:(el:any)=>{doc.activeElement=el;listeners.get('focusin')?.({target:el});},hash:(value:string)=>{win.location.hash=value;listeners.get('hashchange')?.();}};
++}
+diff --git a/tests/motion-config.test.ts b/tests/motion-config.test.ts
+new file mode 100644
+index 0000000..0da5edb
+--- /dev/null
++++ b/tests/motion-config.test.ts
+@@ -0,0 +1,21 @@
++import {it,expect} from 'vitest';
++import {parseProject} from '../packages/config/project.mjs';
++import {project} from './fixtures/content/factory';
++const defaults={enabled:false,durationMs:600,distancePx:18,staggerMs:70,interactionMs:180};
++it('defaults absent and partial motion without mutating input',()=>{
++ const raw=JSON.parse(JSON.stringify(project)); delete raw.design.motion;
++ expect(parseProject(raw).design.motion).toEqual(defaults);
++ expect(raw.design.motion).toBeUndefined(); delete raw.design;
++ expect(parseProject(raw).design.motion).toEqual(defaults);
++ expect(parseProject({...project,design:{...project.design,motion:{distancePx:0}}}).design.motion).toEqual({...defaults,distancePx:0});
++});
++it.each([{enabled:'true'},{enabled:null},{durationMs:99},{durationMs:1201},{durationMs:600.5},{distancePx:-1},{distancePx:49},{staggerMs:151},{staggerMs:-1},{interactionMs:401},{interactionMs:-1},{durationMs:'600'},{unknown:1}])('rejects invalid motion %j',motion=>expect(()=>parseProject({...project,design:{...project.design,motion}})).toThrow());
++it.each([{durationMs:100,distancePx:0,staggerMs:0,interactionMs:0},{durationMs:1200,distancePx:48,staggerMs:150,interactionMs:400}])('accepts inclusive motion boundaries %j',motion=>expect(parseProject({...project,design:{...project.design,motion}}).design.motion).toMatchObject(motion));
++it('emits configured units deterministically and rejects unvalidated interpolation',async()=>{
++ const {motionCSS}=await import('../packages/design-system/motion.mjs');
++ const motion={...defaults,durationMs:950,distancePx:32,staggerMs:120,interactionMs:240};
++ const css=motionCSS(motion);
++ for(const token of ['--motion-duration:950ms','--motion-distance:32px','--motion-stagger:120ms','--motion-interaction-duration:240ms'])expect(css).toContain(token);
++ expect(motionCSS(motion)).toBe(css);
++ expect(()=>motionCSS({...motion,distancePx:'1;display:none'} as any)).toThrow();
++});
+diff --git a/tests/motion-runtime.test.ts b/tests/motion-runtime.test.ts
+new file mode 100644
+index 0000000..a511bce
+--- /dev/null
++++ b/tests/motion-runtime.test.ts
+@@ -0,0 +1,41 @@
++import {it,expect} from 'vitest';
++import {initMotion} from '../apps/site/src/scripts/motion';
++import {scene} from './fixtures/motion/scene';
++it('animates an offscreen target once and caps stagger at 300ms',()=>{
++ const s=scene(10);const stop=initMotion(s.root);s.fire(...s.targets);s.fire(...s.targets);
++ expect(s.targets.map(t=>t.animate.mock.calls.length)).toEqual(Array(10).fill(1));
++ expect(s.targets.map(t=>(t.animate.mock.calls[0] as any)[1].delay)).toEqual([0,70,140,210,280,300,300,300,300,300]);
++ expect(s.observer.unobserve).toHaveBeenCalledTimes(10);stop();expect(s.observer.disconnect).toHaveBeenCalled();
++});
++it.each(['off','reduced','unsupported','visible','focus','hash','hidden'])('skips %s content',mode=>{
++ const s=scene();if(mode==='off')s.root.documentElement.dataset.motion='off';if(mode==='reduced')s.media.matches=true;
++ if(mode==='unsupported')(s.win as any).IntersectionObserver=undefined;if(mode==='visible')s.targets[0].top=20;
++ if(mode==='focus')s.root.activeElement=s.targets[0];if(mode==='hash')s.win.location.hash='#destin%61tion';if(mode==='hidden')s.targets[0].hidden=true;
++ const stop=initMotion(s.root);s.fire(...s.targets);expect(s.targets[0].animate).not.toHaveBeenCalled();stop();
++});
++it.each(['focus','hash','media'])('cancels immediately on %s',mode=>{
++ const s=scene();const stop=initMotion(s.root);s.fire(...s.targets);const a=s.targets[0].animate.mock.results[0]?.value;
++ expect(a).toBeDefined();if(mode==='focus')s.focus(s.targets[0]);if(mode==='hash')s.hash('#destination');if(mode==='media'){s.media.matches=true;s.listeners.get('media')?.();}
++ expect(a.cancel).toHaveBeenCalled();stop();
++});
++it('is idempotent, disposes listeners and permits explicit reinitialization',()=>{
++ const s=scene();const stop=initMotion(s.root);expect(initMotion(s.root)).toBe(stop);stop();stop();
++ expect(s.root.removeEventListener).toHaveBeenCalled();expect(s.win.removeEventListener).toHaveBeenCalled();expect(initMotion(s.root)).not.toBe(stop);
++});
++it('reads custom tokens, preserves existing translation, and ignores nested targets',()=>{
++ const s=scene(2);s.values['--motion-duration']='950ms';s.values['--motion-distance']='32px';s.values['--motion-stagger']='120ms';
++ (s.targets[0] as any).translation='4px';s.targets[1].parentElement={closest:()=>s.targets[0]};
++ const stop=initMotion(s.root);s.fire(...s.targets);const [frames,options]=s.targets[0].animate.mock.calls[0] as any;
++ expect(options.duration).toBe(950);expect(frames[0]).toEqual({opacity:0});expect(s.targets[1].animate).not.toHaveBeenCalled();stop();
++});
++it.each(['observer','animate','style','rejection'])('fails open for %s errors',async mode=>{
++ const s=scene();if(mode==='observer')(s.win as any).IntersectionObserver=class{constructor(){throw Error('unsupported')}};
++ if(mode==='style')s.win.getComputedStyle.mockImplementation(()=>{throw Error('style')});
++ if(mode==='animate')s.targets[0].animate.mockImplementation(()=>{throw Error('animate')});
++ if(mode==='rejection')s.targets[0].animate.mockImplementation(()=>({cancel:()=>{},finished:Promise.reject(Error('cancelled'))}) as any);
++ let stop=()=>{};expect(()=>{stop=initMotion(s.root);s.fire(...s.targets);s.hash('#%zz');stop();stop();}).not.toThrow();await Promise.resolve();
++});
++it('accepts equivalent second units emitted by production CSS minification',()=>{
++ const s=scene();s.values['--motion-duration']='.95s';s.values['--motion-stagger']='.12s';s.values['--motion-max-delay']='.3s';
++ const stop=initMotion(s.root);s.fire(...s.targets);expect(s.targets[0].animate).toHaveBeenCalledTimes(1);expect((s.targets[0].animate.mock.calls[0] as any)[1].duration).toBe(950);stop();
++});
+diff --git a/tests/project-config.test.ts b/tests/project-config.test.ts
+index 95bd2f7..01953f1 100644
+--- a/tests/project-config.test.ts
++++ b/tests/project-config.test.ts
+@@ -13,21 +13,21 @@ describe('project configuration boundary', () => {
+     ['URL query', {siteUrl:'https://example.com/?a=1'}], ['URL fragment', {siteUrl:'https://example.com/#a'}],
+     ['URL credentials', {siteUrl:'https://user:pass@example.com'}], ['invalid URL', {siteUrl:'invalid'}],
+     ['duplicate interests', {interests:[{id:'updates',label:'One'},{id:'updates',label:'Two'}]}],
+   ])('rejects %s with an actionable error', (_name, patch) => { expect(() => parseProject({...valid(),...patch})).toThrow(); });
+   it('keeps the input immutable', () => { const raw = valid(); parseProject(raw); expect(raw.infrastructure).toEqual({}); });
+ });
+ it('defaults missing infrastructure with both sending capabilities disabled', () => { const {infrastructure: _omitted,...raw}=valid(); const p=parseProject(raw); expect(p.infrastructure.sendingEnabled).toBe(false); expect(p.infrastructure.marketingEnabled).toBe(false); });
+ 
+ it.each(['comfortable', 'compact', 'spacious'] as const)('accepts %s density without changing the selected theme', (density) => {
+   const raw = { ...valid(), design: { theme: 'trades', density } };
+-  expect(parseProject(raw).design).toEqual({ theme: 'trades', density });
++  expect(parseProject(raw).design).toMatchObject({ theme: 'trades', density });
+ });
+ it.each(['dense', '', 'SPACIOUS', 1, null])('rejects unsupported density %s', (density) => {
+   expect(() => parseProject({ ...valid(), design: { theme: 'neutral', density } })).toThrow();
+ });
+ 
+ it('defaults role lists to empty and normalizes explicit identities without mutating input',()=>{
+  const defaults=parseProject(valid()).infrastructure;expect(defaults).toMatchObject({adminEmails:[],editorEmails:[]});
+  const raw={...valid(),infrastructure:{adminEmails:[' Admin1@Example.COM ','admin2@example.com'],editorEmails:['editor@example.com','admin1@example.com']}};
+  expect(parseProject(raw).infrastructure).toMatchObject({adminEmails:['admin1@example.com','admin2@example.com'],editorEmails:['editor@example.com','admin1@example.com']});expect(raw.infrastructure.adminEmails[0]).toBe(' Admin1@Example.COM ');
+ });

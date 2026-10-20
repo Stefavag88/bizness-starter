@@ -1,0 +1,26 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/motion-runtime.test.ts (18 tests | 1 failed) 17ms
+   × accepts equivalent second units emitted by production CSS minification 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/motion-runtime.test.ts > accepts equivalent second units emitted by production CSS minification
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ tests/motion-runtime.test.ts:40:82
+     38| it('accepts equivalent second units emitted by production CSS minifica…
+     39|  const s=scene();s.values['--motion-duration']='.95s';s.values['--moti…
+     40|  const stop=initMotion(s.root);s.fire(...s.targets);expect(s.targets[0…
+       |                                                                                  ^
+     41| });
+     42|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  10:37:06
+   Duration  314ms (transform 57%, import 20%, tests 16%, worker 6%)
+

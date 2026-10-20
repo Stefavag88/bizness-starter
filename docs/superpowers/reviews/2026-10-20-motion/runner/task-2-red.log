@@ -1,0 +1,99 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/motion-runtime.test.ts (17 tests | 6 failed) 18ms
+   × animates an offscreen target once and caps stagger at 300ms 9ms
+   × cancels immediately on focus 1ms
+   × cancels immediately on hash 1ms
+   × cancels immediately on media 0ms
+   × is idempotent, disposes listeners and permits explicit reinitialization 1ms
+   × reads custom tokens, preserves existing translation, and ignores nested targets 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/motion-runtime.test.ts > animates an offscreen target once and caps stagger at 300ms
+AssertionError: expected [ Array(10) ] to deeply equal [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
+
+- Expected
++ Received
+
+  [
+-   1,
+-   1,
+-   1,
+-   1,
+-   1,
+-   1,
+-   1,
+-   1,
+-   1,
+-   1,
++   0,
++   0,
++   0,
++   0,
++   0,
++   0,
++   0,
++   0,
++   0,
++   0,
+  ]
+
+ ❯ tests/motion-runtime.test.ts:6:56
+      4| it('animates an offscreen target once and caps stagger at 300ms',()=>{
+      5|  const s=scene(10);const stop=initMotion(s.root);s.fire(...s.targets);…
+      6|  expect(s.targets.map(t=>t.animate.mock.calls.length)).toEqual(Array(1…
+       |                                                        ^
+      7|  expect(s.targets.map(t=>(t.animate.mock.calls[0] as any)[1].delay)).t…
+      8|  expect(s.observer.unobserve).toHaveBeenCalledTimes(10);stop();expect(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/motion-runtime.test.ts > cancels immediately on focus
+ FAIL  tests/motion-runtime.test.ts > cancels immediately on hash
+ FAIL  tests/motion-runtime.test.ts > cancels immediately on media
+AssertionError: expected undefined to be defined
+ ❯ tests/motion-runtime.test.ts:18:12
+     16| it.each(['focus','hash','media'])('cancels immediately on %s',mode=>{
+     17|  const s=scene();const stop=initMotion(s.root);s.fire(...s.targets);co…
+     18|  expect(a).toBeDefined();if(mode==='focus')s.focus(s.targets[0]);if(mo…
+       |            ^
+     19|  expect(a.cancel).toHaveBeenCalled();stop();
+     20| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/motion-runtime.test.ts > is idempotent, disposes listeners and permits explicit reinitialization
+AssertionError: expected [Function] to be [Function] // Object.is equality
+
+Compared values have no visual difference.
+
+ ❯ tests/motion-runtime.test.ts:22:75
+     20| });
+     21| it('is idempotent, disposes listeners and permits explicit reinitializ…
+     22|  const s=scene();const stop=initMotion(s.root);expect(initMotion(s.roo…
+       |                                                                           ^
+     23|  expect(s.root.removeEventListener).toHaveBeenCalled();expect(s.win.re…
+     24| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  tests/motion-runtime.test.ts > reads custom tokens, preserves existing translation, and ignores nested targets
+TypeError: undefined is not iterable (cannot read property Symbol(Symbol.iterator))
+ ❯ tests/motion-runtime.test.ts:28:76
+     26|  const s=scene(2);s.values['--motion-duration']='950ms';s.values['--mo…
+     27|  (s.targets[0] as any).translation='4px';s.targets[1].parentElement={c…
+     28|  const stop=initMotion(s.root);s.fire(...s.targets);const [frames,opti…
+       |                                                                            ^
+     29|  expect(options.duration).toBe(950);expect(frames[0]).toEqual({opacity…
+     30| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 11 passed (17)
+   Start at  10:26:14
+   Duration  333ms (transform 53%, import 21%, tests 19%, worker 7%)
+

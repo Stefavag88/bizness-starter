@@ -1,0 +1,87 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2/apps/site
+
+ ❯ tests/motion.test.ts (5 tests | 5 failed) 43ms
+   × keeps primary hero visible and enhances non-primary copy 33ms
+   × marks offering-list copy and cards as separate targets 2ms
+   × marks people-list copy and cards as separate targets 1ms
+   × marks article-list copy and cards as separate targets 1ms
+   × keeps shell navigation, footer, skip link and H1 outside entrance targets 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/motion.test.ts > keeps primary hero visible and enhances non-primary copy
+AssertionError: expected '<section class="hero" data-surface="d…' to contain 'data-motion-reveal'
+
+Expected: "data-motion-reveal"
+Received: "<section class="hero" data-surface="default" aria-labelledby="intro"><div class="wrap"><h2 id="intro">Hello</h2><p class="description">Text</p></div></section>"
+
+ ❯ tests/motion.test.ts:10:80
+      8|  const props={section:{id:'intro',_template:'hero',variant:'default',a…
+      9|  expect(await container.renderToString(Hero,{props:{...props,primary:t…
+     10|  expect(await container.renderToString(Hero,{props:{...props,primary:f…
+       |                                                                                ^
+     11| });
+     12| it.each(['offering-list','people-list','article-list'])('marks %s copy…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/motion.test.ts > marks offering-list copy and cards as separate targets
+AssertionError: expected '<section data-surface="default" aria-…' to contain 'data-motion-group'
+
+Expected: "data-motion-group"
+Received: "<section data-surface="default" aria-labelledby="list"><div class="wrap"><h2 id="list">List</h2><p class="description">Description</p><div class="cards"><article class="card"><h3><a href="/en/services/planning-session">Planning session</a></h3><p class="description">A focused conversation to identify your <strong>next practical step</strong>.</p></article></div></div></section>"
+
+ ❯ tests/motion.test.ts:15:15
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/motion.test.ts > marks people-list copy and cards as separate targets
+AssertionError: expected '<section data-surface="default" aria-…' to contain 'data-motion-group'
+
+Expected: "data-motion-group"
+Received: "<section data-surface="default" aria-labelledby="list"><div class="wrap"><h2 id="list">List</h2><p class="description">Description</p><div class="cards"><article class="card"><h3><a href="/en/people/studio-guide">Studio guide</a></h3><p class="description">Your first point of contact for questions about working together.</p></article></div></div></section>"
+
+ ❯ tests/motion.test.ts:15:15
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/motion.test.ts > marks article-list copy and cards as separate targets
+AssertionError: expected '<section data-surface="default" aria-…' to contain 'data-motion-group'
+
+Expected: "data-motion-group"
+Received: "<section data-surface="default" aria-labelledby="list"><div class="wrap"><h2 id="list">List</h2><p class="description">Description</p><div class="cards"><article class="card"><h3><a href="/en/insights/a-useful-first-question">A useful first question</a></h3><p class="description">Before choosing a solution, ask what a <strong>useful outcome</strong> would look like.</p></article></div></div></section>"
+
+ ❯ tests/motion.test.ts:15:15
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/motion.test.ts > keeps shell navigation, footer, skip link and H1 outside entrance targets
+AssertionError: expected '<html lang="en" data-theme="neutral" …' to contain 'data-motion='
+
+- Expected
++ Received
+
+- data-motion=
++ <html lang="en" data-theme="neutral" data-density="comfortable"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Test | Example Studio</title><meta name="description" content="Fixture"><link rel="canonical" href="https://example.com/en"><link rel="alternate" type="application/rss+xml" title="Example Studio" href="/en/feed.xml"></head><body><a class="skip" href="#main">Skip to content</a><header class="wrap"><a class="brand" href="/en">Example Studio</a><nav aria-label="Main navigation"><a href="/en" aria-current="page">Home</a><a href="/en/services">Services</a><a href="/en/about">About</a><a href="/en/insights">Articles</a><a href="/en/contact">Contact</a></nav><nav aria-label="Language"></nav></header><main id="main"></main><footer class="wrap"><div class="footer-groups"><div class="footer-identity"><p>A place to start a useful conversation.</p><p>Example Studio</p><div class="prose"><p>Demonstration website. Review all business and legal information before public use.</p>
++ </div><a href="/en/privacy">Privacy</a></div><div class="contact-details"><h2 class="contact-group-heading">Contact details</h2><ul class="contact-list"><li><a class="contact-link" href="mailto:hello%40example.com"><svg class="contact-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"></path></svg><span>hello@example.com</span></a></li></ul></div></div></footer></body></html>
+
+ ❯ tests/motion.test.ts:20:15
+     18| it('keeps shell navigation, footer, skip link and H1 outside entrance …
+     19|  const container=await AstroContainer.create();const html=await contai…
+     20|  expect(html).toContain('data-motion=');
+       |               ^
+     21|  for(const tag of ['header','footer'])expect(html.match(new RegExp(`<$…
+     22| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  10:28:12
+   Duration  2.00s (transform 68%, import 29%, tests 2%)
+
