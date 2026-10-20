@@ -1,0 +1,57 @@
+{
+  "checked": "2026-10-20T04:28:45.798Z",
+  "session": 27249,
+  "launcher": 3260,
+  "checks": [
+    {
+      "name": "home-en",
+      "url": "http://127.0.0.1:4330/en",
+      "status": 200
+    },
+    {
+      "name": "home-el",
+      "url": "http://127.0.0.1:4330/el",
+      "status": 200
+    },
+    {
+      "name": "contact-en",
+      "url": "http://127.0.0.1:4330/en/contact",
+      "status": 200
+    },
+    {
+      "name": "contact-el",
+      "url": "http://127.0.0.1:4330/el/contact",
+      "status": 200
+    },
+    {
+      "name": "cms",
+      "url": "http://127.0.0.1:4330/cms/index.html",
+      "status": 200
+    },
+    {
+      "name": "health",
+      "url": "http://127.0.0.1:8790/api/health",
+      "status": 200,
+      "response": {
+        "ok": true,
+        "profile": "enquiries"
+      }
+    },
+    {
+      "name": "tina",
+      "url": "http://localhost:4010/graphql",
+      "status": 200,
+      "response": {
+        "data": {
+          "settings": {
+            "__typename": "Settings",
+            "social": null
+          },
+          "page": {
+            "__typename": "PageHome"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,12 +1,12 @@
 # Stage 3B — Shared contact and social channels
 
-Date: 2026-10-19. Status: Implemented and independently accepted on 2026-10-20: all four tasks, whole-branch review and final documentation scoped review complete. Local archive/runtime closeout is recorded in the plan and review archive. Base: accepted media closeout 3519bcd. Repository: C:/Projects/bizness-starter-v2. Branch: codex/starter-v2-contact-social.
+Date: 2026-10-19. Status: Implemented and independently accepted on 2026-10-20: all four tasks, whole-branch review and final documentation scoped review complete. Verified archive/scratch cleanup and local site/CMS restoration are complete and recorded in the plan/review archive. Base: accepted media closeout 3519bcd. Repository: C:/Projects/bizness-starter-v2. Branch: codex/starter-v2-contact-social.
 
 ## Intent and success
 
 Provide reusable, CMS-owned contact/social information for future services, trades, accommodation and studio websites. Preserve the neutral design, canonical ownership, EN/EL consistency and static architecture. One change in Settings must reach Contact and the footer, and optionally the header after local regeneration or a hosted rebuild. Empty optional channels must leave no dead links, icons, headings or gaps. Preserve access to the Contact form, which remains primary and cannot be hidden.
 
-The user approved preparing the Stage 3B spec and implementation plan, using the existing subagent method with independent review. The subsequently approved implementation now has [local acceptance evidence](../plans/2026-10-20-starter-v2-contact-social-evidence.md); independent final reviews are accepted, with local archive/runtime closeout recorded separately; no production delivery is claimed. All Markdown is English.
+The user approved preparing the Stage 3B spec and implementation plan, using the existing subagent method with independent review. The subsequently approved implementation now has [local acceptance evidence](../plans/2026-10-20-starter-v2-contact-social-evidence.md); independent final reviews are accepted, with completed local archive/runtime closeout recorded separately; no production delivery is claimed. All Markdown is English.
 
 ## Alternatives and selected approach
 

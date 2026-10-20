@@ -10,7 +10,7 @@
 
 **Spec:** [Contact/social design](../specs/2026-10-19-starter-v2-contact-social-design.md).
 
-Status: All four tasks and whole-branch review accepted at product candidate 180f4ea; final documentation correction accepted at 09ce9b8. Verified evidence archival and original local launcher restoration are the remaining controller closeout duties. The approved execution method was preserved.
+Status: Complete on 2026-10-20. All four tasks, whole-branch review and final documentation scoped review accepted. Byte-preserving evidence archive verified, owned scratch removed, and original local site/CMS restored with successful indexed readiness checks. See the review archive closeout.md for exact process/evidence records.
 
 ## Global Constraints
 
@@ -105,7 +105,7 @@ Supply settings with all four valid channels; assert WhatsApp href https://wa.me
 - [x] Driver exposes pnpm test:contact-social -- --public and --native, each with stopped-stack checks and independent cleanup. Native mode owns its Tina/Astro tree and may not start the main launcher/migrate source D1. Restore canonical output after successful restoration; refuse after conflict. Retain every command executable/args/cwd/PID/start/end/exit, complete source inventory/hashes and owned-process stop proof.
 - [x] Run public/native phases sequentially, then seven gates: pnpm check, pnpm test, pnpm build, pnpm worker:check, pnpm cms:local-build, pnpm test:static-routing, pnpm test:showcase-builds. Each must have explicit exit0; retain failures/repairs/source timing honestly. Do not broadly rerun unchanged gates after documentation-only edits.
 - [x] Document CMS paths, defaults, tokens, per-placement behavior, optional clears, phone/URL restrictions, locale ownership, app-launch limits and hosted rebuild requirement. Update original spec status only after evidence. Commit verified candidate and obtain independent task review.
-- [ ] Obtain most-capable medium whole-branch review; one batched fix wave and one scoped re-review if needed, adjudicating residuals explicitly. Archive complete raw reports/rulings before verified scratch removal. Restore original local site/CMS, verify actual public/CMS/Tina read-only readiness, and preserve this local branch. No remote operations.
+- [x] Obtain most-capable medium whole-branch review; one batched fix wave and one scoped re-review if needed, adjudicating residuals explicitly. Archive complete raw reports/rulings before verified scratch removal. Restore original local site/CMS, verify actual public/CMS/Tina read-only readiness, and preserve this local branch. No remote operations.
 
 ## Plan self-review
 
