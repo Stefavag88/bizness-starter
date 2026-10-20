@@ -58,9 +58,11 @@ export function createCmsSources(paths: string[], backupRoot = '.generated/cms-r
     );
     throw Error(message + ': ' + path + '; retained originals/current/expected in ' + backup);
   };
-  const capture = (path: string, expected: unknown, predicate: Predicate) => {
+  const capture = (path: string, expected: unknown, predicate: Predicate, expectedBytes?: string) => {
     path = sourcePath(path);
     const current = readFileSync(path, 'utf8');
+    if (expectedBytes !== undefined && current !== expectedBytes)
+      return reject(path, current, { expectedBytes }, 'Unexpected saved document bytes');
     let parsed;
     try {
       parsed = JSON.parse(current);
@@ -77,7 +79,7 @@ export function createCmsSources(paths: string[], backupRoot = '.generated/cms-r
     }
     if (!matches) return reject(path, current, expected, 'Expected edit missing');
     // Claim only this complete, expected record, never arbitrary finally-observed bytes.
-    owned.set(path, current);
+    owned.set(path, expectedBytes ?? current);
   };
   return {
     backup,
@@ -111,14 +113,14 @@ export function createCmsSources(paths: string[], backupRoot = '.generated/cms-r
       capture(path, expected, predicate);
     },
     capture,
-    async captureNative(path: string, mutation: Omit<Mutation,'operation'> & {operation?:Mutation['operation']}, schema: Schema, predicate: Predicate) {
+    async captureNative(path: string, mutation: Omit<Mutation,'operation'> & {operation?:Mutation['operation']}, schema: Schema, predicate: Predicate, expectedBytes?: string) {
       path = sourcePath(path);
       const request:Mutation={...mutation,operation:mutation.operation??'update'};
       try {
         if(nativeDocumentPath(request,schema)!==path)throw Error('Mutation source does not match the backed-up file: '+path);
         const priorBytes=owned.get(path)??originals.get(path);
         const expected=await expectedNativeDocument(request,schema,priorBytes===undefined?undefined:JSON.parse(priorBytes));
-        capture(path, expected, predicate);
+        capture(path, expected, predicate, expectedBytes);
       } catch(error) {
         // A failed new proof revokes any earlier claim. Keep the inputs when no
         // expected record could be derived; they are never treated as owned bytes.

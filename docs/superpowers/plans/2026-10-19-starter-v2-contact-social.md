@@ -10,7 +10,7 @@
 
 **Spec:** [Contact/social design](../specs/2026-10-19-starter-v2-contact-social-design.md).
 
-Status: Proposed implementation plan for written review. Product implementation has not started. This plan preserves the previously selected medium subagent implementation/task-review method and most-capable medium final review.
+Status: Tasks 1–3 implemented and independently accepted; Task 4 local native/public/seven-gate candidate verified on 2026-10-20. Independent Task 4 and whole-branch reviews, evidence archival and original launcher readiness restoration remain pending with the controller. See [actual evidence and failure history](2026-10-20-starter-v2-contact-social-evidence.md). The approved medium subagent/task-review and most-capable medium final-review method remains authoritative.
 
 ## Global Constraints
 

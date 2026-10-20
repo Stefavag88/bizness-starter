@@ -1,12 +1,12 @@
 # Stage 3B — Shared contact and social channels
 
-Date: 2026-10-19. Status: Proposed written design for review; no product implementation authorized by this document alone. Base: accepted media closeout 3519bcd. Repository: C:/Projects/bizness-starter-v2. Branch: codex/starter-v2-contact-social.
+Date: 2026-10-19. Status: Implemented and locally verified candidate as of 2026-10-20; Tasks 1–3 accepted, Task 4 and whole-branch reviews pending. Base: accepted media closeout 3519bcd. Repository: C:/Projects/bizness-starter-v2. Branch: codex/starter-v2-contact-social.
 
 ## Intent and success
 
 Provide reusable, CMS-owned contact/social information for future services, trades, accommodation and studio websites. Preserve the neutral design, canonical ownership, EN/EL consistency and static architecture. One change in Settings must reach Contact and the footer, and optionally the header after local regeneration or a hosted rebuild. Empty optional channels must leave no dead links, icons, headings or gaps. Preserve access to the Contact form, which remains primary and cannot be hidden.
 
-The user approved preparing the Stage 3B spec and implementation plan, using the existing subagent method with independent review. This document and the companion plan describe the proposed product work; they do not claim implementation or production delivery. All Markdown is English.
+The user approved preparing the Stage 3B spec and implementation plan, using the existing subagent method with independent review. The subsequently approved implementation now has [local acceptance evidence](../plans/2026-10-20-starter-v2-contact-social-evidence.md); independent final reviews/closeout remain pending, and no production delivery is claimed. All Markdown is English.
 
 ## Alternatives and selected approach
 
