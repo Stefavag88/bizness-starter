@@ -1,0 +1,15 @@
+{
+  "executable": "C:\\Program Files\\nodejs\\node.exe",
+  "args": [
+    "scripts/dev.mjs",
+    "--cms"
+  ],
+  "cwd": "C:\\Projects\\bizness-starter-v2\\.generated\\newsletter\\acceptance-GN3SAf\\native\\fixture",
+  "started": "2026-10-20T09:21:00.778Z",
+  "pid": 13360,
+  "closed": true,
+  "shutdownConfirmed": true,
+  "code": 1,
+  "signal": null,
+  "ended": "2026-10-20T09:21:40.223Z"
+}

@@ -1,0 +1,1869 @@
+[
+  {
+    "request": {
+      "collection": "settings",
+      "relativePath": "site.json",
+      "params": {
+        "settings": {
+          "newsletterPrompt": {
+            "enabled": true,
+            "modalEnabled": true,
+            "autoOpen": true,
+            "footerMode": "inline",
+            "delaySeconds": 7,
+            "dismissDays": 35,
+            "acceptedDays": 190,
+            "interestId": "guides",
+            "title": "Practical newsletter",
+            "body": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "h2",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Useful news"
+                    }
+                  ],
+                  "id": 1792488089482
+                },
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "A "
+                    },
+                    {
+                      "type": "text",
+                      "text": "short",
+                      "bold": true
+                    },
+                    {
+                      "type": "text",
+                      "text": " messagePractical body from the visual editor"
+                    }
+                  ],
+                  "id": 1792488089482
+                }
+              ]
+            },
+            "footerPrompt": {
+              "type": "root",
+              "children": [
+                {
+                  "children": [
+                    {
+                      "text": "Useful footer updates"
+                    }
+                  ],
+                  "type": "p",
+                  "id": "aL3mmd2Xho"
+                }
+              ]
+            },
+            "emailLabel": "Email",
+            "submitLabel": "Sign up",
+            "consentLabel": "I agree to newsletter emails.",
+            "privacyLinkLabel": "Privacy",
+            "dismissLabel": "Close",
+            "successTitle": "Check your inbox",
+            "successBody": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "If appropriate, confirm using the email linkRequest received. Confirm using the email link."
+                    }
+                  ],
+                  "id": 1792488089686
+                }
+              ]
+            }
+          },
+          "brand": {
+            "name": "Example Studio",
+            "tagline": "A place to start a useful conversation."
+          },
+          "legal": {
+            "businessName": "Example Studio",
+            "privacyVersion": "sample-v1",
+            "notice": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Demonstration website. Review all business and legal information before public use."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "contact": {
+            "email": "hello@example.com",
+            "phone": "",
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Home"
+            },
+            {
+              "pageId": "services",
+              "label": "Services"
+            },
+            {
+              "pageId": "about",
+              "label": "About"
+            },
+            {
+              "pageId": "insights",
+              "label": "Articles"
+            },
+            {
+              "pageId": "contact",
+              "label": "Contact"
+            }
+          ],
+          "translations": {
+            "el": {
+              "newsletterPrompt": {
+                "title": "Χρήσιμες ενημερώσεις",
+                "body": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "h2",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Useful news"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "A "
+                        },
+                        {
+                          "type": "text",
+                          "text": "short",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": " message."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "footerPrompt": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Λάβετε "
+                        },
+                        {
+                          "type": "text",
+                          "text": "ενημερώσεις",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": "."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "emailLabel": "Email",
+                "submitLabel": "Εγγραφή",
+                "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+                "privacyLinkLabel": "Απόρρητο",
+                "dismissLabel": "Κλείσιμο",
+                "successTitle": "Ελέγξτε το email σας",
+                "successBody": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "brand": {
+                "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+              },
+              "legal": {
+                "notice": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "contact": {
+                "address": ""
+              },
+              "navigation": [
+                {
+                  "pageId": "home",
+                  "label": "Αρχική"
+                },
+                {
+                  "pageId": "services",
+                  "label": "Υπηρεσίες"
+                },
+                {
+                  "pageId": "about",
+                  "label": "Σχετικά"
+                },
+                {
+                  "pageId": "insights",
+                  "label": "Άρθρα"
+                },
+                {
+                  "pageId": "contact",
+                  "label": "Επικοινωνία"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "operation": "update"
+    },
+    "complete": {
+      "newsletterPrompt": {
+        "enabled": true,
+        "modalEnabled": true,
+        "autoOpen": true,
+        "footerMode": "inline",
+        "delaySeconds": 7,
+        "dismissDays": 35,
+        "acceptedDays": 190,
+        "interestId": "guides",
+        "title": "Practical newsletter",
+        "body": "## Useful news\n\nA **short** messagePractical body from the visual editor\n",
+        "footerPrompt": "Useful footer updates\n",
+        "emailLabel": "Email",
+        "submitLabel": "Sign up",
+        "consentLabel": "I agree to newsletter emails.",
+        "privacyLinkLabel": "Privacy",
+        "dismissLabel": "Close",
+        "successTitle": "Check your inbox",
+        "successBody": "If appropriate, confirm using the email linkRequest received. Confirm using the email link.\n"
+      },
+      "brand": {
+        "name": "Example Studio",
+        "tagline": "A place to start a useful conversation."
+      },
+      "legal": {
+        "businessName": "Example Studio",
+        "privacyVersion": "sample-v1",
+        "notice": "Demonstration website. Review all business and legal information before public use.\n"
+      },
+      "contact": {
+        "email": "hello@example.com",
+        "phone": "",
+        "address": ""
+      },
+      "navigation": [
+        {
+          "pageId": "home",
+          "label": "Home"
+        },
+        {
+          "pageId": "services",
+          "label": "Services"
+        },
+        {
+          "pageId": "about",
+          "label": "About"
+        },
+        {
+          "pageId": "insights",
+          "label": "Articles"
+        },
+        {
+          "pageId": "contact",
+          "label": "Contact"
+        }
+      ],
+      "translations": {
+        "el": {
+          "newsletterPrompt": {
+            "title": "Χρήσιμες ενημερώσεις",
+            "body": "## Useful news\n\nA **short** message.\n",
+            "footerPrompt": "Λάβετε **ενημερώσεις**.\n",
+            "emailLabel": "Email",
+            "submitLabel": "Εγγραφή",
+            "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+            "privacyLinkLabel": "Απόρρητο",
+            "dismissLabel": "Κλείσιμο",
+            "successTitle": "Ελέγξτε το email σας",
+            "successBody": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\n"
+          },
+          "brand": {
+            "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+          },
+          "legal": {
+            "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\n"
+          },
+          "contact": {
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Αρχική"
+            },
+            {
+              "pageId": "services",
+              "label": "Υπηρεσίες"
+            },
+            {
+              "pageId": "about",
+              "label": "Σχετικά"
+            },
+            {
+              "pageId": "insights",
+              "label": "Άρθρα"
+            },
+            {
+              "pageId": "contact",
+              "label": "Επικοινωνία"
+            }
+          ]
+        }
+      }
+    },
+    "bytes": "{\n  \"newsletterPrompt\": {\n    \"enabled\": true,\n    \"modalEnabled\": true,\n    \"autoOpen\": true,\n    \"footerMode\": \"inline\",\n    \"delaySeconds\": 7,\n    \"dismissDays\": 35,\n    \"acceptedDays\": 190,\n    \"interestId\": \"guides\",\n    \"title\": \"Practical newsletter\",\n    \"body\": \"## Useful news\\n\\nA **short** messagePractical body from the visual editor\\n\",\n    \"footerPrompt\": \"Useful footer updates\\n\",\n    \"emailLabel\": \"Email\",\n    \"submitLabel\": \"Sign up\",\n    \"consentLabel\": \"I agree to newsletter emails.\",\n    \"privacyLinkLabel\": \"Privacy\",\n    \"dismissLabel\": \"Close\",\n    \"successTitle\": \"Check your inbox\",\n    \"successBody\": \"If appropriate, confirm using the email linkRequest received. Confirm using the email link.\\n\"\n  },\n  \"brand\": {\n    \"name\": \"Example Studio\",\n    \"tagline\": \"A place to start a useful conversation.\"\n  },\n  \"legal\": {\n    \"businessName\": \"Example Studio\",\n    \"privacyVersion\": \"sample-v1\",\n    \"notice\": \"Demonstration website. Review all business and legal information before public use.\\n\"\n  },\n  \"contact\": {\n    \"email\": \"hello@example.com\",\n    \"phone\": \"\",\n    \"address\": \"\"\n  },\n  \"navigation\": [\n    {\n      \"pageId\": \"home\",\n      \"label\": \"Home\"\n    },\n    {\n      \"pageId\": \"services\",\n      \"label\": \"Services\"\n    },\n    {\n      \"pageId\": \"about\",\n      \"label\": \"About\"\n    },\n    {\n      \"pageId\": \"insights\",\n      \"label\": \"Articles\"\n    },\n    {\n      \"pageId\": \"contact\",\n      \"label\": \"Contact\"\n    }\n  ],\n  \"translations\": {\n    \"el\": {\n      \"newsletterPrompt\": {\n        \"title\": \"Χρήσιμες ενημερώσεις\",\n        \"body\": \"## Useful news\\n\\nA **short** message.\\n\",\n        \"footerPrompt\": \"Λάβετε **ενημερώσεις**.\\n\",\n        \"emailLabel\": \"Email\",\n        \"submitLabel\": \"Εγγραφή\",\n        \"consentLabel\": \"Συμφωνώ να λαμβάνω ενημερώσεις.\",\n        \"privacyLinkLabel\": \"Απόρρητο\",\n        \"dismissLabel\": \"Κλείσιμο\",\n        \"successTitle\": \"Ελέγξτε το email σας\",\n        \"successBody\": \"Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\\n\"\n      },\n      \"brand\": {\n        \"tagline\": \"Ένας χώρος για μια χρήσιμη συζήτηση.\"\n      },\n      \"legal\": {\n        \"notice\": \"Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\\n\"\n      },\n      \"contact\": {\n        \"address\": \"\"\n      },\n      \"navigation\": [\n        {\n          \"pageId\": \"home\",\n          \"label\": \"Αρχική\"\n        },\n        {\n          \"pageId\": \"services\",\n          \"label\": \"Υπηρεσίες\"\n        },\n        {\n          \"pageId\": \"about\",\n          \"label\": \"Σχετικά\"\n        },\n        {\n          \"pageId\": \"insights\",\n          \"label\": \"Άρθρα\"\n        },\n        {\n          \"pageId\": \"contact\",\n          \"label\": \"Επικοινωνία\"\n        }\n      ]\n    }\n  }\n}",
+    "sourceBefore": "f8bede36c8b4577162e40f167f6a0bb8250989f8020175bb2f61a6a80320275f",
+    "expected": "41d1e8023d116f398cc4f3a54474b6dcca0d0925f240d35c5812b4b85b4c8b4d"
+  },
+  {
+    "request": {
+      "collection": "settings",
+      "relativePath": "site.json",
+      "params": {
+        "settings": {
+          "newsletterPrompt": {
+            "enabled": true,
+            "modalEnabled": false,
+            "autoOpen": true,
+            "footerMode": "inline",
+            "delaySeconds": 7,
+            "dismissDays": 35,
+            "acceptedDays": 190,
+            "interestId": "guides",
+            "title": "Practical newsletter",
+            "body": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "h2",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Useful news"
+                    }
+                  ],
+                  "id": 1792488089482
+                },
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "A "
+                    },
+                    {
+                      "type": "text",
+                      "text": "short",
+                      "bold": true
+                    },
+                    {
+                      "type": "text",
+                      "text": " messagePractical body from the visual editor"
+                    }
+                  ],
+                  "id": 1792488089482
+                }
+              ]
+            },
+            "footerPrompt": {
+              "type": "root",
+              "children": [
+                {
+                  "children": [
+                    {
+                      "text": "Useful footer updates"
+                    }
+                  ],
+                  "type": "p",
+                  "id": "aL3mmd2Xho"
+                }
+              ]
+            },
+            "emailLabel": "Email",
+            "submitLabel": "Sign up",
+            "consentLabel": "I agree to newsletter emails.",
+            "privacyLinkLabel": "Privacy",
+            "dismissLabel": "Close",
+            "successTitle": "Check your inbox",
+            "successBody": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "If appropriate, confirm using the email linkRequest received. Confirm using the email link."
+                    }
+                  ],
+                  "id": 1792488089686
+                }
+              ]
+            }
+          },
+          "brand": {
+            "name": "Example Studio",
+            "tagline": "A place to start a useful conversation."
+          },
+          "legal": {
+            "businessName": "Example Studio",
+            "privacyVersion": "sample-v1",
+            "notice": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Demonstration website. Review all business and legal information before public use."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "contact": {
+            "email": "hello@example.com",
+            "phone": "",
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Home"
+            },
+            {
+              "pageId": "services",
+              "label": "Services"
+            },
+            {
+              "pageId": "about",
+              "label": "About"
+            },
+            {
+              "pageId": "insights",
+              "label": "Articles"
+            },
+            {
+              "pageId": "contact",
+              "label": "Contact"
+            }
+          ],
+          "translations": {
+            "el": {
+              "newsletterPrompt": {
+                "title": "Χρήσιμες ενημερώσεις",
+                "body": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "h2",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Useful news"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "A "
+                        },
+                        {
+                          "type": "text",
+                          "text": "short",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": " message."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "footerPrompt": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Λάβετε "
+                        },
+                        {
+                          "type": "text",
+                          "text": "ενημερώσεις",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": "."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "emailLabel": "Email",
+                "submitLabel": "Εγγραφή",
+                "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+                "privacyLinkLabel": "Απόρρητο",
+                "dismissLabel": "Κλείσιμο",
+                "successTitle": "Ελέγξτε το email σας",
+                "successBody": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "brand": {
+                "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+              },
+              "legal": {
+                "notice": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "contact": {
+                "address": ""
+              },
+              "navigation": [
+                {
+                  "pageId": "home",
+                  "label": "Αρχική"
+                },
+                {
+                  "pageId": "services",
+                  "label": "Υπηρεσίες"
+                },
+                {
+                  "pageId": "about",
+                  "label": "Σχετικά"
+                },
+                {
+                  "pageId": "insights",
+                  "label": "Άρθρα"
+                },
+                {
+                  "pageId": "contact",
+                  "label": "Επικοινωνία"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "operation": "update"
+    },
+    "complete": {
+      "newsletterPrompt": {
+        "enabled": true,
+        "modalEnabled": false,
+        "autoOpen": true,
+        "footerMode": "inline",
+        "delaySeconds": 7,
+        "dismissDays": 35,
+        "acceptedDays": 190,
+        "interestId": "guides",
+        "title": "Practical newsletter",
+        "body": "## Useful news\n\nA **short** messagePractical body from the visual editor\n",
+        "footerPrompt": "Useful footer updates\n",
+        "emailLabel": "Email",
+        "submitLabel": "Sign up",
+        "consentLabel": "I agree to newsletter emails.",
+        "privacyLinkLabel": "Privacy",
+        "dismissLabel": "Close",
+        "successTitle": "Check your inbox",
+        "successBody": "If appropriate, confirm using the email linkRequest received. Confirm using the email link.\n"
+      },
+      "brand": {
+        "name": "Example Studio",
+        "tagline": "A place to start a useful conversation."
+      },
+      "legal": {
+        "businessName": "Example Studio",
+        "privacyVersion": "sample-v1",
+        "notice": "Demonstration website. Review all business and legal information before public use.\n"
+      },
+      "contact": {
+        "email": "hello@example.com",
+        "phone": "",
+        "address": ""
+      },
+      "navigation": [
+        {
+          "pageId": "home",
+          "label": "Home"
+        },
+        {
+          "pageId": "services",
+          "label": "Services"
+        },
+        {
+          "pageId": "about",
+          "label": "About"
+        },
+        {
+          "pageId": "insights",
+          "label": "Articles"
+        },
+        {
+          "pageId": "contact",
+          "label": "Contact"
+        }
+      ],
+      "translations": {
+        "el": {
+          "newsletterPrompt": {
+            "title": "Χρήσιμες ενημερώσεις",
+            "body": "## Useful news\n\nA **short** message.\n",
+            "footerPrompt": "Λάβετε **ενημερώσεις**.\n",
+            "emailLabel": "Email",
+            "submitLabel": "Εγγραφή",
+            "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+            "privacyLinkLabel": "Απόρρητο",
+            "dismissLabel": "Κλείσιμο",
+            "successTitle": "Ελέγξτε το email σας",
+            "successBody": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\n"
+          },
+          "brand": {
+            "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+          },
+          "legal": {
+            "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\n"
+          },
+          "contact": {
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Αρχική"
+            },
+            {
+              "pageId": "services",
+              "label": "Υπηρεσίες"
+            },
+            {
+              "pageId": "about",
+              "label": "Σχετικά"
+            },
+            {
+              "pageId": "insights",
+              "label": "Άρθρα"
+            },
+            {
+              "pageId": "contact",
+              "label": "Επικοινωνία"
+            }
+          ]
+        }
+      }
+    },
+    "bytes": "{\n  \"newsletterPrompt\": {\n    \"enabled\": true,\n    \"modalEnabled\": false,\n    \"autoOpen\": true,\n    \"footerMode\": \"inline\",\n    \"delaySeconds\": 7,\n    \"dismissDays\": 35,\n    \"acceptedDays\": 190,\n    \"interestId\": \"guides\",\n    \"title\": \"Practical newsletter\",\n    \"body\": \"## Useful news\\n\\nA **short** messagePractical body from the visual editor\\n\",\n    \"footerPrompt\": \"Useful footer updates\\n\",\n    \"emailLabel\": \"Email\",\n    \"submitLabel\": \"Sign up\",\n    \"consentLabel\": \"I agree to newsletter emails.\",\n    \"privacyLinkLabel\": \"Privacy\",\n    \"dismissLabel\": \"Close\",\n    \"successTitle\": \"Check your inbox\",\n    \"successBody\": \"If appropriate, confirm using the email linkRequest received. Confirm using the email link.\\n\"\n  },\n  \"brand\": {\n    \"name\": \"Example Studio\",\n    \"tagline\": \"A place to start a useful conversation.\"\n  },\n  \"legal\": {\n    \"businessName\": \"Example Studio\",\n    \"privacyVersion\": \"sample-v1\",\n    \"notice\": \"Demonstration website. Review all business and legal information before public use.\\n\"\n  },\n  \"contact\": {\n    \"email\": \"hello@example.com\",\n    \"phone\": \"\",\n    \"address\": \"\"\n  },\n  \"navigation\": [\n    {\n      \"pageId\": \"home\",\n      \"label\": \"Home\"\n    },\n    {\n      \"pageId\": \"services\",\n      \"label\": \"Services\"\n    },\n    {\n      \"pageId\": \"about\",\n      \"label\": \"About\"\n    },\n    {\n      \"pageId\": \"insights\",\n      \"label\": \"Articles\"\n    },\n    {\n      \"pageId\": \"contact\",\n      \"label\": \"Contact\"\n    }\n  ],\n  \"translations\": {\n    \"el\": {\n      \"newsletterPrompt\": {\n        \"title\": \"Χρήσιμες ενημερώσεις\",\n        \"body\": \"## Useful news\\n\\nA **short** message.\\n\",\n        \"footerPrompt\": \"Λάβετε **ενημερώσεις**.\\n\",\n        \"emailLabel\": \"Email\",\n        \"submitLabel\": \"Εγγραφή\",\n        \"consentLabel\": \"Συμφωνώ να λαμβάνω ενημερώσεις.\",\n        \"privacyLinkLabel\": \"Απόρρητο\",\n        \"dismissLabel\": \"Κλείσιμο\",\n        \"successTitle\": \"Ελέγξτε το email σας\",\n        \"successBody\": \"Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\\n\"\n      },\n      \"brand\": {\n        \"tagline\": \"Ένας χώρος για μια χρήσιμη συζήτηση.\"\n      },\n      \"legal\": {\n        \"notice\": \"Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\\n\"\n      },\n      \"contact\": {\n        \"address\": \"\"\n      },\n      \"navigation\": [\n        {\n          \"pageId\": \"home\",\n          \"label\": \"Αρχική\"\n        },\n        {\n          \"pageId\": \"services\",\n          \"label\": \"Υπηρεσίες\"\n        },\n        {\n          \"pageId\": \"about\",\n          \"label\": \"Σχετικά\"\n        },\n        {\n          \"pageId\": \"insights\",\n          \"label\": \"Άρθρα\"\n        },\n        {\n          \"pageId\": \"contact\",\n          \"label\": \"Επικοινωνία\"\n        }\n      ]\n    }\n  }\n}",
+    "sourceBefore": "41d1e8023d116f398cc4f3a54474b6dcca0d0925f240d35c5812b4b85b4c8b4d",
+    "expected": "7957483158567a85daafd20b3a1b95f6ad290b66ab1a11154173034b4a1d53ee"
+  },
+  {
+    "request": {
+      "collection": "settings",
+      "relativePath": "site.json",
+      "params": {
+        "settings": {
+          "newsletterPrompt": {
+            "enabled": false,
+            "modalEnabled": false,
+            "autoOpen": true,
+            "footerMode": "inline",
+            "delaySeconds": 7,
+            "dismissDays": 35,
+            "acceptedDays": 190,
+            "interestId": "guides",
+            "title": "Practical newsletter",
+            "body": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "h2",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Useful news"
+                    }
+                  ],
+                  "id": 1792488089482
+                },
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "A "
+                    },
+                    {
+                      "type": "text",
+                      "text": "short",
+                      "bold": true
+                    },
+                    {
+                      "type": "text",
+                      "text": " messagePractical body from the visual editor"
+                    }
+                  ],
+                  "id": 1792488089482
+                }
+              ]
+            },
+            "footerPrompt": {
+              "type": "root",
+              "children": [
+                {
+                  "children": [
+                    {
+                      "text": "Useful footer updates"
+                    }
+                  ],
+                  "type": "p",
+                  "id": "aL3mmd2Xho"
+                }
+              ]
+            },
+            "emailLabel": "Email",
+            "submitLabel": "Sign up",
+            "consentLabel": "I agree to newsletter emails.",
+            "privacyLinkLabel": "Privacy",
+            "dismissLabel": "Close",
+            "successTitle": "Check your inbox",
+            "successBody": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "If appropriate, confirm using the email linkRequest received. Confirm using the email link."
+                    }
+                  ],
+                  "id": 1792488089686
+                }
+              ]
+            }
+          },
+          "brand": {
+            "name": "Example Studio",
+            "tagline": "A place to start a useful conversation."
+          },
+          "legal": {
+            "businessName": "Example Studio",
+            "privacyVersion": "sample-v1",
+            "notice": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Demonstration website. Review all business and legal information before public use."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "contact": {
+            "email": "hello@example.com",
+            "phone": "",
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Home"
+            },
+            {
+              "pageId": "services",
+              "label": "Services"
+            },
+            {
+              "pageId": "about",
+              "label": "About"
+            },
+            {
+              "pageId": "insights",
+              "label": "Articles"
+            },
+            {
+              "pageId": "contact",
+              "label": "Contact"
+            }
+          ],
+          "translations": {
+            "el": {
+              "newsletterPrompt": {
+                "title": "Χρήσιμες ενημερώσεις",
+                "body": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "h2",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Useful news"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "A "
+                        },
+                        {
+                          "type": "text",
+                          "text": "short",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": " message."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "footerPrompt": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Λάβετε "
+                        },
+                        {
+                          "type": "text",
+                          "text": "ενημερώσεις",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": "."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "emailLabel": "Email",
+                "submitLabel": "Εγγραφή",
+                "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+                "privacyLinkLabel": "Απόρρητο",
+                "dismissLabel": "Κλείσιμο",
+                "successTitle": "Ελέγξτε το email σας",
+                "successBody": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "brand": {
+                "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+              },
+              "legal": {
+                "notice": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "contact": {
+                "address": ""
+              },
+              "navigation": [
+                {
+                  "pageId": "home",
+                  "label": "Αρχική"
+                },
+                {
+                  "pageId": "services",
+                  "label": "Υπηρεσίες"
+                },
+                {
+                  "pageId": "about",
+                  "label": "Σχετικά"
+                },
+                {
+                  "pageId": "insights",
+                  "label": "Άρθρα"
+                },
+                {
+                  "pageId": "contact",
+                  "label": "Επικοινωνία"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "operation": "update"
+    },
+    "complete": {
+      "newsletterPrompt": {
+        "enabled": false,
+        "modalEnabled": false,
+        "autoOpen": true,
+        "footerMode": "inline",
+        "delaySeconds": 7,
+        "dismissDays": 35,
+        "acceptedDays": 190,
+        "interestId": "guides",
+        "title": "Practical newsletter",
+        "body": "## Useful news\n\nA **short** messagePractical body from the visual editor\n",
+        "footerPrompt": "Useful footer updates\n",
+        "emailLabel": "Email",
+        "submitLabel": "Sign up",
+        "consentLabel": "I agree to newsletter emails.",
+        "privacyLinkLabel": "Privacy",
+        "dismissLabel": "Close",
+        "successTitle": "Check your inbox",
+        "successBody": "If appropriate, confirm using the email linkRequest received. Confirm using the email link.\n"
+      },
+      "brand": {
+        "name": "Example Studio",
+        "tagline": "A place to start a useful conversation."
+      },
+      "legal": {
+        "businessName": "Example Studio",
+        "privacyVersion": "sample-v1",
+        "notice": "Demonstration website. Review all business and legal information before public use.\n"
+      },
+      "contact": {
+        "email": "hello@example.com",
+        "phone": "",
+        "address": ""
+      },
+      "navigation": [
+        {
+          "pageId": "home",
+          "label": "Home"
+        },
+        {
+          "pageId": "services",
+          "label": "Services"
+        },
+        {
+          "pageId": "about",
+          "label": "About"
+        },
+        {
+          "pageId": "insights",
+          "label": "Articles"
+        },
+        {
+          "pageId": "contact",
+          "label": "Contact"
+        }
+      ],
+      "translations": {
+        "el": {
+          "newsletterPrompt": {
+            "title": "Χρήσιμες ενημερώσεις",
+            "body": "## Useful news\n\nA **short** message.\n",
+            "footerPrompt": "Λάβετε **ενημερώσεις**.\n",
+            "emailLabel": "Email",
+            "submitLabel": "Εγγραφή",
+            "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+            "privacyLinkLabel": "Απόρρητο",
+            "dismissLabel": "Κλείσιμο",
+            "successTitle": "Ελέγξτε το email σας",
+            "successBody": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\n"
+          },
+          "brand": {
+            "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+          },
+          "legal": {
+            "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\n"
+          },
+          "contact": {
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Αρχική"
+            },
+            {
+              "pageId": "services",
+              "label": "Υπηρεσίες"
+            },
+            {
+              "pageId": "about",
+              "label": "Σχετικά"
+            },
+            {
+              "pageId": "insights",
+              "label": "Άρθρα"
+            },
+            {
+              "pageId": "contact",
+              "label": "Επικοινωνία"
+            }
+          ]
+        }
+      }
+    },
+    "bytes": "{\n  \"newsletterPrompt\": {\n    \"enabled\": false,\n    \"modalEnabled\": false,\n    \"autoOpen\": true,\n    \"footerMode\": \"inline\",\n    \"delaySeconds\": 7,\n    \"dismissDays\": 35,\n    \"acceptedDays\": 190,\n    \"interestId\": \"guides\",\n    \"title\": \"Practical newsletter\",\n    \"body\": \"## Useful news\\n\\nA **short** messagePractical body from the visual editor\\n\",\n    \"footerPrompt\": \"Useful footer updates\\n\",\n    \"emailLabel\": \"Email\",\n    \"submitLabel\": \"Sign up\",\n    \"consentLabel\": \"I agree to newsletter emails.\",\n    \"privacyLinkLabel\": \"Privacy\",\n    \"dismissLabel\": \"Close\",\n    \"successTitle\": \"Check your inbox\",\n    \"successBody\": \"If appropriate, confirm using the email linkRequest received. Confirm using the email link.\\n\"\n  },\n  \"brand\": {\n    \"name\": \"Example Studio\",\n    \"tagline\": \"A place to start a useful conversation.\"\n  },\n  \"legal\": {\n    \"businessName\": \"Example Studio\",\n    \"privacyVersion\": \"sample-v1\",\n    \"notice\": \"Demonstration website. Review all business and legal information before public use.\\n\"\n  },\n  \"contact\": {\n    \"email\": \"hello@example.com\",\n    \"phone\": \"\",\n    \"address\": \"\"\n  },\n  \"navigation\": [\n    {\n      \"pageId\": \"home\",\n      \"label\": \"Home\"\n    },\n    {\n      \"pageId\": \"services\",\n      \"label\": \"Services\"\n    },\n    {\n      \"pageId\": \"about\",\n      \"label\": \"About\"\n    },\n    {\n      \"pageId\": \"insights\",\n      \"label\": \"Articles\"\n    },\n    {\n      \"pageId\": \"contact\",\n      \"label\": \"Contact\"\n    }\n  ],\n  \"translations\": {\n    \"el\": {\n      \"newsletterPrompt\": {\n        \"title\": \"Χρήσιμες ενημερώσεις\",\n        \"body\": \"## Useful news\\n\\nA **short** message.\\n\",\n        \"footerPrompt\": \"Λάβετε **ενημερώσεις**.\\n\",\n        \"emailLabel\": \"Email\",\n        \"submitLabel\": \"Εγγραφή\",\n        \"consentLabel\": \"Συμφωνώ να λαμβάνω ενημερώσεις.\",\n        \"privacyLinkLabel\": \"Απόρρητο\",\n        \"dismissLabel\": \"Κλείσιμο\",\n        \"successTitle\": \"Ελέγξτε το email σας\",\n        \"successBody\": \"Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\\n\"\n      },\n      \"brand\": {\n        \"tagline\": \"Ένας χώρος για μια χρήσιμη συζήτηση.\"\n      },\n      \"legal\": {\n        \"notice\": \"Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\\n\"\n      },\n      \"contact\": {\n        \"address\": \"\"\n      },\n      \"navigation\": [\n        {\n          \"pageId\": \"home\",\n          \"label\": \"Αρχική\"\n        },\n        {\n          \"pageId\": \"services\",\n          \"label\": \"Υπηρεσίες\"\n        },\n        {\n          \"pageId\": \"about\",\n          \"label\": \"Σχετικά\"\n        },\n        {\n          \"pageId\": \"insights\",\n          \"label\": \"Άρθρα\"\n        },\n        {\n          \"pageId\": \"contact\",\n          \"label\": \"Επικοινωνία\"\n        }\n      ]\n    }\n  }\n}",
+    "sourceBefore": "7957483158567a85daafd20b3a1b95f6ad290b66ab1a11154173034b4a1d53ee",
+    "expected": "2f29503feceaede35f358afc7c97006271941cbd3cc800843661fa7665dda616"
+  },
+  {
+    "request": {
+      "collection": "settings",
+      "relativePath": "site.json",
+      "params": {
+        "settings": {
+          "newsletterPrompt": {
+            "enabled": true,
+            "modalEnabled": true,
+            "autoOpen": true,
+            "footerMode": "open-modal",
+            "delaySeconds": 7,
+            "dismissDays": 35,
+            "acceptedDays": 190,
+            "interestId": "guides",
+            "title": "Practical newsletter",
+            "body": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "h2",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Useful news"
+                    }
+                  ],
+                  "id": 1792488089482
+                },
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "A "
+                    },
+                    {
+                      "type": "text",
+                      "text": "short",
+                      "bold": true
+                    },
+                    {
+                      "type": "text",
+                      "text": " messagePractical body from the visual editor"
+                    }
+                  ],
+                  "id": 1792488089482
+                }
+              ]
+            },
+            "footerPrompt": {
+              "type": "root",
+              "children": [
+                {
+                  "children": [
+                    {
+                      "text": "Useful footer updates"
+                    }
+                  ],
+                  "type": "p",
+                  "id": "aL3mmd2Xho"
+                }
+              ]
+            },
+            "emailLabel": "Email",
+            "submitLabel": "Sign up",
+            "consentLabel": "I agree to newsletter emails.",
+            "privacyLinkLabel": "Privacy",
+            "dismissLabel": "Close",
+            "successTitle": "Check your inbox",
+            "successBody": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "If appropriate, confirm using the email linkRequest received. Confirm using the email link."
+                    }
+                  ],
+                  "id": 1792488089686
+                }
+              ]
+            }
+          },
+          "brand": {
+            "name": "Example Studio",
+            "tagline": "A place to start a useful conversation."
+          },
+          "legal": {
+            "businessName": "Example Studio",
+            "privacyVersion": "sample-v1",
+            "notice": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Demonstration website. Review all business and legal information before public use."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "contact": {
+            "email": "hello@example.com",
+            "phone": "",
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Home"
+            },
+            {
+              "pageId": "services",
+              "label": "Services"
+            },
+            {
+              "pageId": "about",
+              "label": "About"
+            },
+            {
+              "pageId": "insights",
+              "label": "Articles"
+            },
+            {
+              "pageId": "contact",
+              "label": "Contact"
+            }
+          ],
+          "translations": {
+            "el": {
+              "newsletterPrompt": {
+                "title": "Χρήσιμες ενημερώσεις",
+                "body": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "h2",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Useful news"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "A "
+                        },
+                        {
+                          "type": "text",
+                          "text": "short",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": " message."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "footerPrompt": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Λάβετε "
+                        },
+                        {
+                          "type": "text",
+                          "text": "ενημερώσεις",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": "."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "emailLabel": "Email",
+                "submitLabel": "Εγγραφή",
+                "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+                "privacyLinkLabel": "Απόρρητο",
+                "dismissLabel": "Κλείσιμο",
+                "successTitle": "Ελέγξτε το email σας",
+                "successBody": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "brand": {
+                "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+              },
+              "legal": {
+                "notice": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "contact": {
+                "address": ""
+              },
+              "navigation": [
+                {
+                  "pageId": "home",
+                  "label": "Αρχική"
+                },
+                {
+                  "pageId": "services",
+                  "label": "Υπηρεσίες"
+                },
+                {
+                  "pageId": "about",
+                  "label": "Σχετικά"
+                },
+                {
+                  "pageId": "insights",
+                  "label": "Άρθρα"
+                },
+                {
+                  "pageId": "contact",
+                  "label": "Επικοινωνία"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "operation": "update"
+    },
+    "complete": {
+      "newsletterPrompt": {
+        "enabled": true,
+        "modalEnabled": true,
+        "autoOpen": true,
+        "footerMode": "open-modal",
+        "delaySeconds": 7,
+        "dismissDays": 35,
+        "acceptedDays": 190,
+        "interestId": "guides",
+        "title": "Practical newsletter",
+        "body": "## Useful news\n\nA **short** messagePractical body from the visual editor\n",
+        "footerPrompt": "Useful footer updates\n",
+        "emailLabel": "Email",
+        "submitLabel": "Sign up",
+        "consentLabel": "I agree to newsletter emails.",
+        "privacyLinkLabel": "Privacy",
+        "dismissLabel": "Close",
+        "successTitle": "Check your inbox",
+        "successBody": "If appropriate, confirm using the email linkRequest received. Confirm using the email link.\n"
+      },
+      "brand": {
+        "name": "Example Studio",
+        "tagline": "A place to start a useful conversation."
+      },
+      "legal": {
+        "businessName": "Example Studio",
+        "privacyVersion": "sample-v1",
+        "notice": "Demonstration website. Review all business and legal information before public use.\n"
+      },
+      "contact": {
+        "email": "hello@example.com",
+        "phone": "",
+        "address": ""
+      },
+      "navigation": [
+        {
+          "pageId": "home",
+          "label": "Home"
+        },
+        {
+          "pageId": "services",
+          "label": "Services"
+        },
+        {
+          "pageId": "about",
+          "label": "About"
+        },
+        {
+          "pageId": "insights",
+          "label": "Articles"
+        },
+        {
+          "pageId": "contact",
+          "label": "Contact"
+        }
+      ],
+      "translations": {
+        "el": {
+          "newsletterPrompt": {
+            "title": "Χρήσιμες ενημερώσεις",
+            "body": "## Useful news\n\nA **short** message.\n",
+            "footerPrompt": "Λάβετε **ενημερώσεις**.\n",
+            "emailLabel": "Email",
+            "submitLabel": "Εγγραφή",
+            "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+            "privacyLinkLabel": "Απόρρητο",
+            "dismissLabel": "Κλείσιμο",
+            "successTitle": "Ελέγξτε το email σας",
+            "successBody": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\n"
+          },
+          "brand": {
+            "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+          },
+          "legal": {
+            "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\n"
+          },
+          "contact": {
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Αρχική"
+            },
+            {
+              "pageId": "services",
+              "label": "Υπηρεσίες"
+            },
+            {
+              "pageId": "about",
+              "label": "Σχετικά"
+            },
+            {
+              "pageId": "insights",
+              "label": "Άρθρα"
+            },
+            {
+              "pageId": "contact",
+              "label": "Επικοινωνία"
+            }
+          ]
+        }
+      }
+    },
+    "bytes": "{\n  \"newsletterPrompt\": {\n    \"enabled\": true,\n    \"modalEnabled\": true,\n    \"autoOpen\": true,\n    \"footerMode\": \"open-modal\",\n    \"delaySeconds\": 7,\n    \"dismissDays\": 35,\n    \"acceptedDays\": 190,\n    \"interestId\": \"guides\",\n    \"title\": \"Practical newsletter\",\n    \"body\": \"## Useful news\\n\\nA **short** messagePractical body from the visual editor\\n\",\n    \"footerPrompt\": \"Useful footer updates\\n\",\n    \"emailLabel\": \"Email\",\n    \"submitLabel\": \"Sign up\",\n    \"consentLabel\": \"I agree to newsletter emails.\",\n    \"privacyLinkLabel\": \"Privacy\",\n    \"dismissLabel\": \"Close\",\n    \"successTitle\": \"Check your inbox\",\n    \"successBody\": \"If appropriate, confirm using the email linkRequest received. Confirm using the email link.\\n\"\n  },\n  \"brand\": {\n    \"name\": \"Example Studio\",\n    \"tagline\": \"A place to start a useful conversation.\"\n  },\n  \"legal\": {\n    \"businessName\": \"Example Studio\",\n    \"privacyVersion\": \"sample-v1\",\n    \"notice\": \"Demonstration website. Review all business and legal information before public use.\\n\"\n  },\n  \"contact\": {\n    \"email\": \"hello@example.com\",\n    \"phone\": \"\",\n    \"address\": \"\"\n  },\n  \"navigation\": [\n    {\n      \"pageId\": \"home\",\n      \"label\": \"Home\"\n    },\n    {\n      \"pageId\": \"services\",\n      \"label\": \"Services\"\n    },\n    {\n      \"pageId\": \"about\",\n      \"label\": \"About\"\n    },\n    {\n      \"pageId\": \"insights\",\n      \"label\": \"Articles\"\n    },\n    {\n      \"pageId\": \"contact\",\n      \"label\": \"Contact\"\n    }\n  ],\n  \"translations\": {\n    \"el\": {\n      \"newsletterPrompt\": {\n        \"title\": \"Χρήσιμες ενημερώσεις\",\n        \"body\": \"## Useful news\\n\\nA **short** message.\\n\",\n        \"footerPrompt\": \"Λάβετε **ενημερώσεις**.\\n\",\n        \"emailLabel\": \"Email\",\n        \"submitLabel\": \"Εγγραφή\",\n        \"consentLabel\": \"Συμφωνώ να λαμβάνω ενημερώσεις.\",\n        \"privacyLinkLabel\": \"Απόρρητο\",\n        \"dismissLabel\": \"Κλείσιμο\",\n        \"successTitle\": \"Ελέγξτε το email σας\",\n        \"successBody\": \"Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\\n\"\n      },\n      \"brand\": {\n        \"tagline\": \"Ένας χώρος για μια χρήσιμη συζήτηση.\"\n      },\n      \"legal\": {\n        \"notice\": \"Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\\n\"\n      },\n      \"contact\": {\n        \"address\": \"\"\n      },\n      \"navigation\": [\n        {\n          \"pageId\": \"home\",\n          \"label\": \"Αρχική\"\n        },\n        {\n          \"pageId\": \"services\",\n          \"label\": \"Υπηρεσίες\"\n        },\n        {\n          \"pageId\": \"about\",\n          \"label\": \"Σχετικά\"\n        },\n        {\n          \"pageId\": \"insights\",\n          \"label\": \"Άρθρα\"\n        },\n        {\n          \"pageId\": \"contact\",\n          \"label\": \"Επικοινωνία\"\n        }\n      ]\n    }\n  }\n}",
+    "sourceBefore": "2f29503feceaede35f358afc7c97006271941cbd3cc800843661fa7665dda616",
+    "expected": "46e8b13110cedfcdf7299ce766865a143754c99dbff3e2271436ce9d3ae64840"
+  },
+  {
+    "request": {
+      "collection": "settings",
+      "relativePath": "site.json",
+      "params": {
+        "settings": {
+          "newsletterPrompt": {
+            "enabled": true,
+            "modalEnabled": true,
+            "autoOpen": true,
+            "footerMode": "open-modal",
+            "delaySeconds": 7,
+            "dismissDays": 35,
+            "acceptedDays": 190,
+            "interestId": "guides",
+            "title": "Practical newsletter",
+            "body": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "h2",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Useful news"
+                    }
+                  ]
+                },
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "A "
+                    },
+                    {
+                      "type": "text",
+                      "text": "short",
+                      "bold": true
+                    },
+                    {
+                      "type": "text",
+                      "text": " messagePractical body from the visual editor"
+                    }
+                  ]
+                }
+              ]
+            },
+            "footerPrompt": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Useful footer updates"
+                    }
+                  ]
+                }
+              ]
+            },
+            "emailLabel": "Email",
+            "submitLabel": "Sign up",
+            "consentLabel": "I agree to newsletter emails.",
+            "privacyLinkLabel": "Privacy",
+            "dismissLabel": "Close",
+            "successTitle": "Check your inbox",
+            "successBody": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "If appropriate, confirm using the email linkRequest received. Confirm using the email link."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "brand": {
+            "name": "Example Studio",
+            "tagline": "Useful work and updates"
+          },
+          "legal": {
+            "businessName": "Example Studio",
+            "privacyVersion": "sample-v1",
+            "notice": {
+              "type": "root",
+              "children": [
+                {
+                  "type": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Demonstration website. Review all business and legal information before public use."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "contact": {
+            "email": "hello@example.com",
+            "phone": "",
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Home"
+            },
+            {
+              "pageId": "services",
+              "label": "Services"
+            },
+            {
+              "pageId": "about",
+              "label": "About"
+            },
+            {
+              "pageId": "insights",
+              "label": "Articles"
+            },
+            {
+              "pageId": "contact",
+              "label": "Contact"
+            }
+          ],
+          "translations": {
+            "el": {
+              "newsletterPrompt": {
+                "title": "Χρήσιμες ενημερώσεις",
+                "body": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "h2",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Useful news"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "A "
+                        },
+                        {
+                          "type": "text",
+                          "text": "short",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": " message."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "footerPrompt": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Λάβετε "
+                        },
+                        {
+                          "type": "text",
+                          "text": "ενημερώσεις",
+                          "bold": true
+                        },
+                        {
+                          "type": "text",
+                          "text": "."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "emailLabel": "Email",
+                "submitLabel": "Εγγραφή",
+                "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+                "privacyLinkLabel": "Απόρρητο",
+                "dismissLabel": "Κλείσιμο",
+                "successTitle": "Ελέγξτε το email σας",
+                "successBody": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "brand": {
+                "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+              },
+              "legal": {
+                "notice": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "p",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "contact": {
+                "address": ""
+              },
+              "navigation": [
+                {
+                  "pageId": "home",
+                  "label": "Αρχική"
+                },
+                {
+                  "pageId": "services",
+                  "label": "Υπηρεσίες"
+                },
+                {
+                  "pageId": "about",
+                  "label": "Σχετικά"
+                },
+                {
+                  "pageId": "insights",
+                  "label": "Άρθρα"
+                },
+                {
+                  "pageId": "contact",
+                  "label": "Επικοινωνία"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "operation": "update"
+    },
+    "complete": {
+      "newsletterPrompt": {
+        "enabled": true,
+        "modalEnabled": true,
+        "autoOpen": true,
+        "footerMode": "open-modal",
+        "delaySeconds": 7,
+        "dismissDays": 35,
+        "acceptedDays": 190,
+        "interestId": "guides",
+        "title": "Practical newsletter",
+        "body": "## Useful news\n\nA **short** messagePractical body from the visual editor\n",
+        "footerPrompt": "Useful footer updates\n",
+        "emailLabel": "Email",
+        "submitLabel": "Sign up",
+        "consentLabel": "I agree to newsletter emails.",
+        "privacyLinkLabel": "Privacy",
+        "dismissLabel": "Close",
+        "successTitle": "Check your inbox",
+        "successBody": "If appropriate, confirm using the email linkRequest received. Confirm using the email link.\n"
+      },
+      "brand": {
+        "name": "Example Studio",
+        "tagline": "Useful work and updates"
+      },
+      "legal": {
+        "businessName": "Example Studio",
+        "privacyVersion": "sample-v1",
+        "notice": "Demonstration website. Review all business and legal information before public use.\n"
+      },
+      "contact": {
+        "email": "hello@example.com",
+        "phone": "",
+        "address": ""
+      },
+      "navigation": [
+        {
+          "pageId": "home",
+          "label": "Home"
+        },
+        {
+          "pageId": "services",
+          "label": "Services"
+        },
+        {
+          "pageId": "about",
+          "label": "About"
+        },
+        {
+          "pageId": "insights",
+          "label": "Articles"
+        },
+        {
+          "pageId": "contact",
+          "label": "Contact"
+        }
+      ],
+      "translations": {
+        "el": {
+          "newsletterPrompt": {
+            "title": "Χρήσιμες ενημερώσεις",
+            "body": "## Useful news\n\nA **short** message.\n",
+            "footerPrompt": "Λάβετε **ενημερώσεις**.\n",
+            "emailLabel": "Email",
+            "submitLabel": "Εγγραφή",
+            "consentLabel": "Συμφωνώ να λαμβάνω ενημερώσεις.",
+            "privacyLinkLabel": "Απόρρητο",
+            "dismissLabel": "Κλείσιμο",
+            "successTitle": "Ελέγξτε το email σας",
+            "successBody": "Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\n"
+          },
+          "brand": {
+            "tagline": "Ένας χώρος για μια χρήσιμη συζήτηση."
+          },
+          "legal": {
+            "notice": "Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\n"
+          },
+          "contact": {
+            "address": ""
+          },
+          "navigation": [
+            {
+              "pageId": "home",
+              "label": "Αρχική"
+            },
+            {
+              "pageId": "services",
+              "label": "Υπηρεσίες"
+            },
+            {
+              "pageId": "about",
+              "label": "Σχετικά"
+            },
+            {
+              "pageId": "insights",
+              "label": "Άρθρα"
+            },
+            {
+              "pageId": "contact",
+              "label": "Επικοινωνία"
+            }
+          ]
+        }
+      }
+    },
+    "bytes": "{\n  \"newsletterPrompt\": {\n    \"enabled\": true,\n    \"modalEnabled\": true,\n    \"autoOpen\": true,\n    \"footerMode\": \"open-modal\",\n    \"delaySeconds\": 7,\n    \"dismissDays\": 35,\n    \"acceptedDays\": 190,\n    \"interestId\": \"guides\",\n    \"title\": \"Practical newsletter\",\n    \"body\": \"## Useful news\\n\\nA **short** messagePractical body from the visual editor\\n\",\n    \"footerPrompt\": \"Useful footer updates\\n\",\n    \"emailLabel\": \"Email\",\n    \"submitLabel\": \"Sign up\",\n    \"consentLabel\": \"I agree to newsletter emails.\",\n    \"privacyLinkLabel\": \"Privacy\",\n    \"dismissLabel\": \"Close\",\n    \"successTitle\": \"Check your inbox\",\n    \"successBody\": \"If appropriate, confirm using the email linkRequest received. Confirm using the email link.\\n\"\n  },\n  \"brand\": {\n    \"name\": \"Example Studio\",\n    \"tagline\": \"Useful work and updates\"\n  },\n  \"legal\": {\n    \"businessName\": \"Example Studio\",\n    \"privacyVersion\": \"sample-v1\",\n    \"notice\": \"Demonstration website. Review all business and legal information before public use.\\n\"\n  },\n  \"contact\": {\n    \"email\": \"hello@example.com\",\n    \"phone\": \"\",\n    \"address\": \"\"\n  },\n  \"navigation\": [\n    {\n      \"pageId\": \"home\",\n      \"label\": \"Home\"\n    },\n    {\n      \"pageId\": \"services\",\n      \"label\": \"Services\"\n    },\n    {\n      \"pageId\": \"about\",\n      \"label\": \"About\"\n    },\n    {\n      \"pageId\": \"insights\",\n      \"label\": \"Articles\"\n    },\n    {\n      \"pageId\": \"contact\",\n      \"label\": \"Contact\"\n    }\n  ],\n  \"translations\": {\n    \"el\": {\n      \"newsletterPrompt\": {\n        \"title\": \"Χρήσιμες ενημερώσεις\",\n        \"body\": \"## Useful news\\n\\nA **short** message.\\n\",\n        \"footerPrompt\": \"Λάβετε **ενημερώσεις**.\\n\",\n        \"emailLabel\": \"Email\",\n        \"submitLabel\": \"Εγγραφή\",\n        \"consentLabel\": \"Συμφωνώ να λαμβάνω ενημερώσεις.\",\n        \"privacyLinkLabel\": \"Απόρρητο\",\n        \"dismissLabel\": \"Κλείσιμο\",\n        \"successTitle\": \"Ελέγξτε το email σας\",\n        \"successBody\": \"Εάν χρειάζεται, επιβεβαιώστε την εγγραφή μέσω email.\\n\"\n      },\n      \"brand\": {\n        \"tagline\": \"Ένας χώρος για μια χρήσιμη συζήτηση.\"\n      },\n      \"legal\": {\n        \"notice\": \"Ενδεικτικός ιστότοπος. Ελέγξτε όλα τα επιχειρηματικά και νομικά στοιχεία πριν από τη δημόσια χρήση.\\n\"\n      },\n      \"contact\": {\n        \"address\": \"\"\n      },\n      \"navigation\": [\n        {\n          \"pageId\": \"home\",\n          \"label\": \"Αρχική\"\n        },\n        {\n          \"pageId\": \"services\",\n          \"label\": \"Υπηρεσίες\"\n        },\n        {\n          \"pageId\": \"about\",\n          \"label\": \"Σχετικά\"\n        },\n        {\n          \"pageId\": \"insights\",\n          \"label\": \"Άρθρα\"\n        },\n        {\n          \"pageId\": \"contact\",\n          \"label\": \"Επικοινωνία\"\n        }\n      ]\n    }\n  }\n}",
+    "sourceBefore": "46e8b13110cedfcdf7299ce766865a143754c99dbff3e2271436ce9d3ae64840",
+    "expected": "4f41b84d5239870357e7ec2ef5d981f9006d179bcbe469f1dfab0ea2d0542d38"
+  }
+]

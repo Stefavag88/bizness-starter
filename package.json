@@ -28,7 +28,8 @@
     "test:showcase-builds": "node scripts/verify-showcase-builds.mjs",
     "test:static-routing": "pnpm build && node scripts/verify-static-routing.mjs",
     "test:motion": "node scripts/verify-motion.mjs",
-    "test:contact-social": "node scripts/verify-contact-social.mjs"
+    "test:contact-social": "node scripts/verify-contact-social.mjs",
+    "test:newsletter": "node scripts/verify-newsletter.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.2.8",

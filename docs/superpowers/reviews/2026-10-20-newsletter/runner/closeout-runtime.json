@@ -1,0 +1,32 @@
+{
+  "time": "2026-10-20T12:31:43.385Z",
+  "rows": [
+    {
+      "url": "http://127.0.0.1:4330/en",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4330/el",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4330/en/contact",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4330/el/contact",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4330/cms/index.html",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8790/api/health",
+      "status": 200
+    }
+  ],
+  "indexedSettings": true,
+  "indexedHome": true,
+  "profile": "enquiries"
+}

@@ -112,3 +112,7 @@ The narrow public/native acceptance driver reuses established runtime/fixture ow
 ## Shared motion
 
 See [MOTION](MOTION.md) for opt-in project settings, generated tokens, renderer markers, reduced-motion/no-JavaScript fallback and the transient local showcase control. The local example enables motion; omitted settings stay disabled.
+
+## Newsletter and visitor preferences
+
+See [newsletter authoring and delivery boundaries](NEWSLETTER.md) for the opt-in newsletter modal, compact footer signup, localized visual editors, shared browser suppression and preferences. The default enquiries project remains unchanged. Hosted protection and actual sending require separately configured integrations.

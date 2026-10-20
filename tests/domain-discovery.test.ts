@@ -50,6 +50,6 @@ it('emits declaration metadata without secrets or domain instance/item IDs',()=>
  expect(before).not.toMatch(/private-record-id|another-record-id|secret-infrastructure-audience|lesson-index|Secret record title/);
 });
 it('defaults the explicit Rooms module to disabled and rejects unknown module keys',()=>{
- expect(parseProject(project).modules).toEqual({rooms:false});
+ expect(parseProject(project).modules).toEqual({rooms:false,newsletterPrompt:false,visitorPreferences:false});
  expect(()=>parseProject({...project,modules:{unknown:true}})).toThrow();
 });

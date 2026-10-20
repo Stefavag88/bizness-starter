@@ -1,0 +1,51 @@
+[
+  {
+    "name": "check",
+    "started": "2026-10-20T12:27:41.035Z",
+    "pid": 40580,
+    "exitCode": 0,
+    "ended": "2026-10-20T12:27:57.610Z"
+  },
+  {
+    "name": "test",
+    "started": "2026-10-20T12:27:57.610Z",
+    "pid": 23664,
+    "exitCode": 0,
+    "ended": "2026-10-20T12:28:19.356Z"
+  },
+  {
+    "name": "build",
+    "started": "2026-10-20T12:28:19.356Z",
+    "pid": 35700,
+    "exitCode": 0,
+    "ended": "2026-10-20T12:28:25.088Z"
+  },
+  {
+    "name": "worker:check",
+    "started": "2026-10-20T12:28:25.088Z",
+    "pid": 32932,
+    "exitCode": 0,
+    "ended": "2026-10-20T12:28:28.004Z"
+  },
+  {
+    "name": "cms:local-build",
+    "started": "2026-10-20T12:28:28.005Z",
+    "pid": 41976,
+    "exitCode": 0,
+    "ended": "2026-10-20T12:29:05.047Z"
+  },
+  {
+    "name": "test:static-routing",
+    "started": "2026-10-20T12:29:05.047Z",
+    "pid": 41908,
+    "exitCode": 0,
+    "ended": "2026-10-20T12:29:14.098Z"
+  },
+  {
+    "name": "test:showcase-builds",
+    "started": "2026-10-20T12:29:14.099Z",
+    "pid": 41296,
+    "exitCode": 0,
+    "ended": "2026-10-20T12:29:27.501Z"
+  }
+]

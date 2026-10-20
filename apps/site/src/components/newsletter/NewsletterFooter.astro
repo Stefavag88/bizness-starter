@@ -6,7 +6,7 @@ import type {NewsletterExperience} from '../../../../../packages/content/newslet
 interface Props {model:NewsletterExperience;locale:string;contactHref:string}
 const {model,locale,contactHref}=Astro.props;const messages=newsletterMessages(locale);
 ---
-{model.footerMode!=='off'&&<div class="newsletter-footer" aria-label={messages.footerLabel}>
+{(model.footerMode!=='off'||model.modalEnabled)&&<div class="newsletter-footer" aria-label={messages.footerLabel}>
  {model.footerMode==='inline'&&<p class="newsletter-prompt" set:html={rich(model.footerPrompt,locale,true)}/>}
  {model.canSubmit&&model.footerMode==='inline'&&<NewsletterForm model={model} locale={locale} placement="footer"/>}
  {model.canSubmit&&model.footerMode==='open-modal'&&<button type="button" data-newsletter-open hidden>{messages.open}</button>}

@@ -1,0 +1,13 @@
+{
+  "args": [
+    "test",
+    "e2e/newsletter.spec.ts",
+    "e2e/newsletter-cms.spec.ts",
+    "--grep",
+    "live-tab"
+  ],
+  "started": "2026-10-20T12:25:53.684Z",
+  "pid": 38684,
+  "ended": "2026-10-20T12:26:28.295Z",
+  "exitCode": 0
+}

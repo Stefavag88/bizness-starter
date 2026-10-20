@@ -1,0 +1,74 @@
+[
+  {
+    "args": [
+      "node_modules/wrangler/bin/wrangler.js",
+      "d1",
+      "execute",
+      "DB",
+      "--local",
+      "--config",
+      "wrangler.generated.json",
+      "--command",
+      "SELECT id,status,generation FROM subscriber",
+      "--json"
+    ],
+    "started": 1792488390429,
+    "pid": 19848,
+    "exitCode": 0,
+    "ended": 1792488392300
+  },
+  {
+    "args": [
+      "node_modules/wrangler/bin/wrangler.js",
+      "d1",
+      "execute",
+      "DB",
+      "--local",
+      "--config",
+      "wrangler.generated.json",
+      "--command",
+      "SELECT status FROM subscriber",
+      "--json"
+    ],
+    "started": 1792488392336,
+    "pid": 28584,
+    "exitCode": 0,
+    "ended": 1792488394046
+  },
+  {
+    "args": [
+      "node_modules/wrangler/bin/wrangler.js",
+      "d1",
+      "execute",
+      "DB",
+      "--local",
+      "--config",
+      "wrangler.generated.json",
+      "--command",
+      "SELECT status FROM subscriber",
+      "--json"
+    ],
+    "started": 1792488394074,
+    "pid": 13760,
+    "exitCode": 0,
+    "ended": 1792488395906
+  },
+  {
+    "args": [
+      "node_modules/wrangler/bin/wrangler.js",
+      "d1",
+      "execute",
+      "DB",
+      "--local",
+      "--config",
+      "wrangler.generated.json",
+      "--command",
+      "UPDATE subscriber SET status='suppressed'",
+      "--json"
+    ],
+    "started": 1792488395908,
+    "pid": 37088,
+    "exitCode": 0,
+    "ended": 1792488397619
+  }
+]

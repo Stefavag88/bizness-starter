@@ -1,0 +1,109 @@
+[
+  {
+    "locale": "en",
+    "width": 375,
+    "autoDelay": true,
+    "escape": true,
+    "focusRestore": true,
+    "noOverflow": true,
+    "sharedLanguageAndTabSuppression": true
+  },
+  {
+    "locale": "en",
+    "width": 768,
+    "autoDelay": true,
+    "escape": true,
+    "focusRestore": true,
+    "noOverflow": true,
+    "sharedLanguageAndTabSuppression": true
+  },
+  {
+    "locale": "en",
+    "width": 1440,
+    "autoDelay": true,
+    "escape": true,
+    "focusRestore": true,
+    "noOverflow": true,
+    "sharedLanguageAndTabSuppression": true
+  },
+  {
+    "locale": "el",
+    "width": 375,
+    "autoDelay": true,
+    "escape": true,
+    "focusRestore": true,
+    "noOverflow": true,
+    "sharedLanguageAndTabSuppression": true
+  },
+  {
+    "locale": "el",
+    "width": 768,
+    "autoDelay": true,
+    "escape": true,
+    "focusRestore": true,
+    "noOverflow": true,
+    "sharedLanguageAndTabSuppression": true
+  },
+  {
+    "locale": "el",
+    "width": 1440,
+    "autoDelay": true,
+    "escape": true,
+    "focusRestore": true,
+    "noOverflow": true,
+    "sharedLanguageAndTabSuppression": true
+  },
+  {
+    "fault": "no-js",
+    "passed": true
+  },
+  {
+    "fault": "storage-denied",
+    "passed": true
+  },
+  {
+    "fault": "corrupt",
+    "passed": true
+  },
+  {
+    "fault": "write-denied",
+    "passed": true
+  },
+  {
+    "fault": "import-failure",
+    "passed": true
+  },
+  {
+    "fault": "reduced",
+    "passed": true
+  },
+  {
+    "fault": "form-focus",
+    "passed": true
+  },
+  {
+    "fault": "background",
+    "passed": true
+  },
+  {
+    "fault": "other-dialog",
+    "passed": true
+  },
+  {
+    "fault": "contact",
+    "passed": true
+  },
+  {
+    "fault": "privacy",
+    "passed": true
+  },
+  {
+    "fault": "system",
+    "passed": true
+  },
+  {
+    "realLifecycle": "pending -> active -> unsubscribed -> suppressed",
+    "uniform202": true,
+    "personalBrowserStorage": false
+  }
+]

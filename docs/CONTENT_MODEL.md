@@ -131,3 +131,7 @@ Public Room availability requires the same locale's published index and Room at 
 ## Shared contact projection
 
 `packages/content/contact.mjs` owns optional channel normalization and the browser-safe ordered link projection. `settings.social` stays at the shared root in both EN/EL localized results; address alone can be translated. Native missing/null/blank optional clears normalize without rewriting the existing seed. Read [contact/social rules](CONTACT_SOCIAL.md) for platform allowlists, WhatsApp international syntax, phone display compatibility, encoded mailbox destinations and per-placement behavior.
+
+## Newsletter and visitor preferences
+
+See [newsletter authoring and delivery boundaries](NEWSLETTER.md) for the opt-in newsletter modal, compact footer signup, localized visual editors, shared browser suppression and preferences. The default enquiries project remains unchanged. Hosted protection and actual sending require separately configured integrations.

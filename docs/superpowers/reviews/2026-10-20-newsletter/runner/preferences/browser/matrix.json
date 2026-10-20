@@ -1,0 +1,94 @@
+[
+  {
+    "tab": 0,
+    "focus": {
+      "inside": true,
+      "tag": "BUTTON",
+      "id": ""
+    }
+  },
+  {
+    "tab": 1,
+    "focus": {
+      "inside": true,
+      "tag": "INPUT",
+      "id": "newsletter-modal-consent"
+    }
+  },
+  {
+    "tab": 2,
+    "focus": {
+      "inside": true,
+      "tag": "A",
+      "id": ""
+    }
+  },
+  {
+    "tab": 3,
+    "focus": {
+      "inside": true,
+      "tag": "BUTTON",
+      "id": ""
+    }
+  },
+  {
+    "tab": 4,
+    "focus": {
+      "inside": false,
+      "tag": "BODY",
+      "id": ""
+    }
+  },
+  {
+    "tab": 5,
+    "focus": {
+      "inside": true,
+      "tag": "BUTTON",
+      "id": ""
+    }
+  },
+  {
+    "tab": 6,
+    "focus": {
+      "inside": true,
+      "tag": "INPUT",
+      "id": "newsletter-modal-email"
+    }
+  },
+  {
+    "tab": 7,
+    "focus": {
+      "inside": true,
+      "tag": "BUTTON",
+      "id": ""
+    }
+  },
+  {
+    "tab": 8,
+    "focus": {
+      "inside": true,
+      "tag": "INPUT",
+      "id": "newsletter-modal-consent"
+    }
+  },
+  {
+    "tab": 9,
+    "focus": {
+      "inside": true,
+      "tag": "A",
+      "id": ""
+    }
+  },
+  {
+    "liveStorageEvents": true,
+    "resetOwnKeyOnly": true,
+    "nativeTabCycleNeverReachesBackgroundControls": true
+  },
+  {
+    "blockedStorageManualForm": true,
+    "apiResponseStubbedForThisCase": true
+  },
+  {
+    "modalOnlyNoJsContact": true
+  }
+]

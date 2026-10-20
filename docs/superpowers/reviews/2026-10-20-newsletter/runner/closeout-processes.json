@@ -1,0 +1,32 @@
+[
+  {
+    "ProcessId": 4400,
+    "ParentProcessId": 20936,
+    "CreationDate": "2026-10-20T15:30:25.098819+03:00",
+    "CommandLine": "node  scripts/dev.mjs --cms"
+  },
+  {
+    "ProcessId": 39200,
+    "ParentProcessId": 4400,
+    "CreationDate": "2026-10-20T15:30:31.272073+03:00",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Projects\\bizness-starter-v2\\scripts\\watch-content.mjs"
+  },
+  {
+    "ProcessId": 18992,
+    "ParentProcessId": 4400,
+    "CreationDate": "2026-10-20T15:30:31.277508+03:00",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Projects\\bizness-starter-v2\\node_modules\\@tinacms\\cli\\bin\\tinacms dev --port 4010 --datalayer-port 9010 --noTelemetry"
+  },
+  {
+    "ProcessId": 3144,
+    "ParentProcessId": 4400,
+    "CreationDate": "2026-10-20T15:30:31.282214+03:00",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Projects\\bizness-starter-v2\\node_modules\\wrangler\\bin\\wrangler.js dev --local --ip 127.0.0.1 --port 8790 --inspector-port 0 --config C:\\Projects\\bizness-starter-v2\\wrangler.generated.json"
+  },
+  {
+    "ProcessId": 12892,
+    "ParentProcessId": 4400,
+    "CreationDate": "2026-10-20T15:30:31.287405+03:00",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Projects\\bizness-starter-v2\\apps\\site\\node_modules\\astro\\bin\\astro.mjs dev --host 127.0.0.1 --port 4330"
+  }
+]

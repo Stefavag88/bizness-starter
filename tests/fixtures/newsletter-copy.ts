@@ -1,0 +1,1 @@
+export const copy={title:'Useful updates',body:'## Useful news\n\nA **short** message.',footerPrompt:'Get **useful** updates.',emailLabel:'Email',submitLabel:'Sign up',consentLabel:'I agree to newsletter emails.',privacyLinkLabel:'Privacy',dismissLabel:'Close',successTitle:'Check your inbox',successBody:'If appropriate, confirm using the email link.'};
