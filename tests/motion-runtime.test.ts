@@ -35,3 +35,7 @@ it.each(['observer','animate','style','rejection'])('fails open for %s errors',a
  if(mode==='rejection')s.targets[0].animate.mockImplementation(()=>({cancel:()=>{},finished:Promise.reject(Error('cancelled'))}) as any);
  let stop=()=>{};expect(()=>{stop=initMotion(s.root);s.fire(...s.targets);s.hash('#%zz');stop();stop();}).not.toThrow();await Promise.resolve();
 });
+it('accepts equivalent second units emitted by production CSS minification',()=>{
+ const s=scene();s.values['--motion-duration']='.95s';s.values['--motion-stagger']='.12s';s.values['--motion-max-delay']='.3s';
+ const stop=initMotion(s.root);s.fire(...s.targets);expect(s.targets[0].animate).toHaveBeenCalledTimes(1);expect((s.targets[0].animate.mock.calls[0] as any)[1].duration).toBe(950);stop();
+});

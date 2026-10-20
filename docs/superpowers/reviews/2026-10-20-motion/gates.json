@@ -1,0 +1,58 @@
+[
+  {
+    "name": "check",
+    "started": "2026-10-20T07:43:17.225Z",
+    "pid": 39012,
+    "ended": "2026-10-20T07:43:33.110Z",
+    "exitCode": 0
+  },
+  {
+    "name": "test",
+    "started": "2026-10-20T07:43:33.111Z",
+    "pid": 25756,
+    "ended": "2026-10-20T07:43:55.074Z",
+    "exitCode": 0
+  },
+  {
+    "name": "build",
+    "started": "2026-10-20T07:43:55.074Z",
+    "pid": 3276,
+    "ended": "2026-10-20T07:44:00.858Z",
+    "exitCode": 0
+  },
+  {
+    "name": "worker:check",
+    "started": "2026-10-20T07:44:00.858Z",
+    "pid": 28224,
+    "ended": "2026-10-20T07:44:03.737Z",
+    "exitCode": 0
+  },
+  {
+    "name": "cms:local-build",
+    "started": "2026-10-20T07:44:03.737Z",
+    "pid": 31780,
+    "ended": "2026-10-20T07:44:41.556Z",
+    "exitCode": 0
+  },
+  {
+    "name": "test:static-routing",
+    "started": "2026-10-20T07:44:41.556Z",
+    "pid": 33180,
+    "ended": "2026-10-20T07:44:50.364Z",
+    "exitCode": 0
+  },
+  {
+    "name": "test:showcase-builds",
+    "started": "2026-10-20T07:44:50.364Z",
+    "pid": 16532,
+    "ended": "2026-10-20T07:45:03.348Z",
+    "exitCode": 0
+  },
+  {
+    "name": "test:motion",
+    "started": "2026-10-20T07:45:03.349Z",
+    "pid": 21484,
+    "ended": "2026-10-20T07:45:58.622Z",
+    "exitCode": 0
+  }
+]

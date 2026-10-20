@@ -108,3 +108,7 @@ Keep domain schemas acyclic: use the independent limits.mjs and rich-text.mjs pr
 `packages/content/contact.mjs` supplies safe ordered destinations to explicit-prop `ContactDetails`, `SocialLinks` and decorative `ContactIcon` components. Contact keeps a form-first DOM and a 56rem aside split; footer and optional header consume the same shared Settings values. Distinct localized social navigation names identify each placement. No browser SDK, remote icons, app probes or new dependency is required. [Contact/social authoring](CONTACT_SOCIAL.md) documents tokens, localization, clears and static rebuilds.
 
 The narrow public/native acceptance driver reuses established runtime/fixture ownership. Static fixtures use caller-known byte owners; the contact native test supplies an additive optional `expectedBytes` guard to the existing single `captureNative` owner. Installed GraphQL variable coercion precedes request/schema/serializer projection, including input-field ordering, before UI save dispatch. Raw native legal/translation ASTs remain separate from canonical Markdown serialization. Foreign equal-JSON/different-byte edits revoke claims and block regeneration. Existing helper callers retain their prior behavior.
+
+## Shared motion
+
+See [MOTION](MOTION.md) for opt-in project settings, generated tokens, renderer markers, reduced-motion/no-JavaScript fallback and the transient local showcase control. The local example enables motion; omitted settings stay disabled.

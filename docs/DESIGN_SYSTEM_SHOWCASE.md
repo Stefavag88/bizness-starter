@@ -42,3 +42,7 @@ Composition B's separate public fixture matrix covers all eight variants in EN/E
 ## Composition C renderer boundary
 
 Rooms render through the static server domain registry and reuse shared card, prose and original-image components. These imports must not pull the dedicated showcase layout, controller or styles into public staging/production assets. `pnpm test:composition-c` owns bilingual public fixtures and five representative build/CMS/Worker modes. `pnpm test:showcase-builds` checks actual staging/production inventories after these imports; every internal configure/build command now also checks complete canonical project/content/uploads snapshots and free project ports, and source conflicts block final regeneration even after an independent project restore succeeds.
+
+## Shared motion
+
+See [MOTION](MOTION.md) for opt-in project settings, generated tokens, renderer markers, reduced-motion/no-JavaScript fallback and the transient local showcase control. The local example enables motion; omitted settings stay disabled.

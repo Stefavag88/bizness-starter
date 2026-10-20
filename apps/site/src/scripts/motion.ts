@@ -54,8 +54,9 @@ export function initMotion(root: Document | HTMLElement): () => void {
     const style = win.getComputedStyle(scope);
     const number = (name: string, unit: string) => {
       const value = style.getPropertyValue(name).trim();
-      if (!value.endsWith(unit)) throw Error('Missing motion token: ' + name);
-      const result = Number(value.slice(0, -unit.length));
+      const actualUnit = unit === 'ms' && value.endsWith('s') && !value.endsWith('ms') ? 's' : unit;
+      if (!value.endsWith(actualUnit)) throw Error('Missing motion token: ' + name);
+      const result = Number(value.slice(0, -actualUnit.length)) * (actualUnit === 's' ? 1000 : 1);
       if (!Number.isFinite(result) || result < 0) throw Error('Invalid motion token: ' + name);
       return result;
     };

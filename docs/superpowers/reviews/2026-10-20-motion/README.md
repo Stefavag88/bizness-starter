@@ -1,0 +1,11 @@
+# Motion implementation evidence
+
+The user selected inline implementation with one independent final review. The accepted design and plan are under `docs/superpowers/`. Final review is pending at this checkpoint.
+
+`gates.json` records eight completed verification commands with owned PIDs, timestamps and exit code 0. Complete local gate logs remain under `.superpowers/sdd/2026-10-20-starter-v2-motion/` until final archive closeout. Root tests: 924 passed, one existing conditional skip; site renderer tests: 36 passed. Type/Astro checks: 60 files, zero errors/warnings/hints.
+
+Final detached browser acceptance: `.generated/motion/acceptance-LCICjx/`. Both on/off scenarios passed: 36 language/viewport/JS-preference contexts with seven routes each, plus focus, encoded/malformed hashes, unsupported/throwing APIs, touch-pointer and showcase preview controls. Eight representative axe scans (Rooms detail) reported zero violations. Custom 950 ms / 32 px / 120 ms / 240 ms parameters reached actual built CSS and native animation timings. Off mode requested no entrance controller. All owned servers closed and source inventories matched.
+
+Earlier attempts are retained locally as failed evidence. The first used guessed detail routes; these now come from the publication projection. Subsequent zero-animation failures led to the actual production CSS-unit defect: minification rewrites milliseconds to seconds. A failing regression now verifies both units, and the implementation passes. A later successful content matrix exposed a multi-match showcase locator; it now checks all language groups. An early exceptional showcase path lacked context cleanup and its owned test child was explicitly stopped after identity verification; context/server cleanup is now unconditional. These attempts are not successful acceptance runs.
+
+Fixtures are detached copies under the ignored acceptance directories with node_modules junctions to the installed runtime; canonical files are never overwritten. They are retained as local evidence, not recursively removed. Test server CSP matches the public asset policy. Hosted infrastructure, real sending, exhaustive browser/accessibility certification and deployment remain outside scope.

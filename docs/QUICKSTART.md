@@ -121,3 +121,7 @@ The accepted final-source C evidence is segmented (six full/public tests plus co
 ## Shared contact and social channels
 
 Author shared contact details and optional Instagram/LinkedIn/Facebook/WhatsApp in Settings; Contact and footer update together, with header icons off by default. Clear optional fields to remove their links. See [contact/social authoring and exact-owned acceptance](CONTACT_SOCIAL.md). Hosted static sites require a rebuild after saves.
+
+## Shared motion
+
+See [MOTION](MOTION.md) for opt-in project settings, generated tokens, renderer markers, reduced-motion/no-JavaScript fallback and the transient local showcase control. The local example enables motion; omitted settings stay disabled.
