@@ -1,5 +1,6 @@
+import { cmsElement as h } from './controls';
 import {roomListCopyFields} from '../domains/rooms/fields';
-import { createElement as h, lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import type { TinaField, Template } from 'tinacms';
 import { sectionDefinitions } from '../../packages/content/section-registry.mjs';
 import { text, object, link } from './common';

@@ -1,5 +1,5 @@
+import { cmsElement as h } from './controls';
 import {
-  createElement as h,
   lazy,
   Suspense,
   useEffect,
@@ -152,6 +152,7 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
                   }),
                 ),
               ),
+              h('div', { style: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 } },
               h(
                 'button',
                 {
@@ -183,13 +184,14 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
                     run((v) => removeNavigationItem(v, item.pageId)),
                 },
                 'Remove link',
-              ),
+              )),
             ]
           : []),
       ),
     ),
     ...(!locale
       ? [
+          h('fieldset', {}, h('legend', {}, 'Add navigation link'),
           h(
             'label',
             {},
@@ -258,7 +260,7 @@ export function NavigationEditor({ field, tinaForm, cms, disabledPageFiles=[] }:
               },
             },
             'Add navigation item',
-          ),
+          )),
         ]
       : []),
   );

@@ -1,4 +1,5 @@
-import {createElement as h,lazy,Suspense,useState} from 'react';
+import { cmsElement as h } from '../../fields/controls';
+import {lazy,Suspense,useState} from 'react';
 import {RegisteredFields,useValues} from '../../fields/composition';
 import {nativeRichText} from '../../fields/rich-text';
 import {addRoomItem,moveRoomItem,removeRoomItem,initializeRoomTranslation,initializeRoomItemTranslation,setRoomMedia} from '../../../packages/domains/rooms/items.mjs';

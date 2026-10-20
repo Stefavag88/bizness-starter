@@ -1,4 +1,5 @@
-import { createElement as h, lazy, Suspense, useState } from 'react';
+import { cmsElement as h } from './controls';
+import { lazy, Suspense, useState } from 'react';
 import { applyComposition, useValues } from './composition';
 import {
   setSectionMedia,

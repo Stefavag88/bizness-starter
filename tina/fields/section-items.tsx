@@ -1,5 +1,6 @@
+import { cmsElement as h } from './controls';
 import {SectionMediaControls} from './section-media';
-import { createElement as h, useState } from "react";
+import { useState } from "react";
 import { sectionDefinitions } from "../../packages/content/section-registry.mjs";
 import {
   addSectionItem,

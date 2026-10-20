@@ -1,5 +1,5 @@
+import { cmsElement as h } from './controls';
 import {
-  createElement as h,
   lazy,
   Suspense,
   useState,

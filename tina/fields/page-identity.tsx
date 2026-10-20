@@ -1,4 +1,4 @@
-import { createElement as h } from 'react';
+import { cmsElement as h } from './controls';
 import { nativeRichText } from './rich-text';
 export function PageIdentityControls({ input, field, tinaForm }: any) {
   return h('input', {
