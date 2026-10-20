@@ -1,7 +1,7 @@
 # Starter v2 — Newsletter prompt and visitor preferences design
 
 Date: 2026-10-20
-Status: Proposed written design; awaits user review before implementation planning.
+Status: Approved by the user on 2026-10-20; implementation plan prepared for review.
 Baseline: `61e52ae` (reviewed shared motion, restored normal local stack).
 Execution preference: inline implementation with per-task tests/commits and one independent final review. No per-task agent reviews.
 
@@ -22,7 +22,7 @@ Use approach 1. This is one experience module with a small shared browser-state 
 ## Ownership and enablement
 
 - Extend strict developer `project.modules` with `newsletterPrompt:false` and `visitorPreferences:false`, defaulted for existing projects. Preserve `enquiries`, `newsletter` and `nurture` profile meanings.
-- The effective newsletter capability requires a newsletter/nurture profile, `modules.newsletterPrompt`, enabled CMS settings, complete eligible localized copy and a published localized privacy destination. No frontend signup or newsletter bundle/request is exposed in enquiries.
+- The effective newsletter capability requires a newsletter/nurture profile, `modules.newsletterPrompt`, enabled CMS settings, complete eligible localized copy and a published localized privacy destination. No frontend signup or newsletter controller request is exposed in enquiries; the existing shared site bootstrap may remain.
 - Visitor preferences can be enabled independently. When no newsletter prompt or optional integration exists, do not render an empty preferences control/dialog.
 - Shared settings own widget enablement, modal enablement, footer mode, auto-open, timing and interest selection. Default/localized settings own copy; translations cannot independently change structure, timing or consent choices.
 - Omitted newsletter settings remain disabled. Turning a profile/module off retains dormant canonical copy/preferences without leaking visible controls, requests or routes. Native CMS saves must preserve dormant values and unrelated rich-text ASTs, including saves after switching a module off.
@@ -114,4 +114,4 @@ Implementation planning must define exact files, schema/native-save interfaces a
 
 The user clarified that modal body uses a visual HTML/WYSIWYG editor and that a compact, independently selectable footer form has a short prompt rather than a full body. This revision incorporates both.
 
-This design deliberately keeps the neutral enquiries example, backend consent/security guarantees, real sending settings and current visual system intact. The proposed timings and storage horizons are UX defaults, not legal retention advice. It distinguishes browser convenience, newsletter consent and future optional tracking, and does not promise production-provider readiness. No runtime implementation has been made. Written-design approval is required before the implementation plan; the chosen inline/final-review execution method is already preserved.
+This design deliberately keeps the neutral enquiries example, backend consent/security guarantees, real sending settings and current visual system intact. The proposed timings and storage horizons are UX defaults, not legal retention advice. It distinguishes browser convenience, newsletter consent and future optional tracking, and does not promise production-provider readiness. No runtime implementation has been made. The user approved this written design. The implementation plan is prepared for review; the chosen inline/final-review execution method is preserved.
