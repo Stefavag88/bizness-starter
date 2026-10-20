@@ -53,7 +53,9 @@ Use .mjs/.d.mts pairs for Node-consumed helpers. Keep browser metadata free of f
 - `PresetId = 'neutral'|'professional-services'|'trades'|'accommodation'|'studio'`.
 - `PresetMetadata = {id:PresetId,version:1,title:{en:string,el:string},summary:{en:string,el:string},suggestedTheme:string,rooms:boolean}`.
 - `presetCatalog: readonly PresetMetadata[]`.
+- Reuse `ProjectConfig` from packages/config/project.mjs and `LocalizedContent`/`Route` from packages/content/types.ts throughout this plan.
 - `createPresetBundle(id, {name,languages:('en'|'el')[],defaultLanguage:'en'|'el',theme:string,articles?:boolean}): {project:ProjectConfig, files:Map<string,Uint8Array>}`. files contains only canonical content and required reviewed media, not source code/project.json.
+- `projectPresetBundle(bundle, {assetRoot:string,now?:Date}): {contents:LocalizedContent[],routes:Route[]}` validates in-memory documents with the existing canonical normalizers, schemas and catalog, then localizes them. It reads only required reviewed media under assetRoot; no temporary canonical writes or source business-content reads. Task 5 consumes this projection.
 
 - [ ] Write failing tests: exactly five metadata IDs; unknown selection rejects; every bundle parses project/content/localization/routes; Home compositions differ beyond theme; no booking/account claims. Use the real loader on owned temporary content roots.
 - [ ] Run `pnpm exec vitest run tests/preset-bundles.test.ts`; expect failure for missing catalog/bundle implementation.
@@ -104,7 +106,7 @@ Use .mjs/.d.mts pairs for Node-consumed helpers. Keep browser metadata free of f
 **Files:** Create `apps/site/src/lib/render-context.ts` and tests; modify `lib/content.ts`, `layouts/Layout.astro`, `templates/{Page,EditorialDetail,ContactForm}.astro`, existing section renderers including Rooms, and UI `{Button,RichText,Description,SectionImage}.astro` only where context must propagate. Existing styles/design remain unchanged.
 
 **Interfaces:**
-- `RenderContext = {project:ProjectConfig,routes:PublicRoute[],previewBase?:string,link(href:string,locale:string):string,rich(value:string,locale:string,inline?:boolean,links?:boolean):string}`.
+- `RenderContext = {project:ProjectConfig,routes:Route[],previewBase?:string,link(href:string,locale:string):string,rich(value:string,locale:string,inline?:boolean,links?:boolean):string}`.
 - `createRenderContext(project,routes,{previewBase?:string}={}):RenderContext`; use existing safe renderer/resolveContentLink, not HTML postprocessing or arbitrary path injection.
 - A new optional `context?:RenderContext` prop is passed explicitly from Layout/Page to all affected descendants; absent context uses the current canonical project/routes and preserves behavior.
 
@@ -121,7 +123,7 @@ Use .mjs/.d.mts pairs for Node-consumed helpers. Keep browser metadata free of f
 
 **Interfaces:**
 - Source marker plus local environment permits routes `/templates` and `/templates/[preset]/[theme]/[locale]/[...path]` through pre-graph injectRoute. An empty path denotes that preview's localized Home.
-- `preparePresetPreview(preset,theme,locale): {project,content,routes,context}` uses the Task 1 validated bundle, never source content edits. Enumerate actual public routes for all five presets/four existing themes and seed locales.
+- `preparePresetPreview(preset,theme,locale): {project,content,routes,context}` uses Task 1 createPresetBundle/projectPresetBundle, never source content edits. Enumerate actual public routes for all five presets/four existing themes and seed locales.
 - `formatInitializeCommand(options):string` shares CLI option names and safe display quoting from Task 3; the gallery only copies/displays text.
 
 - [ ] Add failing route tests: source local marker allows gallery; staging/production and missing marker omit registration; invalid preset/theme/locale/path is not generated; preview targets stay scoped.
