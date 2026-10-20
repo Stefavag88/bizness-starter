@@ -17,12 +17,13 @@ const roles=['surface','textPrimary','textMuted','brandAccent','border','control
 const token=(role:string)=>'--color-'+role.replace(/[A-Z]/g,c=>'-'+c.toLowerCase());
 ---
 <header class="wrap showcase-shell" lang="en"><div><p>Preview only</p><h1>Business Starter v2</h1><p>Design-system showcase</p></div><a href={home}>Back to homepage</a></header>
-<main id="showcase-main">
+<main id="showcase-main" data-motion={project.design.motion.enabled?'on':'off'}>
 <div class="wrap showcase-shell" lang="en"><p>Presentation themes are independent of business presets. For permanent theme and density settings, edit <code>project.json</code>; theme tokens live in <code>packages/design-system/themes/</code>.</p>
 {groups.length>0?<div id="showcase-toolbar" class="showcase-toolbar" data-default-theme={project.design.theme} data-default-density={project.design.density} data-default-language={defaultLocale}>
 <label for="showcase-theme">Theme<select id="showcase-theme" disabled>{Object.entries(themes).map(([key,value])=><option value={key} selected={key===project.design.theme}>{value.label}</option>)}</select></label>
 <label for="showcase-density">Density<select id="showcase-density" disabled>{['compact','comfortable','spacious'].map(value=><option value={value} selected={value===project.design.density}>{value}</option>)}</select></label>
 <label for="showcase-language">Sample language<select id="showcase-language" disabled>{groups.map(group=><option value={group.locale} selected={group.locale===defaultLocale}>{project.languages.find(l=>l.code===group.locale)?.label}</option>)}</select></label>
+<label for="showcase-motion">Motion preview / Κίνηση<input type="checkbox" id="showcase-motion" checked={project.design.motion.enabled} data-default-enabled={String(project.design.motion.enabled)} disabled/></label>
 <button id="showcase-reset" type="button" disabled>Reset preview</button></div>:<p>No supported sample languages are configured. Configure English or Greek to view samples.</p>}
 <noscript><p>JavaScript enables preview controls. Configured-default examples remain available below.</p></noscript>
 <nav aria-label="Showcase sections"><a href="#showcase-foundations">Foundations</a><a href="#showcase-controls">Controls</a><a href="#showcase-cards">Cards</a><a href="#showcase-sections">Section examples</a></nav>

@@ -5,4 +5,4 @@ import type {LocalizedSection,LocalizedContent} from '../../../../../packages/co
 interface Props {section:Extract<LocalizedSection,{_template:'article-list'}>;content:LocalizedContent;locale:string}
 const {section,content,locale}=Astro.props;
 ---
-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/><div class="cards">{content.articles.map(record=><Card record={record} locale={locale}/>)}</div></div></section>
+<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/></div><div class="cards" data-motion-group>{content.articles.map(record=><Card record={record} locale={locale}/>)}</div></div></section>

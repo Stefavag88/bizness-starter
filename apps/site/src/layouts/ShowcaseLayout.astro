@@ -2,6 +2,7 @@
 import '../styles/foundations.css';
 import '../styles/themes.generated.css';
 import '../styles/global.css';
+import '../styles/motion.css';
 import '../styles/showcase.css';
 import '@fontsource/noto-sans/400.css';
 import '@fontsource/noto-sans/600.css';
@@ -9,4 +10,4 @@ import {project} from '../lib/content';
 interface Props {locale:string}
 const {locale}=Astro.props;
 ---
-<!doctype html><html lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="robots" content="noindex,nofollow"/><title>Business Starter v2 — Design system</title></head><body class="showcase"><a class="skip" href="#showcase-main" lang="en">Skip to content</a><slot/><script src="../scripts/design-preview.ts"></script></body></html>
+<!doctype html><html data-motion="off" lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="robots" content="noindex,nofollow"/><title>Business Starter v2 — Design system</title></head><body class="showcase"><a class="skip" href="#showcase-main" lang="en">Skip to content</a><slot/><script src="../scripts/design-preview.ts"></script></body></html>

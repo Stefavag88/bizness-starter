@@ -1,0 +1,13 @@
+/* Colour feedback remains available independently of decorative movement. */
+.button,.card h3 a,.social-link{transition:color var(--motion-interaction-duration) var(--motion-interaction-ease),background-color var(--motion-interaction-duration) var(--motion-interaction-ease),border-color var(--motion-interaction-duration) var(--motion-interaction-ease)}
+[data-motion="on"]{--motion-hover-distance:-2px}
+[data-motion="off"]{--motion-hover-distance:0px}
+@media(hover:hover) and (pointer:fine){
+ .button,.card h3 a,.social-link{transition:color var(--motion-interaction-duration) var(--motion-interaction-ease),background-color var(--motion-interaction-duration) var(--motion-interaction-ease),border-color var(--motion-interaction-duration) var(--motion-interaction-ease),transform var(--motion-interaction-duration) var(--motion-interaction-ease)}
+ .button:hover,.card h3 a:hover,.social-link:hover{transform:translateY(var(--motion-hover-distance,0px))}
+}
+.button:focus-visible,.card h3 a:focus-visible,.social-link:focus-visible{transition:none;transform:none}
+@media(prefers-reduced-motion:reduce){
+ [data-motion]{--motion-hover-distance:0px;--motion-stagger:0ms}
+ .button,.card h3 a,.social-link{transition:none;transform:none}
+}

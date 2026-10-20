@@ -5,4 +5,4 @@ import type {LocalizedSection} from '../../../../../packages/content/types';
 interface Props {section:Extract<LocalizedSection,{_template:'steps'}>;locale:string}
 const {section,locale}=Astro.props;
 ---
-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><h2 id={section.id}>{section.copy.title}</h2><div class="description" set:html={rich(section.copy.description,locale,true)}/><ol class:list={['steps',{'steps-cards':section.variant==='cards'}]}>{section.copy.items.map(item=><li><h3>{item.title}</h3><RichText body={item.body} locale={locale}/></li>)}</ol></div></section>
+<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><div class="description" set:html={rich(section.copy.description,locale,true)}/></div><ol data-motion-group class:list={['steps',{'steps-cards':section.variant==='cards'}]}>{section.copy.items.map(item=><li data-motion-reveal><h3>{item.title}</h3><RichText body={item.body} locale={locale}/></li>)}</ol></div></section>
