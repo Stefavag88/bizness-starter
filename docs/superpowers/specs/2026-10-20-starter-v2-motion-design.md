@@ -1,7 +1,7 @@
 # Starter v2 — Shared motion system design
 
 Date: 2026-10-20
-Status: Proposed; awaiting written-design approval before an implementation plan.
+Status: Written design approved by the user on 2026-10-20; implementation plan awaits review.
 Baseline: `c8be98c` on `codex/starter-v2-contact-social`.
 
 ## Intent and scope
