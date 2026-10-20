@@ -20,7 +20,7 @@ it('defaults missing infrastructure with both sending capabilities disabled', ()
 
 it.each(['comfortable', 'compact', 'spacious'] as const)('accepts %s density without changing the selected theme', (density) => {
   const raw = { ...valid(), design: { theme: 'trades', density } };
-  expect(parseProject(raw).design).toEqual({ theme: 'trades', density });
+  expect(parseProject(raw).design).toMatchObject({ theme: 'trades', density });
 });
 it.each(['dense', '', 'SPACIOUS', 1, null])('rejects unsupported density %s', (density) => {
   expect(() => parseProject({ ...valid(), design: { theme: 'neutral', density } })).toThrow();

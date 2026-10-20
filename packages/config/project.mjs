@@ -22,13 +22,18 @@ const optimization = z.strictObject({
     .default([320, 640, 960, 1440, 1920]),
   quality: z.number().int().min(40).max(95).default(80),
 });
+export const motionSchema = z.strictObject({
+  enabled:z.boolean().default(false), durationMs:z.number().int().min(100).max(1200).default(600),
+  distancePx:z.number().int().min(0).max(48).default(18), staggerMs:z.number().int().min(0).max(150).default(70),
+  interactionMs:z.number().int().min(0).max(400).default(180),
+});
 export const projectSchema = z.strictObject({
   name: z.string().regex(/^[a-z0-9-]{1,40}$/), starterVersion: z.literal('2.0.0-dev'), schemaVersion: z.literal(2),
   profile: z.enum(['enquiries','newsletter','nurture']).default('enquiries'), articles: z.boolean().default(true),
   modules: z.strictObject({rooms:z.boolean().default(false)}).prefault({}),
   locale: code, languages: z.array(z.strictObject({code, label:text})).min(1), siteUrl: origin,
   environment: z.enum(['local','staging','production']).default('local'),
-  design: z.strictObject({theme:z.string().regex(/^[a-z0-9-]+$/).default('neutral'),density:z.enum(['comfortable','compact','spacious']).default('comfortable')}).default({theme:'neutral',density:'comfortable'}),
+  design: z.strictObject({theme:z.string().regex(/^[a-z0-9-]+$/).default('neutral'),density:z.enum(['comfortable','compact','spacious']).default('comfortable'),motion:motionSchema.prefault({})}).prefault({}),
   media: z.strictObject({ optimization: optimization.prefault({}) }).prefault({}),
   infrastructure: infrastructure.prefault({}), legalReviewed:z.boolean().default(false), contentReviewed:z.boolean().default(false),
   interests:z.array(z.strictObject({id,label:text})).default([]),

@@ -19,7 +19,7 @@
 - Primary hero/H1, header navigation, footer legal content, contact fields/errors and skip links are excluded. Focus and fragment destinations appear immediately; reduced motion takes priority.
 - `pnpm configure` owns generated CSS. No manual edits to generated artifacts, unsafe inline configuration, provider setup, deployment or sending changes.
 - Stop the exact owned local stack before configuration/CMS changes or lifecycle-owning tests. Both original source repositories remain read-only. Preserve unknown local editor bytes.
-- Preserve the requested method: one fresh implementer and independent reviewer per task, sequential dependencies, then whole-branch review. Do not start until the user reviews this written plan. Use the existing agreed medium implementation setting; do not change model settings without authorization or the applicable skill.
+- Execution approved on 2026-10-20: implement inline with per-task tests/commits and one independent whole-branch review at the end. This user-selected method supersedes per-task implementer/reviewer dispatch.
 
 ## Review Focus
 
@@ -51,7 +51,7 @@
 - [ ] Run `pnpm exec vitest run tests/project-config.test.ts tests/motion-config.test.ts`; observe the new assertions fail against the current schema, not only an import/collection error.
 - [ ] Add strict nested schema defaults, declaration type and pure token emitter. An absent motion object is normalized once by `parseProject`; the emitter consumes that normalized result. Have `generateDesign` append emitted values to the same ignored generated CSS. Keep theme registry output and CMS/editor content unchanged.
 - [ ] Add assertions for custom `{durationMs:950,distancePx:32,staggerMs:120,interactionMs:240}` emitting `950ms`, `32px`, `120ms`, `240ms`, with deterministic output and no arbitrary string interpolation. Run focused tests and `pnpm exec tsc --noEmit`; inspect an actual `pnpm configure` output, then retain canonical project bytes unchanged in this task.
-- [ ] Commit `feat(motion): add validated project settings and semantic tokens`. Independent reviewer checks config compatibility, safe CSS generation and absence of manual generated edits; resolve findings before Task 2.
+- [ ] Commit `feat(motion): add validated project settings and semantic tokens`. Author checks config compatibility, safe CSS generation and absence of manual generated edits; resolve findings before Task 2.
 
 ### Task 2: Fail-open entrance lifecycle
 
@@ -64,7 +64,7 @@
 - [ ] Implement one shared observer per root and one completed-target set. Filter nested reveal markers so an animated target never contains another independently animated target. Use keyframes from opacity 0 to 1 and individual `translate` from `0 <distance>` to `0 0`, with fill `none`; preserve existing `transform`. If a target already has a non-none individual translate, use fade-only keyframes. Use configured duration/easing and bounded direct sibling indices. Unobserve consumed targets and release completed/cancelled handles.
 - [ ] Test focusin, initial hash, hashchange, encoded IDs and malformed percent escapes using safe decoding and ID lookup rather than interpolated selectors. Fragment navigation cancels relevant handles and skips newly reached destinations/ancestors. Reduced-motion changes cancel active handles immediately and block further animation while active. A focused target is consumed without movement.
 - [ ] Test throwing observer/animate/style APIs, rejected `finished`, preference changes mid-animation and double disposal: cancellation leaves default visible styles, disconnects owned observers and removes listeners; no rejection is left unhandled. Do not use persistent inline styles, hide classes or `commitStyles`.
-- [ ] Run focused lifecycle/config tests and TypeScript; commit `feat(motion): add accessible fail-open entrance controller`. Independent reviewer checks all five lifecycle failure paths before Task 3.
+- [ ] Run focused lifecycle/config tests and TypeScript; commit `feat(motion): add accessible fail-open entrance controller`. Author checks all five lifecycle failure paths before Task 3.
 
 ### Task 3: Renderer integration, interaction polish and showcase
 
@@ -89,7 +89,7 @@
 - [ ] Exercise showcase on/off, theme/language changes, reset and back/forward; check no hidden-language target animates and keyboard focus is recovered before hiding its sample. Assert configured motion and canonical content hashes are unchanged by preview use. Run representative accessibility scans and manual visual/keyboard review, recording scope and limitations.
 - [ ] Write English documentation with actual config examples/defaults, semantic token ownership, marker/group extension contract, reduced/no-JS/disabled behaviour, lack of persistence and practical initial-viewport limitations. Update current guides; mark no hosted/provider/launch verification as completed.
 - [ ] Stop the exact owned stack, then run sequentially `pnpm check`, `pnpm test`, `pnpm build`, `pnpm worker:check`, `pnpm cms:local-build`, `pnpm test:static-routing`, `pnpm test:showcase-builds`, `pnpm test:motion`. Record explicit completion/exit codes. Never run lifecycle-owning commands against an already running main stack. Restore proven fixtures before the next command; stop on ownership conflicts.
-- [ ] Commit `test(motion): verify shared effects and document extension contract`. Independent reviewer checks requirement coverage, actual computed values, fallback failures and cleanup ownership; repair and rerun affected evidence before the whole-branch review.
+- [ ] Commit `test(motion): verify shared effects and document extension contract`. Author checks requirement coverage, actual computed values, fallback failures and cleanup ownership; repair and rerun affected evidence before the whole-branch review.
 
 ## Final review and local handoff
 
@@ -101,4 +101,4 @@
 
 All approved design sections map to Tasks 1–4: config/tokens (1), safe lifecycle/fallback (2), explicit renderers/interactions/showcase (3), actual computed-value/browser/failure checks and docs (4). The five Review Focus cases have named owner tasks and assertions. Shared API names and defaults match across tasks. This is a proposed implementation plan, not a claim that effects are implemented or tested.
 
-Execution method is already supplied: subagent-driven implementation with a separate review per task. Await user review of this document before creating the execution checkout/branch or changing product code.
+Execution method: inline implementation, per-task checks and commits, one independent final review. Written plan and revised execution method approved by the user on 2026-10-20.

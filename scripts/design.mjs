@@ -1,4 +1,5 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import {motionCSS} from '../packages/design-system/motion.mjs';
 import { themes, themeCSS, validateDesign } from '../packages/design-system/theme.mjs';
 export function generateDesign(design) {
   validateDesign(design);
@@ -8,7 +9,7 @@ export function generateDesign(design) {
     '/* Generated from packages/design-system/themes. Edit theme JSON, then run pnpm configure. */\n' +
     Object.entries(themes)
       .map(([name, theme]) => themeCSS(name, theme))
-      .join('\n');
+      .join('\n') + '\n' + motionCSS(design.motion);
   const registryPath = 'packages/design-system/themes.generated.json';
   const registry = JSON.stringify(themes, null, 2) + '\n';
   if (!existsSync(registryPath) || readFileSync(registryPath, 'utf8') !== registry)
