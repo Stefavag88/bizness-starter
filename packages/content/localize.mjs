@@ -1,3 +1,4 @@
+import {newsletterCopySchema} from './newsletter.mjs';
 import {projectDomains} from './domain-publication.mjs';
 import {getDisabledDomainPages} from './domain-registry.mjs';
 import {sectionDefinitions,sectionEnabled} from './section-registry.mjs';
@@ -11,6 +12,7 @@ export function localizeContent(source,locale,project,registry) {
  const settings=structuredClone(locale===project.locale?baseSettings:{
   brand:{...baseSettings.brand,...translation.brand},legal:{...baseSettings.legal,...translation.legal},
   contact:{...baseSettings.contact,...translation.contact},social:baseSettings.social,
+  newsletterPrompt:baseSettings.newsletterPrompt?{...baseSettings.newsletterPrompt,...newsletterCopySchema.parse(translation.newsletterPrompt??{})}:undefined,
   navigation:baseSettings.navigation.map(item=>({...item,label:translation.navigation[item.pageId]})),
  });
  const disabledIds=new Set(getDisabledDomainPages(project,registry).map(page=>page.contentId));

@@ -1,3 +1,4 @@
+import type {NewsletterSettings,NewsletterCopy} from './newsletter.mjs';
 import type { DomainRecords,LocalizedDomainRecords } from './domain-contracts';
 import type {MediaReference} from './media.mjs';
 export interface PageTemplateMap {home:unknown;about:unknown;contact:unknown;standard:unknown;offerings:unknown;insights:unknown}
@@ -36,8 +37,8 @@ export interface NavigationItem {label:string;pageId:string}
 export interface SocialSettings {instagram:string;linkedin:string;facebook:string;whatsapp:string;showInHeader:boolean}
 export interface ContactLink {id:'email'|'phone'|'instagram'|'linkedin'|'facebook'|'whatsapp';label:string;href:string;external:boolean}
 export interface ContactChannels {direct:ContactLink[];social:ContactLink[];phoneText?:string;address?:string}
-export interface SettingsCopy {social:SocialSettings;brand:{name:string;tagline:string};legal:{businessName:string;privacyVersion:string;notice:string};contact:{email:string;phone:string;address:string};navigation:NavigationItem[]}
-export interface SettingsTranslation {brand:{tagline:string};legal:{notice:string};contact:{address:string};navigation:Record<string,string>}
+export interface SettingsCopy {newsletterPrompt?:NewsletterSettings;social:SocialSettings;brand:{name:string;tagline:string};legal:{businessName:string;privacyVersion:string;notice:string};contact:{email:string;phone:string;address:string};navigation:NavigationItem[]}
+export interface SettingsTranslation {newsletterPrompt?:NewsletterCopy;brand:{tagline:string};legal:{notice:string};contact:{address:string};navigation:Record<string,string>}
 export interface Settings extends SettingsCopy {translations:Record<string,SettingsTranslation>}
 export interface Campaign {contentId:string;subject:string;intro:string;articleId?:string;interest:string}
 export interface ContentSnapshot {settings:Settings;pages:Page[];offerings:Offering[];people:Person[];articles:Article[];campaigns:Campaign[];domains:DomainRecords;now:string}

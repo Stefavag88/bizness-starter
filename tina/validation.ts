@@ -122,6 +122,7 @@ export function nativeProjection(
     for (const key of ['body', 'description'])
       if (Object.hasOwn(record, key))
         record[key] = markdown(record[key], key === 'description');
+    if(record.newsletterPrompt)for(const key of ['body','successBody','footerPrompt'])if(Object.hasOwn(record.newsletterPrompt,key))record.newsletterPrompt[key]=markdown(record.newsletterPrompt[key],key==='footerPrompt');
     if (record.legal && Object.hasOwn(record.legal, 'notice'))
       record.legal.notice = markdown(record.legal.notice, false);
     if (record.copy?.sections)

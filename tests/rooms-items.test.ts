@@ -25,7 +25,7 @@ it('native Rooms controls apply all changed owned fields and reject without muta
  expect(()=>applyRoom(form,v=>addRoomItem(v,'amenities',{id:'desk',copy:{id:'desk',label:'Again'}}))).toThrow();expect(changes).toHaveLength(2);
 });
 it('registers stable native schemas and returns original rich ASTs after detached save validation',()=>{
- const p={...project,modules:{rooms:true}};expect(getNativeDomainAdapters(project)).toEqual([]);expect(getNativeDomainAdapters(p).map(a=>a.collectionName)).toEqual(['room']);
+ const p={...project,modules:{...project.modules,rooms:true}};expect(getNativeDomainAdapters(project)).toEqual([]);expect(getNativeDomainAdapters(p).map(a=>a.collectionName)).toEqual(['room']);
  const collection=roomCollection(p);expect(collection.ui?.defaultItem).toBeTruthy();expect((collection.ui?.defaultItem as any).body).toMatchObject({type:'root'});expect((collection.ui?.defaultItem as any).description).toMatchObject({type:'root'});expect(JSON.stringify(roomCollection(p))).toBe(JSON.stringify(collection));
  const body={type:'root',children:[{type:'p',children:[{text:'Useful words',id:'kept'}]}]};const values={...room(),body,status:'draft',translations:{}};
  expect(nativeProjection(values,p,'room').body).toContain('Useful words');expect(beforeSubmit(values,'room',p,undefined,{operation:'create',relativePath:'suite.json'})).toBe(values);expect(values.body).toBe(body);
@@ -40,13 +40,13 @@ it('initializes module-required translation fields blank without default prose o
  const values:any=appendSection(initial,'room-list','intro'),id=values.sections[1].id;
  const initialized:any=initializeTranslationCopy(values,'el',id),copy=initialized.translations.el.copy.sections.find((s:any)=>s.id===id);
  expect(copy.emptyMessage).toBe('');expect(copy.description).toMatchObject({type:'root'});expect(initialized.translations.el.copy.sections[1].body).toBe(ast);
- const p={...project,modules:{rooms:true}};expect(()=>beforeSubmit(initialized,'page',p,values,{operation:'update',relativePath:'about.json'})).toThrow();
+ const p={...project,modules:{...project.modules,rooms:true}};expect(()=>beforeSubmit(initialized,'page',p,values,{operation:'update',relativePath:'about.json'})).toThrow();
  copy.title='Δωμάτια';copy.emptyMessage='Δεν υπάρχουν δωμάτια.';expect(beforeSubmit(initialized,'page',p,values,{operation:'update',relativePath:'about.json'})).toBe(initialized);expect(initialized.translations.el.copy.sections[1].body).toBe(ast);
  const missing:any=initializeTranslationCopy({...values,translations:{}},'el',id);expect(missing.translations.el.status).toBe('draft');expect(missing.translations.el.copy.sections.find((s:any)=>s.id===id).emptyMessage).toBe('');
 });
 
 it('invalid nested Room copy rejects detached validation and correction preserves opaque AST identity',()=>{
- const p={...project,modules:{rooms:true}},body={type:'root',children:[{type:'p',children:[{text:'Retained native body',id:'opaque-identity'}]}]};
+ const p={...project,modules:{...project.modules,rooms:true}},body={type:'root',children:[{type:'p',children:[{text:'Retained native body',id:'opaque-identity'}]}]};
  const original:any={...room(),body,status:'draft',translations:{}};
  const broken=addRoomItem(original,'amenities',{id:'desk',copy:{id:'desk',label:''}});
  expect(()=>beforeSubmit(broken,'room',p,original,{operation:'update',relativePath:'suite.json'})).toThrow();expect(broken.body).toBe(body);expect(original.amenities).toHaveLength(1);

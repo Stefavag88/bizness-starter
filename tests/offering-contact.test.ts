@@ -29,7 +29,7 @@ it('accepts a Greek-only published offering context and rejects offerings unpubl
 
 it('accepts a Room absent from legacy offerings and rejects unknown, draft and disabled IDs',async()=>{
  const f=fixture();f.write('pages/rooms.json',pageDocument('rooms','rooms','rooms'));f.write('rooms/suite.json',room());const draft=room();draft.contentId='draft-room';draft.slug='draft-room';draft.status='draft';draft.translations.el.status='draft';f.write('rooms/draft.json',draft);
- const p={...project,modules:{rooms:true}};const generated=createManifest(readContent(f.root,p),p);manifest.enquiryContexts.splice(0,manifest.enquiryContexts.length,...generated.enquiryContexts);
+ const p={...project,modules:{...project.modules,rooms:true}};const generated=createManifest(readContent(f.root,p),p);manifest.enquiryContexts.splice(0,manifest.enquiryContexts.length,...generated.enquiryContexts);
  expect(generated.offerings.map(o=>o.id)).not.toContain('suite');
  const {env,database}=environment('enquiries');const pending:Promise<unknown>[]=[];const ctx={waitUntil:(p:Promise<unknown>)=>pending.push(p)} as unknown as ExecutionContext;
  const key=crypto.randomUUID();const send=(id:string,requestKey=crypto.randomUUID())=>worker.fetch(new Request('http://127.0.0.1:8899/api/contact',{method:'POST',headers:{origin:'http://127.0.0.1:4433','Content-Type':'application/json'},body:JSON.stringify({contextId:id,requestKey,name:'Room visitor',email:'room@example.com',message:'A question about the published Room.',privacyAccepted:true,turnstileToken:'local'})}),env,ctx);

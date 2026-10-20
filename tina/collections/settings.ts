@@ -1,3 +1,4 @@
+import {newsletterFields} from '../fields/newsletter';
 import {createElement as h} from 'react';
 import {getDisabledDomainPages} from '../../packages/content/domain-registry.mjs';
 import type { ProjectConfig } from '../../packages/config/project.mjs';
@@ -11,6 +12,7 @@ export function settings(p: ProjectConfig) {
   const disabledPageFiles=[...getDisabledDomainPages(p).map(page=>page.filename),...(!p.articles?['insights.json']:[])];
   const navigation=()=>({...navigationLabels(),ui:{component:(props:any)=>h(NavigationControls,{...props,disabledPageFiles})}});
   const translated = [
+    ...newsletterFields(p,{translated:true}),
     object('brand', [text('tagline')]),
     object('legal', [rich('notice')]),
     object('contact', contactFields().filter(field => field.name === 'address')),
@@ -21,6 +23,7 @@ export function settings(p: ProjectConfig) {
       'settings',
       'content/settings',
       [
+        ...newsletterFields(p),
         object('brand', [text('name'), text('tagline')]),
         object('legal', [
           text('businessName'),

@@ -21,7 +21,7 @@ import {domainRenderer,assertDomainRendererCoverage,createDomainRendererRegistry
 import {project} from '../../../tests/fixtures/content/factory';
 it('registers initialized Rooms renderer without a content-adapter cycle and requires active coverage',()=>{
  expect(domainRenderer('rooms')).toBe(RoomDetail);
- expect(()=>assertDomainRendererCoverage({...project,modules:{rooms:true}},undefined,createDomainRendererRegistry([]))).toThrow(/rooms.*renderer|renderer.*rooms/i);
+ expect(()=>assertDomainRendererCoverage({...project,modules:{...project.modules,rooms:true}},undefined,createDomainRendererRegistry([]))).toThrow(/rooms.*renderer|renderer.*rooms/i);
  expect(()=>assertDomainRendererCoverage(project,undefined,createDomainRendererRegistry([]))).not.toThrow();
 });
 it('uses first shared image as thumbnail and source dimensions/crop for detail',async()=>{

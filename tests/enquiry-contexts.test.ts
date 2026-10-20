@@ -4,7 +4,7 @@ import {room} from './fixtures/content/room';
 import {readContent} from '../packages/content/read.mjs';
 import {localizeContent} from '../packages/content/localize.mjs';
 import * as contexts from '../packages/content/enquiry-contexts.mjs';
-const enabled={...project,modules:{rooms:true}};
+const enabled={...project,modules:{...project.modules,rooms:true}};
 function setup(){const f=fixture();f.write('pages/rooms.json',pageDocument('rooms','rooms','rooms'));f.write('rooms/suite.json',room());return f;}
 it('projects localized public Offering and Room choices with stable paths',()=>{
  const f=setup(),source=readContent(f.root,enabled);const en=localizeContent(source,'en',enabled),el=localizeContent(source,'el',enabled);

@@ -67,7 +67,7 @@ import {room as roomFixture} from './fixtures/content/room';
 import {roomCollection} from '../tina/domains/rooms/collection';
 import {assertOwnedPageIdentity} from '../packages/content/domain-publication.mjs';
 it('Rooms index is edit-only at its declared filename/template/contentId; Room identity is flat and draft-only',()=>{
- const enabled={...project,modules:{rooms:true}};
+ const enabled={...project,modules:{...project.modules,rooms:true}};
  expect(roomCollection(enabled).ui?.allowedActions).toEqual({create:true,delete:false,createFolder:false,createNestedFolder:false});
  const saved={...roomFixture(),status:'draft',translations:{}};
  for(const relativePath of ['nested/room.json','../room.json','C:room.json'])expect(()=>assertDomainIdentity(saved,undefined,{operation:'create',relativePath})).toThrow(/flat/);

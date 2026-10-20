@@ -1,3 +1,4 @@
+import {validateNewsletterSettings} from './newsletter.mjs';
 import {getActiveDomains,getDisabledDomainPages} from './domain-registry.mjs';
 import {assertOwnedPageIdentity} from './domain-publication.mjs';
 import { localizeContent } from './localize.mjs';
@@ -5,6 +6,7 @@ import { activeRecords } from './publication.mjs';
 import { publicRoutes } from './routes.mjs';
 const reserved=new Set(['404','api','cms','admin','design-system','newsletter']);
 export function validateCatalog(source,project,registry) {
+ validateNewsletterSettings(source.settings,project);
  for(const campaign of source.campaigns??[]) {
   if(!project.interests.some(interest=>interest.id===campaign.interest))throw Error('Campaign references missing interest '+campaign.interest);
   if(campaign.articleId&&!activeRecords(source,project.locale,project).articles.some(article=>article.contentId===campaign.articleId))throw Error('Campaign references unavailable published article '+campaign.articleId);

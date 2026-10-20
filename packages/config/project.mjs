@@ -30,7 +30,7 @@ export const motionSchema = z.strictObject({
 export const projectSchema = z.strictObject({
   name: z.string().regex(/^[a-z0-9-]{1,40}$/), starterVersion: z.literal('2.0.0-dev'), schemaVersion: z.literal(2),
   profile: z.enum(['enquiries','newsletter','nurture']).default('enquiries'), articles: z.boolean().default(true),
-  modules: z.strictObject({rooms:z.boolean().default(false)}).prefault({}),
+  modules: z.strictObject({rooms:z.boolean().default(false),newsletterPrompt:z.boolean().default(false),visitorPreferences:z.boolean().default(false)}).prefault({}),
   locale: code, languages: z.array(z.strictObject({code, label:text})).min(1), siteUrl: origin,
   environment: z.enum(['local','staging','production']).default('local'),
   design: z.strictObject({theme:z.string().regex(/^[a-z0-9-]+$/).default('neutral'),density:z.enum(['comfortable','compact','spacious']).default('comfortable'),motion:motionSchema.prefault({})}).prefault({}),

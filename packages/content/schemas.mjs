@@ -1,3 +1,4 @@
+import {newsletterCopySchema,newsletterSettingsSchema} from './newsletter.mjs';
 import {socialSettingsSchema} from './contact.mjs';
 import {modulePageTemplates} from './module-extensions.mjs';
 import { z } from 'zod';
@@ -68,6 +69,7 @@ export const articleSchema=editorial({shared:{authorId:optionalId,offeringId:opt
 });
 const optionalContactText=max=>z.preprocess(value=>value==null?'':value,z.string().max(max));
 const settingsCopy = {
+ newsletterPrompt:newsletterSettingsSchema.prefault({}),
  social:socialSettingsSchema,
  brand:z.strictObject({name:title,tagline:z.string().max(300)}),
  legal:z.strictObject({businessName:title,privacyVersion:z.string().trim().min(1).max(80),notice:richBody}),
@@ -75,6 +77,7 @@ const settingsCopy = {
  navigation:z.array(z.strictObject({label:title,pageId:fieldId})),
 };
 const localizedSettingsCopy = {
+ newsletterPrompt:newsletterCopySchema.optional(),
  brand:z.strictObject({tagline:z.string().max(300)}),
  legal:z.strictObject({notice:richBody}),
  contact:z.strictObject({address:optionalContactText(1000)}),
