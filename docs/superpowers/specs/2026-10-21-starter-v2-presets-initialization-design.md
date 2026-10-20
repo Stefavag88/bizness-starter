@@ -1,7 +1,7 @@
 # Starter presets and independent project initialization
 
 Date: 2026-10-21
-Status: Proposed for owner review. Implementation has not started.
+Status: Approved by the owner on 2026-10-21 after design commit f57d5cb. Implementation planning follows; implementation has not started.
 Baseline: ab4384f in C:/Projects/bizness-starter-v2.
 
 ## Intent and success
