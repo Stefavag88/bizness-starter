@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import inventory from './export-manifest.json' with {type:'json'};
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
-function read(root,path){
+export function readApplicationInput(root,path){
  if(!/^[a-zA-Z0-9_.@/\[\]-]+$/.test(path)||path.split('/').some(p=>p==='..'||!p))throw Error('Unsafe export path: '+path);
  let cursor=root;for(const part of path.split('/')){cursor=join(cursor,part);if(lstatSync(cursor).isSymbolicLink())throw Error('Export refuses source links: '+path);}
  if(!lstatSync(cursor).isFile()||!realpathSync(cursor).startsWith(root+sep))throw Error('Export source is not a regular contained file: '+path);
@@ -13,11 +13,11 @@ function read(root,path){
 export function snapshotApplication(source){
  const root=realpathSync(resolve(source));
  const revision=execFileSync('git',['-C',root,'rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim();
- const files=new Map(inventory.map(path=>{const bytes=read(root,path);return [path,{bytes,sha256:hash(bytes)}];}));
+ const files=new Map(inventory.map(path=>{const bytes=readApplicationInput(root,path);return [path,{bytes,sha256:hash(bytes)}];}));
  const digest=hash([...files].map(([path,file])=>path+':'+file.sha256).join('\n'));
  return {revision,digest,files,assertUnchanged(){
   if(execFileSync('git',['-C',root,'rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim()!==revision)throw Error('Source revision changed during initialization');
-  for(const [path,file] of files)if(hash(read(root,path))!==file.sha256)throw Error('Source changed during initialization: '+path);
+  for(const [path,file] of files)if(hash(readApplicationInput(root,path))!==file.sha256)throw Error('Source changed during initialization: '+path);
  }};
 }
 export function createClientPackage(name,source){

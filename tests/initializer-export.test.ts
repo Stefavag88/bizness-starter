@@ -1,8 +1,9 @@
+import importFs from 'node:fs';
 import {it,expect} from 'vitest';
 import {readFileSync,writeFileSync,mkdirSync,copyFileSync} from 'node:fs';
 import {dirname,join,resolve} from 'node:path';
 import {execFileSync} from 'node:child_process';
-import {snapshotApplication,createClientPackage} from '../scripts/initialize/snapshot.mjs';
+import {snapshotApplication,createClientPackage,readApplicationInput} from '../scripts/initialize/snapshot.mjs';
 import inventory from '../scripts/initialize/export-manifest.json';
 import {ownedTempRoots} from './helpers/owned-temp-roots';
 import {afterEach} from 'vitest';
@@ -23,3 +24,5 @@ it('captures exact files and detects source changes without reading unselected s
  const target=join(root,inventory[0]);writeFileSync(target,'concurrent edit');expect(()=>snapshot.assertUnchanged()).toThrow(/changed/i);
 });
 it('refuses paths escaping the source inventory',()=>expect(inventory.every(p=>!p.split('/').includes('..')&&!p.startsWith('/')&&!p.includes('\\'))).toBe(true));
+
+it('rejects source links before reading their contents',()=>{const root=roots.create();writeFileSync(join(root,'secret'),'private');const link=join(root,'allowed.txt');importFs.symlinkSync(join(root,'secret'),link);try{expect(()=>readApplicationInput(root,'allowed.txt')).toThrow(/link/i);}finally{importFs.unlinkSync(link);}});
