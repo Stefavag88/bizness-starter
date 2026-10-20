@@ -1,8 +1,9 @@
 ---
+import type {RenderContext} from '../../lib/render-context';
+import {renderContext as defaultContext} from '../../lib/content';
 import RichText from '../../components/ui/RichText.astro';
-import {rich} from '../../lib/content';
 import type {LocalizedSection} from '../../../../../packages/content/types';
-interface Props {section:Extract<LocalizedSection,{_template:'faq'}>;locale:string}
-const {section,locale}=Astro.props;
+interface Props {context?:RenderContext;section:Extract<LocalizedSection,{_template:'faq'}>;locale:string}
+const {section,locale,context=defaultContext}=Astro.props;
 ---
-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><div class="description" set:html={rich(section.copy.description,locale,true)}/></div><div class="faq-items">{section.copy.items.map(item=>section.variant==='expanded'?<div class="faq-item"><h3>{item.question}</h3><RichText body={item.answer} locale={locale}/></div>:<details class="faq-item"><summary>{item.question}</summary><RichText body={item.answer} locale={locale}/></details>)}</div></div></section>
+<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><div class="description" set:html={context.rich(section.copy.description,locale,true)}/></div><div class="faq-items">{section.copy.items.map(item=>section.variant==='expanded'?<div class="faq-item"><h3>{item.question}</h3><RichText context={context} body={item.answer} locale={locale}/></div>:<details class="faq-item"><summary>{item.question}</summary><RichText context={context} body={item.answer} locale={locale}/></details>)}</div></div></section>

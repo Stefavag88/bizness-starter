@@ -1,8 +1,10 @@
 ---
+import type {RenderContext} from '../../lib/render-context';
+import {renderContext as defaultContext} from '../../lib/content';
 import Description from '../../components/ui/Description.astro';
 import Card from '../../components/ui/Card.astro';
 import type {LocalizedSection,LocalizedContent} from '../../../../../packages/content/types';
-interface Props {section:Extract<LocalizedSection,{_template:'article-list'}>;content:LocalizedContent;locale:string}
-const {section,content,locale}=Astro.props;
+interface Props {context?:RenderContext;section:Extract<LocalizedSection,{_template:'article-list'}>;content:LocalizedContent;locale:string}
+const {section,content,locale,context=defaultContext}=Astro.props;
 ---
-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/></div><div class="cards" data-motion-group>{content.articles.map(record=><Card record={record} locale={locale}/>)}</div></div></section>
+<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description context={context} text={section.copy.description} locale={locale}/></div><div class="cards" data-motion-group>{content.articles.map(record=><Card context={context} record={record} locale={locale}/>)}</div></div></section>

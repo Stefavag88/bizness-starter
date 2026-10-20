@@ -1,10 +1,12 @@
 ---
+import type {RenderContext} from '../lib/render-context';
+import {renderContext as defaultContext} from '../lib/content';
 import type {LocalizedPage,LocalizedContent} from '../../../../packages/content/types';
 import {sectionRenderer} from './sections';
 import ContactForm from './ContactForm.astro';
-interface Props {page:LocalizedPage;content:LocalizedContent}
-const {page,content}=Astro.props;const firstHero=page.sections.find(s=>s._template==='hero')?.id;
+interface Props {context?:RenderContext;page:LocalizedPage;content:LocalizedContent}
+const {page,content,context=defaultContext}=Astro.props;const firstHero=page.sections.find(s=>s._template==='hero')?.id;
 ---
 {!firstHero&&<div class="wrap page-title"><h1>{page.meta.title}</h1></div>}
-{page.sections.map(section=>{const Renderer=sectionRenderer(section._template,section.variant);return <Renderer section={section as never} pageId={page.contentId} content={content} locale={content.locale} primary={section.id===firstHero}/>;})}
-{page._template==='contact'&&<ContactForm content={content}/>}
+{page.sections.map(section=>{const Renderer=sectionRenderer(section._template,section.variant);return <Renderer context={context} section={section as never} pageId={page.contentId} content={content} locale={content.locale} primary={section.id===firstHero}/>;})}
+{page._template==='contact'&&<ContactForm context={context} content={content}/>}

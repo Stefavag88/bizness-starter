@@ -1,8 +1,10 @@
 ---
+import type {RenderContext} from '../lib/render-context';
+import {renderContext as defaultContext} from '../lib/content';
 import RichText from '../components/ui/RichText.astro';
 import Description from '../components/ui/Description.astro';
 import type {LocalizedContent} from '../../../../packages/content/types';
-interface Props {record:{title:string;role?:string;publishAt?:string;description:string;body:string};content:Pick<LocalizedContent,'locale'>}
-const {record,content}=Astro.props;
+interface Props {context?:RenderContext;record:{title:string;role?:string;publishAt?:string;description:string;body:string};content:Pick<LocalizedContent,'locale'>}
+const {record,content,context=defaultContext}=Astro.props;
 ---
-<article class="wrap editorial"><h1>{record.title}</h1>{'role' in record&&<p>{record.role}</p>}{'publishAt' in record&&record.publishAt&&<p><time datetime={record.publishAt}>{new Date(record.publishAt).toLocaleDateString(content.locale,{dateStyle:'long',timeZone:'UTC'})}</time></p>}<Description text={record.description} locale={content.locale}/><RichText body={record.body} locale={content.locale}/></article>
+<article class="wrap editorial"><h1>{record.title}</h1>{'role' in record&&<p>{record.role}</p>}{'publishAt' in record&&record.publishAt&&<p><time datetime={record.publishAt}>{new Date(record.publishAt).toLocaleDateString(content.locale,{dateStyle:'long',timeZone:'UTC'})}</time></p>}<Description context={context} text={record.description} locale={content.locale}/><RichText context={context} body={record.body} locale={content.locale}/></article>

@@ -36,12 +36,14 @@ markdown.renderer.rules.heading_close = (tokens,index,options,_env,self) => {
   return self.renderToken(tokens,index,options);
 };
 const renderLink = markdown.renderer.rules.link_open;
-markdown.renderer.rules.link_open = (tokens,index,options,env,self) =>
-  env.links === false ? '' : renderLink ? renderLink(tokens,index,options,env,self) : self.renderToken(tokens,index,options);
+markdown.renderer.rules.link_open = (tokens,index,options,env,self) => {
+  if(env.links===false)return '';
+  if(env.resolveHref){const target=env.resolveHref(tokens[index].attrGet('href'));tokens[index].attrSet('href',isSafeLink(target)?target:'#');}
+  return renderLink ? renderLink(tokens,index,options,env,self) : self.renderToken(tokens,index,options);
+};
 markdown.renderer.rules.link_close = (tokens,index,options,env,self) => env.links === false ? '' : self.renderToken(tokens,index,options);
-
-export function renderRichText(body) { return markdown.render(body); }
-export function renderInlineRichText(body, options = {}) { return markdown.renderInline(body,{links:options.links !== false}); }
+export function renderRichText(body,options={}) { return markdown.render(body,options); }
+export function renderInlineRichText(body,options={}) { return markdown.renderInline(body,{...options,links:options.links !== false}); }
 export function plainText(body, limit) {
   const walk = tokens => tokens.map(token => {
     if (token.children) return walk(token.children);

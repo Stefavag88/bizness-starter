@@ -1,6 +1,7 @@
 ---
-import {localizedLink} from '../../lib/content';
-interface Props {href:string;label:string;locale:string}
-const {href,label,locale}=Astro.props;
+import type {RenderContext} from '../../lib/render-context';
+import {renderContext as defaultContext} from '../../lib/content';
+interface Props {context?:RenderContext;href:string;label:string;locale:string}
+const {href,label,locale,context=defaultContext}=Astro.props;
 ---
-<a class="button" href={localizedLink(href,locale)}>{label}</a>
+<a class="button" href={context.link(href,locale)}>{label}</a>

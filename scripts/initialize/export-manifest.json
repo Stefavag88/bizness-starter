@@ -26,6 +26,7 @@
   "apps/site/src/lib/design-preview.ts",
   "apps/site/src/lib/feed.ts",
   "apps/site/src/lib/links.ts",
+  "apps/site/src/lib/render-context.ts",
   "apps/site/src/lib/section-media.ts",
   "apps/site/src/middleware.ts",
   "apps/site/src/pages/404.astro",

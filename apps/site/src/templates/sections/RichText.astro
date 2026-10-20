@@ -1,7 +1,9 @@
 ---
+import type {RenderContext} from '../../lib/render-context';
+import {renderContext as defaultContext} from '../../lib/content';
 import RichText from '../../components/ui/RichText.astro';
 import type {LocalizedSection} from '../../../../../packages/content/types';
-interface Props {section:Extract<LocalizedSection,{_template:'rich-text'}>;locale:string}
-const {section,locale}=Astro.props;
+interface Props {context?:RenderContext;section:Extract<LocalizedSection,{_template:'rich-text'}>;locale:string}
+const {section,locale,context=defaultContext}=Astro.props;
 ---
-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap" data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><RichText body={section.copy.body} locale={locale}/></div></section>
+<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap" data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><RichText context={context} body={section.copy.body} locale={locale}/></div></section>

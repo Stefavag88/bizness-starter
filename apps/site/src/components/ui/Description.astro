@@ -1,6 +1,7 @@
 ---
-import {rich} from '../../lib/content';
-interface Props {text:string;locale:string;links?:boolean}
-const {text,locale,links=true}=Astro.props;
+import type {RenderContext} from '../../lib/render-context';
+import {renderContext as defaultContext} from '../../lib/content';
+interface Props {context?:RenderContext;text:string;locale:string;links?:boolean}
+const {text,locale,links=true,context=defaultContext}=Astro.props;
 ---
-<p class="description" set:html={rich(text,locale,true,links)} />
+<p class="description" set:html={context.rich(text,locale,true,links)} />

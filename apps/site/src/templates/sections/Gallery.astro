@@ -1,10 +1,12 @@
 ---
+import type {RenderContext} from '../../lib/render-context';
+import {renderContext as defaultContext} from '../../lib/content';
 import Description from '../../components/ui/Description.astro';
 import SectionImage from '../../components/ui/SectionImage.astro';
 import {resolveSectionMedia} from '../../lib/section-media';
 import type {LocalizedSection} from '../../../../../packages/content/types';
-interface Props {section:Extract<LocalizedSection,{_template:'gallery'}>;locale:string;pageId?:string}
-const {section,locale,pageId='unknown'}=Astro.props;
+interface Props {context?:RenderContext;section:Extract<LocalizedSection,{_template:'gallery'}>;locale:string;pageId?:string}
+const {section,locale,pageId='unknown',context=defaultContext}=Astro.props;
 const items=section.enabled===false?[]:await Promise.all((section.items||[]).map(async item=>({id:item.id,media:await resolveSectionMedia(item.media,{pageId,sectionId:section.id,itemId:item.id}),crop:item.media!.crop,copy:section.copy.items.find(copy=>copy.id===item.id)!})));
 ---
-<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description text={section.copy.description} locale={locale}/></div><ul data-motion-group class:list={['gallery',{'gallery-featured':section.variant==='featured'}]}>{items.map((item,index)=><li data-gallery-item={item.id}><SectionImage layout={section.variant==='featured'?(index===0?'gallery-featured-lead':'gallery-featured-item'):'gallery'} itemCount={items.length} media={item.media!} alt={item.copy.alt} caption={item.copy.caption} revealCaption crop={item.crop} ratio="gallery" locale={locale}/></li>)}</ul></div></section>
+<section data-surface={section.appearance.surface} aria-labelledby={section.id}><div class="wrap"><div data-motion-reveal><h2 id={section.id}>{section.copy.title}</h2><Description context={context} text={section.copy.description} locale={locale}/></div><ul data-motion-group class:list={['gallery',{'gallery-featured':section.variant==='featured'}]}>{items.map((item,index)=><li data-gallery-item={item.id}><SectionImage context={context} layout={section.variant==='featured'?(index===0?'gallery-featured-lead':'gallery-featured-item'):'gallery'} itemCount={items.length} media={item.media!} alt={item.copy.alt} caption={item.copy.caption} revealCaption crop={item.crop} ratio="gallery" locale={locale}/></li>)}</ul></div></section>

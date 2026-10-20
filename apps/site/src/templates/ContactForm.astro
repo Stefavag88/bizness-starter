@@ -1,28 +1,31 @@
 ---
+import type {RenderContext} from '../lib/render-context';
+import {renderContext as defaultContext} from '../lib/content';
 import {getEnquiryContexts} from '../../../../packages/content/enquiry-contexts.mjs';
 import ContactDetails from '../components/ui/ContactDetails.astro';
 import SocialLinks from '../components/ui/SocialLinks.astro';
 import {contactChannels} from '../../../../packages/content/contact.mjs';
 import Field from '../components/ui/Field.astro';
 import type {LocalizedContent} from '../../../../packages/content/types';
-import {project} from '../lib/content';
-interface Props {content:LocalizedContent}
-const {content}=Astro.props;const el=content.locale==='el';
+
+interface Props {context?:RenderContext;content:LocalizedContent}
+const {content,context=defaultContext}=Astro.props;const el=content.locale==='el';
+const project=context.project;const preview=Boolean(context.previewBase);
 const contexts=getEnquiryContexts(content);
-const channels=contactChannels(content.settings,content.locale);
+const channels=contactChannels(content.settings,content.locale);if(preview){channels.social=[];channels.direct=channels.direct.map(item=>({...item,href:'#'}));}
 const email=channels.direct.find(link=>link.id==='email')!;
 ---
 <section><div class="wrap"><h2>{el?'Ας μιλήσουμε':'Let’s talk'}</h2><p>{el?'Τα πεδία με * είναι υποχρεωτικά.':'Fields marked * are required.'}</p>
-<div class="contact-layout"><form id="contact-form" action="/api/contact" method="post" data-locale={content.locale}>
-<Field name="name" label={el?'Όνομα':'Name'} required maxlength={120} autocomplete="name"/>
-<Field name="email" label={el?'Email':'Email'} type="email" required maxlength={254} autocomplete="email"/>
-<Field name="phone" label={el?'Τηλέφωνο':'Phone'} type="tel" maxlength={40} autocomplete="tel"/>
-<div class="field"><label for="contextId">{el?'Θέμα ενδιαφέροντος':'Area of interest'}</label><select id="contextId" name="contextId"><option value="">{el?'Γενική ερώτηση':'General enquiry'}</option>{contexts.map(context=><option value={context.id}>{context.title}</option>)}</select></div>
-<Field name="message" label={el?'Μήνυμα':'Message'} required minlength={20} maxlength={5000} multiline/>
-<label class="check"><input type="checkbox" name="privacyAccepted" id="privacyAccepted" aria-describedby="privacyAccepted-error" required/>{el?'Έχω διαβάσει την':'I have read the'} <a href={'/'+content.locale+'/privacy'}>{el?'πολιτική απορρήτου':'privacy notice'}</a> *</label><span id="privacyAccepted-error" class="field-error"></span>
-{project.profile!=='enquiries'&&<><label class="check"><input type="checkbox" name="marketingConsent"/>{el?'Θέλω να λαμβάνω ενημερώσεις μέσω email (προαιρετικό).':'Send me useful email updates (optional).'}</label><div class="field"><label for="interest">{el?'Ενημερώσεις':'Updates'}</label><select name="interest" id="interest">{project.interests.map(i=><option value={i.id}>{i.label}</option>)}</select></div></>}
-<input type="hidden" name="turnstileToken" value="local-preview"/>
-<div id="form-errors" tabindex="-1" role="alert" hidden></div><button type="submit">{el?'Αποστολή μηνύματος':'Send message'}</button><p id="form-status" role="status" aria-live="polite"></p>
+<div class="contact-layout"><form id={preview?'preview-contact-form':'contact-form'} action={preview?undefined:'/api/contact'} method="post" data-locale={content.locale}>
+<Field disabled={preview} name="name" label={el?'Όνομα':'Name'} required maxlength={120} autocomplete="name"/>
+<Field disabled={preview} name="email" label={el?'Email':'Email'} type="email" required maxlength={254} autocomplete="email"/>
+<Field disabled={preview} name="phone" label={el?'Τηλέφωνο':'Phone'} type="tel" maxlength={40} autocomplete="tel"/>
+<div class="field"><label for="contextId">{el?'Θέμα ενδιαφέροντος':'Area of interest'}</label><select disabled={preview} id="contextId" name="contextId"><option value="">{el?'Γενική ερώτηση':'General enquiry'}</option>{contexts.map(context=><option value={context.id}>{context.title}</option>)}</select></div>
+<Field disabled={preview} name="message" label={el?'Μήνυμα':'Message'} required minlength={20} maxlength={5000} multiline/>
+<label class="check"><input disabled={preview} type="checkbox" name="privacyAccepted" id="privacyAccepted" aria-describedby="privacyAccepted-error" required/>{el?'Έχω διαβάσει την':'I have read the'} <a href={context.link('/'+content.locale+'/privacy',content.locale)}>{el?'πολιτική απορρήτου':'privacy notice'}</a> *</label><span id="privacyAccepted-error" class="field-error"></span>
+{project.profile!=='enquiries'&&<><label class="check"><input disabled={preview} type="checkbox" name="marketingConsent"/>{el?'Θέλω να λαμβάνω ενημερώσεις μέσω email (προαιρετικό).':'Send me useful email updates (optional).'}</label><div class="field"><label for="interest">{el?'Ενημερώσεις':'Updates'}</label><select disabled={preview} name="interest" id="interest">{project.interests.map(i=><option value={i.id}>{i.label}</option>)}</select></div></>}
+<input disabled={preview} type="hidden" name="turnstileToken" value="local-preview"/>
+<div id="form-errors" tabindex="-1" role="alert" hidden></div><button disabled={preview} type="submit">{el?'Αποστολή μηνύματος':'Send message'}</button><p id="form-status" role="status" aria-live="polite"></p>
 <noscript><p>{el?'Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email.':'This form needs JavaScript. You can also email us directly.'} <a href={email.href}>{email.label}</a></p></noscript>
 </form><aside class="contact-aside"><ContactDetails channels={channels} locale={content.locale}/><SocialLinks links={channels.social} locale={content.locale} variant="labeled"/></aside></div></div></section>
 <script>

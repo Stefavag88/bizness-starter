@@ -1,6 +1,8 @@
 ---
+import type {RenderContext} from '../../lib/render-context';
+import {renderContext as defaultContext} from '../../lib/content';
 import Description from './Description.astro';
-interface Props {record:{path:string;title:string;description:string};locale:string}
-const {record,locale}=Astro.props;
+interface Props {context?:RenderContext;record:{path:string;title:string;description:string};locale:string}
+const {record,locale,context=defaultContext}=Astro.props;
 ---
-<article class="card" data-motion-reveal><h3><a href={record.path}>{record.title}</a></h3><Description text={record.description} locale={locale}/></article>
+<article class="card" data-motion-reveal><h3><a href={context.link(record.path,locale)}>{record.title}</a></h3><Description context={context} text={record.description} locale={locale}/></article>
