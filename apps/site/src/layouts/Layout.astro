@@ -3,6 +3,11 @@ import '../styles/foundations.css';
 import '../styles/themes.generated.css';
 import '../styles/global.css';
 import '../styles/motion.css';
+import '../styles/newsletter.css';
+import NewsletterFooter from '../components/newsletter/NewsletterFooter.astro';
+import VisitorDialogs from '../components/newsletter/VisitorDialogs.astro';
+import {resolveNewsletterExperience} from '../../../../packages/content/newsletter.mjs';
+import {newsletterMessages} from '../scripts/newsletter-messages';
 import '@fontsource/noto-sans/400.css';
 import '@fontsource/noto-sans/600.css';
 import ContactDetails from '../components/ui/ContactDetails.astro';
@@ -13,9 +18,12 @@ import {project} from '../lib/content';
 import type {LocalizedContent,Alternate} from '../../../../packages/content/types';
 interface Props {content:LocalizedContent;title:string;description:string;path:string;alternates:Alternate[];noindex?:boolean}
 const {content,title,description,path,alternates,noindex=false}=Astro.props;const {settings,locale}=content;const el=locale==='el';const channels=contactChannels(settings,locale);
+const currentPage=content.pages.find(page=>page.path===path);
+const experience=resolveNewsletterExperience(settings,project,{locale,privacyHref:content.pages.find(page=>page.contentId==='privacy')?.path??null,pageKind:noindex?'system':currentPage?.contentId==='privacy'?'privacy':currentPage?._template??'editorial',localProtectionAvailable:project.environment==='local'});
+const contactHref=content.pages.find(page=>page._template==='contact')?.path??`/${locale}/contact`;const visitorMessages=newsletterMessages(locale);
 ---
 <!doctype html><html data-motion={project.design.motion.enabled?'on':'off'} lang={locale} data-theme={project.design.theme} data-density={project.design.density}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>{title} | {settings.brand.name}</title><meta name="description" content={description}/><link rel="canonical" href={project.siteUrl+path}/>{noindex&&<meta name="robots" content="noindex"/>}{alternates.map(a=><link rel="alternate" hreflang={a.locale} href={project.siteUrl+a.path}/>)}{content.feedPath&&<link rel="alternate" type="application/rss+xml" title={settings.brand.name} href={content.feedPath}/>}</head><body>
 <a class="skip" href="#main">{el?'Μετάβαση στο περιεχόμενο':'Skip to content'}</a>
 <header class="wrap"><a class="brand" href={content.pages.find(p=>p._template==='home')?.path}>{settings.brand.name}</a><nav aria-label={el?'Κύρια πλοήγηση':'Main navigation'}>{settings.navigation.map(n=><a href={content.pages.find(p=>p.contentId===n.pageId)!.path} aria-current={content.pages.find(p=>p.contentId===n.pageId)?.path===path?'page':undefined}>{n.label}</a>)}</nav><nav aria-label={el?'Γλώσσα':'Language'}>{alternates.map(a=><a href={a.path} lang={a.locale} hreflang={a.locale} aria-current={a.locale===locale?'true':undefined}>{project.languages.find(l=>l.code===a.locale)?.label}</a>)}</nav>{settings.social.showInHeader&&<SocialLinks links={channels.social} locale={locale} variant="icons" placement="header"/>}</header>
-<main id="main"><slot/></main><footer class="wrap"><div class="footer-groups"><div class="footer-identity"><p>{settings.brand.tagline}</p><p>{settings.legal.businessName}</p><RichText body={settings.legal.notice} locale={locale}/><a href={content.pages.find(p=>p.contentId==='privacy')?.path}>{el?'Απόρρητο':'Privacy'}</a></div><ContactDetails channels={channels} locale={locale}/><SocialLinks links={channels.social} locale={locale} variant="labeled" placement="footer"/></div></footer>
-<script src="../scripts/motion-entry.ts"></script></body></html>
+<main id="main"><slot/></main><footer class="wrap"><div class="footer-groups"><div class="footer-identity"><p>{settings.brand.tagline}</p><p>{settings.legal.businessName}</p><RichText body={settings.legal.notice} locale={locale}/><a href={content.pages.find(p=>p.contentId==='privacy')?.path}>{el?'Απόρρητο':'Privacy'}</a></div><ContactDetails channels={channels} locale={locale}/><SocialLinks links={channels.social} locale={locale} variant="labeled" placement="footer"/></div>{experience&&<div data-visitor-experience={experience.canSubmit?true:undefined} data-project={project.name} data-interest={experience.interest} data-delay-seconds={experience.delaySeconds} data-dismiss-days={experience.dismissDays} data-accepted-days={experience.acceptedDays} data-auto-eligible={String(experience.autoEligible)}><NewsletterFooter model={experience} locale={locale} contactHref={contactHref}/>{experience.canSubmit&&experience.preferences&&<button type="button" class="visitor-preferences-button" data-preferences-open data-preferences-open-footer hidden>{visitorMessages.preferences}</button>}<VisitorDialogs model={experience} locale={locale}/></div>}</footer>
+<script src="../scripts/site-entry.ts"></script></body></html>

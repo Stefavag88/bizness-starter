@@ -1,0 +1,17 @@
+---
+import NewsletterForm from './NewsletterForm.astro';
+import RichText from '../ui/RichText.astro';
+import {newsletterMessages} from '../../scripts/newsletter-messages';
+import type {NewsletterExperience} from '../../../../../packages/content/newsletter.mjs';
+interface Props {model:NewsletterExperience;locale:string}
+const {model,locale}=Astro.props;const messages=newsletterMessages(locale);
+---
+{model.canSubmit&&model.modalEnabled&&<dialog data-newsletter-dialog class="visitor-dialog" aria-labelledby="newsletter-title">
+ <button type="button" class="visitor-close" data-dialog-close aria-label={model.dismissLabel}><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+ <h2 id="newsletter-title">{model.title}</h2><RichText body={model.body} locale={locale}/><NewsletterForm model={model} locale={locale} placement="modal"/>
+ {model.preferences&&<button type="button" data-preferences-open hidden>{messages.preferences}</button>}
+</dialog>}
+{model.canSubmit&&model.preferences&&<dialog data-preferences-dialog class="visitor-dialog" aria-labelledby="preferences-title">
+ <button type="button" class="visitor-close" data-dialog-close aria-label={messages.close}>×</button><h2 id="preferences-title">{messages.preferences}</h2><p>{messages.explanation}</p>
+ <label class="newsletter-consent"><input type="checkbox" data-prompts-allowed/> {messages.prompts}</label><button type="button" data-preferences-reset>{messages.reset}</button><p data-preferences-status role="status"></p>
+</dialog>}
