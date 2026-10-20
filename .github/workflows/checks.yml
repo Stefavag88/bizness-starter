@@ -1,0 +1,72 @@
+name: Repository checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      guarded_builds:
+        description: Run isolated profile, showcase and static routing suites
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ASTRO_TELEMETRY_DISABLED: '1'
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Sequential steps share generated output; no live launcher runs in this job.
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm worker:check
+
+  guarded-builds:
+    if: github.event_name == 'workflow_dispatch' && inputs.guarded_builds
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ASTRO_TELEMETRY_DISABLED: '1'
+      WRANGLER_SEND_METRICS: 'false'
+      PROFILE_STAGE_TIMEOUT_MS: '240000'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      # A fresh checkout owns all temporary source mutations and local processes.
+      # Each harness finishes/restores before the next starts; do not parallelize.
+      - run: pnpm test:profiles
+      - run: pnpm test:showcase-builds
+      - run: pnpm test:static-routing
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: guarded-build-evidence
+          path: |
+            .generated/evidence/
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore

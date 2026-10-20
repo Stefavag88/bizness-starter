@@ -4,7 +4,7 @@ import { ZodError } from 'zod';
 import { inquirySchema, signupSchema } from '../packages/contracts';
 import { jobStatement, now, rateLimit } from './db';
 import { HttpError, admin, editor, body, isLocal, ipKey, requireOrigin, verifyTurnstile } from './security';
-import { subscribe, confirm, unsubscribe } from './newsletter';
+import { subscribe, subscriptionStatements, confirm, unsubscribe } from './newsletter';
 import { deliver, dispatch, drainLocal } from './delivery';
 import { createCampaign, campaignAction, fanOut } from './campaigns';
 import { sesWebhook } from './webhook';
@@ -21,15 +21,21 @@ const json = (data: unknown, status = 200) =>
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options':'nosniff', 'Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'" },
   });
 async function scheduled(env: Env) {
+  const failures: unknown[] = [], scheduleId = crypto.randomUUID();
+  const run = async (task: string, action: () => Promise<unknown>) => {
+    try { await action(); } catch (error) {
+      failures.push(error);
+      console.error(JSON.stringify({ scheduleId, task, error: 'scheduled_task_failed' }));
+    }
+  };
   if (env.PROFILE !== 'enquiries') {
-    await fanOut(env);
-    await startEnrollments(env);
+    await run('campaign_fanout', () => fanOut(env));
+    await run('enrollments', () => startEnrollments(env));
   }
-  await dispatch(env);
-  await env.DB.prepare('DELETE FROM rate_limit WHERE expires_at<?').bind(now()).run();
-  await env.DB.prepare('DELETE FROM action_token WHERE expires_at<?')
-    .bind(now() - 86400000)
-    .run();
+  await run('delivery_dispatch', () => dispatch(env));
+  await run('rate_limit_cleanup', () => env.DB.prepare('DELETE FROM rate_limit WHERE expires_at<?').bind(now()).run());
+  await run('token_cleanup', () => env.DB.prepare('DELETE FROM action_token WHERE expires_at<?').bind(now()-86400000).run());
+  if (failures.length) throw new AggregateError(failures, 'Scheduled tasks failed.');
 }
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -99,9 +105,7 @@ export default {
       }
       if (path === '/api/webhooks/ses' && request.method === 'POST') {
         // SNS commonly sends text/plain JSON; bounded parser is shared with JSON APIs.
-        const raw = await request.text();
-        if (raw.length > 65536) throw new HttpError(413, 'Too large.');
-        await sesWebhook(env, JSON.parse(raw));
+        await sesWebhook(env, await body(request, 65536, false));
         return json({ ok: true });
       }
       if (path.startsWith('/newsletter/') || path.startsWith('/api/newsletter/')) {
@@ -155,6 +159,11 @@ export default {
         if (!(await rateLimit(env, await ipKey(request), 10)))
           throw new HttpError(429, 'Please wait before trying again.');
         await verifyTurnstile(request, env, data.turnstileToken, 'contact');
+        const optIn = data.marketingConsent && env.PROFILE !== 'enquiries'
+          ? await subscriptionStatements(env, {
+              requestKey: data.requestKey, email: data.email, name: data.name,
+              consent: true, interest: data.interest, turnstileToken: data.turnstileToken,
+            }) : [];
         await env.DB.batch([
           env.DB.prepare(
             'INSERT OR IGNORE INTO inquiry(id,request_key,name,email,phone,context_id,message,privacy_version,marketing_requested,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)',
@@ -176,16 +185,8 @@ export default {
             phone: data.phone,
             message: data.message,
           }),
+          ...optIn,
         ]);
-        if (data.marketingConsent && env.PROFILE !== 'enquiries')
-          await subscribe(env, {
-            requestKey: data.requestKey,
-            email: data.email,
-            name: data.name,
-            consent: true,
-            interest: data.interest,
-            turnstileToken: data.turnstileToken,
-          });
         if (isLocal(request, env)) ctx.waitUntil(drainLocal(env));
         return json({ message: 'Thank you. Your enquiry has been received.', requestId }, 202);
       }

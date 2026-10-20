@@ -10,7 +10,7 @@ import {resolvePorts,assertPortsFree} from './ports.mjs';
 export async function verifyProfiles({path='project.json',backupRoot='.generated/profile-backups',run=runProfile,refresh=()=>command(['scripts/configure.mjs'])}={}){
  const original=readFileSync(path);const base=JSON.parse(original);let conflict=false;
  try{
-  for(const [profile,articles]of [['enquiries',true],['newsletter',true],['nurture',true],['enquiries',false]]){
+  for(const [profile,articles]of [['enquiries',true],['newsletter',true],['nurture',true],['enquiries',false],['newsletter',false],['nurture',false]]){
    if(!readFileSync(path).equals(original))throw Error('Profile source changed before mutation');
    const edit=createOwnedFileEdit(path,backupRoot);const next=structuredClone(base);next.profile=profile;next.articles=articles;next.environment='local';next.infrastructure.sendingEnabled=false;next.infrastructure.marketingEnabled=false;
    edit.replace(JSON.stringify(next,null,2)+'\n');

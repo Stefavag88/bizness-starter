@@ -18,7 +18,12 @@ export class WelcomeWorkflow extends WorkflowEntrypoint<
         const s = await this.env.DB.prepare('SELECT * FROM subscriber WHERE id=?')
           .bind(event.payload.subscriberId)
           .first<Subscriber>();
-        if (!s || s.status !== 'active' || s.generation !== event.payload.generation) return false;
+        if (!s || s.status !== 'active' || s.generation !== event.payload.generation) {
+          await this.env.DB.prepare(
+            "UPDATE automation_enrollment SET state='cancelled' WHERE subscriber_id=? AND generation=? AND state IN ('pending','running')",
+          ).bind(event.payload.subscriberId, event.payload.generation).run();
+          return false;
+        }
         await jobStatement(
           this.env,
           `nurture:${s.id}:${s.generation}:v1:${index}`,
@@ -40,32 +45,92 @@ export class WelcomeWorkflow extends WorkflowEntrypoint<
     }
     await step.do('complete', async () => {
       await this.env.DB.prepare(
-        "UPDATE automation_enrollment SET state='completed' WHERE subscriber_id=? AND generation=? AND state='running'",
+        "UPDATE automation_enrollment SET state='completed' WHERE subscriber_id=? AND generation=? AND state IN ('pending','running')",
       )
         .bind(event.payload.subscriberId, event.payload.generation)
         .run();
     });
   }
 }
+// Keep terminal D1 states monotonic; a platform lookup never restarts an instance.
+function enrollmentState(status: InstanceStatus['status']) {
+  switch (status) {
+    case 'complete': return 'completed';
+    case 'errored': return 'failed';
+    case 'terminated': return 'cancelled';
+    case 'queued':
+    case 'running':
+    case 'paused':
+    case 'waiting':
+    case 'waitingForPause':
+    case 'rollingBack': return 'running';
+    default: throw new Error('Workflow status is unknown; enrollment retained for investigation.');
+  }
+}
+interface Enrollment { id: string; subscriber_id: string; generation: number; state: string; cursor_position: number; }
+async function reconciliationBatch(env: Env, state: 'pending'|'running', limit: number) {
+  const select = () => env.DB.prepare(
+    `SELECT rowid AS cursor_position,* FROM automation_enrollment WHERE state=?
+     AND rowid>COALESCE((SELECT position FROM automation_cursor WHERE state=?),0)
+     ORDER BY rowid LIMIT ?`,
+  ).bind(state,state,limit).all<Enrollment>();
+  let records = await select();
+  if (!records.results.length) {
+    await env.DB.prepare('INSERT INTO automation_cursor(state,position) VALUES(?,0) ON CONFLICT(state) DO UPDATE SET position=0').bind(state).run();
+    records = await select();
+  }
+  if (records.results.length) {
+    await env.DB.prepare('INSERT INTO automation_cursor(state,position) VALUES(?,?) ON CONFLICT(state) DO UPDATE SET position=excluded.position')
+      .bind(state,records.results.at(-1)!.cursor_position).run();
+  }
+  return records.results;
+}
 export async function startEnrollments(env: Env) {
   if (!env.NURTURE) return;
-  const records = await env.DB.prepare(
-    "SELECT * FROM automation_enrollment WHERE state='pending' LIMIT 10",
-  ).all<{ id: string; subscriber_id: string; generation: number }>();
-  for (const r of records.results) {
+  // Independent small batches reserve work for new enrollments and leave room for
+  // transactional dispatch. Durable cursors rotate even failed platform lookups.
+  const records = [
+    ...await reconciliationBatch(env,'pending',3),
+    ...await reconciliationBatch(env,'running',5),
+  ];
+  const errors: unknown[] = [];
+  for (const r of records) {
     try {
-      await env.NURTURE.create({
-        id: r.id,
-        params: { subscriberId: r.subscriber_id, generation: r.generation },
-      });
-    } catch {
-      const existing = await env.NURTURE.get(r.id);
-      await existing.status(); /* Verify existence instead of hiding quota/configuration failures. */
+      const subscriber = await env.DB.prepare('SELECT * FROM subscriber WHERE id=?')
+        .bind(r.subscriber_id).first<Subscriber>();
+      if (!subscriber || subscriber.status !== 'active' || subscriber.generation !== r.generation) {
+        await env.DB.prepare(
+          "UPDATE automation_enrollment SET state='cancelled' WHERE id=? AND state IN ('pending','running')",
+        ).bind(r.id).run();
+        continue;
+      }
+      let instance: WorkflowInstance;
+      if (r.state === 'pending') {
+        try {
+          instance = await env.NURTURE.create({
+            id: r.id,
+            params: { subscriberId: r.subscriber_id, generation: r.generation },
+          });
+        } catch {
+          // Creation can have succeeded before a response failure. Inspect, never restart.
+          instance = await env.NURTURE.get(r.id);
+        }
+      } else {
+        instance = await env.NURTURE.get(r.id);
+      }
+      const state = enrollmentState((await instance.status()).status);
+      await env.DB.prepare(
+        `UPDATE automation_enrollment SET state=? WHERE id=? AND state=?
+         AND EXISTS (SELECT 1 FROM subscriber WHERE id=? AND status='active' AND generation=?)`,
+      ).bind(state, r.id, r.state, r.subscriber_id, r.generation).run();
+      // Consent may change while awaiting the platform. Never resurrect that generation.
+      await env.DB.prepare(
+        `UPDATE automation_enrollment SET state='cancelled' WHERE id=? AND state IN ('pending','running')
+         AND NOT EXISTS (SELECT 1 FROM subscriber WHERE id=? AND status='active' AND generation=?)`,
+      ).bind(r.id, r.subscriber_id, r.generation).run();
+    } catch (error) {
+      errors.push(new Error(`Enrollment ${r.id} reconciliation failed`, { cause: error }));
     }
-    await env.DB.prepare(
-      "UPDATE automation_enrollment SET state='running' WHERE id=? AND state='pending'",
-    )
-      .bind(r.id)
-      .run();
   }
+  if (errors.length) throw new AggregateError(errors, 'Enrollment reconciliation failed');
 }

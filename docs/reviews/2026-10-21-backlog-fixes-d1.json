@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "assertions": [
+    "concurrent canonical identity",
+    "one confirmation token",
+    "one confirmation job",
+    "same-key retry preserves token",
+    "injected D1 fault returns server failure",
+    "inquiry transaction rollback",
+    "subscription transaction rollback",
+    "contact and opt-in accepted",
+    "one committed inquiry",
+    "opt-in committed with enquiry"
+  ]
+}

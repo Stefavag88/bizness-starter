@@ -10,6 +10,7 @@ export function html(title: string, content: string, script = '') {
         'Cache-Control': 'no-store',
         'Referrer-Policy': 'no-referrer',
         'X-Robots-Tag': 'noindex',
+        'X-Content-Type-Options': 'nosniff',
         'Content-Security-Policy': `default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'`,
       },
     },

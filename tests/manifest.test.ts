@@ -1,9 +1,24 @@
-import {it,expect} from 'vitest';
+import {it,expect,vi} from 'vitest';
+import * as localization from '../packages/content/localize.mjs';
 import {fixture,project,editorial} from './fixtures/content/factory';
 import {readContent} from '../packages/content/read.mjs';
 import {localizeContent} from '../packages/content/localize.mjs';
 import {publicRoutes} from '../packages/content/routes.mjs';
 import {createManifest} from '../scripts/manifest.mjs';
+it('projects each locale once for routes and enquiry contexts together',()=>{
+ const f=fixture();const source=readContent(f.root,project);
+ const projection=vi.spyOn(localization,'localizeContent');
+ try{
+  const manifest=createManifest(source,{...project,languages:[...project.languages].reverse()});
+  expect(projection.mock.calls.map(call=>call[1]).sort()).toEqual(['el','en']);
+  expect(manifest.offerings[0].path).toBe('/en/services/sample');
+  expect(manifest.routes[0].locale).toBe('el');
+ }finally{projection.mockRestore();}
+});
+it('joins article URLs to an origin with an optional trailing slash',()=>{
+ const f=fixture();const source=readContent(f.root,project);
+ expect(createManifest(source,{...project,siteUrl:'https://example.com/'}).articles[0].url).toBe('https://example.com/en/insights/article');
+});
 it('manifests share active routes and plain default-locale article IDs',()=>{
  const f=fixture(); f.write('articles/future.json',{...editorial('article','future'),publishAt:'2099-01-01T00:00:00Z'});
  f.write('articles/draft.json',{...editorial('article','draft'),status:'draft'});

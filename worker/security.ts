@@ -34,8 +34,8 @@ export function requireOrigin(request: Request, env: Env) {
   )
     throw new HttpError(403, 'Request origin is not allowed.');
 }
-export async function body(request: Request, max = 16384) {
-  if (!request.headers.get('content-type')?.startsWith('application/json'))
+export async function body(request: Request, max = 16384, requireJson = true) {
+  if (requireJson && !request.headers.get('content-type')?.startsWith('application/json'))
     throw new HttpError(415, 'Send JSON.');
   const reader = request.body?.getReader();
   if (!reader) throw new HttpError(400, 'Missing request body.');

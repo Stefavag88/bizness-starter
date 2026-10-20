@@ -95,6 +95,27 @@ async function send(env: Env, job: EmailJob, email: Message) {
   if (!data.MessageId) throw new DeliveryError('unknown', 'missing_message_id');
   return data.MessageId;
 }
+// Consent loss is terminal; an operational marketing switch only pauses the intent.
+async function deliveryAllowed(env: Env, job: EmailJob, subscriber: Subscriber | null) {
+  if (!eligibility(job, subscriber, true)) {
+    await env.DB.prepare(
+      "UPDATE email_job SET state='skipped',payload_json='{}',lease_until=NULL WHERE id=? AND state='sending'",
+    ).bind(job.id).run();
+    return false;
+  }
+  if (
+    subscriber &&
+    job.kind !== 'confirmation' &&
+    env.ENVIRONMENT !== 'local' &&
+    env.MARKETING_ENABLED !== 'true'
+  ) {
+    await env.DB.prepare(
+      "UPDATE email_job SET state='pending',available_at=?,lease_until=NULL,attempts=attempts-1 WHERE id=? AND state='sending'",
+    ).bind(now() + 3600000, job.id).run();
+    return false;
+  }
+  return true;
+}
 export async function deliver(env: Env, id: string) {
   const timestamp = now();
   const job = await env.DB.prepare(
@@ -109,13 +130,7 @@ export async function deliver(env: Env, id: string) {
         .bind(job.subscriber_id)
         .first<Subscriber>()
     : null;
-  const marketing = env.ENVIRONMENT === 'local' || env.MARKETING_ENABLED === 'true';
-  if (!eligibility(job, subscriber, marketing)) {
-    await env.DB.prepare("UPDATE email_job SET state='skipped',payload_json='{}' WHERE id=?")
-      .bind(id)
-      .run();
-    return;
-  }
+  if (!(await deliveryAllowed(env, job, subscriber))) return;
   const payload = JSON.parse(job.payload_json) as Record<string, string>;
   let email: Message;
   if (job.kind === 'inquiry')
@@ -141,7 +156,7 @@ export async function deliver(env: Env, id: string) {
       timestamp - subscriber!.last_marketing_sent_at < 48 * 3600000
     ) {
       await env.DB.prepare(
-        "UPDATE email_job SET state='pending',available_at=?,lease_until=NULL WHERE id=?",
+        "UPDATE email_job SET state='pending',available_at=?,lease_until=NULL WHERE id=? AND state='sending'",
       )
         .bind(subscriber!.last_marketing_sent_at + 48 * 3600000, id)
         .run();
@@ -152,7 +167,7 @@ export async function deliver(env: Env, id: string) {
         .bind(job.campaign_id)
         .first<Campaign>();
       if (!campaign || !['dispatching', 'completed'].includes(campaign.state)) {
-        await env.DB.prepare("UPDATE email_job SET state='pending',available_at=? WHERE id=?")
+        await env.DB.prepare("UPDATE email_job SET state='pending',available_at=?,lease_until=NULL WHERE id=? AND state='sending'")
           .bind(timestamp + 3600000, id)
           .run();
         return;
@@ -168,6 +183,14 @@ export async function deliver(env: Env, id: string) {
       unsub,
     );
   }
+  // Composition and token signing await other work. Refresh consent immediately before submission.
+  const currentJob = await env.DB.prepare('SELECT state FROM email_job WHERE id=?')
+    .bind(job.id).first<{ state: string }>();
+  if (currentJob?.state !== 'sending') return;
+  const currentSubscriber = job.subscriber_id
+    ? await env.DB.prepare('SELECT * FROM subscriber WHERE id=?').bind(job.subscriber_id).first<Subscriber>()
+    : null;
+  if (!(await deliveryAllowed(env, job, currentSubscriber))) return;
   try {
     const providerId = await send(env, job, email);
     await env.DB.batch([

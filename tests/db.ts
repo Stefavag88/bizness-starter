@@ -1,9 +1,9 @@
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import type { Env } from '../worker/types';
 export function environment(profile = 'newsletter') {
   const database = new DatabaseSync(':memory:');
-  database.exec(readFileSync('migrations/0001_initial.sql', 'utf8'));
+  for (const file of readdirSync('migrations').filter(file => /^\d{4}_.*\.sql$/.test(file)).sort()) database.exec(readFileSync('migrations/' + file, 'utf8'));
   class Statement {
     values: (string | number | null)[] = [];
     constructor(readonly sql: string) {}

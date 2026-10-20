@@ -64,3 +64,10 @@ A future optional integration needs explicit developer-owned adapter registratio
 Run `pnpm test:newsletter` with the normal owned launcher stopped. The runner copies source into unique ignored fixtures, starts owned local stacks, uses separate D 1 persistence and dummy addresses, and records native/browser/backend evidence under `.generated/newsletter/acceptance-*`. It refuses unexpected native mutations, derives expected file bytes through the installed GraphQL coercion/serializer, and checks the main source inventory stayed unchanged. Fixture node_modules junctions must not be recursively followed during cleanup.
 
 The acceptance suite covers actual WYSIWYG saves and module disable/save/re-enable preservation; EN/EL responsive dialogs/footer; storage failures/preferences; and actual local pending, confirmed, unsubscribed and suppressed behavior. Supplement with the standard check/test/build/Worker/CMS/routing/showcase gates. The committed evidence report records exact runs, limitations and the independent final review.
+
+
+## Subscription correctness and operational policy
+
+Signup acquires subscriber identity inside one transactional batch; concurrent first requests do not create jobs referencing a losing identity. Request keys that already recorded consent do not rotate confirmation tokens on retry. New valid requests after cooldown can request a fresh confirmation. Contact requests with newsletter consent validate their interest before persistence and commit enquiry, notification and subscription statements together.
+
+Permanent complaint/bounce suppression is address-level, including feedback from an older generation. It is not bypassed by a fresh public subscription. Duplicate event IDs cannot repeat suppression side effects after a later manual status change. Marketing disablement pauses eligible intents; unknown delivery remains quarantined. See [operations](OPERATIONS.md) and [production readiness](PRODUCTION_READINESS.md) for recovery and deferred hosted work.

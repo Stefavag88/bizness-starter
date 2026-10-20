@@ -5,62 +5,46 @@ import type { Env, Subscriber } from './types';
 import { jobStatement, now, rateLimit } from './db';
 import { HttpError, readToken } from './security';
 
-export async function subscribe(env: Env, input: unknown) {
+/** Statements must execute together, immediately in this order, in one D1 batch.
+ * changes() gates token creation on this batch's subscriber insert/update; later
+ * statements use that unique token as the operation marker, never a stale JS read.
+ */
+export async function subscriptionStatements(env: Env, input: unknown): Promise<D1PreparedStatement[]> {
   const data = signupSchema.parse(input);
-  if (!project.interests.some((i) => i.id === data.interest))
-    throw new HttpError(400, 'Unknown interest.');
-  if (!(await rateLimit(env, `email:${await hash(emailKey(data.email))}`, 3))) return;
-  const existing = await env.DB.prepare('SELECT * FROM subscriber WHERE email_key=?')
-    .bind(emailKey(data.email))
-    .first<Subscriber>();
-  if (existing && ['active', 'suppressed'].includes(existing.status)) return;
-  if (existing && now() - existing.last_requested_at < 60000) return;
-  const id = existing?.id || crypto.randomUUID();
-  const generation = existing
-    ? existing.generation + (existing.status === 'unsubscribed' ? 1 : 0)
-    : 1;
-  const raw = randomToken();
-  const tokenHash = await hash(raw);
-  const timestamp = now();
-  const statements = [
-    env.DB.prepare(
-      `INSERT INTO subscriber(id,email,email_key,name,status,generation,created_at,last_requested_at,source_article,consent_version)
- VALUES(?,?,?,?,'pending',?,?,?,?,?) ON CONFLICT(email_key) DO UPDATE SET status='pending',
- generation=?,last_requested_at=?,consent_version=? WHERE status IN ('pending','unsubscribed')`,
-    ).bind(
-      id,
-      data.email,
-      emailKey(data.email),
-      data.name || null,
-      generation,
-      timestamp,
-      timestamp,
-      data.sourceArticle || null,
-      settings.legal.privacyVersion,
-      generation,
-      timestamp,
-      settings.legal.privacyVersion,
-    ),
-    env.DB.prepare('DELETE FROM action_token WHERE subscriber_id=?').bind(id),
-    env.DB.prepare(
-      "INSERT OR IGNORE INTO subscriber_interest(subscriber_id,interest_id) SELECT id,? FROM subscriber WHERE id=? AND status='pending'",
-    ).bind(data.interest, id),
-    env.DB.prepare(
-      "INSERT INTO action_token(token_hash,subscriber_id,generation,expires_at) SELECT ?,id,generation,? FROM subscriber WHERE id=? AND status='pending'",
-    ).bind(tokenHash, timestamp + 48 * 3600000, id),
-    env.DB.prepare(
-      "INSERT OR IGNORE INTO consent_record(id,subscriber_id,action,version,created_at,source) SELECT ?,id,'requested',?,?,? FROM subscriber WHERE id=? AND status='pending'",
-    ).bind(data.requestKey, settings.legal.privacyVersion, timestamp, data.sourceArticle || 'signup', id),
-    jobStatement(
-      env,
-      `confirm:${tokenHash}`,
-      'confirmation',
-      { to: data.email, token: raw },
-      id,
-      generation,
-    ),
+  if (!project.interests.some(i => i.id === data.interest)) throw new HttpError(400, 'Unknown interest.');
+  if (!(await rateLimit(env, `email:${await hash(emailKey(data.email))}`, 3))) return [];
+  const timestamp = now(), raw = randomToken(), tokenHash = await hash(raw), key = emailKey(data.email);
+  return [
+    env.DB.prepare(`INSERT INTO subscriber(id,email,email_key,name,status,generation,created_at,last_requested_at,source_article,consent_version)
+ SELECT ?,?,?,?,'pending',1,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM consent_record WHERE id=?)
+ ON CONFLICT(email_key) DO UPDATE SET status='pending',
+ generation=subscriber.generation+CASE WHEN subscriber.status='unsubscribed' THEN 1 ELSE 0 END,
+ last_requested_at=excluded.last_requested_at,consent_version=excluded.consent_version
+ WHERE subscriber.status IN ('pending','unsubscribed') AND subscriber.last_requested_at<=?
+ AND NOT EXISTS(SELECT 1 FROM consent_record WHERE id=?)`).bind(
+      crypto.randomUUID(),data.email,key,data.name||null,timestamp,timestamp,data.sourceArticle||null,
+      settings.legal.privacyVersion,data.requestKey,timestamp-60000,data.requestKey),
+    env.DB.prepare(`INSERT INTO action_token(token_hash,subscriber_id,generation,expires_at)
+ SELECT ?,id,generation,? FROM subscriber WHERE email_key=? AND status='pending' AND changes()=1`)
+      .bind(tokenHash,timestamp+48*3600000,key),
+    env.DB.prepare(`DELETE FROM action_token WHERE subscriber_id=(SELECT subscriber_id FROM action_token WHERE token_hash=?) AND token_hash!=?`)
+      .bind(tokenHash,tokenHash),
+    env.DB.prepare(`INSERT OR IGNORE INTO subscriber_interest(subscriber_id,interest_id)
+ SELECT subscriber_id,? FROM action_token WHERE token_hash=?`).bind(data.interest,tokenHash),
+    env.DB.prepare(`INSERT OR IGNORE INTO consent_record(id,subscriber_id,action,version,created_at,source)
+ SELECT ?,s.id,'requested',?,?,? FROM subscriber s JOIN action_token t ON t.subscriber_id=s.id WHERE t.token_hash=?`)
+      .bind(data.requestKey,settings.legal.privacyVersion,timestamp,data.sourceArticle||'signup',tokenHash),
+    env.DB.prepare(`UPDATE email_job SET state='skipped',payload_json='{}',lease_until=NULL
+ WHERE kind='confirmation' AND state IN ('pending','queued') AND subscriber_id=(SELECT subscriber_id FROM action_token WHERE token_hash=?)`)
+      .bind(tokenHash),
+    env.DB.prepare(`INSERT OR IGNORE INTO email_job(id,dedupe_key,kind,payload_json,subscriber_id,generation,available_at,created_at)
+ SELECT ?,?,'confirmation',?,subscriber_id,generation,?,? FROM action_token WHERE token_hash=?`)
+      .bind(crypto.randomUUID(),`confirm:${tokenHash}`,JSON.stringify({to:data.email,token:raw}),timestamp,timestamp,tokenHash),
   ];
-  await env.DB.batch(statements);
+}
+export async function subscribe(env: Env, input: unknown) {
+  const statements = await subscriptionStatements(env,input);
+  if (statements.length) await env.DB.batch(statements);
 }
 export async function confirm(env: Env, raw: string) {
   const tokenHash = await hash(raw);

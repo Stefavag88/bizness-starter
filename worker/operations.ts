@@ -23,5 +23,14 @@ export async function overview(env: Env) {
   const inquiries = await env.DB.prepare(
     'SELECT id,name,email,context_id,status,created_at FROM inquiry ORDER BY created_at DESC LIMIT 50',
   ).all();
-  return { jobs: jobs.results, inquiries: inquiries.results };
+  // Investigate by job/provider IDs; never include email payloads or token bodies.
+  const deliveries = await env.DB.prepare(
+    `SELECT id,kind,state,attempts,error_code,provider_message_id,created_at,available_at,lease_until,accepted_at
+     FROM email_job WHERE state IN ('unknown','failed') OR (state IN ('queued','sending') AND lease_until<?)
+     ORDER BY created_at LIMIT 100`,
+  ).bind(Date.now()).all();
+  const enrollments = await env.DB.prepare(
+    "SELECT state,COUNT(*) count FROM automation_enrollment GROUP BY state",
+  ).all();
+  return { jobs: jobs.results, inquiries: inquiries.results, deliveries: deliveries.results, enrollments: enrollments.results };
 }
