@@ -12,6 +12,8 @@ if(process.argv.includes('--production')){
  if(!p.infrastructure.sendingEnabled)issues.push('Review transactional delivery readiness before enabling sending.');
  if(p.profile!=='enquiries'&&!p.infrastructure.marketingEnabled)issues.push('Review subscription lifecycle before enabling marketing.');
  if(p.profile==='nurture')issues.push('Replace and review the sample nurture messages before hosted use.');
+ if(p.infrastructure.runtimeBudget.dailyDispatchLimit===null)issues.push('Configure a measured daily dispatch allowance and transactional reserve.');
+ issues.push('Hosted runtime/row/CPU/provider capacity qualification is still pending; local evidence is not cloud certification.');
  // Foundation scope supplies local CMS/form preview only; hosted integration is a separate review.
  issues.push('Configure and verify the hosted CMS build, form-protection client, secrets and account readiness.');
  console.error('Production readiness blocked:\n'+issues.map(i=>'- '+i).join('\n'));process.exitCode=1;

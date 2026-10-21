@@ -133,3 +133,7 @@ See [newsletter authoring and delivery boundaries](NEWSLETTER.md) for the opt-in
 ## Business templates
 
 Use `/templates` in the local source starter to choose a composition. See [presets](PRESETS.md) and [independent project initialization](INITIALIZATION.md).
+
+## Local runtime capacity
+
+After starting the Worker, open `/admin/usage` on its local URL for application statistics. Cloud provider cards intentionally show Not configured. `pnpm test:runtime-budgets` runs the disposable local acceptance harness; the [runtime guide](RUNTIME_BUDGETS.md) explains `pnpm report:capacity` inputs. See [Usage & Capacity](USAGE_CAPACITY.md).

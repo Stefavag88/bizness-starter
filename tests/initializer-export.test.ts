@@ -28,3 +28,8 @@ it('captures exact files and detects source changes without reading unselected s
 it('refuses paths escaping the source inventory',()=>expect(inventory.every(p=>!p.split('/').includes('..')&&!p.startsWith('/')&&!p.includes('\\'))).toBe(true));
 
 it('rejects source links before reading their contents',()=>{const root=roots.create();writeFileSync(join(root,'secret'),'private');const link=join(root,'allowed.txt');importFs.symlinkSync(join(root,'secret'),link);try{expect(()=>readApplicationInput(root,'allowed.txt')).toThrow(/link/i);}finally{importFs.unlinkSync(link);}});
+
+it('exports every runtime budget dependency and capacity CLI to independent clients',()=>{
+ for(const path of ['packages/config/runtime-budgets.mjs','packages/config/runtime-budgets.d.mts','packages/runtime-capacity/model.mjs','packages/runtime-capacity/model.d.mts','worker/budget.ts','worker/admissions.ts','worker/scheduler.ts','worker/usage.ts','worker/usage-contracts.ts','worker/usage-page.ts','worker/campaign-estimates.ts','migrations/0003_runtime_budgets.sql','migrations/0004_runtime_selection_indexes.sql','scripts/report-capacity.mjs','docs/RUNTIME_BUDGETS.md','docs/USAGE_CAPACITY.md'])expect(inventory).toContain(path);
+ const source=JSON.parse(readFileSync('package.json','utf8'));expect(createClientPackage('client',source).scripts['report:capacity']).toBe('node scripts/report-capacity.mjs');
+});

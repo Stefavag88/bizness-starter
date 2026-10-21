@@ -58,6 +58,7 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       # A fresh checkout owns all temporary source mutations and local processes.
       # Each harness finishes/restores before the next starts; do not parallelize.
+      - run: pnpm test:runtime-budgets
       - run: pnpm test:profiles
       - run: pnpm test:showcase-builds
       - run: pnpm test:static-routing

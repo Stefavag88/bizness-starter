@@ -33,7 +33,8 @@
     "create:project": "node scripts/create-project.mjs",
     "test:initialization": "node scripts/verify-initialization.mjs",
     "test:presets": "node scripts/verify-presets.mjs",
-    "report:capacity": "node scripts/report-capacity.mjs"
+    "report:capacity": "node scripts/report-capacity.mjs",
+    "test:runtime-budgets": "node scripts/verify-runtime-budgets.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.2.8",

@@ -10,3 +10,8 @@ it('records bounded form and local-delivery work but not read-only or rejected t
  expect(r.status).toBe(202);const stats=f.database.prepare("SELECT * FROM runtime_usage_day WHERE entrypoint='contact'").get()!;
  expect(stats.sql_statements).toBeLessThanOrEqual(40);expect(stats.accepted).toBe(1);
  }finally{f.database.close();}});
+
+it('serves read-only routing without constructing a missing D1 binding',async()=>{
+ const env={ENVIRONMENT:'local',PROFILE:'enquiries'} as any;
+ const response=await worker.fetch(new Request('http://127.0.0.1:8790/'),env,{waitUntil:()=>{}} as any);expect(response.status).toBe(302);
+});

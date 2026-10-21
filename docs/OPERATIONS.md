@@ -42,3 +42,7 @@ Platform complete/errored/terminated states map to completed/failed/cancelled. I
 - **Data requests:** implement the owner-approved retention/access/deletion policy across records, payloads, captures, logs and backups. No retention durations are assumed here.
 
 These steps must become concrete, tested account-specific runbooks before hosted sending. No hosted procedure is certified by the local tests.
+
+## Runtime budget operations
+
+See [Runtime budgets](RUNTIME_BUDGETS.md) for UTC admission/reserves and safe deferral, and [Usage & Capacity](USAGE_CAPACITY.md) for administrator statistics. The dashboard is available in all profiles; provider metrics require separately authorized hosted analytics. Never retry unknown delivery outcomes as if they were unsent.

@@ -40,3 +40,7 @@ Configure holds an exclusive `.generated/configure.lock`. Wait for the owner to 
 ## Scope deliberately preserved
 
 Locale publication dates remain independent; slugs remain shared and immutable. Uncertain delivery stays quarantined, permanent complaints/bounces remain address-level suppressions, and suppressed subscribers cannot reactivate through public signup. The website design, canonical content and default profile remain unchanged.
+
+## Runtime capacity qualification
+
+Local runtime budget verification does not lift the production block. Configure a measured daily allowance/reserve; qualify the actual Free Queue/Workflow entitlement, CPU, D1 rows, provider limits and shared account activity in isolated authorized staging. Provider analytics is pending. See [Runtime budgets](RUNTIME_BUDGETS.md).
