@@ -1,24 +1,21 @@
 import fs from 'node:fs';import {resolve,join,dirname,relative,sep} from 'node:path';import {execFileSync} from 'node:child_process';import {createHash} from 'node:crypto';import {fileURLToPath} from 'node:url';
-import {createPresetBundle,projectPresetBundle} from '../../packages/presets/bundle.mjs';
+import {snapshotPresetInputs,generatePresetBundle} from './preset-snapshot.mjs';
 import {snapshotApplication,createClientPackage,readApplicationInput} from './snapshot.mjs';import {inspectDestination} from './destination.mjs';
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 export async function initializeProject({source,options,dryRun=false}){
  if(fs.realpathSync(resolve(source))!==fs.realpathSync(fileURLToPath(new URL('../../',import.meta.url))))throw Error('Run the initializer from its own source checkout');
  const ownership=inspectDestination(source,options.destination);const snapshot=snapshotApplication(ownership.source);
- const bundle=createPresetBundle(options.preset,options);projectPresetBundle(bundle,{assetRoot:ownership.source});
+ const presetInputs=snapshotPresetInputs(ownership.source);snapshot.assertUnchanged();presetInputs.assertUnchanged();
+ const generationHashes=new Map([...snapshot.files].map(([path,file])=>[path,file.sha256]));for(const [path,hash] of presetInputs.hashes)generationHashes.set(path,hash);
+ const bundle=generatePresetBundle(ownership.source,options,generationHashes);snapshot.assertUnchanged();presetInputs.assertUnchanged();
  const files=new Map([...snapshot.files].map(([path,file])=>[path,file.bytes]));
  const encode=value=>new TextEncoder().encode(value);
  files.set('package.json',encode(JSON.stringify(createClientPackage(options.name,JSON.parse(new TextDecoder().decode(files.get('package.json')))),null,2)+'\n'));
  files.set('project.json',encode(JSON.stringify(bundle.project,null,2)+'\n'));for(const [path,bytes] of bundle.files)files.set(path,bytes);
- const extras=new Map();
+ const extras=new Map(presetInputs.hashes);
  for(const [input,output] of [['scripts/initialize/client/README.md','README.md'],['scripts/initialize/client/project.test.ts','tests/project.test.ts'],['scripts/initialize/client/CMS_AUTHORING.md','docs/CMS_AUTHORING.md']]){
   const path=join(ownership.source,input);const bytes=readApplicationInput(ownership.source,input);extras.set(input,digest(bytes));files.set(output,bytes);
  }
- // Snapshot immutable seed inputs too; no unselected credential/configuration files are read.
- for(const name of ['catalog.mjs','bundle.mjs','media.mjs','seeds/common.mjs','seeds/neutral-data.json','seeds/'+options.preset+'.mjs']){
-  const path='packages/presets/'+name;extras.set(path,digest(readApplicationInput(ownership.source,path)));
- }
- for(const name of ['abstract-landscape.png','abstract-portrait.png']){const path='apps/site/public/uploads/starter-samples/'+name;extras.set(path,digest(readApplicationInput(ownership.source,path)));}
  const assertSource=()=>{snapshot.assertUnchanged();for(const [path,hash] of extras)if(digest(readApplicationInput(ownership.source,path))!==hash)throw Error('Source input changed: '+path);};
  const sourceDigest=digest(snapshot.digest+JSON.stringify([...extras]));
  files.set('starter-provenance.json',encode(JSON.stringify({format:1,starterVersion:'2.0.0-dev',sourceRevision:snapshot.revision,sourceDigest,preset:options.preset,presetVersion:1},null,2)+'\n'));
@@ -29,13 +26,14 @@ export async function initializeProject({source,options,dryRun=false}){
   ownership.claim();directories.set(ownership.target,fs.lstatSync(ownership.target));
   const checkDirectory=path=>{const identity=directories.get(path),stat=fs.lstatSync(path);if(!identity||!stat.isDirectory()||stat.isSymbolicLink()||identity.ino!==stat.ino||identity.dev!==stat.dev)throw Error('Destination directory changed: '+path);};
   const ensureDirectory=path=>{
+   if(path!==ownership.target)ensureDirectory(dirname(path));
    if(directories.has(path)){checkDirectory(path);return;}
-   ensureDirectory(dirname(path));fs.mkdirSync(path);directories.set(path,fs.lstatSync(path));
+   fs.mkdirSync(path);directories.set(path,fs.lstatSync(path));
   };
   for(const [path,bytes] of files){
    if(path.split('/').some(part=>!part||part==='..')||path.startsWith('/')||path.includes('\\'))throw Error('Unsafe exported path');
    ownership.assertOwned();if(snapshot.files.has(path)&&digest(readApplicationInput(ownership.source,path))!==snapshot.files.get(path).sha256)throw Error('Source changed during export: '+path);const destination=join(ownership.target,path);ensureDirectory(dirname(destination));
-   const fd=fs.openSync(destination,'wx');try{fs.writeFileSync(fd,bytes);}finally{fs.closeSync(fd);}createdFiles.push(path);
+   const fd=fs.openSync(destination,'wx');createdFiles.push(path);try{fs.writeFileSync(fd,bytes);}finally{fs.closeSync(fd);}
   }
   // Compare every owned byte and refuse any competing file before initializing Git.
   for(const [path,bytes] of files)if(!fs.readFileSync(join(ownership.target,path)).equals(Buffer.from(bytes)))throw Error('Created destination changed: '+path);

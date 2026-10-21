@@ -2,8 +2,8 @@ import {mkdtempSync,lstatSync,readdirSync,realpathSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {basename,dirname,join,resolve} from 'node:path';
 /** Test-only roots: exact created paths, verified without following reparse entries. */
-export function ownedTempRoots(prefix:string){
- const parent=realpathSync(tmpdir()),roots=new Map<string,{ino:number;dev:number}>();
+export function ownedTempRoots(prefix:string,rootParent?:string){
+ const parent=realpathSync(rootParent??tmpdir()),roots=new Map<string,{ino:number;dev:number}>();
  return {
   create(){const path=mkdtempSync(join(parent,prefix));roots.set(path,lstatSync(path));return path;},
   cleanup(preserve=false){

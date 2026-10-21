@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:26772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Native preset evidence: C:\Projects\.starter-rehearsal-clmKGW\cms-trades\.generated\preset-cms\run-e4eTq8
+
+  ok 1 e2e\presets-cms.spec.ts:6:1 › generated bilingual trades project saves Page and Offering with native editors (34.7s)
+
+  1 passed (36.4s)

@@ -29,7 +29,7 @@ Source business content, credentials/environment files, databases, dependencies,
 
 Each destination starts local, enquiries-only, with sending/marketing and review flags false, placeholder site/mail/database identities and empty hosted Access/SNS settings. Replace sample contact/legal details and abstract media deliberately. Production remains blocked until the requirements in the exported readiness document are addressed.
 
-`starter-provenance.json` records format/starter/preset versions, source revision and source snapshot digest. It is provenance, not CMS content or an automatic upgrade mechanism. Source changes are refused during export; a dirty reviewed source snapshot is identified by its digest as well as HEAD.
+`starter-provenance.json` records format/starter/preset versions, source revision and source snapshot digest. It is provenance, not CMS content or an automatic upgrade mechanism. Seed/media fingerprints are captured before generation. Generation runs in a fresh Node process, verifies those captured inputs before/after loading them, and is rechecked before output creation; cached preview modules cannot supply stale seed data. Source changes are refused during export; a dirty reviewed source snapshot is identified by its digest as well as HEAD.
 
 ## Failure and recovery
 

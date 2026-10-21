@@ -1,0 +1,14 @@
+
+> business-starter-v2@2.0.0-dev deploy:check C:\Projects\bizness-starter-v2
+> node scripts/doctor.mjs --production
+
+Production readiness blocked:
+- Set the intended production environment.
+- Review business content and legal wording.
+- Replace example domain, sender and recipient.
+- Configure a project-specific D1 database.
+- Configure hosted CMS and administration Access protection with at least one administrator.
+- Configure verified SES feedback.
+- Review transactional delivery readiness before enabling sending.
+- Configure and verify the hosted CMS build, form-protection client, secrets and account readiness.
+ ELIFECYCLE  Command failed with exit code 1.

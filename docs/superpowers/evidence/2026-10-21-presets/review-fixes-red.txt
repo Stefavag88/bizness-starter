@@ -1,0 +1,84 @@
+
+ RUN  v5.0.3 C:/Projects/bizness-starter-v2
+
+ ❯ tests/preset-generation-snapshot.test.ts (2 tests | 2 failed) 5157ms
+   × generates from current captured seed bytes even if a prior import cached old data 2578ms
+   × rejects a media edit between generation and late fingerprinting before claiming output 2578ms
+ ❯ tests/project-initializer.test.ts (8 tests | 3 failed) 5880ms
+   × rejects dot-prefixed descendants before any destination creation 5ms
+   × rejects a replaced intermediate ancestor before writing additional files through it 1638ms
+   × reports a created file even when its write fails halfway 794ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/preset-generation-snapshot.test.ts > generates from current captured seed bytes even if a prior import cached old data
+AssertionError: expected 'A place to start a useful conversatio…' to be 'Current captured seed' // Object.is equality
+
+Expected: "Current captured seed"
+Received: "A place to start a useful conversation."
+
+ ❯ tests/preset-generation-snapshot.test.ts:9:353
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/preset-generation-snapshot.test.ts > rejects a media edit between generation and late fingerprinting before claiming output
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/preset-generation-snapshot.test.ts:12:529
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/project-initializer.test.ts > rejects dot-prefixed descendants before any destination creation
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/project-initializer.test.ts:49:97
+     47|
+     48| it('rejects dot-prefixed descendants before any destination creation',…
+     49|  const destination=resolve('..client');expect(()=>inspectDestination(r…
+       |                                                                                                 ^
+     50| });
+     51| it('rejects a replaced intermediate ancestor before writing additional…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/project-initializer.test.ts > rejects a replaced intermediate ancestor before writing additional files through it
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/project-initializer.test.ts:56:223
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/project-initializer.test.ts > reports a created file even when its write fails halfway
+AssertionError: expected [ '.gitignore', …(73) ] to include 'package.json'
+ ❯ tests/project-initializer.test.ts:63:141
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 5 passed (10)
+   Start at  08:28:15
+   Duration  6.50s (tests 96%, import 2%, transform 2%)
+

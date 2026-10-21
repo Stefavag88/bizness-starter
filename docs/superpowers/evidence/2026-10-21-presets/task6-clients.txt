@@ -1,0 +1,1110 @@
+
+> business-starter-v2@2.0.0-dev test:initialization C:\Projects\bizness-starter-v2
+> node scripts/verify-initialization.mjs
+
+Scope: all 2 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1226
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1226, reused 569, downloaded 0, added 0
+Progress: resolved 1226, reused 984, downloaded 0, added 0
+Progress: resolved 1226, reused 1217, downloaded 0, added 21
+Progress: resolved 1226, reused 1225, downloaded 0, added 68
+Progress: resolved 1226, reused 1226, downloaded 0, added 161
+Progress: resolved 1226, reused 1226, downloaded 0, added 270
+Progress: resolved 1226, reused 1226, downloaded 0, added 409
+Progress: resolved 1226, reused 1226, downloaded 0, added 459
+Progress: resolved 1226, reused 1226, downloaded 0, added 495
+Progress: resolved 1226, reused 1226, downloaded 0, added 597
+Progress: resolved 1226, reused 1226, downloaded 0, added 715
+Progress: resolved 1226, reused 1226, downloaded 0, added 843
+Progress: resolved 1226, reused 1226, downloaded 0, added 917
+Progress: resolved 1226, reused 1226, downloaded 0, added 947
+Progress: resolved 1226, reused 1226, downloaded 0, added 1015
+Progress: resolved 1226, reused 1226, downloaded 0, added 1067
+Progress: resolved 1226, reused 1226, downloaded 0, added 1130
+Progress: resolved 1226, reused 1226, downloaded 0, added 1165
+Progress: resolved 1226, reused 1226, downloaded 0, added 1215
+Progress: resolved 1226, reused 1226, downloaded 0, added 1218
+Progress: resolved 1226, reused 1226, downloaded 0, added 1219
+Progress: resolved 1226, reused 1226, downloaded 0, added 1220
+Progress: resolved 1226, reused 1226, downloaded 0, added 1221
+Progress: resolved 1226, reused 1226, downloaded 0, added 1222
+Progress: resolved 1226, reused 1226, downloaded 0, added 1223
+Progress: resolved 1226, reused 1226, downloaded 0, added 1224
+Progress: resolved 1226, reused 1226, downloaded 0, added 1226, done
+
+dependencies:
++ @fontsource/noto-sans 5.2.8
++ aws4fetch 1.0.20
++ jose 6.2.12
++ markdown-it 14.3.2
++ sharp 0.35.5
++ zod 4.6.5
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @cloudflare/workers-types 5.20261007.1
++ @playwright/test 1.63.0
++ @tinacms/cli 4.0.1
++ @tinacms/mdx 2.3.0
++ @types/node 24.0.0
++ @types/react 18.3.1
++ react 18.3.1
++ react-dom 18.3.1
++ tinacms 3.14.3
++ typescript 5.9.3
++ vitest 5.0.3
++ wrangler 4.148.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: better-sqlite3, core-js.                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 32.3s using pnpm v10.13.1
+
+> rehearsal-neutral@2.0.0-dev check C:\Projects\.starter-rehearsal-clmKGW\neutral
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> rehearsal-neutral@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\neutral
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\.starter-rehearsal-clmKGW\neutral\apps\site
+> astro check
+
+08:04:20 [types] Generated 239ms
+08:04:20 [check] Getting diagnostics for Astro files in C:\Projects\.starter-rehearsal-clmKGW\neutral\apps\site...
+[96m../../tina/fields/newsletter.ts[0m:[93m3[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'object' is declared but its value is never read.
+
+[7m3[0m import {object,text} from './common';
+[7m [0m [93m        ~~~~~~[0m
+
+[96m../../tina/domains/rooms/items.tsx[0m:[93m10[0m:[93m8[0m - [93mwarning[0m[90m ts(6133): [0m'values' is declared but its value is never read.
+
+[7m10[0m  const values=useValues(tinaForm),kind=field.name as 'images'|'amenities',isImage=kind==='images';const [error,setError]=useState(''),[pending,setPending]=useState('');
+[7m  [0m [93m       ~~~~~~[0m
+
+[96m../../tina/fields/section-items.tsx[0m:[93m28[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'entry' is declared but its value is never read.
+
+[7m28[0m export function itemChildFields(field: any, entry: any, index: number) {
+[7m  [0m [93m                                            ~~~~~[0m
+
+[96m../../worker/newsletter.ts[0m:[93m4[0m:[93m20[0m - [93mwarning[0m[90m ts(6196): [0m'Subscriber' is declared but never used.
+
+[7m4[0m import type { Env, Subscriber } from './types';
+[7m [0m [93m                   ~~~~~~~~~~[0m
+
+[96m../../worker/pages.ts[0m:[93m30[0m:[93m27[0m - [93mwarning[0m[90m ts(6133): [0m'env' is declared but its value is never read.
+
+[7m30[0m export function adminPage(env: Env) {
+[7m  [0m [93m                          ~~~[0m
+
+Result (50 files): 
+- 0 errors
+- 0 warnings
+- 5 hints
+
+
+> rehearsal-neutral@2.0.0-dev test C:\Projects\.starter-rehearsal-clmKGW\neutral
+> pnpm configure && vitest run
+
+
+> rehearsal-neutral@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\neutral
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ RUN  v5.0.3 C:/Projects/.starter-rehearsal-clmKGW/neutral
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:04:30
+   Duration  588ms (import 52%, transform 33%, tests 13%, worker 2%)
+
+
+> rehearsal-neutral@2.0.0-dev build C:\Projects\.starter-rehearsal-clmKGW\neutral
+> pnpm configure && pnpm --filter @starter/site build
+
+
+> rehearsal-neutral@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\neutral
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ build C:\Projects\.starter-rehearsal-clmKGW\neutral\apps\site
+> node scripts/build.mjs
+
+08:04:35 [types] Generated 76ms
+08:04:35 [build] output: "static"
+08:04:35 [build] mode: "static"
+08:04:35 [build] directory: C:\Projects\.starter-rehearsal-clmKGW\neutral\apps\site\dist\
+08:04:35 [build] Collecting build info...
+08:04:35 [build] ✓ Completed in 113ms.
+08:04:35 [build] Building static entrypoints...
+08:04:35 [vite] ✓ built in 296ms
+08:04:35 [vite] ✓ built in 88ms
+08:04:35 [build] Rearranging server assets...
+
+ generating static routes 
+08:04:36   ├─ /404.html (+17ms) 
+08:04:36   ├─ /design-system/index.html (+69ms) 
+08:04:36   ├─ /en/404/index.html (+4ms) 
+08:04:36   ├─ /el/404/index.html (+3ms) 
+08:04:36   ├─ /en/feed.xml (+3ms) 
+08:04:36   ├─ /el/feed.xml (+2ms) 
+08:04:36   ├─ /en/about/index.html (+3ms) 
+08:04:36   ├─ /en/contact/index.html (+3ms) 
+08:04:36   ├─ /en/index.html (+2ms) 
+08:04:36   ├─ /en/insights/index.html (+2ms) 
+08:04:36   ├─ /en/privacy/index.html (+2ms) 
+08:04:36   ├─ /en/services/index.html (+2ms) 
+08:04:36   ├─ /en/services/planning-session/index.html (+2ms) 
+08:04:36   ├─ /en/insights/a-useful-first-question/index.html (+2ms) 
+08:04:36   ├─ /en/people/studio-guide/index.html (+3ms) 
+08:04:36   ├─ /el/about/index.html (+2ms) 
+08:04:36   ├─ /el/contact/index.html (+2ms) 
+08:04:36   ├─ /el/index.html (+2ms) 
+08:04:36   ├─ /el/insights/index.html (+2ms) 
+08:04:36   ├─ /el/privacy/index.html (+2ms) 
+08:04:36   ├─ /el/services/index.html (+2ms) 
+08:04:36   ├─ /el/services/planning-session/index.html (+2ms) 
+08:04:36   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+08:04:36   ├─ /el/people/studio-guide/index.html (+2ms) 
+08:04:36   ├─ /index.html (+3ms) 
+08:04:36 ✓ Completed in 292ms.
+
+08:04:36 [build] ✓ Completed in 979ms.
+08:04:36 [build] 23 page(s) built in 1.19s
+08:04:36 [build] Complete!
+
+> rehearsal-neutral@2.0.0-dev worker:check C:\Projects\.starter-rehearsal-clmKGW\neutral
+> pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json
+
+
+> rehearsal-neutral@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\neutral
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ ⛅️ wrangler 4.148.0 (update available 4.151.3)
+───────────────────────────────────────────────
+✨ Read 105 files from the assets directory C:\Projects\.starter-rehearsal-clmKGW\neutral\apps\site\dist
+Total Upload: 888.17 KiB / gzip: 150.22 KiB
+Your Worker has access to the following bindings:
+Binding                                                                     Resource                  
+env.OUTBOUND (rehearsal-neutral-outbound)                                   Queue                     
+env.DB (rehearsal-neutral-db)                                               D1 Database               
+env.ASSETS                                                                  Assets                    
+env.ENVIRONMENT ("local")                                                   Environment Variable      
+env.PROFILE ("enquiries")                                                   Environment Variable      
+env.SITE_URL ("https://example.com")                                        Environment Variable      
+env.LOCAL_SITE_URL ("http://127.0.0.1:4330")                                Environment Variable      
+env.LOCAL_WORKER_URL ("http://127.0.0.1:8790")                              Environment Variable      
+env.LOCAL_ORIGINS ("["http://127.0.0.1:4330","http://127....")              Environment Variable      
+env.SES_REGION ("eu-west-1")                                                Environment Variable      
+env.SES_SENDER ("Example Studio <hello@example.com>")                       Environment Variable      
+env.NOTIFICATION_EMAIL ("owner@example.com")                                Environment Variable      
+env.ALLOWED_RECIPIENTS ("")                                                 Environment Variable      
+env.SES_CONFIGURATION_SET ("starter-transactional")                         Environment Variable      
+env.SNS_TOPIC_ARN ("")                                                      Environment Variable      
+env.ACCESS_ISSUER ("")                                                      Environment Variable      
+env.ACCESS_AUDIENCE ("")                                                    Environment Variable      
+env.ADMIN_EMAILS ("[]")                                                     Environment Variable      
+env.EDITOR_EMAILS ("[]")                                                    Environment Variable      
+env.SENDING_ENABLED ("false")                                               Environment Variable      
+env.MARKETING_ENABLED ("false")                                             Environment Variable      
+env.SEND_INTERVAL_MS ("1000")                                               Environment Variable      
+
+--dry-run: exiting now.
+Scope: all 2 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1226
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1226, reused 633, downloaded 0, added 0
+Progress: resolved 1226, reused 1049, downloaded 0, added 0
+Progress: resolved 1226, reused 1219, downloaded 0, added 48
+Progress: resolved 1226, reused 1225, downloaded 0, added 64
+Progress: resolved 1226, reused 1226, downloaded 0, added 120
+Progress: resolved 1226, reused 1226, downloaded 0, added 185
+Progress: resolved 1226, reused 1226, downloaded 0, added 242
+Progress: resolved 1226, reused 1226, downloaded 0, added 287
+Progress: resolved 1226, reused 1226, downloaded 0, added 356
+Progress: resolved 1226, reused 1226, downloaded 0, added 492
+Progress: resolved 1226, reused 1226, downloaded 0, added 616
+Progress: resolved 1226, reused 1226, downloaded 0, added 671
+Progress: resolved 1226, reused 1226, downloaded 0, added 722
+Progress: resolved 1226, reused 1226, downloaded 0, added 805
+Progress: resolved 1226, reused 1226, downloaded 0, added 969
+Progress: resolved 1226, reused 1226, downloaded 0, added 1054
+Progress: resolved 1226, reused 1226, downloaded 0, added 1105
+Progress: resolved 1226, reused 1226, downloaded 0, added 1131
+Progress: resolved 1226, reused 1226, downloaded 0, added 1184
+Progress: resolved 1226, reused 1226, downloaded 0, added 1217
+Progress: resolved 1226, reused 1226, downloaded 0, added 1218
+Progress: resolved 1226, reused 1226, downloaded 0, added 1219
+Progress: resolved 1226, reused 1226, downloaded 0, added 1220
+Progress: resolved 1226, reused 1226, downloaded 0, added 1222
+Progress: resolved 1226, reused 1226, downloaded 0, added 1223
+Progress: resolved 1226, reused 1226, downloaded 0, added 1224
+Progress: resolved 1226, reused 1226, downloaded 0, added 1225
+Progress: resolved 1226, reused 1226, downloaded 0, added 1226, done
+
+dependencies:
++ @fontsource/noto-sans 5.2.8
++ aws4fetch 1.0.20
++ jose 6.2.12
++ markdown-it 14.3.2
++ sharp 0.35.5
++ zod 4.6.5
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @cloudflare/workers-types 5.20261007.1
++ @playwright/test 1.63.0
++ @tinacms/cli 4.0.1
++ @tinacms/mdx 2.3.0
++ @types/node 24.0.0
++ @types/react 18.3.1
++ react 18.3.1
++ react-dom 18.3.1
++ tinacms 3.14.3
++ typescript 5.9.3
++ vitest 5.0.3
++ wrangler 4.148.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: better-sqlite3, core-js.                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 33.2s using pnpm v10.13.1
+
+> rehearsal-professional-services@2.0.0-dev check C:\Projects\.starter-rehearsal-clmKGW\professional-services
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> rehearsal-professional-services@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\professional-services
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\.starter-rehearsal-clmKGW\professional-services\apps\site
+> astro check
+
+08:05:22 [types] Generated 289ms
+08:05:22 [check] Getting diagnostics for Astro files in C:\Projects\.starter-rehearsal-clmKGW\professional-services\apps\site...
+[96m../../tina/fields/newsletter.ts[0m:[93m3[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'object' is declared but its value is never read.
+
+[7m3[0m import {object,text} from './common';
+[7m [0m [93m        ~~~~~~[0m
+
+[96m../../tina/domains/rooms/items.tsx[0m:[93m10[0m:[93m8[0m - [93mwarning[0m[90m ts(6133): [0m'values' is declared but its value is never read.
+
+[7m10[0m  const values=useValues(tinaForm),kind=field.name as 'images'|'amenities',isImage=kind==='images';const [error,setError]=useState(''),[pending,setPending]=useState('');
+[7m  [0m [93m       ~~~~~~[0m
+
+[96m../../tina/fields/section-items.tsx[0m:[93m28[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'entry' is declared but its value is never read.
+
+[7m28[0m export function itemChildFields(field: any, entry: any, index: number) {
+[7m  [0m [93m                                            ~~~~~[0m
+
+[96m../../worker/newsletter.ts[0m:[93m4[0m:[93m20[0m - [93mwarning[0m[90m ts(6196): [0m'Subscriber' is declared but never used.
+
+[7m4[0m import type { Env, Subscriber } from './types';
+[7m [0m [93m                   ~~~~~~~~~~[0m
+
+[96m../../worker/pages.ts[0m:[93m30[0m:[93m27[0m - [93mwarning[0m[90m ts(6133): [0m'env' is declared but its value is never read.
+
+[7m30[0m export function adminPage(env: Env) {
+[7m  [0m [93m                          ~~~[0m
+
+Result (50 files): 
+- 0 errors
+- 0 warnings
+- 5 hints
+
+
+> rehearsal-professional-services@2.0.0-dev test C:\Projects\.starter-rehearsal-clmKGW\professional-services
+> pnpm configure && vitest run
+
+
+> rehearsal-professional-services@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\professional-services
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ RUN  v5.0.3 C:/Projects/.starter-rehearsal-clmKGW/professional-services
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:05:32
+   Duration  566ms (import 54%, transform 33%, tests 11%, worker 2%)
+
+
+> rehearsal-professional-services@2.0.0-dev build C:\Projects\.starter-rehearsal-clmKGW\professional-services
+> pnpm configure && pnpm --filter @starter/site build
+
+
+> rehearsal-professional-services@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\professional-services
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ build C:\Projects\.starter-rehearsal-clmKGW\professional-services\apps\site
+> node scripts/build.mjs
+
+08:05:36 [types] Generated 84ms
+08:05:36 [build] output: "static"
+08:05:36 [build] mode: "static"
+08:05:36 [build] directory: C:\Projects\.starter-rehearsal-clmKGW\professional-services\apps\site\dist\
+08:05:36 [build] Collecting build info...
+08:05:36 [build] ✓ Completed in 121ms.
+08:05:36 [build] Building static entrypoints...
+08:05:37 [vite] ✓ built in 288ms
+08:05:37 [vite] ✓ built in 90ms
+08:05:37 [build] Rearranging server assets...
+
+ generating static routes 
+08:05:37   ├─ /404.html (+16ms) 
+08:05:37   ├─ /design-system/index.html (+71ms) 
+08:05:37   ├─ /el/404/index.html (+6ms) 
+08:05:37   ├─ /el/about/index.html (+6ms) 
+08:05:37   ├─ /el/contact/index.html (+6ms) 
+08:05:37   ├─ /el/index.html (+5ms) 
+08:05:37   ├─ /el/privacy/index.html (+3ms) 
+08:05:37   ├─ /el/services/index.html (+2ms) 
+08:05:37   ├─ /el/services/planning-session/index.html (+5ms) 
+08:05:37   ├─ /el/people/studio-guide/index.html (+4ms) 
+08:05:37   ├─ /index.html (+3ms) 
+08:05:37 ✓ Completed in 259ms.
+
+08:05:37 [build] ✓ Completed in 958ms.
+08:05:38 [build] 11 page(s) built in 1.19s
+08:05:38 [build] Complete!
+
+> rehearsal-professional-services@2.0.0-dev worker:check C:\Projects\.starter-rehearsal-clmKGW\professional-services
+> pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json
+
+
+> rehearsal-professional-services@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\professional-services
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ ⛅️ wrangler 4.148.0 (update available 4.151.3)
+───────────────────────────────────────────────
+✨ Read 77 files from the assets directory C:\Projects\.starter-rehearsal-clmKGW\professional-services\apps\site\dist
+Total Upload: 883.58 KiB / gzip: 149.73 KiB
+Your Worker has access to the following bindings:
+Binding                                                                     Resource                  
+env.OUTBOUND (rehearsal-professional-services-outbound)                     Queue                     
+env.DB (rehearsal-professional-services-db)                                 D1 Database               
+env.ASSETS                                                                  Assets                    
+env.ENVIRONMENT ("local")                                                   Environment Variable      
+env.PROFILE ("enquiries")                                                   Environment Variable      
+env.SITE_URL ("https://example.com")                                        Environment Variable      
+env.LOCAL_SITE_URL ("http://127.0.0.1:4330")                                Environment Variable      
+env.LOCAL_WORKER_URL ("http://127.0.0.1:8790")                              Environment Variable      
+env.LOCAL_ORIGINS ("["http://127.0.0.1:4330","http://127....")              Environment Variable      
+env.SES_REGION ("eu-west-1")                                                Environment Variable      
+env.SES_SENDER ("Example Studio <hello@example.com>")                       Environment Variable      
+env.NOTIFICATION_EMAIL ("owner@example.com")                                Environment Variable      
+env.ALLOWED_RECIPIENTS ("")                                                 Environment Variable      
+env.SES_CONFIGURATION_SET ("starter-transactional")                         Environment Variable      
+env.SNS_TOPIC_ARN ("")                                                      Environment Variable      
+env.ACCESS_ISSUER ("")                                                      Environment Variable      
+env.ACCESS_AUDIENCE ("")                                                    Environment Variable      
+env.ADMIN_EMAILS ("[]")                                                     Environment Variable      
+env.EDITOR_EMAILS ("[]")                                                    Environment Variable      
+env.SENDING_ENABLED ("false")                                               Environment Variable      
+env.MARKETING_ENABLED ("false")                                             Environment Variable      
+env.SEND_INTERVAL_MS ("1000")                                               Environment Variable      
+
+--dry-run: exiting now.
+Scope: all 2 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1226
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1226, reused 558, downloaded 0, added 0
+Progress: resolved 1226, reused 986, downloaded 0, added 0
+Progress: resolved 1226, reused 1217, downloaded 0, added 21
+Progress: resolved 1226, reused 1225, downloaded 0, added 63
+Progress: resolved 1226, reused 1226, downloaded 0, added 163
+Progress: resolved 1226, reused 1226, downloaded 0, added 251
+Progress: resolved 1226, reused 1226, downloaded 0, added 396
+Progress: resolved 1226, reused 1226, downloaded 0, added 445
+Progress: resolved 1226, reused 1226, downloaded 0, added 489
+Progress: resolved 1226, reused 1226, downloaded 0, added 561
+Progress: resolved 1226, reused 1226, downloaded 0, added 703
+Progress: resolved 1226, reused 1226, downloaded 0, added 833
+Progress: resolved 1226, reused 1226, downloaded 0, added 877
+Progress: resolved 1226, reused 1226, downloaded 0, added 929
+Progress: resolved 1226, reused 1226, downloaded 0, added 961
+Progress: resolved 1226, reused 1226, downloaded 0, added 1009
+Progress: resolved 1226, reused 1226, downloaded 0, added 1102
+Progress: resolved 1226, reused 1226, downloaded 0, added 1143
+Progress: resolved 1226, reused 1226, downloaded 0, added 1175
+Progress: resolved 1226, reused 1226, downloaded 0, added 1215
+Progress: resolved 1226, reused 1226, downloaded 0, added 1218
+Progress: resolved 1226, reused 1226, downloaded 0, added 1219
+Progress: resolved 1226, reused 1226, downloaded 0, added 1220
+Progress: resolved 1226, reused 1226, downloaded 0, added 1221
+Progress: resolved 1226, reused 1226, downloaded 0, added 1222
+Progress: resolved 1226, reused 1226, downloaded 0, added 1223
+Progress: resolved 1226, reused 1226, downloaded 0, added 1224
+Progress: resolved 1226, reused 1226, downloaded 0, added 1225
+Progress: resolved 1226, reused 1226, downloaded 0, added 1226, done
+
+dependencies:
++ @fontsource/noto-sans 5.2.8
++ aws4fetch 1.0.20
++ jose 6.2.12
++ markdown-it 14.3.2
++ sharp 0.35.5
++ zod 4.6.5
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @cloudflare/workers-types 5.20261007.1
++ @playwright/test 1.63.0
++ @tinacms/cli 4.0.1
++ @tinacms/mdx 2.3.0
++ @types/node 24.0.0
++ @types/react 18.3.1
++ react 18.3.1
++ react-dom 18.3.1
++ tinacms 3.14.3
++ typescript 5.9.3
++ vitest 5.0.3
++ wrangler 4.148.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: better-sqlite3, core-js.                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 34.6s using pnpm v10.13.1
+
+> rehearsal-trades@2.0.0-dev check C:\Projects\.starter-rehearsal-clmKGW\trades
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> rehearsal-trades@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\trades
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\.starter-rehearsal-clmKGW\trades\apps\site
+> astro check
+
+08:06:25 [types] Generated 252ms
+08:06:25 [check] Getting diagnostics for Astro files in C:\Projects\.starter-rehearsal-clmKGW\trades\apps\site...
+[96m../../tina/fields/newsletter.ts[0m:[93m3[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'object' is declared but its value is never read.
+
+[7m3[0m import {object,text} from './common';
+[7m [0m [93m        ~~~~~~[0m
+
+[96m../../tina/domains/rooms/items.tsx[0m:[93m10[0m:[93m8[0m - [93mwarning[0m[90m ts(6133): [0m'values' is declared but its value is never read.
+
+[7m10[0m  const values=useValues(tinaForm),kind=field.name as 'images'|'amenities',isImage=kind==='images';const [error,setError]=useState(''),[pending,setPending]=useState('');
+[7m  [0m [93m       ~~~~~~[0m
+
+[96m../../tina/fields/section-items.tsx[0m:[93m28[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'entry' is declared but its value is never read.
+
+[7m28[0m export function itemChildFields(field: any, entry: any, index: number) {
+[7m  [0m [93m                                            ~~~~~[0m
+
+[96m../../worker/newsletter.ts[0m:[93m4[0m:[93m20[0m - [93mwarning[0m[90m ts(6196): [0m'Subscriber' is declared but never used.
+
+[7m4[0m import type { Env, Subscriber } from './types';
+[7m [0m [93m                   ~~~~~~~~~~[0m
+
+[96m../../worker/pages.ts[0m:[93m30[0m:[93m27[0m - [93mwarning[0m[90m ts(6133): [0m'env' is declared but its value is never read.
+
+[7m30[0m export function adminPage(env: Env) {
+[7m  [0m [93m                          ~~~[0m
+
+Result (50 files): 
+- 0 errors
+- 0 warnings
+- 5 hints
+
+
+> rehearsal-trades@2.0.0-dev test C:\Projects\.starter-rehearsal-clmKGW\trades
+> pnpm configure && vitest run
+
+
+> rehearsal-trades@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\trades
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ RUN  v5.0.3 C:/Projects/.starter-rehearsal-clmKGW/trades
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:06:35
+   Duration  604ms (import 51%, transform 34%, tests 13%, worker 2%)
+
+
+> rehearsal-trades@2.0.0-dev build C:\Projects\.starter-rehearsal-clmKGW\trades
+> pnpm configure && pnpm --filter @starter/site build
+
+
+> rehearsal-trades@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\trades
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ build C:\Projects\.starter-rehearsal-clmKGW\trades\apps\site
+> node scripts/build.mjs
+
+08:06:40 [types] Generated 78ms
+08:06:40 [build] output: "static"
+08:06:40 [build] mode: "static"
+08:06:40 [build] directory: C:\Projects\.starter-rehearsal-clmKGW\trades\apps\site\dist\
+08:06:40 [build] Collecting build info...
+08:06:40 [build] ✓ Completed in 125ms.
+08:06:40 [build] Building static entrypoints...
+08:06:40 [vite] ✓ built in 297ms
+08:06:40 [vite] ✓ built in 85ms
+08:06:40 [build] Rearranging server assets...
+
+ generating static routes 
+08:06:40   ├─ /404.html (+17ms) 
+08:06:40   ├─ /design-system/index.html (+74ms) 
+08:06:41   ├─ /en/404/index.html (+4ms) 
+08:06:41   ├─ /el/404/index.html (+3ms) 
+08:06:41   ├─ /en/feed.xml (+2ms) 
+08:06:41   ├─ /el/feed.xml (+2ms) 
+08:06:41   ├─ /en/about/index.html (+5ms) 
+08:06:41   ├─ /en/contact/index.html (+3ms) 
+08:06:41   ├─ /en/index.html (+3ms) 
+08:06:41   ├─ /en/insights/index.html (+3ms) 
+08:06:41   ├─ /en/privacy/index.html (+3ms) 
+08:06:41   ├─ /en/service-areas/index.html (+4ms) 
+08:06:41   ├─ /en/services/index.html (+2ms) 
+08:06:41   ├─ /en/services/planning-session/index.html (+2ms) 
+08:06:41   ├─ /en/insights/a-useful-first-question/index.html (+3ms) 
+08:06:41   ├─ /en/people/studio-guide/index.html (+3ms) 
+08:06:41   ├─ /el/about/index.html (+4ms) 
+08:06:41   ├─ /el/contact/index.html (+2ms) 
+08:06:41   ├─ /el/index.html (+2ms) 
+08:06:41   ├─ /el/insights/index.html (+2ms) 
+08:06:41   ├─ /el/privacy/index.html (+2ms) 
+08:06:41   ├─ /el/service-areas/index.html (+3ms) 
+08:06:41   ├─ /el/services/index.html (+2ms) 
+08:06:41   ├─ /el/services/planning-session/index.html (+3ms) 
+08:06:41   ├─ /el/insights/a-useful-first-question/index.html (+2ms) 
+08:06:41   ├─ /el/people/studio-guide/index.html (+3ms) 
+08:06:41   ├─ /index.html (+3ms) 
+08:06:41 ✓ Completed in 304ms.
+
+08:06:41 [build] ✓ Completed in 1.00s.
+08:06:41 [build] 25 page(s) built in 1.24s
+08:06:41 [build] Complete!
+
+> rehearsal-trades@2.0.0-dev worker:check C:\Projects\.starter-rehearsal-clmKGW\trades
+> pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json
+
+
+> rehearsal-trades@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\trades
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ ⛅️ wrangler 4.148.0 (update available 4.151.3)
+───────────────────────────────────────────────
+✨ Read 109 files from the assets directory C:\Projects\.starter-rehearsal-clmKGW\trades\apps\site\dist
+Total Upload: 889.74 KiB / gzip: 150.47 KiB
+Your Worker has access to the following bindings:
+Binding                                                                     Resource                  
+env.OUTBOUND (rehearsal-trades-outbound)                                    Queue                     
+env.DB (rehearsal-trades-db)                                                D1 Database               
+env.ASSETS                                                                  Assets                    
+env.ENVIRONMENT ("local")                                                   Environment Variable      
+env.PROFILE ("enquiries")                                                   Environment Variable      
+env.SITE_URL ("https://example.com")                                        Environment Variable      
+env.LOCAL_SITE_URL ("http://127.0.0.1:4330")                                Environment Variable      
+env.LOCAL_WORKER_URL ("http://127.0.0.1:8790")                              Environment Variable      
+env.LOCAL_ORIGINS ("["http://127.0.0.1:4330","http://127....")              Environment Variable      
+env.SES_REGION ("eu-west-1")                                                Environment Variable      
+env.SES_SENDER ("Example Studio <hello@example.com>")                       Environment Variable      
+env.NOTIFICATION_EMAIL ("owner@example.com")                                Environment Variable      
+env.ALLOWED_RECIPIENTS ("")                                                 Environment Variable      
+env.SES_CONFIGURATION_SET ("starter-transactional")                         Environment Variable      
+env.SNS_TOPIC_ARN ("")                                                      Environment Variable      
+env.ACCESS_ISSUER ("")                                                      Environment Variable      
+env.ACCESS_AUDIENCE ("")                                                    Environment Variable      
+env.ADMIN_EMAILS ("[]")                                                     Environment Variable      
+env.EDITOR_EMAILS ("[]")                                                    Environment Variable      
+env.SENDING_ENABLED ("false")                                               Environment Variable      
+env.MARKETING_ENABLED ("false")                                             Environment Variable      
+env.SEND_INTERVAL_MS ("1000")                                               Environment Variable      
+
+--dry-run: exiting now.
+Scope: all 2 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1226
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1226, reused 556, downloaded 0, added 0
+Progress: resolved 1226, reused 943, downloaded 0, added 0
+Progress: resolved 1226, reused 1217, downloaded 0, added 17
+Progress: resolved 1226, reused 1225, downloaded 0, added 45
+Progress: resolved 1226, reused 1225, downloaded 0, added 145
+Progress: resolved 1226, reused 1226, downloaded 0, added 221
+Progress: resolved 1226, reused 1226, downloaded 0, added 318
+Progress: resolved 1226, reused 1226, downloaded 0, added 429
+Progress: resolved 1226, reused 1226, downloaded 0, added 463
+Progress: resolved 1226, reused 1226, downloaded 0, added 516
+Progress: resolved 1226, reused 1226, downloaded 0, added 622
+Progress: resolved 1226, reused 1226, downloaded 0, added 748
+Progress: resolved 1226, reused 1226, downloaded 0, added 848
+Progress: resolved 1226, reused 1226, downloaded 0, added 876
+Progress: resolved 1226, reused 1226, downloaded 0, added 945
+Progress: resolved 1226, reused 1226, downloaded 0, added 955
+Progress: resolved 1226, reused 1226, downloaded 0, added 1022
+Progress: resolved 1226, reused 1226, downloaded 0, added 1100
+Progress: resolved 1226, reused 1226, downloaded 0, added 1144
+Progress: resolved 1226, reused 1226, downloaded 0, added 1174
+Progress: resolved 1226, reused 1226, downloaded 0, added 1216
+Progress: resolved 1226, reused 1226, downloaded 0, added 1218
+Progress: resolved 1226, reused 1226, downloaded 0, added 1219
+Progress: resolved 1226, reused 1226, downloaded 0, added 1220
+Progress: resolved 1226, reused 1226, downloaded 0, added 1221
+Progress: resolved 1226, reused 1226, downloaded 0, added 1222
+Progress: resolved 1226, reused 1226, downloaded 0, added 1223
+Progress: resolved 1226, reused 1226, downloaded 0, added 1224
+Progress: resolved 1226, reused 1226, downloaded 0, added 1225
+Progress: resolved 1226, reused 1226, downloaded 0, added 1226
+Progress: resolved 1226, reused 1226, downloaded 0, added 1226, done
+
+dependencies:
++ @fontsource/noto-sans 5.2.8
++ aws4fetch 1.0.20
++ jose 6.2.12
++ markdown-it 14.3.2
++ sharp 0.35.5
++ zod 4.6.5
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @cloudflare/workers-types 5.20261007.1
++ @playwright/test 1.63.0
++ @tinacms/cli 4.0.1
++ @tinacms/mdx 2.3.0
++ @types/node 24.0.0
++ @types/react 18.3.1
++ react 18.3.1
++ react-dom 18.3.1
++ tinacms 3.14.3
++ typescript 5.9.3
++ vitest 5.0.3
++ wrangler 4.148.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: better-sqlite3, core-js.                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 38.4s using pnpm v10.13.1
+
+> rehearsal-accommodation@2.0.0-dev check C:\Projects\.starter-rehearsal-clmKGW\accommodation
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> rehearsal-accommodation@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\accommodation
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\.starter-rehearsal-clmKGW\accommodation\apps\site
+> astro check
+
+08:07:32 [types] Generated 265ms
+08:07:32 [check] Getting diagnostics for Astro files in C:\Projects\.starter-rehearsal-clmKGW\accommodation\apps\site...
+[96m../../tina/fields/newsletter.ts[0m:[93m3[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'object' is declared but its value is never read.
+
+[7m3[0m import {object,text} from './common';
+[7m [0m [93m        ~~~~~~[0m
+
+[96m../../tina/domains/rooms/items.tsx[0m:[93m10[0m:[93m8[0m - [93mwarning[0m[90m ts(6133): [0m'values' is declared but its value is never read.
+
+[7m10[0m  const values=useValues(tinaForm),kind=field.name as 'images'|'amenities',isImage=kind==='images';const [error,setError]=useState(''),[pending,setPending]=useState('');
+[7m  [0m [93m       ~~~~~~[0m
+
+[96m../../tina/fields/section-items.tsx[0m:[93m28[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'entry' is declared but its value is never read.
+
+[7m28[0m export function itemChildFields(field: any, entry: any, index: number) {
+[7m  [0m [93m                                            ~~~~~[0m
+
+[96m../../worker/newsletter.ts[0m:[93m4[0m:[93m20[0m - [93mwarning[0m[90m ts(6196): [0m'Subscriber' is declared but never used.
+
+[7m4[0m import type { Env, Subscriber } from './types';
+[7m [0m [93m                   ~~~~~~~~~~[0m
+
+[96m../../worker/pages.ts[0m:[93m30[0m:[93m27[0m - [93mwarning[0m[90m ts(6133): [0m'env' is declared but its value is never read.
+
+[7m30[0m export function adminPage(env: Env) {
+[7m  [0m [93m                          ~~~[0m
+
+Result (50 files): 
+- 0 errors
+- 0 warnings
+- 5 hints
+
+
+> rehearsal-accommodation@2.0.0-dev test C:\Projects\.starter-rehearsal-clmKGW\accommodation
+> pnpm configure && vitest run
+
+
+> rehearsal-accommodation@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\accommodation
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ RUN  v5.0.3 C:/Projects/.starter-rehearsal-clmKGW/accommodation
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:07:42
+   Duration  596ms (import 52%, transform 33%, tests 14%, worker 2%)
+
+
+> rehearsal-accommodation@2.0.0-dev build C:\Projects\.starter-rehearsal-clmKGW\accommodation
+> pnpm configure && pnpm --filter @starter/site build
+
+
+> rehearsal-accommodation@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\accommodation
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ build C:\Projects\.starter-rehearsal-clmKGW\accommodation\apps\site
+> node scripts/build.mjs
+
+08:07:47 [types] Generated 81ms
+08:07:47 [build] output: "static"
+08:07:47 [build] mode: "static"
+08:07:47 [build] directory: C:\Projects\.starter-rehearsal-clmKGW\accommodation\apps\site\dist\
+08:07:47 [build] Collecting build info...
+08:07:47 [build] ✓ Completed in 119ms.
+08:07:47 [build] Building static entrypoints...
+08:07:47 [vite] ✓ built in 330ms
+08:07:47 [vite] ✓ built in 86ms
+08:07:47 [build] Rearranging server assets...
+
+ generating static routes 
+08:07:47   ├─ /404.html (+14ms) 
+08:07:47   ├─ /design-system/index.html (+65ms) 
+08:07:47   ├─ /en/404/index.html (+6ms) 
+08:07:48   ├─ /el/404/index.html (+2ms) 
+08:07:48   ├─ /en/feed.xml (+3ms) 
+08:07:48   ├─ /el/feed.xml (+2ms) 
+08:07:48   ├─ /en/about/index.html (+3ms) 
+08:07:48   ├─ /en/contact/index.html (+3ms) 
+08:07:48   ├─ /en/index.html (+3ms) 
+08:07:48   ├─ /en/insights/index.html (+2ms) 
+08:07:48   ├─ /en/privacy/index.html (+4ms) 
+08:07:48   ├─ /en/rooms/index.html (+2ms) 
+08:07:48   ├─ /en/services/index.html (+2ms) 
+08:07:48   ├─ /en/services/planning-session/index.html (+3ms) 
+08:07:48   ├─ /en/insights/a-useful-first-question/index.html (+4ms) 
+08:07:48   ├─ /en/people/studio-guide/index.html (+2ms) 
+08:07:48   ├─ /en/rooms/illustrative-room/index.html (+3ms) 
+08:07:48   ├─ /el/about/index.html (+4ms) 
+08:07:48   ├─ /el/contact/index.html (+4ms) 
+08:07:48   ├─ /el/index.html (+2ms) 
+08:07:48   ├─ /el/insights/index.html (+2ms) 
+08:07:48   ├─ /el/privacy/index.html (+4ms) 
+08:07:48   ├─ /el/rooms/index.html (+3ms) 
+08:07:48   ├─ /el/services/index.html (+2ms) 
+08:07:48   ├─ /el/services/planning-session/index.html (+3ms) 
+08:07:48   ├─ /el/insights/a-useful-first-question/index.html (+4ms) 
+08:07:48   ├─ /el/people/studio-guide/index.html (+3ms) 
+08:07:48   ├─ /el/rooms/illustrative-room/index.html (+3ms) 
+08:07:48   ├─ /index.html (+3ms) 
+08:07:48 ✓ Completed in 302ms.
+
+08:07:48 [build] ✓ Completed in 1.02s.
+08:07:48 [build] 27 page(s) built in 1.24s
+08:07:48 [build] Complete!
+
+> rehearsal-accommodation@2.0.0-dev worker:check C:\Projects\.starter-rehearsal-clmKGW\accommodation
+> pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json
+
+
+> rehearsal-accommodation@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\accommodation
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ ⛅️ wrangler 4.148.0 (update available 4.151.3)
+───────────────────────────────────────────────
+✨ Read 113 files from the assets directory C:\Projects\.starter-rehearsal-clmKGW\accommodation\apps\site\dist
+Total Upload: 889.87 KiB / gzip: 150.47 KiB
+Your Worker has access to the following bindings:
+Binding                                                                     Resource                  
+env.OUTBOUND (rehearsal-accommodation-outbound)                             Queue                     
+env.DB (rehearsal-accommodation-db)                                         D1 Database               
+env.ASSETS                                                                  Assets                    
+env.ENVIRONMENT ("local")                                                   Environment Variable      
+env.PROFILE ("enquiries")                                                   Environment Variable      
+env.SITE_URL ("https://example.com")                                        Environment Variable      
+env.LOCAL_SITE_URL ("http://127.0.0.1:4330")                                Environment Variable      
+env.LOCAL_WORKER_URL ("http://127.0.0.1:8790")                              Environment Variable      
+env.LOCAL_ORIGINS ("["http://127.0.0.1:4330","http://127....")              Environment Variable      
+env.SES_REGION ("eu-west-1")                                                Environment Variable      
+env.SES_SENDER ("Example Studio <hello@example.com>")                       Environment Variable      
+env.NOTIFICATION_EMAIL ("owner@example.com")                                Environment Variable      
+env.ALLOWED_RECIPIENTS ("")                                                 Environment Variable      
+env.SES_CONFIGURATION_SET ("starter-transactional")                         Environment Variable      
+env.SNS_TOPIC_ARN ("")                                                      Environment Variable      
+env.ACCESS_ISSUER ("")                                                      Environment Variable      
+env.ACCESS_AUDIENCE ("")                                                    Environment Variable      
+env.ADMIN_EMAILS ("[]")                                                     Environment Variable      
+env.EDITOR_EMAILS ("[]")                                                    Environment Variable      
+env.SENDING_ENABLED ("false")                                               Environment Variable      
+env.MARKETING_ENABLED ("false")                                             Environment Variable      
+env.SEND_INTERVAL_MS ("1000")                                               Environment Variable      
+
+--dry-run: exiting now.
+Scope: all 2 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1226
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1226, reused 542, downloaded 0, added 0
+Progress: resolved 1226, reused 905, downloaded 0, added 0
+Progress: resolved 1226, reused 1216, downloaded 0, added 15
+Progress: resolved 1226, reused 1225, downloaded 0, added 44
+Progress: resolved 1226, reused 1226, downloaded 0, added 155
+Progress: resolved 1226, reused 1226, downloaded 0, added 234
+Progress: resolved 1226, reused 1226, downloaded 0, added 390
+Progress: resolved 1226, reused 1226, downloaded 0, added 443
+Progress: resolved 1226, reused 1226, downloaded 0, added 482
+Progress: resolved 1226, reused 1226, downloaded 0, added 554
+Progress: resolved 1226, reused 1226, downloaded 0, added 681
+Progress: resolved 1226, reused 1226, downloaded 0, added 791
+Progress: resolved 1226, reused 1226, downloaded 0, added 860
+Progress: resolved 1226, reused 1226, downloaded 0, added 904
+Progress: resolved 1226, reused 1226, downloaded 0, added 946
+Progress: resolved 1226, reused 1226, downloaded 0, added 972
+Progress: resolved 1226, reused 1226, downloaded 0, added 1022
+Progress: resolved 1226, reused 1226, downloaded 0, added 1099
+Progress: resolved 1226, reused 1226, downloaded 0, added 1142
+Progress: resolved 1226, reused 1226, downloaded 0, added 1168
+Progress: resolved 1226, reused 1226, downloaded 0, added 1215
+Progress: resolved 1226, reused 1226, downloaded 0, added 1218
+Progress: resolved 1226, reused 1226, downloaded 0, added 1219
+Progress: resolved 1226, reused 1226, downloaded 0, added 1220
+Progress: resolved 1226, reused 1226, downloaded 0, added 1221
+Progress: resolved 1226, reused 1226, downloaded 0, added 1222
+Progress: resolved 1226, reused 1226, downloaded 0, added 1223
+Progress: resolved 1226, reused 1226, downloaded 0, added 1224
+Progress: resolved 1226, reused 1226, downloaded 0, added 1225
+Progress: resolved 1226, reused 1226, downloaded 0, added 1226
+Progress: resolved 1226, reused 1226, downloaded 0, added 1226, done
+
+dependencies:
++ @fontsource/noto-sans 5.2.8
++ aws4fetch 1.0.20
++ jose 6.2.12
++ markdown-it 14.3.2
++ sharp 0.35.5
++ zod 4.6.5
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @cloudflare/workers-types 5.20261007.1
++ @playwright/test 1.63.0
++ @tinacms/cli 4.0.1
++ @tinacms/mdx 2.3.0
++ @types/node 24.0.0
++ @types/react 18.3.1
++ react 18.3.1
++ react-dom 18.3.1
++ tinacms 3.14.3
++ typescript 5.9.3
++ vitest 5.0.3
++ wrangler 4.148.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: better-sqlite3, core-js.                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 37.9s using pnpm v10.13.1
+
+> rehearsal-studio@2.0.0-dev check C:\Projects\.starter-rehearsal-clmKGW\studio
+> pnpm configure && tsc --noEmit && pnpm --filter @starter/site check
+
+
+> rehearsal-studio@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\studio
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ check C:\Projects\.starter-rehearsal-clmKGW\studio\apps\site
+> astro check
+
+08:08:39 [types] Generated 256ms
+08:08:39 [check] Getting diagnostics for Astro files in C:\Projects\.starter-rehearsal-clmKGW\studio\apps\site...
+[96m../../tina/fields/newsletter.ts[0m:[93m3[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'object' is declared but its value is never read.
+
+[7m3[0m import {object,text} from './common';
+[7m [0m [93m        ~~~~~~[0m
+
+[96m../../tina/domains/rooms/items.tsx[0m:[93m10[0m:[93m8[0m - [93mwarning[0m[90m ts(6133): [0m'values' is declared but its value is never read.
+
+[7m10[0m  const values=useValues(tinaForm),kind=field.name as 'images'|'amenities',isImage=kind==='images';const [error,setError]=useState(''),[pending,setPending]=useState('');
+[7m  [0m [93m       ~~~~~~[0m
+
+[96m../../tina/fields/section-items.tsx[0m:[93m28[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'entry' is declared but its value is never read.
+
+[7m28[0m export function itemChildFields(field: any, entry: any, index: number) {
+[7m  [0m [93m                                            ~~~~~[0m
+
+[96m../../worker/newsletter.ts[0m:[93m4[0m:[93m20[0m - [93mwarning[0m[90m ts(6196): [0m'Subscriber' is declared but never used.
+
+[7m4[0m import type { Env, Subscriber } from './types';
+[7m [0m [93m                   ~~~~~~~~~~[0m
+
+[96m../../worker/pages.ts[0m:[93m30[0m:[93m27[0m - [93mwarning[0m[90m ts(6133): [0m'env' is declared but its value is never read.
+
+[7m30[0m export function adminPage(env: Env) {
+[7m  [0m [93m                          ~~~[0m
+
+Result (50 files): 
+- 0 errors
+- 0 warnings
+- 5 hints
+
+
+> rehearsal-studio@2.0.0-dev test C:\Projects\.starter-rehearsal-clmKGW\studio
+> pnpm configure && vitest run
+
+
+> rehearsal-studio@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\studio
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ RUN  v5.0.3 C:/Projects/.starter-rehearsal-clmKGW/studio
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:08:49
+   Duration  580ms (import 54%, transform 34%, tests 11%, worker 2%)
+
+
+> rehearsal-studio@2.0.0-dev build C:\Projects\.starter-rehearsal-clmKGW\studio
+> pnpm configure && pnpm --filter @starter/site build
+
+
+> rehearsal-studio@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\studio
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+> @starter/site@ build C:\Projects\.starter-rehearsal-clmKGW\studio\apps\site
+> node scripts/build.mjs
+
+08:08:53 [types] Generated 88ms
+08:08:53 [build] output: "static"
+08:08:53 [build] mode: "static"
+08:08:53 [build] directory: C:\Projects\.starter-rehearsal-clmKGW\studio\apps\site\dist\
+08:08:53 [build] Collecting build info...
+08:08:53 [build] ✓ Completed in 121ms.
+08:08:53 [build] Building static entrypoints...
+08:08:54 [vite] ✓ built in 291ms
+08:08:54 [vite] ✓ built in 86ms
+08:08:54 [build] Rearranging server assets...
+
+ generating static routes 
+08:08:54   ├─ /404.html (+16ms) 
+08:08:54   ├─ /design-system/index.html (+64ms) 
+08:08:54   ├─ /en/404/index.html (+4ms) 
+08:08:54   ├─ /en/about/index.html (+3ms) 
+08:08:54   ├─ /en/contact/index.html (+3ms) 
+08:08:54   ├─ /en/index.html (+3ms) 
+08:08:54   ├─ /en/privacy/index.html (+5ms) 
+08:08:54   ├─ /en/services/index.html (+3ms) 
+08:08:54   ├─ /en/timetable/index.html (+3ms) 
+08:08:54   ├─ /en/services/planning-session/index.html (+3ms) 
+08:08:54   ├─ /en/people/studio-guide/index.html (+3ms) 
+08:08:54   ├─ /index.html (+3ms) 
+08:08:54 ✓ Completed in 245ms.
+
+08:08:54 [build] ✓ Completed in 877ms.
+08:08:54 [build] 12 page(s) built in 1.10s
+08:08:54 [build] Complete!
+
+> rehearsal-studio@2.0.0-dev worker:check C:\Projects\.starter-rehearsal-clmKGW\studio
+> pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json
+
+
+> rehearsal-studio@2.0.0-dev configure C:\Projects\.starter-rehearsal-clmKGW\studio
+> node scripts/configure.mjs
+
+Configured enquiries / local. No cloud resources were created.
+
+ ⛅️ wrangler 4.148.0 (update available 4.151.3)
+───────────────────────────────────────────────
+✨ Read 79 files from the assets directory C:\Projects\.starter-rehearsal-clmKGW\studio\apps\site\dist
+Total Upload: 882.84 KiB / gzip: 149.53 KiB
+Your Worker has access to the following bindings:
+Binding                                                                     Resource                  
+env.OUTBOUND (rehearsal-studio-outbound)                                    Queue                     
+env.DB (rehearsal-studio-db)                                                D1 Database               
+env.ASSETS                                                                  Assets                    
+env.ENVIRONMENT ("local")                                                   Environment Variable      
+env.PROFILE ("enquiries")                                                   Environment Variable      
+env.SITE_URL ("https://example.com")                                        Environment Variable      
+env.LOCAL_SITE_URL ("http://127.0.0.1:4330")                                Environment Variable      
+env.LOCAL_WORKER_URL ("http://127.0.0.1:8790")                              Environment Variable      
+env.LOCAL_ORIGINS ("["http://127.0.0.1:4330","http://127....")              Environment Variable      
+env.SES_REGION ("eu-west-1")                                                Environment Variable      
+env.SES_SENDER ("Example Studio <hello@example.com>")                       Environment Variable      
+env.NOTIFICATION_EMAIL ("owner@example.com")                                Environment Variable      
+env.ALLOWED_RECIPIENTS ("")                                                 Environment Variable      
+env.SES_CONFIGURATION_SET ("starter-transactional")                         Environment Variable      
+env.SNS_TOPIC_ARN ("")                                                      Environment Variable      
+env.ACCESS_ISSUER ("")                                                      Environment Variable      
+env.ACCESS_AUDIENCE ("")                                                    Environment Variable      
+env.ADMIN_EMAILS ("[]")                                                     Environment Variable      
+env.EDITOR_EMAILS ("[]")                                                    Environment Variable      
+env.SENDING_ENABLED ("false")                                               Environment Variable      
+env.MARKETING_ENABLED ("false")                                             Environment Variable      
+env.SEND_INTERVAL_MS ("1000")                                               Environment Variable      
+
+--dry-run: exiting now.
+Independent-project evidence (retained): C:\Projects\.starter-rehearsal-clmKGW

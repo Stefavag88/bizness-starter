@@ -66,3 +66,15 @@ These are local application/browser/build proofs. They do not certify every OS/b
 The source local build contains 416 pages including previews; nonlocal builds retain only ordinary application output. Source restoration evidence reports `restored: true`, `conflict: false`, with original/final project hash `2c7bcfdb5421457f5e61c35702a41f82d70b4d9bea1000720f8a83f313a11088`.
 
 The execution ledger and final independent review are archived alongside this report at closeout. Their findings/rulings take precedence over any earlier pending-status wording in historical planning documents.
+
+## Post-review correction verification
+
+The [independent review](2026-10-21-starter-v2-presets-initialization-review.md) found three Important initializer issues: dot-prefixed descendants, late/cached seed/media snapshots, and cached intermediate-directory junctions. The controller also treated incomplete-write inventory as Important. All were reproduced before changes and corrected in one pass; the dry-run selection summary remains a deferred Minor.
+
+The corrected initializer captures inputs before generation, verifies them in a fresh Node process before/after consuming them, and rechecks ownership/source before output. All cached directory ancestors are revalidated, actual parent segments are recognized correctly, and successfully opened files are inventoried even if writing fails.
+
+`pnpm test`: **1095 root tests +44 Astro tests passed**, one pre-existing skipped. `pnpm check` remained clean, and post-correction `tsc --noEmit` passed. Focused correction/export/parity tests: **19 passed**. A real public CLI Greek-only dry run passed with no destination creation. The integration test budget is file-local 20 seconds because real disk/Git/fresh-process work took 5.9 seconds under the full parallel suite; assertions and global budgets are unchanged.
+
+The correction changes only source initializer/test/documentation files. Five preset project/content/media bundles are byte-equivalent through the new generation path; existing independent application builds, nonlocal asset and native CMS proofs remain applicable. No unchanged lifecycle/browser suites or five dependency installations were repeated without a changed boundary.
+
+See the [execution ledger](2026-10-21-starter-v2-presets-initialization-ledger.md) and [archived verification files](../evidence/2026-10-21-presets/) for original decisions, red/green failures and results. The branch is retained locally for review and use.
