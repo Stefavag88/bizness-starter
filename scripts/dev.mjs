@@ -1,3 +1,5 @@
+import {presetToolsEnabled} from './preset-tools.mjs';
+import {readFileSync} from 'node:fs';
 import { spawn, execFile } from 'node:child_process';
 import {promisify} from 'node:util';
 import { resolve } from 'node:path';
@@ -16,6 +18,7 @@ const cmsBuild=process.argv.includes('--cms-build');
       const migrated=await prepare(process.execPath,[resolve('node_modules/wrangler/bin/wrangler.js'),'d1','migrations','apply','DB','--local','--config',resolve('wrangler.generated.json')],{env});
       console.log(migrated.stdout);
     }
+    if(!cmsBuild&&presetToolsEnabled(process.cwd(),JSON.parse(readFileSync('project.json','utf8')).environment))console.log(`Local business templates: http://127.0.0.1:${ports.site}/templates`);
     const children = [];
     let stopping = false;
     const stop = async (code = 0) => {

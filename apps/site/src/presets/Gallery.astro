@@ -1,0 +1,19 @@
+---
+import '../styles/foundations.css';
+import '../styles/themes.generated.css';
+import '../styles/global.css';
+import '@fontsource/noto-sans/400.css';
+import '@fontsource/noto-sans/600.css';
+import './presets.css';
+import {presetCatalog} from '../../../../packages/presets/catalog.mjs';
+import {formatInitializeCommand} from '../../../../scripts/initialize/options.mjs';
+import {preparePresetPreview,previewThemes} from './presenter';
+---
+<!doctype html><html lang="en" data-theme="neutral"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="robots" content="noindex"/><title>Business starter · Templates</title></head><body class="preset-gallery"><a class="skip" href="#main">Skip to templates</a><header class="wrap"><a class="brand" href="/templates">Business starter</a><nav><a href="/en">Current website</a><a href="/design-system">Design system</a></nav></header><main id="main" class="wrap"><section class="preset-intro"><p>LOCAL STARTER TOOLS · ΕΡΓΑΛΕΙΑ STARTER</p><h1>A foundation for your next business.</h1><p class="description">Choose a composition, explore its pages, then create an independent project. Each preview uses the real design system and CMS content model.</p><p>Επιλέξτε πρότυπο και εξερευνήστε τις σελίδες του. Η δημιουργία γίνεται μόνο με την εντολή στο terminal.</p></section><div class="preset-grid">{presetCatalog.map(preset=>{
+const model=preparePresetPreview(preset.id,preset.suggestedTheme,'en');
+const command=formatInitializeCommand({help:false,dryRun:false,preset:preset.id,name:'my-'+preset.id,destination:'C:\\Projects\\my-'+preset.id,languages:['en','el'],defaultLanguage:'en',theme:preset.suggestedTheme});
+return <article class="preset-card"><p class="preset-kicker">{preset.rooms?'ROOMS ENABLED':'SERVICES & CONTENT'}</p><h2>{preset.title.en}</h2><p lang="el" class="preset-greek">{preset.title.el}</p><p>{preset.summary.en}</p><p lang="el">{preset.summary.el}</p><p class="preset-page-list"><strong>Pages:</strong> {model.content.pages.map(page=>page.meta.title).join(' · ')}</p><fieldset><legend>Explore theme / language</legend><div class="preset-choices">{previewThemes.map(theme=><div><span>{theme}</span><a href={'/templates/'+preset.id+'/'+theme+'/en'} aria-label={preset.title.en+', '+theme+', English'}>EN</a><a href={'/templates/'+preset.id+'/'+theme+'/el'} aria-label={preset.title.en+', '+theme+', Ελληνικά'}>ΕΛ</a></div>)}</div></fieldset><details><summary>Create this project</summary><p>Run from the starter folder. Change the project name and destination first.</p><pre><code>{command}</code></pre><button type="button" data-copy-command>Copy command</button><span role="status" data-copy-status></span></details></article>;
+})}</div><p class="preset-limit">Illustrative content only. Forms are disabled in previews. No bookings, payments or customer accounts are included.</p></main>
+<script>
+for(const button of document.querySelectorAll<HTMLButtonElement>('[data-copy-command]'))button.addEventListener('click',async()=>{const details=button.closest('details')!;const status=details.querySelector('[data-copy-status]')!;try{await navigator.clipboard.writeText(details.querySelector('code')!.textContent??'');status.textContent='Copied';}catch{status.textContent='Select and copy the command above.';}});
+</script></body></html>

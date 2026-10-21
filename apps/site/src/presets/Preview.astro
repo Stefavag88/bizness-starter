@@ -1,0 +1,23 @@
+---
+import '../presets/presets.css';
+import Layout from '../layouts/Layout.astro';
+import Page from '../templates/Page.astro';
+import EditorialDetail from '../templates/EditorialDetail.astro';
+import {domainRenderer} from '../templates/domains';
+import {getDomainRouteRecord} from '../../../../packages/content/domain-publication.mjs';
+import {plainText} from '../../../../packages/content/rich-text.mjs';
+import {preparePresetPreview,presetPaths} from './presenter';
+import type {Route} from '../../../../packages/content/types';
+export function getStaticPaths(){return presetPaths();}
+interface Props {route:Route}
+const {route}=Astro.props;
+const {content,context}=preparePresetPreview(Astro.params.preset!,Astro.params.theme!,route.locale);
+const page=route.kind==='page'?content.pages.find(r=>r.contentId===route.contentId):undefined;
+const editorial=(route.kind==='offering'?content.offerings:route.kind==='person'?content.people:content.articles).find(r=>r.contentId===route.contentId);
+const record=page??(route.kind==='domain'?getDomainRouteRecord(content,route.domain,route.contentId):editorial)!;
+const Renderer=route.kind==='domain'?domainRenderer(route.domain):undefined;
+const title='meta' in record?record.meta.title:record.title;
+---
+<Layout context={context} content={content} title={title} description={plainText('description' in record?(record.description??''):'',300)} path={route.path} alternates={route.alternates}>
+{page?<Page context={context} page={page} content={content}/>:Renderer?<Renderer context={context} record={record} content={content}/>:editorial&&<EditorialDetail context={context} record={editorial} content={content}/>}
+</Layout>

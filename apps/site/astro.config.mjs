@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import {presetToolsEnabled} from '../../scripts/preset-tools.mjs';
 import mediaIntegration from './src/integrations/media.mjs';
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
@@ -41,6 +42,11 @@ const localShowcase={
   },
  },
 };
+const localPresets={name:'local-business-presets',hooks:{'astro:config:setup':({injectRoute})=>{
+ if(!presetToolsEnabled(projectRoot,project.environment))return;
+ injectRoute({pattern:'/templates',entrypoint:new URL('./src/presets/Gallery.astro',import.meta.url),prerender:true});
+ injectRoute({pattern:'/templates/[preset]/[theme]/[locale]/[...path]',entrypoint:new URL('./src/presets/Preview.astro',import.meta.url),prerender:true});
+}}};
 // Workers Static Assets selects the nearest literal 404.html for missing paths.
 // Astro's directory format otherwise emits locale/404/index.html.
 const localizedNotFound={
@@ -52,4 +58,4 @@ const localizedNotFound={
  }},
 };
 const target=`http://127.0.0.1:${ports.worker}`;
-export default defineConfig({site:project.siteUrl,output:'static',integrations:[mediaIntegration({root:projectRoot,policy:project.media.optimization}),localShowcase,localizedNotFound],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh,uploadRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});
+export default defineConfig({site:project.siteUrl,output:'static',integrations:[mediaIntegration({root:projectRoot,policy:project.media.optimization}),localShowcase,localPresets,localizedNotFound],build:{inlineStylesheets:'never'},trailingSlash:'never',server:{port:ports.site,host:'127.0.0.1'},vite:{build:{assetsInlineLimit:0},define:{__PROJECT_ROOT__:JSON.stringify(projectRoot)},plugins:[contentRefresh,uploadRefresh],server:{strictPort:true,proxy:{'/api':target,'/newsletter':target,'/admin':target}}}});

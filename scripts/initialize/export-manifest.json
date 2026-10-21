@@ -166,6 +166,8 @@
   "scripts/manifest.mjs",
   "scripts/ports.d.mts",
   "scripts/ports.mjs",
+  "scripts/preset-tools.d.mts",
+  "scripts/preset-tools.mjs",
   "scripts/watch-content.mjs",
   "scripts/wrangler.mjs",
   "tina/collections/article.ts",
