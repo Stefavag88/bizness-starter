@@ -1,3 +1,4 @@
+import {estimateCampaign} from './campaign-estimates';
 import {workContext,meterEnvironment} from './budget';
 import {persistUsage} from './usage';
 import {runScheduled} from './scheduler';
@@ -77,6 +78,8 @@ const handlers = {
               ).all()
             ).results,
           });
+        const estimate=path.match(/^\/api\/admin\/campaigns\/([0-9a-f-]+)\/estimate$/);
+        if(estimate&&request.method==='GET')return json(await estimateCampaign(env,estimate[1],workContext(env)));
         requireOrigin(request, env);
         if (path === '/api/admin/campaigns' && request.method === 'POST')
           return json(await createCampaign(env, await body(request)), 201);
