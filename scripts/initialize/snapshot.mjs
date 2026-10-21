@@ -12,10 +12,13 @@ export function readApplicationInput(root,path){
 }
 export function snapshotApplication(source){
  const root=realpathSync(resolve(source));
+ const inventoryPath='scripts/initialize/export-manifest.json',inventoryBytes=readApplicationInput(root,inventoryPath);
+ if(JSON.stringify(JSON.parse(new TextDecoder().decode(inventoryBytes)))!==JSON.stringify(inventory))throw Error('Export inventory changed since initializer load');
  const revision=execFileSync('git',['-C',root,'rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim();
  const files=new Map(inventory.map(path=>{const bytes=readApplicationInput(root,path);return [path,{bytes,sha256:hash(bytes)}];}));
- const digest=hash([...files].map(([path,file])=>path+':'+file.sha256).join('\n'));
+ const digest=hash(hash(inventoryBytes)+'\n'+[...files].map(([path,file])=>path+':'+file.sha256).join('\n'));
  return {revision,digest,files,assertUnchanged(){
+  if(hash(readApplicationInput(root,inventoryPath))!==hash(inventoryBytes))throw Error('Export inventory changed during initialization');
   if(execFileSync('git',['-C',root,'rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim()!==revision)throw Error('Source revision changed during initialization');
   for(const [path,file] of files)if(hash(readApplicationInput(root,path))!==file.sha256)throw Error('Source changed during initialization: '+path);
  }};

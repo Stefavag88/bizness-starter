@@ -50,7 +50,7 @@ function assertOutput(root, local, assets) {
     throw Error('Missing or leaked showcase manifest');
   }
   for (const file of files(dist).filter(file =>
-    /\.(html|xml|json)$/.test(file) && !file.includes(join('dist', 'design-system')))) {
+    /\.(html|xml|json)$/.test(file) && !file.includes(join('dist', 'design-system')) && !(local && relative(dist,file).split(/[\\/]/)[0]==='templates'))) {
     if (readFileSync(file, 'utf8').includes('/design-system')) {
       throw Error('Showcase navigation/feed output leaked: ' + file);
     }

@@ -1,5 +1,5 @@
 import { campaignSchema, hash } from '../packages/contracts';
-import manifest from '../.generated/manifest.json';
+import manifest from './manifest';
 import project from '../project.json';
 import type { Env, Campaign } from './types';
 import { jobStatement, now } from './db';

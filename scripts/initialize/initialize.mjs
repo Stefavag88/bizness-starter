@@ -11,13 +11,14 @@ export async function initializeProject({source,options,dryRun=false}){
  files.set('package.json',encode(JSON.stringify(createClientPackage(options.name,JSON.parse(new TextDecoder().decode(files.get('package.json')))),null,2)+'\n'));
  files.set('project.json',encode(JSON.stringify(bundle.project,null,2)+'\n'));for(const [path,bytes] of bundle.files)files.set(path,bytes);
  const extras=new Map();
- for(const [input,output] of [['scripts/initialize/client/README.md','README.md'],['scripts/initialize/client/project.test.ts','tests/project.test.ts']]){
+ for(const [input,output] of [['scripts/initialize/client/README.md','README.md'],['scripts/initialize/client/project.test.ts','tests/project.test.ts'],['scripts/initialize/client/CMS_AUTHORING.md','docs/CMS_AUTHORING.md']]){
   const path=join(ownership.source,input);const bytes=readApplicationInput(ownership.source,input);extras.set(input,digest(bytes));files.set(output,bytes);
  }
  // Snapshot immutable seed inputs too; no unselected credential/configuration files are read.
- for(const name of ['catalog.mjs','bundle.mjs','seeds/common.mjs','seeds/neutral-data.json','seeds/'+options.preset+'.mjs']){
+ for(const name of ['catalog.mjs','bundle.mjs','media.mjs','seeds/common.mjs','seeds/neutral-data.json','seeds/'+options.preset+'.mjs']){
   const path='packages/presets/'+name;extras.set(path,digest(readApplicationInput(ownership.source,path)));
  }
+ for(const name of ['abstract-landscape.png','abstract-portrait.png']){const path='apps/site/public/uploads/starter-samples/'+name;extras.set(path,digest(readApplicationInput(ownership.source,path)));}
  const assertSource=()=>{snapshot.assertUnchanged();for(const [path,hash] of extras)if(digest(readApplicationInput(ownership.source,path))!==hash)throw Error('Source input changed: '+path);};
  const sourceDigest=digest(snapshot.digest+JSON.stringify([...extras]));
  files.set('starter-provenance.json',encode(JSON.stringify({format:1,starterVersion:'2.0.0-dev',sourceRevision:snapshot.revision,sourceDigest,preset:options.preset,presetVersion:1},null,2)+'\n'));
@@ -43,5 +44,5 @@ export async function initializeProject({source,options,dryRun=false}){
   execFileSync('git',['init','--template=','--',ownership.target],{stdio:'pipe',windowsHide:true,env});
   if(execFileSync('git',['-C',ownership.target,'remote'],{encoding:'utf8',windowsHide:true,env}).trim())throw Error('Unexpected inherited Git remote');
   return {destination:ownership.target,createdFiles,revision:snapshot.revision,nextCommands};
- }catch(error){throw new Error(`Initialization failed; partial destination preserved at ${ownership.target}. Created ${createdFiles.length} files. ${error.message}`,{cause:error});}
+ }catch(error){const failure=new Error(`Initialization failed; partial destination preserved at ${ownership.target}. Created ${createdFiles.length} files. ${error.message}`,{cause:error});failure.destination=ownership.target;failure.createdFiles=[...createdFiles];throw failure;}
 }

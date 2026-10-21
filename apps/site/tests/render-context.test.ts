@@ -1,11 +1,12 @@
 import {it,expect} from 'vitest';
+import {fileURLToPath} from 'node:url';
 import {experimental_AstroContainer as AstroContainer} from 'astro/container';
 import ContactForm from '../src/templates/ContactForm.astro';
 import Layout from '../src/layouts/Layout.astro';
 import {createPresetBundle,projectPresetBundle} from '../../../packages/presets/bundle.mjs';
 import {createRenderContext} from '../src/lib/render-context';
 const bundle=createPresetBundle('trades',{name:'preview-test',languages:['en','el'],defaultLanguage:'en'});
-const {contents,routes}=projectPresetBundle(bundle,{assetRoot:process.cwd()});
+const {contents,routes}=projectPresetBundle(bundle,{assetRoot:fileURLToPath(new URL('../../../',import.meta.url))});
 const content=contents.find(c=>c.locale==='el')!;
 const context=createRenderContext(bundle.project,routes,{previewBase:'/templates/trades/trades'});
 it('renders disabled preview fields without a live form action or business destinations',async()=>{

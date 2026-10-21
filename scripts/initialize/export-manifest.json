@@ -206,6 +206,7 @@
   "worker/db.ts",
   "worker/delivery.ts",
   "worker/index.ts",
+  "worker/manifest.ts",
   "worker/newsletter.ts",
   "worker/operations.ts",
   "worker/pages.ts",

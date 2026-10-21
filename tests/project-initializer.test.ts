@@ -40,6 +40,7 @@ it('preserves a competing file and partial output on mid-copy collision',async()
  if(String(path)===join(destination,'package.json')&&flags==='wx')fs.writeFileSync(String(path),'external editor');
  return (open as any)(path,flags,...args);
  }) as any);
- await expect(initializeProject({source:resolve('.'),options:options(destination),dryRun:false})).rejects.toThrow(/preserv|creat|exist/i);
+ const failure=await initializeProject({source:resolve('.'),options:options(destination),dryRun:false}).catch(error=>error);
+ expect(failure.message).toMatch(/preserv|creat|exist/i);expect(failure.createdFiles).toContain('.gitignore');expect(failure.destination).toBe(destination);
  expect(fs.readFileSync(join(destination,'package.json'),'utf8')).toBe('external editor');
 });

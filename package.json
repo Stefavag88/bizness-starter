@@ -30,7 +30,9 @@
     "test:motion": "node scripts/verify-motion.mjs",
     "test:contact-social": "node scripts/verify-contact-social.mjs",
     "test:newsletter": "node scripts/verify-newsletter.mjs",
-    "create:project": "node scripts/create-project.mjs"
+    "create:project": "node scripts/create-project.mjs",
+    "test:initialization": "node scripts/verify-initialization.mjs",
+    "test:presets": "node scripts/verify-presets.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.2.8",

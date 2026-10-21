@@ -32,3 +32,7 @@ it('offers genuinely different home compositions and immutable projections',()=>
  }
  expect(compositions.size).toBe(5);
 });
+
+it.each(['professional-services','trades','accommodation'] as const)('keeps %s page copy independent of studio branding',preset=>{
+ const bundle=createPresetBundle(preset,{name:'client',languages:['en','el'],defaultLanguage:'en'});const about=JSON.parse(new TextDecoder().decode(bundle.files.get('content/pages/about.json')));expect(about.meta.title).not.toMatch(/studio/i);
+});

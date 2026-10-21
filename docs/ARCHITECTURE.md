@@ -116,3 +116,7 @@ See [MOTION](MOTION.md) for opt-in project settings, generated tokens, renderer 
 ## Newsletter and visitor preferences
 
 See [newsletter authoring and delivery boundaries](NEWSLETTER.md) for the opt-in newsletter modal, compact footer signup, localized visual editors, shared browser suppression and preferences. The default enquiries project remains unchanged. Hosted protection and actual sending require separately configured integrations.
+
+## Independent business applications
+
+The versioned preset catalog supplies detached validated bilingual bundles. A source-only local gallery renders those bundles through an explicit RenderContext. The CLI exports a reviewed application allowlist into a new independent Git repository; it never copies source infrastructure or runtime state. See [presets](PRESETS.md) and [initialization boundaries](INITIALIZATION.md).

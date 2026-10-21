@@ -57,3 +57,7 @@ it('inventories reusable original PNGs in every environment without classifying 
  for(const inventory of evidence.inventories){const asset=inventory.assets.find((a:any)=>a.path==='uploads/starter-samples/original.png');expect(asset).toMatchObject({bytes:4,showcase:false});expect(asset.sha256).toMatch(/^[a-f0-9]{64}$/);}
 });
 it('preserves independent content conflicts and skips final local regeneration after project restoration',async()=>{const f=fixture();mkdirSync(join(f.root,'content'));const source=join(f.root,'content','opaque.json');writeFileSync(source,'original');let refreshed=false;await expect(verifyShowcaseBuilds({...f,run:async()=>{output(f.root,false);writeFileSync(source,'external content');},refresh:async()=>{refreshed=true;}})).rejects.toThrow(/ownership conflict/);expect(readFileSync(source,'utf8')).toBe('external content');expect(readFileSync(f.path)).toEqual(f.original);expect(refreshed).toBe(false);});
+
+it('allows a local-only template gallery to link to the local design-system tool',async()=>{
+ const f=fixture();await verifyShowcaseBuilds({...f,run:async()=>output(f.root,false),refresh:async()=>{output(f.root,true);const gallery=join(f.root,'apps/site/dist/templates');mkdirSync(gallery);writeFileSync(join(gallery,'index.html'),'<a href="/design-system">Design system</a>');}});expect(readFileSync(f.path)).toEqual(f.original);
+});

@@ -11,6 +11,8 @@ export function seed(id){
  const settings=files['content/settings/site.json'];
  const names={'professional-services':'Example Advisory',trades:'Example Home Services',accommodation:'Example Guesthouse',studio:'Example Movement Studio'};
  settings.brand.name=names[id];settings.legal.businessName=names[id];
+ const about=files['content/pages/about.json'];const aboutLabel=id==='studio'?pair('About the studio','Σχετικά με το studio'):id==='accommodation'?pair('About the guesthouse','Σχετικά με το κατάλυμα'):pair('About our business','Σχετικά με την επιχείρηση');
+ about.meta.title=aboutLabel.en;about.translations.el.meta.title=aboutLabel.el;about.copy.sections[0].title=aboutLabel.en;about.translations.el.copy.sections[0].title=aboutLabel.el;
  settings.brand.tagline=intro.en;settings.translations.el.brand.tagline=intro.el;
  settings.contact={email:'hello@example.com',phone:'',address:''};settings.translations.el.contact.address='';
  const heroTitles={'professional-services':pair('Clear thinking for your next step','Καθαρή σκέψη για το επόμενο βήμα'),trades:pair('Practical help for your space','Πρακτική βοήθεια για τον χώρο σας'),accommodation:pair('A place to pause and explore','Ένας τόπος για ξεκούραση και εξερεύνηση'),studio:pair('Make space for movement','Δώστε χώρο στην κίνηση')};

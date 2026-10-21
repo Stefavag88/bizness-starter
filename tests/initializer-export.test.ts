@@ -18,9 +18,11 @@ it('exports only reviewed application files and preserves the dependency lock co
 it('captures exact files and detects source changes without reading unselected secrets',()=>{
  const root=roots.create();
  for(const path of inventory){const target=join(root,path);mkdirSync(dirname(target),{recursive:true});copyFileSync(path,target);}
+ mkdirSync(join(root,'scripts/initialize'),{recursive:true});copyFileSync('scripts/initialize/export-manifest.json',join(root,'scripts/initialize/export-manifest.json'));
  execFileSync('git',['init',root],{stdio:'ignore'});execFileSync('git',['-C',root,'-c','user.name=Fixture','-c','user.email=fixture@example.com','commit','--allow-empty','-m','fixture'],{stdio:'ignore'});
  writeFileSync(join(root,'.env'),'SECRET_SENTINEL');
  const snapshot=snapshotApplication(root);expect(snapshot.files.size).toBe(inventory.length);expect([...snapshot.files.keys()]).not.toContain('.env');snapshot.assertUnchanged();
+ const manifestPath=join(root,'scripts/initialize/export-manifest.json');const originalInventory=readFileSync(manifestPath);writeFileSync(manifestPath,'[]');expect(()=>snapshot.assertUnchanged()).toThrow(/inventory|changed/i);writeFileSync(manifestPath,originalInventory);
  const target=join(root,inventory[0]);writeFileSync(target,'concurrent edit');expect(()=>snapshot.assertUnchanged()).toThrow(/changed/i);
 });
 it('refuses paths escaping the source inventory',()=>expect(inventory.every(p=>!p.split('/').includes('..')&&!p.startsWith('/')&&!p.includes('\\'))).toBe(true));

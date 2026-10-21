@@ -1,4 +1,5 @@
-import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import {readPresetMedia} from './media.mjs';
 import {parseProject} from '../config/project.mjs';
 import {themes} from '../design-system/theme.mjs';
 import {normalizePageDocument,normalizeSettingsDocument} from '../content/documents.mjs';
@@ -34,11 +35,13 @@ export function createPresetBundle(id,options){
   if(path.startsWith('content/pages/')&&!articles){const remove=d=>{if(d.copy)d.copy.sections=d.copy.sections.filter(s=>s._template!=='article-list');};base.sections=base.sections.filter(s=>s._template!=='article-list');remove(base);for(const t of Object.values(base.translations))remove(t);}
   files.set(path,new TextEncoder().encode(JSON.stringify(base,null,2)+'\n'));
  }
- for(const file of ['abstract-landscape.png','abstract-portrait.png'])files.set('apps/site/public/uploads/starter-samples/'+file,new Uint8Array(readFileSync(new URL('../../apps/site/public/uploads/starter-samples/'+file,import.meta.url))));
+ for(const file of ['abstract-landscape.png','abstract-portrait.png'])files.set('apps/site/public/uploads/starter-samples/'+file,readPresetMedia(fileURLToPath(new URL('../../',import.meta.url)),file));
  return {project,files};
 }
 export function projectPresetBundle(bundle,{assetRoot,now=new Date()}={}){
- const {project,files}=bundle;const source={settings:null,pages:[],offerings:[],people:[],articles:[],campaigns:[],domains:{rooms:[]},now:now.toISOString()};
+ const {project,files}=bundle;
+ for(const name of ['abstract-landscape.png','abstract-portrait.png']){const bytes=files.get('apps/site/public/uploads/starter-samples/'+name);if(!bytes||!Buffer.from(readPresetMedia(assetRoot,name)).equals(Buffer.from(bytes)))throw Error('Reviewed preset media changed: '+name);}
+ const source={settings:null,pages:[],offerings:[],people:[],articles:[],campaigns:[],domains:{rooms:[]},now:now.toISOString()};
  for(const [path,bytes] of files){if(!path.startsWith('content/'))continue;const raw=JSON.parse(new TextDecoder().decode(bytes));
   if(path==='content/settings/site.json')source.settings=normalizeSettingsDocument(raw);
   else if(path.startsWith('content/pages/')){if(raw._template==='rooms'&&!project.modules.rooms)continue;source.pages.push(normalizePageDocument(raw));}

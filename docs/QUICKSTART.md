@@ -129,3 +129,7 @@ See [MOTION](MOTION.md) for opt-in project settings, generated tokens, renderer 
 ## Newsletter and visitor preferences
 
 See [newsletter authoring and delivery boundaries](NEWSLETTER.md) for the opt-in newsletter modal, compact footer signup, localized visual editors, shared browser suppression and preferences. The default enquiries project remains unchanged. Hosted protection and actual sending require separately configured integrations.
+
+## Business templates
+
+Use `/templates` in the local source starter to choose a composition. See [presets](PRESETS.md) and [independent project initialization](INITIALIZATION.md).

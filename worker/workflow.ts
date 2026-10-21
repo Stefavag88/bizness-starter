@@ -1,7 +1,7 @@
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from 'cloudflare:workers';
 import type { Env, Subscriber } from './types';
 import { jobStatement } from './db';
-import manifest from '../.generated/manifest.json';
+import manifest from './manifest';
 import project from '../project.json';
 // Versioned sample content. Replace and review before enabling real nurture.
 export class WelcomeWorkflow extends WorkflowEntrypoint<

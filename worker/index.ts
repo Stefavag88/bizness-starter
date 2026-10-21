@@ -12,7 +12,7 @@ import { startEnrollments } from './workflow';
 import { html, tokenPage, adminPage } from './pages';
 import { localMail, overview } from './operations';
 import type { Env } from './types';
-import manifest from '../.generated/manifest.json';
+import manifest from './manifest';
 import settings from '../content/settings/site.json';
 export { WelcomeWorkflow } from './workflow';
 const json = (data: unknown, status = 200) =>
