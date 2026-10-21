@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { accessEmails } from './access.mjs';
+import {providerAnalyticsSchema} from './provider-analytics.mjs';
 import {runtimeBudgetSchema} from './runtime-budgets.mjs';
 const text = z.string().trim().min(1);
 const code = z.string().regex(/^[a-z]{2}(?:-[A-Z]{2})?$/);
@@ -10,6 +11,7 @@ const origin = z.string().refine(value => {
 }, 'siteUrl must be an HTTPS origin without credentials, path, query or fragment');
 const infrastructure = z.strictObject({
   runtimeBudget:runtimeBudgetSchema.prefault({}),
+  providerAnalytics:providerAnalyticsSchema.prefault({}),
   databaseId: z.uuid().default('00000000-0000-0000-0000-000000000000'),
   sesRegion: text.default('eu-west-1'), sender: text.default('Example Studio <hello@example.com>'),
   notificationEmail: z.email().default('owner@example.com'), allowedRecipients: z.array(z.email()).default([]),
@@ -40,6 +42,7 @@ export const projectSchema = z.strictObject({
   infrastructure: infrastructure.prefault({}), legalReviewed:z.boolean().default(false), contentReviewed:z.boolean().default(false),
   interests:z.array(z.strictObject({id,label:text})).default([]),
 }).superRefine((p,ctx) => {
+  if(p.infrastructure.providerAnalytics.enabled&&p.infrastructure.databaseId==='00000000-0000-0000-0000-000000000000')ctx.addIssue({code:'custom',path:['infrastructure','databaseId'],message:'Enabled analytics requires a real deployment database'});
   if (new Set(p.languages.map(l=>l.code)).size !== p.languages.length) ctx.addIssue({code:'custom',path:['languages'],message:'Language codes must be unique'});
   if (!p.languages.some(l=>l.code===p.locale)) ctx.addIssue({code:'custom',path:['locale'],message:'Default locale must be included in languages'});
   if (new Set(p.interests.map(i=>i.id)).size !== p.interests.length) ctx.addIssue({code:'custom',path:['interests'],message:'Interest IDs must be unique'});

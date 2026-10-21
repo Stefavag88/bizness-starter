@@ -21,3 +21,7 @@ Campaign administration includes a conditional capacity estimate before final SE
 ## Hosted follow-up
 
 Provider integration requires server-owned resource IDs, read-only secret analytics permissions, isolated authorized staging, bounded fetch timeouts/backoff, stale-cache behavior and comparison with controlled account workloads. The browser will not receive a provider token or arbitrary query surface. No real credentials, account changes, deployment or email sending are part of this local implementation.
+
+## Prepared provider integration
+
+The read-only collector is prepared and defaults disabled. Its selected Worker/D1/Queue mappings remain partial until actual staging capability and measurements are checked; CPU, Queue backlog and Workflow billing mappings remain unavailable. Follow [Provider analytics setup](PROVIDER_ANALYTICS.md). Local mode never calls Cloudflare analytics.

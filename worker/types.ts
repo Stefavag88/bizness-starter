@@ -1,4 +1,6 @@
 export interface Env {
+  PROVIDER_ANALYTICS?:string;
+  CF_ANALYTICS_TOKEN?:string;
   RUNTIME_BUDGET?: string;
   DB: D1Database;
   ASSETS: Fetcher;

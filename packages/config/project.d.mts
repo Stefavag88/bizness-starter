@@ -1,4 +1,5 @@
 import type { ZodType } from 'zod';
+import type {ProviderAnalyticsConfig} from './provider-analytics.mjs';
 import type {RuntimeBudgetConfig} from './runtime-budgets.mjs';
 export interface MediaOptimization { enabled:boolean; widths:number[]; quality:number }
 export interface MotionConfig {enabled:boolean;durationMs:number;distancePx:number;staggerMs:number;interactionMs:number}
@@ -9,7 +10,7 @@ export interface ProjectConfig {
   design:{theme:string;density:'comfortable'|'compact'|'spacious';motion:MotionConfig}; legalReviewed:boolean; contentReviewed:boolean;
   interests:{id:string;label:string}[];
   media:{optimization:MediaOptimization};
-  infrastructure:{runtimeBudget:RuntimeBudgetConfig;databaseId:string;sesRegion:string;sender:string;notificationEmail:string;allowedRecipients:string[];sesConfigurationSet:string;snsTopicArn:string;accessIssuer:string;accessAudience:string;adminEmails:string[];editorEmails:string[];sendingEnabled:boolean;marketingEnabled:boolean;sendIntervalMs:number};
+  infrastructure:{providerAnalytics:ProviderAnalyticsConfig;runtimeBudget:RuntimeBudgetConfig;databaseId:string;sesRegion:string;sender:string;notificationEmail:string;allowedRecipients:string[];sesConfigurationSet:string;snsTopicArn:string;accessIssuer:string;accessAudience:string;adminEmails:string[];editorEmails:string[];sendingEnabled:boolean;marketingEnabled:boolean;sendIntervalMs:number};
 }
 export const projectSchema: ZodType<ProjectConfig>;
 export function parseProject(raw:unknown):ProjectConfig;
