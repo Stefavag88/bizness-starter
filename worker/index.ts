@@ -1,3 +1,5 @@
+import {readUsageSnapshot,usageWindow} from './usage';
+import {renderUsagePage} from './usage-page';
 import {estimateCampaign} from './campaign-estimates';
 import {workContext,meterEnvironment} from './budget';
 import {persistUsage} from './usage';
@@ -40,6 +42,13 @@ const handlers = {
       if (path === '/api/operations/overview' && request.method === 'GET') {
         await admin(request, env);
         return json(await overview(env));
+      }
+      if((path==='/admin/usage'||path==='/api/operations/usage')&&request.method==='GET'){
+        await admin(request,env);
+        if(path==='/admin/usage')return renderUsagePage();
+        if([...url.searchParams.keys()].some(key=>!['from','to'].includes(key)))throw new HttpError(400,'Unsupported usage query.');
+        const defaults=usageWindow(Date.now()),window={from:url.searchParams.get('from')??defaults.from,to:url.searchParams.get('to')??defaults.to};
+        return json(await readUsageSnapshot(env,window,Date.now()));
       }
       if (path === '/cms' || path.startsWith('/cms/')) {
         await editor(request, env);

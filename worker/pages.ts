@@ -1,9 +1,9 @@
 import { escapeHtml } from '../packages/contracts';
 import type { Env } from './types';
-export function html(title: string, content: string, script = '') {
+export function html(title: string, content: string, script = '', styles = '') {
   const nonce = crypto.randomUUID();
   return new Response(
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title><style nonce="${nonce}">body{font:16px/1.65 system-ui;background:#f5f4ed;color:#28382c;margin:0}main{max-width:900px;margin:60px auto;padding:24px}h1{font:48px Georgia}a{color:inherit}input,textarea,select,button{font:inherit;padding:10px;margin:7px 0}label{display:block}input,textarea{max-width:100%;box-sizing:border-box}button{background:#28382c;color:white;border:0;cursor:pointer}article{border:1px solid #ccd2c1;padding:24px;margin:20px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere}.actions{display:flex;gap:12px;flex-wrap:wrap}</style></head><body><main><a href="/">← Back to website</a><h1>${escapeHtml(title)}</h1>${content}</main>${script ? `<script nonce="${nonce}">${script}</script>` : ''}</body></html>`,
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title><style nonce="${nonce}">body{font:16px/1.65 system-ui;background:#f5f4ed;color:#28382c;margin:0}main{max-width:900px;margin:60px auto;padding:24px}h1{font:48px Georgia}a{color:inherit}input,textarea,select,button{font:inherit;padding:10px;margin:7px 0}label{display:block}input,textarea{max-width:100%;box-sizing:border-box}button{background:#28382c;color:white;border:0;cursor:pointer}article{border:1px solid #ccd2c1;padding:24px;margin:20px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere}.actions{display:flex;gap:12px;flex-wrap:wrap}${styles}</style></head><body><main><a href="/">← Back to website</a><h1>${escapeHtml(title)}</h1>${content}</main>${script ? `<script nonce="${nonce}">${script}</script>` : ''}</body></html>`,
     {
       headers: {
         'Content-Type': 'text/html;charset=utf-8',
@@ -30,7 +30,7 @@ export function tokenPage(kind: 'confirm' | 'unsubscribe', token: string) {
 export function adminPage(env: Env) {
   return html(
     'Campaign studio',
-    `<p>Review the content, send an allowlisted test, then approve before sending. Publishing an article does not send email.</p><label>Use CMS campaign copy<select id="source"><option value="">Write a new draft</option></select></label><form id="draft"><label>Subject<input name="subject" required maxlength="150"></label><label>Introduction<textarea name="intro" required></textarea></label><label>Article ID (optional)<input name="articleId"></label><label>Interest ID<input name="interest" value="updates" required></label><button>Create draft</button></form><p id="status" role="status" aria-live="polite"></p><div id="campaigns"></div>`,
+    `<p><a href="/admin/usage">Usage &amp; Capacity</a></p><p>Review the content, send an allowlisted test, then approve before sending. Publishing an article does not send email.</p><label>Use CMS campaign copy<select id="source"><option value="">Write a new draft</option></select></label><form id="draft"><label>Subject<input name="subject" required maxlength="150"></label><label>Introduction<textarea name="intro" required></textarea></label><label>Article ID (optional)<input name="articleId"></label><label>Interest ID<input name="interest" value="updates" required></label><button>Create draft</button></form><p id="status" role="status" aria-live="polite"></p><div id="campaigns"></div>`,
     `
  const $=s=>document.querySelector(s);const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  async function api(url,data){const r=await fetch(url,{method:data?'POST':'GET',headers:{'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined});const j=await r.json();if(!r.ok)throw Error(j.message);return j;}

@@ -42,3 +42,6 @@ export function meterEnvironment(env:Env,scope:BudgetScope,reservation?:BudgetRe
  const queue=env.OUTBOUND?new Proxy(env.OUTBOUND,{get(target,key){const v=Reflect.get(target,key);return typeof v==='function'?(...args:any[])=>{charge();return v.apply(target,args);}:v;}}):env.OUTBOUND;
  return new Proxy(env,{get(target,key){if(key===sourceKey)return target;if(key===contextKey)return {scope,at,reservation};if(key==='DB')return db;if(key==='OUTBOUND')return queue;if(key==='NURTURE')return wrapWorkflow;return Reflect.get(target,key);}});
 }
+
+/** Stable identity for a read-only snapshot cache; never used to execute unmetered SQL. */
+export const environmentIdentity=(env:Env):object=>((env as any)[sourceKey]??env).DB;
