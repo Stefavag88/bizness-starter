@@ -37,8 +37,25 @@ SQL **statements**, D1 **rows read/written**, binding operations, Queue billing 
 
 ## Capacity planning
 
+Create workload and evidence JSON files (matching the project's profile). An explicitly unqualified example is:
+
+```json
+{"profile":"nurture","days":7,"dailyDispatchLimit":100,"transactionalReserve":10,"campaigns":[{"audience":500}]}
+```
+
+```json
+{"profile":"nurture","qualification":"local","dataset":"planning-only"}
+```
+
+Save those as `workload.json` and `evidence.json`, then run:
+
 ```sh
-pnpm report:capacity --workload tests/fixtures/runtime-capacity/nurture-workload.json --evidence tests/fixtures/runtime-capacity/local-unqualified-evidence.json --output .generated/capacity-new.json
+pnpm report:capacity --workload workload.json --evidence evidence.json --output capacity-new.json
+```
+
+The source repository also provides a disposable acceptance command (excluded from initialized clients):
+
+```sh
 pnpm test:runtime-budgets
 ```
 
