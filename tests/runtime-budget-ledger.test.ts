@@ -38,3 +38,10 @@ it('never lends another lane or another invocation a consumed budget',()=>{
  expect(a.tryReserve('dispatch',cost(1))).toBeNull();expect(b.tryReserve('dispatch',cost(12))).not.toBeNull();
  expect(a.tryReserve('campaign',cost(10))).not.toBeNull();
 });
+
+it('keeps one execution charge when a helper receives an already metered environment',async()=>{
+ const f=observedEnvironment();try{const scope=createBudgetScope('http',resolveRuntimePolicy('newsletter'));
+ const env=meterEnvironment(meterEnvironment(f.env,scope),scope);await env.DB.prepare('SELECT 1').first();
+ expect(scope.snapshot().attempted.sqlStatements).toBe(1);expect(f.observed.statements).toBe(1);
+ }finally{f.database.close();}
+});
