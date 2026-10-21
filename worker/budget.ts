@@ -16,13 +16,13 @@ export class BudgetScope{
   if(limit===undefined||fields.some(k=>this.attempted[k]+this.reserved[k]+cost[k]>this.policy.ceilings[k])||(this.lanes[lane]?.sqlStatements??0)+(this.holds[lane]?.sqlStatements??0)+cost.sqlStatements>limit)return null;
   this.holds[lane]??=zero();for(const k of fields){this.reserved[k]+=cost[k];this.holds[lane][k]+=cost[k];}
   let left={...cost},closed=false;
-  return {consume:(part:OperationCost)=>{valid(part);if(closed||fields.some(k=>part[k]>left[k]))throw new BudgetExceeded();this.lanes[lane]??=zero();for(const k of fields){left[k]-=part[k];this.reserved[k]-=part[k];this.holds[lane][k]-=part[k];this.attempted[k]+=part[k];this.lanes[lane][k]+=part[k];}},releaseUnused:()=>{if(closed)return;closed=true;for(const k of fields){this.reserved[k]-=left[k];this.holds[lane][k]-=left[k];left[k]=0;}}};
+  return {remaining:()=>({...left}),consume:(part:OperationCost)=>{valid(part);if(closed||fields.some(k=>part[k]>left[k]))throw new BudgetExceeded();this.lanes[lane]??=zero();for(const k of fields){left[k]-=part[k];this.reserved[k]-=part[k];this.holds[lane][k]-=part[k];this.attempted[k]+=part[k];this.lanes[lane][k]+=part[k];}},releaseUnused:()=>{if(closed)return;closed=true;for(const k of fields){this.reserved[k]-=left[k];this.holds[lane][k]-=left[k];left[k]=0;}}};
  }
  charge(lane:string,cost:OperationCost){const r=this.tryReserve(lane,cost);if(!r)throw new BudgetExceeded();r.consume(cost);r.releaseUnused();}
  snapshot():BudgetSnapshot{const remaining=zero();for(const k of fields)remaining[k]=this.policy.ceilings[k]-this.attempted[k]-this.reserved[k];return structuredClone({kind:this.kind,attempted:this.attempted,reserved:this.reserved,remaining,lanes:this.lanes,outcomes:this.outcomes});}
  recordOutcome(outcome:keyof OutcomeCounts){this.outcomes[outcome]++;}
 }
-export interface BudgetReservation{consume(cost:OperationCost):void;releaseUnused():void}
+export interface BudgetReservation{remaining():OperationCost;consume(cost:OperationCost):void;releaseUnused():void}
 export const createBudgetScope=(kind:'http'|'scheduled'|'queue'|'workflow',policy:RuntimePolicy)=>new BudgetScope(kind,policy);
 const rawStatement=Symbol('raw-statement'),contextKey=Symbol('budget-context'),sourceKey=Symbol('source-environment');
 export interface WorkContext{scope:BudgetScope;at:number;reservation?:BudgetReservation}

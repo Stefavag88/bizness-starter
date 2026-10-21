@@ -1,3 +1,4 @@
+import {runScheduled} from './scheduler';
 import { localizedAsset } from './assets';
 import project from '../project.json';
 import { ZodError } from 'zod';
@@ -20,23 +21,7 @@ const json = (data: unknown, status = 200) =>
     status,
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options':'nosniff', 'Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'" },
   });
-async function scheduled(env: Env) {
-  const failures: unknown[] = [], scheduleId = crypto.randomUUID();
-  const run = async (task: string, action: () => Promise<unknown>) => {
-    try { await action(); } catch (error) {
-      failures.push(error);
-      console.error(JSON.stringify({ scheduleId, task, error: 'scheduled_task_failed' }));
-    }
-  };
-  if (env.PROFILE !== 'enquiries') {
-    await run('campaign_fanout', () => fanOut(env));
-    await run('enrollments', () => startEnrollments(env));
-  }
-  await run('delivery_dispatch', () => dispatch(env));
-  await run('rate_limit_cleanup', () => env.DB.prepare('DELETE FROM rate_limit WHERE expires_at<?').bind(now()).run());
-  await run('token_cleanup', () => env.DB.prepare('DELETE FROM action_token WHERE expires_at<?').bind(now()-86400000).run());
-  if (failures.length) throw new AggregateError(failures, 'Scheduled tasks failed.');
-}
+async function scheduled(env:Env){const result=await runScheduled(env,Date.now());if(result.failures)throw Error('Scheduled tasks failed.');}
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url),

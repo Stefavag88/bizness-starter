@@ -1,3 +1,6 @@
+import {workContext,meterEnvironment,type WorkContext,type WorkResult} from './budget';
+import {readAdmissionDay} from './admissions';
+import {parseRuntimeBudget} from '../packages/config/runtime-budgets.mjs';
 import { campaignSchema, hash } from '../packages/contracts';
 import manifest from './manifest';
 import project from '../project.json';
@@ -81,42 +84,23 @@ export async function campaignAction(
       .run();
   } else throw new HttpError(404, 'Unknown action.');
 }
-export async function fanOut(env: Env) {
-  const campaigns = await env.DB.prepare(
-    "SELECT * FROM campaign WHERE state='dispatching' LIMIT 5",
-  ).all<Campaign>();
-  for (const campaign of campaigns.results) {
-    const subscribers = await env.DB.prepare(
-      `SELECT s.id,s.generation FROM subscriber s JOIN subscriber_interest i ON s.id=i.subscriber_id
-   WHERE s.status='active' AND i.interest_id=? AND s.confirmed_at<=? AND s.id>? ORDER BY s.id LIMIT 100`,
-    )
-      .bind(campaign.interest_id, campaign.cutoff_at, campaign.cursor)
-      .all<{ id: string; generation: number }>();
-    const snapshot = JSON.parse(campaign.snapshot_json);
-    const statements = subscribers.results.map((s) =>
-      jobStatement(
-        env,
-        `campaign:${campaign.id}:${s.id}`,
-        'campaign',
-        snapshot,
-        s.id,
-        s.generation,
-        campaign.id,
-      ),
-    );
-    if (subscribers.results.length)
-      statements.push(
-        env.DB.prepare('UPDATE campaign SET cursor=? WHERE id=?').bind(
-          subscribers.results.at(-1)!.id,
-          campaign.id,
-        ),
-      );
-    else
-      statements.push(
-        env.DB.prepare(
-          "UPDATE campaign SET state='completed' WHERE id=? AND state='dispatching'",
-        ).bind(campaign.id),
-      );
-    await env.DB.batch(statements);
-  }
+export async function fanOut(env:Env,context:WorkContext=workContext(env)):Promise<WorkResult>{
+ const {scope,at}=context;const hold=scope.tryReserve('campaign',{sqlStatements:10,externalCalls:0,internalCalls:20});
+ if(!hold)return {processed:0,deferred:true};const e=meterEnvironment(env,scope,hold,at);
+ try{
+  const cfg=parseRuntimeBudget(env.RUNTIME_BUDGET);
+  if(cfg.dailyDispatchLimit!==null){const day=await readAdmissionDay(e,at);if(!day.remaining||day.marketingUsed>=cfg.dailyDispatchLimit-cfg.transactionalReserve)return {processed:0,deferred:true};}
+  else if(env.ENVIRONMENT!=='local')return {processed:0,deferred:true};
+  const cursor=await e.DB.prepare("SELECT position FROM runtime_cursor WHERE key='campaign-turn'").first<{position:string}>();
+  const campaign=await e.DB.prepare("SELECT * FROM campaign WHERE id=COALESCE((SELECT id FROM campaign WHERE state='dispatching' AND id>? ORDER BY id LIMIT 1),(SELECT id FROM campaign WHERE state='dispatching' ORDER BY id LIMIT 1))").bind(cursor?.position??'').first<Campaign & {id:string}>();
+  if(!campaign)return {processed:0,deferred:false};
+  await e.DB.prepare("INSERT INTO runtime_cursor(key,position)VALUES('campaign-turn',?) ON CONFLICT(key)DO UPDATE SET position=excluded.position").bind(campaign.id).run();
+  const cap=Math.min(scope.policy.maxFanoutRecipients,hold.remaining().sqlStatements-2);
+  if(cap<1)return {processed:0,deferred:true};
+  const subscribers=await e.DB.prepare("SELECT s.id,s.generation FROM subscriber s JOIN subscriber_interest i ON s.id=i.subscriber_id WHERE s.status='active' AND i.interest_id=? AND s.confirmed_at<=? AND s.id>? ORDER BY s.id LIMIT ?").bind(campaign.interest_id,campaign.cutoff_at,campaign.cursor,cap).all<{id:string;generation:number}>();
+  const snapshot=JSON.parse(campaign.snapshot_json);
+  const statements=subscribers.results.map(s=>jobStatement(e,`campaign:${campaign.id}:${s.id}`,'campaign',snapshot,s.id,s.generation,campaign.id));
+  statements.push(subscribers.results.length?e.DB.prepare('UPDATE campaign SET cursor=? WHERE id=?').bind(subscribers.results.at(-1)!.id,campaign.id):e.DB.prepare("UPDATE campaign SET state='completed' WHERE id=? AND state='dispatching'").bind(campaign.id));
+  await e.DB.batch(statements);return {processed:subscribers.results.length,deferred:subscribers.results.length===cap};
+ }finally{hold.releaseUnused();}
 }

@@ -45,11 +45,12 @@ it.each(['cancelled', 'completed', 'failed'])('does not resurrect concurrent %s 
   env.NURTURE = binding('running', false, () => { database.prepare('UPDATE automation_enrollment SET state=?').run(state); });
   await startEnrollments(env); expect(stateOf(database)).toBe(state);
 });
-it('continues later reconciliation after platform failure', async () => {
+it('continues later reconciliation on the next bounded tick after platform failure', async () => {
   const { env, database } = setup('running');
   database.prepare("INSERT INTO automation_enrollment VALUES('f','s',1,'v2','running')").run();
   env.NURTURE = { get: async (id: string) => { if (id === 'e') throw Error('platform unavailable'); return { status: async () => ({ status: 'complete' }) }; } } as unknown as Workflow;
   await expect(startEnrollments(env)).rejects.toThrow();
+  await startEnrollments(env);
   expect(database.prepare("SELECT state FROM automation_enrollment WHERE id='f'").get()?.state).toBe('completed');
 });
 it.each(['suppressed', 'stale', 'missing', 'unsubscribed'])('workflow exit reconciles %s subscriber', async status => {

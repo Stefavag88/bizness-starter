@@ -1,3 +1,6 @@
+import {workContext,meterEnvironment,type WorkContext,type WorkResult} from './budget';
+import {reserveAdmission} from './admissions';
+import {parseRuntimeBudget} from '../packages/config/runtime-budgets.mjs';
 import { AwsClient } from 'aws4fetch';
 import type { Message } from '../packages/email';
 import { message } from '../packages/email';
@@ -229,29 +232,30 @@ export async function drainLocal(env: Env) {
     .all<{ id: string }>();
   for (const job of results) await deliver(env, job.id);
 }
-export async function dispatch(env: Env) {
-  await env.DB.prepare(
-    "UPDATE email_job SET state='unknown',error_code='expired_sending_lease' WHERE state='sending' AND lease_until<?",
-  )
-    .bind(now())
-    .run();
-  // Queued jobs are republished after ten minutes; claims/terminal states handle duplicates.
-  await env.DB.prepare(
-    "UPDATE email_job SET state='pending' WHERE state='queued' AND lease_until<?",
-  )
-    .bind(now())
-    .run();
-  const { results } = await env.DB.prepare(
-    "SELECT id FROM email_job WHERE state='pending' AND available_at<=? ORDER BY created_at LIMIT 50",
-  )
-    .bind(now())
-    .all<{ id: string }>();
-  for (const job of results) {
-    await env.OUTBOUND.send({ id: job.id });
-    await env.DB.prepare(
-      "UPDATE email_job SET state='queued',lease_until=? WHERE id=? AND state='pending'",
-    )
-      .bind(now() + 600000, job.id)
-      .run();
+export async function dispatch(env:Env,context:WorkContext=workContext(env)):Promise<WorkResult>{
+ const {scope,at}=context,policy=scope.policy;
+ const hold=scope.tryReserve('dispatch',{sqlStatements:policy.scheduledSqlAllowances.dispatch,externalCalls:0,internalCalls:200});
+ if(!hold)return {processed:0,deferred:true};
+ const dbEnv=meterEnvironment(env,scope,hold,at);let processed=0,deferred=false;
+ try{
+  for(const [state,next,extra] of [['sending','unknown',",error_code='expired_sending_lease'"],['queued','pending','']] as const)
+   await dbEnv.DB.prepare(`UPDATE email_job SET state=?${extra} WHERE id IN (SELECT id FROM email_job WHERE state=? AND lease_until<? ORDER BY lease_until,id LIMIT 100) AND state=?`).bind(next,state,at,state).run();
+  const cfg=parseRuntimeBudget(env.RUNTIME_BUDGET);
+  if(cfg.dailyDispatchLimit===null&&env.ENVIRONMENT!=='local')return {processed:0,deferred:true};
+  if(!(await dbEnv.DB.prepare("SELECT id FROM email_job WHERE state='pending' AND available_at<=? ORDER BY available_at,created_at,id LIMIT 1").bind(at).first()))return {processed:0,deferred:false};
+  const turn=await dbEnv.DB.prepare("SELECT position FROM runtime_cursor WHERE key='dispatch-turn'").first<{position:string}>();
+  const pick=async(transactional:boolean)=>(await dbEnv.DB.prepare(`SELECT id,kind FROM email_job WHERE state='pending' AND available_at<=? AND kind ${transactional?'IN':'NOT IN'} ('inquiry','test','confirmation') ORDER BY available_at,created_at,id LIMIT ?`).bind(at,policy.maxDispatchJobs).all<{id:string;kind:string}>()).results;
+  const tx=await pick(true),marketing=await pick(false);let next=turn?.position==='marketing'?'marketing':'transactional';
+  while(processed<policy.maxDispatchJobs&&(tx.length||marketing.length)){
+   if(hold.remaining().sqlStatements<3){deferred=true;break;}
+   const list=next==='transactional'?tx:marketing,other=next==='transactional'?marketing:tx;
+   const job=(list.length?list:other).shift()!;const lane=['inquiry','test','confirmation'].includes(job.kind)?'transactional':'marketing';
+   if(cfg.dailyDispatchLimit!==null&&!(await reserveAdmission(dbEnv,scope,lane,at))){deferred=true;next=lane==='transactional'?'marketing':'transactional';continue;}
+   await dbEnv.OUTBOUND.send({id:job.id});
+   await dbEnv.DB.prepare("UPDATE email_job SET state='queued',lease_until=? WHERE id=? AND state='pending'").bind(at+600000,job.id).run();
+   processed++;next=lane==='transactional'?'marketing':'transactional';
   }
+  if(processed)await dbEnv.DB.prepare("INSERT INTO runtime_cursor(key,position)VALUES('dispatch-turn',?) ON CONFLICT(key)DO UPDATE SET position=excluded.position").bind(next).run();
+  return {processed,deferred:deferred||tx.length>0||marketing.length>0};
+ }finally{hold.releaseUnused();}
 }

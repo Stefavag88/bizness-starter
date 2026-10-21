@@ -1,3 +1,4 @@
+import {workContext,meterEnvironment,type WorkContext,type WorkResult} from './budget';
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from 'cloudflare:workers';
 import type { Env, Subscriber } from './types';
 import { jobStatement } from './db';
@@ -85,13 +86,13 @@ async function reconciliationBatch(env: Env, state: 'pending'|'running', limit: 
   }
   return records.results;
 }
-export async function startEnrollments(env: Env) {
+async function reconcileEnrollments(env: Env) {
   if (!env.NURTURE) return;
   // Independent small batches reserve work for new enrollments and leave room for
   // transactional dispatch. Durable cursors rotate even failed platform lookups.
   const records = [
-    ...await reconciliationBatch(env,'pending',3),
-    ...await reconciliationBatch(env,'running',5),
+    ...await reconciliationBatch(env,'pending',1),
+    ...await reconciliationBatch(env,'running',1),
   ];
   const errors: unknown[] = [];
   for (const r of records) {
@@ -133,4 +134,11 @@ export async function startEnrollments(env: Env) {
     }
   }
   if (errors.length) throw new AggregateError(errors, 'Enrollment reconciliation failed');
+  return records.length;
+}
+
+export async function startEnrollments(env:Env,context:WorkContext=workContext(env)):Promise<WorkResult>{
+ if(!env.NURTURE)return {processed:0,deferred:false};const hold=context.scope.tryReserve('enrollment',{sqlStatements:14,externalCalls:0,internalCalls:40});
+ if(!hold)return {processed:0,deferred:true};
+ try{const processed=await reconcileEnrollments(meterEnvironment(env,context.scope,hold,context.at));return {processed:processed??0,deferred:(processed??0)>0};}finally{hold.releaseUnused();}
 }
