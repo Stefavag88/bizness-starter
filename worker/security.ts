@@ -66,15 +66,25 @@ export async function body(request: Request, max = 16384, requireJson = true) {
 }
 export async function verifyTurnstile(request: Request, env: Env, token: string, action: string) {
   if (isLocal(request, env)) return;
+  if(typeof token!=='string'||!token||token.length>2048||token==='local-preview')throw new HttpError(400,'Please complete the security check again.');
   if (!env.TURNSTILE_SECRET) throw new HttpError(503, 'Form protection is not configured.');
   chargeExternal(env);
-  const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST',
-    body: new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token }),
-  });
-  const data = (await response.json()) as { success: boolean; hostname: string; action: string };
-  if (!data.success || data.hostname !== new URL(env.SITE_URL).hostname || data.action !== action)
-    throw new HttpError(400, 'Please complete the security check again.');
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),4000);
+  try{
+    const response=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{
+      method:'POST',redirect:'error',signal:controller.signal,
+      body:new URLSearchParams({secret:env.TURNSTILE_SECRET,response:token}),
+    });
+    if(!response.ok)throw Error('Provider unavailable');
+    const data:unknown=await response.json();
+    if(!data||typeof data!=='object')throw Error('Invalid response');
+    const result=data as {success:unknown;hostname:unknown;action:unknown};
+    if(result.success!==true||result.hostname!==new URL(env.SITE_URL).hostname||result.action!==action)
+      throw new HttpError(400,'Please complete the security check again.');
+  }catch(error){
+    if(error instanceof HttpError)throw error;
+    throw new HttpError(503,'Form protection is temporarily unavailable. Please try again.');
+  }finally{clearTimeout(timeout);}
 }
 export async function ipKey(request: Request) {
   return hash(request.headers.get('cf-connecting-ip') || 'local');

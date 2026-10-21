@@ -68,8 +68,11 @@ const response=await real.fetch(request,env,ctx);const result=new Response(respo
  for(const [path,status,method] of [['/api/health',200,'GET'],['/api',404,'GET'],['/api/contact',403,'POST'],['/newsletter',404,'GET'],['/newsletter/confirm',404,'GET'],['/admin',404,'GET'],['/admin/campaigns',404,'GET'],['/cms',503,'GET'],['/cms/index.html',503,'GET']]) {
   const response=await request(path,{method});assert.equal(response.status,status,path);assert.equal(response.headers.get('X-Owned-Routing-Worker'),'1',path+' must invoke Worker');assert.notEqual(await response.text(),'PRIVATE COLLISION',path+' exposed collision');
  }
- const localCms=await request('http://127.0.0.1:'+server.port+'/cms');
- assert.equal(localCms.status,200,'local CMS allowed');assert.equal(localCms.headers.get('X-Owned-Routing-Worker'),'1');assert.equal(await localCms.text(),'PRIVATE COLLISION');
+ for(const path of ['/cms','/cms/','/cms/index.html']){
+ const localCms=await request('http://127.0.0.1:'+server.port+path);
+ assert.equal(localCms.status,path==='/cms'?200:307,'local CMS allowed or canonically redirected');assert.equal(localCms.headers.get('X-Owned-Routing-Worker'),'1');if(path==='/cms')assert.equal(await localCms.text(),'PRIVATE COLLISION');else assert.equal(localCms.headers.get('location'),'/cms');
+ const policy=localCms.headers.get('content-security-policy');assert.ok(policy&&!policy.includes(','),'exactly one CMS policy');assert.match(policy,/script-src 'self' 'unsafe-inline' blob:/);assert.equal(localCms.headers.get('x-robots-tag'),'noindex, nofollow');assert.equal(localCms.headers.get('cache-control'),'no-store');
+ }
  console.log('Built routing acceptance passed: public assets/misses bypass Worker; explicit privileged routes invoke real Worker.');
 } finally {
  await server?.stop();

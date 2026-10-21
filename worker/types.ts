@@ -1,4 +1,6 @@
 export interface Env {
+  CMS_LOCAL_ORIGINS?:string;
+  TURNSTILE_SITE_KEY?:string;
   PROVIDER_ANALYTICS?:string;
   CF_ANALYTICS_TOKEN?:string;
   RUNTIME_BUDGET?: string;

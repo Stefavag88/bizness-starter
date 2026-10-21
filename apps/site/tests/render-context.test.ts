@@ -26,3 +26,9 @@ it('isolates preview metadata, navigation and visitor state',async()=>{
  expect(html).toContain('name="robots" content="noindex"');expect(html).not.toContain('rel="canonical"');expect(html).not.toContain('application/rss+xml');
  expect(html).not.toContain('data-visitor-experience');expect(html).toContain('href="/templates/trades/trades/en/contact"');expect(html).toContain('href="/templates"');
 });
+
+it('disables hosted contact without a key and emits real protection metadata with a key',async()=>{
+ const c=await AstroContainer.create(),base={...bundle.project,environment:'production' as const};
+ const unavailable=await c.renderToString(ContactForm,{props:{content,context:createRenderContext(base,routes)}});expect(unavailable).toContain('data-protection-mode="unavailable"');expect(unavailable).toContain('δεν είναι διαθέσιμη προσωρινά');expect(unavailable).toMatch(/<button disabled/);
+ const protectedHtml=await c.renderToString(ContactForm,{props:{content,context:createRenderContext({...base,infrastructure:{...base.infrastructure,turnstileSiteKey:'public-key'}},routes)}});expect(protectedHtml).toContain('data-protection-action="contact"');expect(protectedHtml).toContain('data-protection-mode="turnstile"');expect(protectedHtml).not.toContain('local-preview');
+});

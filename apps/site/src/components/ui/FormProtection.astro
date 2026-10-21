@@ -1,0 +1,5 @@
+---
+interface Props {locale:string}
+const {locale}=Astro.props;
+---
+<div class="form-protection" data-form-protection aria-label={locale==='el'?'Έλεγχος ασφαλείας':'Security check'}></div>

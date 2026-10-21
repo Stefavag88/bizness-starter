@@ -1,3 +1,4 @@
+import {cmsResponse} from '../packages/config/security-headers.mjs';
 import {readUsageSnapshot,usageWindow} from './usage';
 import {renderUsagePage} from './usage-page';
 import {estimateCampaign} from './campaign-estimates';
@@ -52,7 +53,7 @@ const handlers = {
       }
       if (path === '/cms' || path.startsWith('/cms/')) {
         await editor(request, env);
-        return env.ASSETS.fetch(request);
+        return cmsResponse(await env.ASSETS.fetch(request),env);
       }
       if (path.startsWith('/api/local/')) {
         if (!isLocal(request, env)) throw new HttpError(404, 'Not found.');

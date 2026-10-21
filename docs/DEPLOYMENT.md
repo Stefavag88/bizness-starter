@@ -28,7 +28,7 @@ The legacy pnpm deploy:check checks canonical project.json and remains blocked. 
 
 1. Provision the application's production Worker identity, D1, Queue/DLQ, and optional Workflow; record the real IDs and final domain. Nothing is provisioned by preparation.
 2. Verify Cloudflare Access coverage for CMS/admin/API operations, issuer/audience, admin/editor roles and actual signed login. Configure the hosted Tina project, correct repository/content branch and rebuild publication flow. With production only, main is a reasonable chosen content branch; that choice still needs explicit hosted configuration.
-3. Complete hosted CMS/public security-header compatibility and the real Turnstile client/server setup. Configure secrets through reviewed secret bindings, outside source control and CMS.
+3. Verify the implemented CMS/public header separation and shared Turnstile client/server setup on the real hostname; see [form security](FORM_SECURITY.md). Configure secrets through reviewed secret bindings, outside source control and CMS.
 4. Agree and implement data retention/deletion; review actual content, legal copy and consent language. Configure operator alerts and recovery ownership.
 5. Keep sending/marketing disabled until sender authentication, feedback, allowed test recipients and ambiguous-delivery handling are verified. Commission the hosted deployment with controlled test data and no public launch announcement. Enabling sending is a separate reviewed step.
 6. Qualify the selected profile's actual cloud capacity and provider analytics using controlled workloads. Local statement counts and dry-run output are not hosted CPU/row/entitlement evidence.

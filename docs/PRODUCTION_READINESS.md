@@ -10,7 +10,7 @@ Before hosted deployment, provide the final site domain, production account ID, 
 
 Provide the desired administrator/editor email lists and hosted Tina membership. Verify Access application route coverage, audience and issuer, actual signed login/JWKS behavior, and Tina repository/index/build integration. Local role tests are not hosted certification.
 
-Provision AWS, Turnstile and token-signing secrets through environment-specific secret bindings. Never put them in project.json, CMS content, frontend bundles, logs or source control. Agree a credential rotation and incident procedure. Implement and test the actual Turnstile client integration; a local preview token is not valid hosted protection.
+Provision AWS, Turnstile and token-signing secrets through environment-specific secret bindings. Never put them in project.json, CMS content, frontend bundles, logs or source control. Agree a credential rotation and incident procedure. The shared Turnstile client and bounded server verification are implemented locally; configure the real public key/secret and verify hostname/action and failure paths on the intended deployment. A local preview token is not valid hosted protection. See [form security](FORM_SECURITY.md).
 
 Verify SES sender permissions, verified identities, SPF/DKIM/DMARC, account sending restrictions, feedback subscription and configuration-set routing using controlled commissioning recipients before enabling real transactional or marketing delivery. Review provider error codes without automatically retrying ambiguous acceptance.
 

@@ -10,6 +10,7 @@ const origin = z.string().refine(value => {
   catch { return false; }
 }, 'siteUrl must be an HTTPS origin without credentials, path, query or fragment');
 const infrastructure = z.strictObject({
+  turnstileSiteKey:z.string().regex(/^[A-Za-z0-9_-]{1,100}$|^$/).default(''),
   runtimeBudget:runtimeBudgetSchema.prefault({}),
   providerAnalytics:providerAnalyticsSchema.prefault({}),
   databaseId: z.uuid().default('00000000-0000-0000-0000-000000000000'),

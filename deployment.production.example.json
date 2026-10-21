@@ -19,6 +19,7 @@
     "providerAnalytics": {
       "enabled": false,
       "includeAccountTotals": false
-    }
+    },
+    "turnstileSiteKey": ""
   }
 }

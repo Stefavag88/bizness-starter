@@ -26,7 +26,7 @@ it('creates an independent safely reset application without source tooling or hi
  const destination=join(roots.create(),'client');const result=await initializeProject({source:resolve('.'),options:options(destination),dryRun:false});
  expect(result.createdFiles.length).toBeGreaterThan(60);
  const project=JSON.parse(fs.readFileSync(join(destination,'project.json'),'utf8'));
- expect(project).toMatchObject({name:'example-client',locale:'el',environment:'local',profile:'enquiries',legalReviewed:false,contentReviewed:false,infrastructure:{sendingEnabled:false,marketingEnabled:false,accessIssuer:'',databaseId:'00000000-0000-0000-0000-000000000000'}});
+ expect(project).toMatchObject({name:'example-client',locale:'el',environment:'local',profile:'enquiries',legalReviewed:false,contentReviewed:false,infrastructure:{turnstileSiteKey:'',sendingEnabled:false,marketingEnabled:false,accessIssuer:'',databaseId:'00000000-0000-0000-0000-000000000000'}});
  expect(fs.existsSync(join(destination,'.starter-tools.json'))).toBe(false);expect(fs.existsSync(join(destination,'packages/presets'))).toBe(false);
  expect(fs.existsSync(join(destination,'migrations/0002_workflow_cursor.sql'))).toBe(true);
  expect(execFileSync('git',['-C',destination,'remote'],{encoding:'utf8'}).trim()).toBe('');

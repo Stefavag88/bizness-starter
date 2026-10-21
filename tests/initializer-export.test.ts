@@ -38,3 +38,7 @@ it('exports production-only preparation to independent applications without depl
  for(const path of ['scripts/deployment/production.mjs','scripts/deployment/production.d.mts','scripts/deployment/prepare.mjs','scripts/deployment/prepare.d.mts','scripts/deployment/wrangler-policy.mjs','scripts/deployment/wrangler-policy.d.mts','scripts/worker-config.mjs','scripts/worker-config.d.mts','deployment.production.example.json','docs/DEPLOYMENT.md'])expect(inventory).toContain(path);
  const source=JSON.parse(readFileSync('package.json','utf8'));expect(source.scripts['deploy:prepare']).toBe('node scripts/deployment/prepare.mjs');expect(createClientPackage('client',source).scripts['deploy:prepare']).toBe(source.scripts['deploy:prepare']);expect(source.scripts['deploy:production']).toBeUndefined();
 });
+
+it('exports shared form protection and header dependencies to independent applications',()=>{
+ for(const path of ['packages/config/form-protection.mjs','packages/config/form-protection.d.mts','packages/config/security-headers.mjs','packages/config/security-headers.d.mts','apps/site/src/scripts/form-protection.ts','apps/site/src/components/ui/FormProtection.astro','docs/FORM_SECURITY.md'])expect(inventory).toContain(path);
+});

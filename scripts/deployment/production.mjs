@@ -25,13 +25,14 @@ export function productionIssues(target){
  if(!p.contentReviewed||!p.legalReviewed)issues.push('Review actual business content and legal wording.');
  if(!i.accessIssuer||!i.accessAudience||!i.adminEmails.length)issues.push('Configure production Access issuer, audience and administrator identities.');
  if(i.providerAnalytics.enabled&&i.providerAnalytics.accountId!==accountId)issues.push('The analytics account must match the production deployment account.');
+ if(!i.turnstileSiteKey||/^[123]x0{10}/.test(i.turnstileSiteKey))issues.push('Configure a real production Turnstile public site key; testing keys do not protect a hosted form.');
  if(i.runtimeBudget.dailyDispatchLimit===null)issues.push('Configure and qualify a production dispatch allowance before enabling dispatch.');
  if(!i.sendingEnabled)issues.push('Real transactional sending is disabled; complete controlled delivery verification before enabling it.');
  if(i.sendingEnabled&&(!i.snsTopicArn||i.sender.includes('example.')||i.notificationEmail.includes('example.')))issues.push('Configure verified sending identities, recipient and SES/SNS feedback.');
  if(p.profile!=='enquiries'&&!i.marketingEnabled)issues.push('Marketing delivery is disabled; qualify the subscription lifecycle before enabling it.');
  if(p.profile==='nurture')issues.push('Replace and review sample nurture messages before hosted use.');
  issues.push('Hosted CMS publishing, Access login and security-header coverage still require verification.');
- issues.push('The hosted Turnstile client, secret bindings and account readiness still require implementation or verification.');
+ issues.push('Hosted Turnstile hostname/action, secret bindings and account readiness still require verification.');
  issues.push('Owner-approved personal-data retention and recovery procedures still require implementation and rehearsal.');
  issues.push('Hosted runtime, D1 row, CPU and provider capacity qualification remains pending.');
  return issues;

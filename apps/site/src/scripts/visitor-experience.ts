@@ -12,7 +12,7 @@ export function resetVisitorControls(root:HTMLElement){
 export function initVisitorExperience(root:HTMLElement){
  if(initialized.has(root))return ()=>{};
  initialized.add(root);
- if(!['localhost','127.0.0.1','[::1]'].includes(location.hostname)||typeof fetch!=='function'||typeof crypto.randomUUID!=='function'){initialized.delete(root);return ()=>{};}
+ if(!['local','turnstile'].includes(root.dataset.protectionMode??'')||root.dataset.protectionMode==='local'&&!['localhost','127.0.0.1','[::1]'].includes(location.hostname)||typeof fetch!=='function'||typeof crypto.randomUUID!=='function'){initialized.delete(root);return ()=>{};}
  const key=visitorStorageKey(root.dataset.project!),policy={dismissDays:Number(root.dataset.dismissDays),acceptedDays:Number(root.dataset.acceptedDays)};
  const unavailable:VisitorStorage={getItem(){throw Error('Unavailable')},setItem(){throw Error('Unavailable')},removeItem(){throw Error('Unavailable')}};
  let storage:VisitorStorage;try{storage=window.localStorage;}catch{storage=unavailable;}
@@ -24,7 +24,7 @@ export function initVisitorExperience(root:HTMLElement){
  const coordinator={busy:false,listeners:new Set<()=>void>()};let stopped=false,memoryAccepted=false,trigger:HTMLElement|null=null;
  function change(action:VisitorChange){const previous=snapshot;const next=updateVisitorState(storage,key,action,policy,Date.now());if(next.status==='blocked'||next.status==='invalid')next.state={...previous.state,...(action==='accepted'?{acceptedUntil:Date.now()+policy.acceptedDays*86400000}:action==='dismissed'||action==='autoShown'?{dismissedUntil:Date.now()+policy.dismissDays*86400000}:action)};snapshot=next;return next;}
  function show(dialog:HTMLDialogElement,from:HTMLElement|null){if(!dialogSupported||dialog.open||document.querySelector('dialog[open]'))return false;trigger=from;try{dialog.showModal();dialog.querySelector<HTMLInputElement>('input[type="email"]')?.focus();return true;}catch{return false;}}
- const forms=Array.from(root.querySelectorAll<HTMLFormElement>('[data-newsletter-form]')).map(form=>initNewsletterForm(form,{interest:root.dataset.interest!,token:()=> 'local-preview',coordinator,messages,onAccepted(){memoryAccepted=true;change('accepted');scheduler.stop();forms.forEach(controller=>controller.showReceipt());}}));
+ const forms=Array.from(root.querySelectorAll<HTMLFormElement>('[data-newsletter-form]')).map(form=>initNewsletterForm(form,{interest:root.dataset.interest!,coordinator,messages,onAccepted(){memoryAccepted=true;change('accepted');scheduler.stop();forms.forEach(controller=>controller.showReceipt());}}));
  const safeToOpen=()=>!memoryAccepted&&!stopped&&document.visibilityState==='visible'&&!coordinator.busy&&!document.querySelector('dialog[open]')&&!(document.activeElement?.closest('form')||document.activeElement?.matches('input,textarea,select,[contenteditable="true"]'))&&canAutoPrompt(readVisitorState(storage,key,Date.now()),policy,Date.now());
  const scheduler=createNewsletterScheduler({delaySeconds:Number(root.dataset.delaySeconds),document,canOpen:safeToOpen,open(){if(!newsletter||!safeToOpen())return false;const saved=change('autoShown');if(saved.status!=='valid')return false;return show(newsletter,document.activeElement instanceof HTMLElement&&document.activeElement!==document.body?document.activeElement:document.querySelector<HTMLElement>('.brand'));}});
  for(const form of Array.from(root.querySelectorAll<HTMLElement>('[data-newsletter-form]')))form.hidden=false;

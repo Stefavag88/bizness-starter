@@ -10,7 +10,7 @@ export interface ProjectConfig {
   design:{theme:string;density:'comfortable'|'compact'|'spacious';motion:MotionConfig}; legalReviewed:boolean; contentReviewed:boolean;
   interests:{id:string;label:string}[];
   media:{optimization:MediaOptimization};
-  infrastructure:{providerAnalytics:ProviderAnalyticsConfig;runtimeBudget:RuntimeBudgetConfig;databaseId:string;sesRegion:string;sender:string;notificationEmail:string;allowedRecipients:string[];sesConfigurationSet:string;snsTopicArn:string;accessIssuer:string;accessAudience:string;adminEmails:string[];editorEmails:string[];sendingEnabled:boolean;marketingEnabled:boolean;sendIntervalMs:number};
+  infrastructure:{turnstileSiteKey:string;providerAnalytics:ProviderAnalyticsConfig;runtimeBudget:RuntimeBudgetConfig;databaseId:string;sesRegion:string;sender:string;notificationEmail:string;allowedRecipients:string[];sesConfigurationSet:string;snsTopicArn:string;accessIssuer:string;accessAudience:string;adminEmails:string[];editorEmails:string[];sendingEnabled:boolean;marketingEnabled:boolean;sendIntervalMs:number};
 }
 export const projectSchema: ZodType<ProjectConfig>;
 export function parseProject(raw:unknown):ProjectConfig;

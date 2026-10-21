@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {formProtection} from '../config/form-protection.mjs';
 import {isSafeMarkdown} from './rich-text.mjs';
 import {LIMITS} from './section-registry.mjs';
 const text=z.string().trim().max(LIMITS.title).default('');
@@ -27,7 +28,8 @@ export function resolveNewsletterExperience(settings,project,context){
  if(!active(project)||!value.enabled||!context.privacyHref)return null;
  try{validateCopy(value,value,context.locale);}catch{return null;}
  if(!project.interests.some(i=>i.id===value.interestId)||(value.footerMode==='open-modal'&&!value.modalEnabled))return null;
- const canSubmit=project.environment==='local'&&context.localProtectionAvailable;
+ const protection=formProtection(project);
+ const canSubmit=protection.mode==='turnstile'||protection.mode==='local'&&context.localProtectionAvailable;
  const excluded=['contact','privacy','error','system','newsletter','cms','admin','showcase'];
- return {...value,interest:value.interestId,privacyHref:context.privacyHref,canSubmit,autoEligible:canSubmit&&value.modalEnabled&&value.autoOpen&&!excluded.includes(context.pageKind),preferences:project.modules.visitorPreferences&&value.modalEnabled&&value.autoOpen};
+ return {...value,protection,interest:value.interestId,privacyHref:context.privacyHref,canSubmit,autoEligible:canSubmit&&value.modalEnabled&&value.autoOpen&&!excluded.includes(context.pageKind),preferences:project.modules.visitorPreferences&&value.modalEnabled&&value.autoOpen};
 }

@@ -1,3 +1,5 @@
+import {publicAssetHeaders} from '../packages/config/security-headers.mjs';
+import {formProtection} from '../packages/config/form-protection.mjs';
 import {readFileSync,writeFileSync as writeRaw,mkdirSync,existsSync} from 'node:fs';
 import {createWorkerConfig} from './worker-config.mjs';
 import {parseProject} from '../packages/config/project.mjs';
@@ -18,16 +20,7 @@ writeFileSync('.generated/manifest.json',JSON.stringify(createManifest(source,p)
 syncMigrations(process.cwd());
 generateDesign(p.design);
 mkdirSync('apps/site/public',{recursive:true});
-const cmsConnect=p.environment==='local'?' '+local.tinaUrl+' '+local.tinaUrl.replace('127.0.0.1','localhost'):'';
-writeFileSync('apps/site/public/_headers',`/*
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
-/cms/*
-  X-Robots-Tag: noindex, nofollow
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tina.io; connect-src 'self'${cmsConnect} https://*.tina.io https://*.tinajs.io; frame-src https://*.tina.io; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
-`);
+writeFileSync('apps/site/public/_headers',publicAssetHeaders(formProtection(p).mode==='turnstile'));
 const config=createWorkerConfig(p,local);
 writeFileSync('wrangler.generated.json',JSON.stringify(config,null,2)+'\n');
 // Keep the explicit configure -> structural CMS descriptor boundary.

@@ -35,7 +35,8 @@
     "test:presets": "node scripts/verify-presets.mjs",
     "report:capacity": "node scripts/report-capacity.mjs",
     "test:runtime-budgets": "node scripts/verify-runtime-budgets.mjs",
-    "deploy:prepare": "node scripts/deployment/prepare.mjs"
+    "deploy:prepare": "node scripts/deployment/prepare.mjs",
+    "test:form-security": "node scripts/verify-form-security.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.2.8",

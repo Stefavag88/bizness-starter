@@ -1,4 +1,6 @@
 ---
+import FormProtection from '../components/ui/FormProtection.astro';
+import {formProtection} from '../../../../packages/config/form-protection.mjs';
 import type {RenderContext} from '../lib/render-context';
 import {renderContext as defaultContext} from '../lib/content';
 import {getEnquiryContexts} from '../../../../packages/content/enquiry-contexts.mjs';
@@ -11,12 +13,13 @@ import type {LocalizedContent} from '../../../../packages/content/types';
 interface Props {context?:RenderContext;content:LocalizedContent}
 const {content,context=defaultContext}=Astro.props;const el=content.locale==='el';
 const project=context.project;const preview=Boolean(context.previewBase);
+const protection=formProtection(project,preview);
 const contexts=getEnquiryContexts(content);
 const channels=contactChannels(content.settings,content.locale);if(preview){channels.social=[];channels.direct=channels.direct.map(item=>({...item,href:'#'}));}
 const email=channels.direct.find(link=>link.id==='email')!;
 ---
 <section><div class="wrap"><h2>{el?'Ας μιλήσουμε':'Let’s talk'}</h2><p>{el?'Τα πεδία με * είναι υποχρεωτικά.':'Fields marked * are required.'}</p>
-<div class="contact-layout"><form id={preview?'preview-contact-form':'contact-form'} action={preview?undefined:'/api/contact'} method="post" data-locale={content.locale}>
+<div class="contact-layout"><form id={preview?'preview-contact-form':'contact-form'} action={preview?undefined:'/api/contact'} method="post" data-locale={content.locale} data-protection-mode={protection.mode} data-protection-key={protection.siteKey} data-protection-action="contact">
 <Field disabled={preview} name="name" label={el?'Όνομα':'Name'} required maxlength={120} autocomplete="name"/>
 <Field disabled={preview} name="email" label={el?'Email':'Email'} type="email" required maxlength={254} autocomplete="email"/>
 <Field disabled={preview} name="phone" label={el?'Τηλέφωνο':'Phone'} type="tel" maxlength={40} autocomplete="tel"/>
@@ -24,18 +27,23 @@ const email=channels.direct.find(link=>link.id==='email')!;
 <Field disabled={preview} name="message" label={el?'Μήνυμα':'Message'} required minlength={20} maxlength={5000} multiline/>
 <label class="check"><input disabled={preview} type="checkbox" name="privacyAccepted" id="privacyAccepted" aria-describedby="privacyAccepted-error" required/>{el?'Έχω διαβάσει την':'I have read the'} <a href={context.link('/'+content.locale+'/privacy',content.locale)}>{el?'πολιτική απορρήτου':'privacy notice'}</a> *</label><span id="privacyAccepted-error" class="field-error"></span>
 {project.profile!=='enquiries'&&<><label class="check"><input disabled={preview} type="checkbox" name="marketingConsent"/>{el?'Θέλω να λαμβάνω ενημερώσεις μέσω email (προαιρετικό).':'Send me useful email updates (optional).'}</label><div class="field"><label for="interest">{el?'Ενημερώσεις':'Updates'}</label><select disabled={preview} name="interest" id="interest">{project.interests.map(i=><option value={i.id}>{i.label}</option>)}</select></div></>}
-<input disabled={preview} type="hidden" name="turnstileToken" value="local-preview"/>
-<div id="form-errors" tabindex="-1" role="alert" hidden></div><button disabled={preview} type="submit">{el?'Αποστολή μηνύματος':'Send message'}</button><p id="form-status" role="status" aria-live="polite"></p>
+<FormProtection locale={content.locale}/>
+{!preview&&protection.mode==='unavailable'&&<p role="status">{el?'Η ηλεκτρονική φόρμα δεν είναι διαθέσιμη προσωρινά. Επικοινωνήστε μαζί μας μέσω email ή τηλεφώνου.':'The online form is temporarily unavailable. Please contact us by email or phone.'}</p>}
+<div id="form-errors" tabindex="-1" role="alert" hidden></div><button disabled={preview||protection.mode==='unavailable'} type="submit">{el?'Αποστολή μηνύματος':'Send message'}</button><p id="form-status" role="status" aria-live="polite"></p>
 <noscript><p>{el?'Η φόρμα χρειάζεται JavaScript. Εναλλακτικά, στείλτε email.':'This form needs JavaScript. You can also email us directly.'} <a href={email.href}>{email.label}</a></p></noscript>
 </form><aside class="contact-aside"><ContactDetails channels={channels} locale={content.locale}/><SocialLinks links={channels.social} locale={content.locale} variant="labeled"/></aside></div></div></section>
 <script>
+import {createFormProtection} from '../scripts/form-protection';
 const form=document.querySelector<HTMLFormElement>('#contact-form');
 if(form){
  const context=form.querySelector<HTMLSelectElement>('#contextId')!;
  const requestedContext=new URLSearchParams(location.search).get('contextId');
  if(requestedContext&&Array.from(context.options).some(option=>option.value===requestedContext))context.value=requestedContext;
  form.noValidate=true;
- let requestKey=crypto.randomUUID();
+ let requestKey=crypto.randomUUID(),busy=false;
+ let protection=createFormProtection(form),pendingAbort:AbortController|undefined;
+ window.addEventListener('pagehide',()=>{protection.destroy();pendingAbort?.abort();});
+ window.addEventListener('pageshow',event=>{if(event.persisted)protection=createFormProtection(form);});
  const el=form.dataset.locale==='el';
  const summary=form.querySelector<HTMLElement>('#form-errors')!;
  const controls=Array.from(form.querySelectorAll<HTMLInputElement|HTMLTextAreaElement>('input,textarea'));
@@ -61,20 +69,20 @@ if(form){
   control.addEventListener('input',()=>{if(control.hasAttribute('aria-invalid'))showError(control,errorFor(control));});
  }
  form.addEventListener('submit',async event=>{
-  event.preventDefault();const button=form.querySelector('button')!;const status=form.querySelector<HTMLElement>('#form-status')!;
+  event.preventDefault();if(busy)return;const button=form.querySelector('button')!;const status=form.querySelector<HTMLElement>('#form-status')!;
   const invalid=controls.map(field=>({field,message:errorFor(field)}));for(const {field,message}of invalid)showError(field,message);
   const errors=invalid.filter(e=>e.message).map(e=>({name:e.field.name,message:e.message}));showSummary(errors);if(errors.length)return;
   const fields=new FormData(form);
   const payload:Record<string,unknown>=Object.fromEntries(fields.entries());payload.requestKey=requestKey;payload.privacyAccepted=fields.has('privacyAccepted');payload.marketingConsent=fields.has('marketingConsent');
-  button.disabled=true;status.textContent=el?'Αποστολή…':'Sending…';
-  try{const response=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(15000)});const data=await response.json();
+  busy=true;const guard=protection;button.disabled=true;form.setAttribute('aria-busy','true');status.textContent=el?'Αποστολή…':'Sending…';
+  try{payload.turnstileToken=await guard.token();pendingAbort=new AbortController();const response=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.any([pendingAbort.signal,AbortSignal.timeout(15000)])});const data=await response.json();
    if(!response.ok){
     if(Array.isArray(data.errors)){const errors=data.errors.filter((e:{name:string})=>controls.some(c=>c.name===e.name)).map((e:{name:string;message:string})=>({name:e.name,message:el?'Ελέγξτε αυτό το πεδίο.':e.message}));for(const error of errors){const field=controls.find(c=>c.name===error.name);if(field)showError(field,error.message);}showSummary(errors);}
     throw Error(response.status===400?(el?'Ελέγξτε τα υποχρεωτικά πεδία.':'Please check the required fields.'):data.message);
    }
    status.textContent=el?'Ευχαριστούμε. Το μήνυμά σας παραλήφθηκε.':data.message;form.reset();requestKey=crypto.randomUUID();
   }catch(error){status.textContent=error instanceof Error&&!['TimeoutError','TypeError'].includes(error.name)?error.message:(el?'Δεν ήταν δυνατή η αποστολή. Δοκιμάστε ξανά.':'Unable to send. Please try again.');}
-  finally{button.disabled=false;}
+  finally{guard.reset();pendingAbort=undefined;busy=false;form.setAttribute('aria-busy','false');button.disabled=form.dataset.protectionMode==='unavailable';}
  });
 }
 </script>
