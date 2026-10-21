@@ -1,4 +1,5 @@
 export interface Env {
+  RUNTIME_BUDGET?: string;
   DB: D1Database;
   ASSETS: Fetcher;
   OUTBOUND: Queue<{ id: string }>;
