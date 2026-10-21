@@ -20,13 +20,13 @@ it('has one public CSP and permits only Turnstile script/frame origins when conf
 });
 it('replaces inherited CMS policies on every CMS path after authentication',async()=>{
  const f=environment();try{f.env.ASSETS={fetch:vi.fn(async()=>new Response('editor',{headers:{'Content-Security-Policy':"default-src 'self', default-src 'self'; script-src 'unsafe-inline'"}}))} as any;
- for(const path of ['/cms','/cms/','/cms/index.html','/cms/assets/app.js']){const response=await worker.fetch(new Request('http://127.0.0.1'+path),f.env,{waitUntil(){}} as any);expect(response.status).toBe(200);const csp=response.headers.get('Content-Security-Policy')!;expect(csp).not.toContain(',');expect(csp).toContain("script-src 'self' 'unsafe-inline' blob:");expect(response.headers.get('X-Robots-Tag')).toBe('noindex, nofollow');}
+ for(const path of ['/cms','/cms/','/cms/index.html','/cms/assets/app.js']){const response=await worker.fetch(new Request('http://127.0.0.1'+path),f.env,{waitUntil(){}} as any);expect(response.status).toBe(200);const csp=response.headers.get('Content-Security-Policy')!;expect(csp).not.toContain(',');expect(csp).toContain("script-src 'self' 'unsafe-inline' blob:");expect(csp).toContain("font-src 'self' data:");expect(response.headers.get('X-Robots-Tag')).toBe('noindex, nofollow');}
  f.env.ENVIRONMENT='production';const calls=(f.env.ASSETS.fetch as any).mock.calls.length;expect((await worker.fetch(new Request('https://example.com/cms'),f.env,{waitUntil(){}} as any)).status).not.toBe(200);expect(f.env.ASSETS.fetch).toHaveBeenCalledTimes(calls);
  }finally{f.database.close();}
 });
 it('allows validated Tina loopback connections only in local CMS policies',async()=>{
  const {cmsResponse}=await import('../packages/config/security-headers.mjs');const origins=JSON.stringify(['http://127.0.0.1:4010','http://localhost:4010','https://evil.test',"http://localhost:4010; script-src *"]);
- const local=cmsResponse(new Response('cms'),{ENVIRONMENT:'local',CMS_LOCAL_ORIGINS:origins}).headers.get('content-security-policy')!;expect(local).toContain('http://localhost:4010');expect(local).not.toContain('evil.test');
+ const local=cmsResponse(new Response('cms'),{ENVIRONMENT:'local',CMS_LOCAL_ORIGINS:origins}).headers.get('content-security-policy')!;expect(local).toContain("script-src 'self' 'unsafe-inline' blob: http://127.0.0.1:4010 http://localhost:4010");expect(local).toContain('ws://localhost:4010');expect(local).not.toContain('evil.test');
  expect(cmsResponse(new Response('cms'),{ENVIRONMENT:'production',CMS_LOCAL_ORIGINS:origins}).headers.get('content-security-policy')).not.toContain('localhost');
 });
 

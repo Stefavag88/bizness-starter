@@ -12,7 +12,7 @@ const args=process.argv.slice(2).filter(value=>value!=='--');if(args.some(value=
 const resumed=args.includes('--resume-browser')?JSON.parse(readFileSync(join(evidence,'report.json'),'utf8')):null;
 const destination=resumed?.destination??resolve(root,'..','.form-security-client-'+randomUUID().replaceAll('-',''));
 if(dirname(destination)!==resolve(root,'..')||!basename(destination).startsWith('.form-security-client-'))throw Error('Unexpected disposable client path');
-const report=resumed??{destination,commands:[],browser:[],passed:false};const save=()=>writeFileSync(join(evidence,'report.json'),JSON.stringify(report,null,2));save();
+const report=resumed??{destination,commands:[],browser:[],passed:false};report.passed=false;report.browser=[];const save=()=>writeFileSync(join(evidence,'report.json'),JSON.stringify(report,null,2));save();
 const pnpm=process.env.npm_execpath;if(!pnpm)throw Error('Run using pnpm test:form-security');
 if(!resumed){
 await initializeProject({source:root,options:{preset:'neutral',name:'form-security-client',destination,languages:['en','el'],defaultLanguage:'en'}});

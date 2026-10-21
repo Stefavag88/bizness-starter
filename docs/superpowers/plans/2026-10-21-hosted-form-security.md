@@ -34,3 +34,7 @@ Export/reset every new runtime dependency. Document public key vs secret, exact 
 ## Review focus
 
 CMS public-policy separation and auth precede asset fetch; no arbitrary origins/key injection; no fallback to local on hosted requests; independent per-form callbacks/tokens; fresh token after rejection; async coordination/destroy races; timeout/loader failure permits explicit retry; export/reset completeness; production gates not silently lifted.
+
+## Closeout
+
+Implementation and one independent final review completed; the review found no Critical/Important/Minor issues. Final native acceptance identified and verified the local Tina dev-script/HMR origins and CMS embedded-font requirements. They are covered by RED/GREEN regressions and a green final suite; required CMS resources now load under the actual Worker policy. Optional third-party fonts/telemetry remain blocked. See the matching evidence document. Production remains blocked; retain current branch and local stack.
