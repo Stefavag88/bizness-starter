@@ -1,4 +1,5 @@
-import { jwtVerify, createRemoteJWKSet, SignJWT } from 'jose';
+import { jwtVerify, createRemoteJWKSet, SignJWT, customFetch, jwksCache, type JWKSCacheInput } from 'jose';
+import {chargeExternal} from './budget';
 import { hash } from '../packages/contracts';
 import type { Env } from './types';
 import { accessEmail, accessEmails } from '../packages/config/access.mjs';
@@ -66,6 +67,7 @@ export async function body(request: Request, max = 16384, requireJson = true) {
 export async function verifyTurnstile(request: Request, env: Env, token: string, action: string) {
   if (isLocal(request, env)) return;
   if (!env.TURNSTILE_SECRET) throw new HttpError(503, 'Form protection is not configured.');
+  chargeExternal(env);
   const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
     method: 'POST',
     body: new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token }),
@@ -107,7 +109,7 @@ export async function readToken(env: Env, token: string, purpose: string) {
     throw new HttpError(400, 'This link is invalid or has expired.');
   }
 }
-const keys = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
+const keys = new Map<string,JWKSCacheInput>();
 function roleLists(env: Env) {
   try {
     return {
@@ -126,11 +128,8 @@ async function authorize(request: Request, env: Env, role: 'admin' | 'editor') {
   const issuer = env.ACCESS_ISSUER.replace(/\/$/, '');
   if (!/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/.test(issuer))
     throw new HttpError(503, 'Invalid Access issuer.');
-  let key = keys.get(issuer);
-  if (!key) {
-    key = createRemoteJWKSet(new URL(`${issuer}/cdn-cgi/access/certs`));
-    keys.set(issuer, key);
-  }
+  let cache=keys.get(issuer);if(!cache){cache={};keys.set(issuer,cache);}
+  const key=createRemoteJWKSet(new URL(`${issuer}/cdn-cgi/access/certs`),{[jwksCache]:cache,[customFetch]:async(url,options)=>{chargeExternal(env);return fetch(url,options);}});
   try {
     const { payload } = await jwtVerify(request.headers.get('cf-access-jwt-assertion') || '', key, {
       issuer,

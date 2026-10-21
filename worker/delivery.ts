@@ -1,4 +1,4 @@
-import {workContext,meterEnvironment,type WorkContext,type WorkResult} from './budget';
+import {workContext,meterEnvironment,chargeExternal,type WorkContext,type WorkResult} from './budget';
 import {reserveAdmission} from './admissions';
 import {parseRuntimeBudget} from '../packages/config/runtime-budgets.mjs';
 import { AwsClient } from 'aws4fetch';
@@ -74,6 +74,7 @@ async function send(env: Env, job: EmailJob, email: Message) {
   };
   let response: Response;
   try {
+    chargeExternal(env);
     response = await client.fetch(
       `https://email.${env.SES_REGION}.amazonaws.com/v2/email/outbound-emails`,
       {
@@ -119,7 +120,7 @@ async function deliveryAllowed(env: Env, job: EmailJob, subscriber: Subscriber |
   }
   return true;
 }
-export async function deliver(env: Env, id: string) {
+async function performDelivery(env: Env, id: string) {
   const timestamp = now();
   const job = await env.DB.prepare(
     `UPDATE email_job SET state='sending',lease_until=?,attempts=attempts+1
@@ -127,7 +128,7 @@ export async function deliver(env: Env, id: string) {
   )
     .bind(timestamp + 60000, id, timestamp)
     .first<EmailJob>();
-  if (!job) return;
+  if (!job) return false;
   const subscriber = job.subscriber_id
     ? await env.DB.prepare('SELECT * FROM subscriber WHERE id=?')
         .bind(job.subscriber_id)
@@ -224,13 +225,28 @@ export async function deliver(env: Env, id: string) {
       .run();
   }
 }
-export async function drainLocal(env: Env) {
+export interface DeliveryResult{outcome:'accepted'|'failed'|'unknown'|'skipped'|'deferred'|'noop';retry?:boolean}
+export async function deliver(env:Env,id:string,context:WorkContext=workContext(env)):Promise<DeliveryResult>{
+ const hold=context.scope.tryReserve('delivery',{sqlStatements:10,externalCalls:2,internalCalls:14});
+ if(!hold){context.scope.recordOutcome('deferred');return {outcome:'deferred',retry:true};}
+ const e=meterEnvironment(env,context.scope,hold,context.at);
+ try{
+  if(await performDelivery(e,id)===false)return {outcome:'noop'};
+  const row=await e.DB.prepare('SELECT state FROM email_job WHERE id=?').bind(id).first<{state:string}>();
+  const outcome:DeliveryResult['outcome']=row?.state==='pending'?'deferred':row?.state==='accepted'?'accepted':row?.state==='failed'?'failed':row?.state==='unknown'?'unknown':row?.state==='skipped'?'skipped':'noop';
+  if(['accepted','failed','unknown','deferred'].includes(outcome))context.scope.recordOutcome(outcome as 'accepted'|'failed'|'unknown'|'deferred');
+  return {outcome};
+ }finally{hold.releaseUnused();}
+}
+export async function drainLocal(env: Env,context:WorkContext=workContext(env)) {
+ env=meterEnvironment(env,context.scope,context.reservation,context.at);
+
   const { results } = await env.DB.prepare(
     "SELECT id FROM email_job WHERE state IN ('pending','queued') AND available_at<=? ORDER BY created_at LIMIT 20",
   )
     .bind(now())
     .all<{ id: string }>();
-  for (const job of results) await deliver(env, job.id);
+  for (const job of results){const r=await deliver(env,job.id,context);if(r.retry)break;}
 }
 export async function dispatch(env:Env,context:WorkContext=workContext(env)):Promise<WorkResult>{
  const {scope,at}=context,policy=scope.policy;

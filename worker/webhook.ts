@@ -1,3 +1,4 @@
+import {chargeExternal} from './budget';
 import { X509Certificate, createVerify } from 'node:crypto';
 import { AwsClient } from 'aws4fetch';
 import { z } from 'zod';
@@ -58,6 +59,7 @@ export async function sesWebhook(env: Env, input: unknown) {
     throw new HttpError(403, 'Invalid signing certificate.');
   let pem: string;
   try {
+    chargeExternal(env);
     const response = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(10000) });
     if (!response.ok) throw new HttpError(503, 'Certificate unavailable.');
     pem = await response.text();
@@ -94,7 +96,9 @@ export async function sesWebhook(env: Env, input: unknown) {
       secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
       region: env.SES_REGION,
       service: 'sns',
+      retries: 0,
     });
+    chargeExternal(env);
     const confirmed = await aws.fetch(`https://sns.${env.SES_REGION}.amazonaws.com/`, {
       method: 'POST',
       body: new URLSearchParams({

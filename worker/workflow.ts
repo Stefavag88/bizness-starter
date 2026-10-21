@@ -2,6 +2,7 @@ import {workContext,meterEnvironment,type WorkContext,type WorkResult} from './b
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from 'cloudflare:workers';
 import type { Env, Subscriber } from './types';
 import { jobStatement } from './db';
+import {persistUsage} from './usage';
 import manifest from './manifest';
 import project from '../project.json';
 // Versioned sample content. Replace and review before enabling real nurture.
@@ -13,20 +14,22 @@ export class WelcomeWorkflow extends WorkflowEntrypoint<
     event: WorkflowEvent<{ subscriberId: string; generation: number }>,
     step: WorkflowStep,
   ) {
+    const context=workContext(this.env,'workflow');const e=meterEnvironment(this.env,context.scope,undefined,context.at);
     for (const [index, delay] of ['3 days', '4 days', '7 days'].entries()) {
       await step.sleep(`wait-${index}`, delay as '3 days');
       const active = await step.do(`intent-${index}`, async () => {
-        const s = await this.env.DB.prepare('SELECT * FROM subscriber WHERE id=?')
+        const at=Date.now(),baseline=context.scope.snapshot().attempted;try{
+        const s = await e.DB.prepare('SELECT * FROM subscriber WHERE id=?')
           .bind(event.payload.subscriberId)
           .first<Subscriber>();
         if (!s || s.status !== 'active' || s.generation !== event.payload.generation) {
-          await this.env.DB.prepare(
+          await e.DB.prepare(
             "UPDATE automation_enrollment SET state='cancelled' WHERE subscriber_id=? AND generation=? AND state IN ('pending','running')",
           ).bind(event.payload.subscriberId, event.payload.generation).run();
           return false;
         }
         await jobStatement(
-          this.env,
+          e,
           `nurture:${s.id}:${s.generation}:v1:${index}`,
           'nurture',
           {
@@ -35,21 +38,24 @@ export class WelcomeWorkflow extends WorkflowEntrypoint<
               'Care in the small details',
               'Ready for a conversation?',
             ][index],
-            text: `Sample nurture copy — replace before production.\n${this.env.SITE_URL}/${manifest.routes.find(r=>r.locale===project.locale && r.contentId===(index===2?'contact':'insights'))?.path.slice(1) || project.locale}`,
+            text: `Sample nurture copy — replace before production.\n${e.SITE_URL}/${manifest.routes.find(r=>r.locale===project.locale && r.contentId===(index===2?'contact':'insights'))?.path.slice(1) || project.locale}`,
           },
           s.id,
           s.generation,
         ).run();
         return true;
+        }finally{await persistUsage(e,context.scope,{entrypoint:"workflow-step",at,baseline});}
       });
       if (!active) return;
     }
     await step.do('complete', async () => {
-      await this.env.DB.prepare(
+      const at=Date.now(),baseline=context.scope.snapshot().attempted;try{
+      await e.DB.prepare(
         "UPDATE automation_enrollment SET state='completed' WHERE subscriber_id=? AND generation=? AND state IN ('pending','running')",
       )
         .bind(event.payload.subscriberId, event.payload.generation)
         .run();
+      }finally{await persistUsage(e,context.scope,{entrypoint:"workflow-step",at,baseline});}
     });
   }
 }

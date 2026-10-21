@@ -1,3 +1,5 @@
+import {workContext,meterEnvironment} from './budget';
+import {persistUsage} from './usage';
 import {runScheduled} from './scheduler';
 import { localizedAsset } from './assets';
 import project from '../project.json';
@@ -22,7 +24,7 @@ const json = (data: unknown, status = 200) =>
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options':'nosniff', 'Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'" },
   });
 async function scheduled(env:Env){const result=await runScheduled(env,Date.now());if(result.failures)throw Error('Scheduled tasks failed.');}
-export default {
+const handlers = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url),
       path = url.pathname;
@@ -209,8 +211,8 @@ export default {
           message.ack();
           continue;
         }
-        await deliver(env, data.id);
-        message.ack();
+        const result=await deliver(env,data.id);
+        if(result.retry)message.retry({delaySeconds:60});else message.ack();
       } catch {
         message.retry({ delaySeconds: 60 });
       }
@@ -221,3 +223,25 @@ export default {
     }
   },
 } satisfies ExportedHandler<Env, unknown, { id: string }>;
+
+export default {
+ async fetch(request:Request,env:Env,ctx:ExecutionContext){
+  const context=workContext(env,'http'),scope=context.scope,waiting:Promise<unknown>[]=[];
+  const telemetry=scope.tryReserve('telemetry',{sqlStatements:1,externalCalls:0,internalCalls:1});
+  const e=meterEnvironment(env,scope,undefined,context.at);
+  const nested=new Proxy(ctx,{get(target,key){if(key==='waitUntil')return(p:Promise<unknown>)=>{waiting.push(p);};const v=Reflect.get(target,key);return typeof v==='function'?v.bind(target):v;}});
+  const response=await handlers.fetch(request,e,nested);
+  if(request.method==='POST'&&scope.snapshot().attempted.sqlStatements>0){
+   ctx.waitUntil((async()=>{try{const outcomes=await Promise.allSettled(waiting);if(outcomes.some(r=>r.status==='rejected'))console.error(JSON.stringify({error:'local_background_failed'}));}finally{
+    telemetry?.releaseUnused();const path=new URL(request.url).pathname;
+    await persistUsage(e,scope,{entrypoint:path.includes('contact')?'contact':path.includes('newsletter')?'newsletter':path.includes('webhooks')?'feedback':'campaign',at:context.at});
+   }})());
+  }else{telemetry?.releaseUnused();for(const work of waiting)ctx.waitUntil(work);}
+  return response;
+ },
+ scheduled:handlers.scheduled,
+ async queue(batch:MessageBatch<unknown>,env:Env){
+  const context=workContext(env,'queue'),hold=context.scope.tryReserve('telemetry',{sqlStatements:1,externalCalls:0,internalCalls:1});
+  try{await handlers.queue(batch,meterEnvironment(env,context.scope,undefined,context.at));}finally{hold?.releaseUnused();await persistUsage(env,context.scope,{entrypoint:'queue',at:context.at});}
+ }
+} satisfies ExportedHandler<Env,unknown,{id:string}>;
