@@ -13,6 +13,15 @@ function tasks(c:ProviderAnalyticsBinding,w:Window):Task[]{const d=dates(w),q=JS
  if(c.includeAccountTotals)result.push({query:wrap('workersInvocationsAdaptive',time,'sum{requests}'),metrics:[{id:'worker_requests_account',group:'sum',field:'requests',note:'Shared account aggregate; includes other Workers.'}]});
  if(c.queueId)result.push({query:wrap('queueMessageOperationsAdaptiveGroups',`${time},queueId:${q(c.queueId)}`,'sum{billableOperations}'),metrics:[{id:'queue_operations',group:'sum',field:'billableOperations',note:'Provider billable Queue operations; capability must be verified in staging.'}]});return result;}
 const cache=new Map<string,{next:number;value:Provider;flight?:Promise<Provider>}>();
+function currentView(value:Provider,at:number):Provider{
+ const result=structuredClone(value);
+ for(const metric of result.metrics)if(metric.value!==null&&metric.updatedAt&&at-Date.parse(metric.updatedAt)>3600000){metric.value=null;metric.status='unavailable';metric.updatedAt=null;metric.note='Last provider observation expired; waiting for retry.';}
+ const known=result.metrics.filter(metric=>metric.value!==null);
+ result.status=known.length?(known.every(metric=>metric.status==='stale')?'stale':'partial'):'unavailable';
+ result.updatedAt=known.length?known.map(metric=>metric.updatedAt!).sort().at(-1)!:null;
+ return result;
+}
+
 async function boundedJson(response:Response){if(!response.body)throw Error('Empty response');const reader=response.body.getReader(),chunks:Uint8Array[]=[];let size=0;try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>262144)throw Error('Response too large');chunks.push(value);}}catch(error){await reader.cancel().catch(()=>{});throw error;}finally{reader.releaseLock();}const body=new Uint8Array(size);let offset=0;for(const chunk of chunks){body.set(chunk,offset);offset+=chunk.length;}return JSON.parse(new TextDecoder().decode(body));}
 export async function collectProviderUsage(env:Env,window:Window,at:number):Promise<Provider>{
  dates(window);const blank=(status:Provider['status'],note:string):Provider=>({status,updatedAt:null,metrics:empty(window,status==='not_configured'?'not_configured':'unavailable',note)});
@@ -20,7 +29,7 @@ export async function collectProviderUsage(env:Env,window:Window,at:number):Prom
  let config:ProviderAnalyticsBinding;try{config=providerBindingSchema.parse(JSON.parse(env.PROVIDER_ANALYTICS??'{}'));}catch{return blank('not_configured','Provider configuration is missing or invalid.');}
  if(!config.enabled||!env.CF_ANALYTICS_TOKEN)return blank('not_configured','Enable server-owned analytics and configure its secret token.');
  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([config,env.CF_ANALYTICS_TOKEN,window,env.ENVIRONMENT])));const key=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
- let entry=cache.get(key);if(entry?.flight)return structuredClone(await entry.flight);if(entry&&at<entry.next)return structuredClone(entry.value);
+ let entry=cache.get(key);if(entry?.flight)return currentView(await entry.flight,at);if(entry&&at<entry.next)return currentView(entry.value,at);
  if(!entry){if(cache.size>=16)cache.delete(cache.keys().next().value!);entry={next:0,value:blank('unavailable','No provider observation yet.')};cache.set(key,entry);}
  const current=entry;const flight=(async()=>{
  const metrics=empty(window,'unavailable','Metric requires verified dataset availability, units and aggregation in staging.');
@@ -33,5 +42,5 @@ export async function collectProviderUsage(env:Env,window:Window,at:number):Prom
   const row=accounts[0].readings[0];for(const definition of task.metrics){const metric=metrics.find(m=>m.id===definition.id)!,value=row?.[definition.group]?.[definition.field];if(typeof value!=='number'||!Number.isFinite(value)||value<0)throw Error('Invalid metric');Object.assign(metric,{value,status:'partial',updatedAt:new Date(at).toISOString(),note:definition.note});}
  }catch{failed=true;for(const definition of task.metrics){const metric=metrics.find(m=>m.id===definition.id)!,prior=current.value.metrics.find(m=>m.id===definition.id);if(prior?.value!==null&&prior?.updatedAt&&at-Date.parse(prior.updatedAt)<=3600000)Object.assign(metric,prior,{status:'stale',note:'Collection failed; last successful reading retained.'});}}}));}finally{clearTimeout(timer);}
  const known=metrics.filter(m=>m.value!==null),allStale=known.length>0&&known.every(m=>m.status==='stale');const result:Provider={status:allStale?'stale':known.length?'partial':'unavailable',updatedAt:known.length?known.map(m=>m.updatedAt!).sort().at(-1)!:null,metrics};current.value=result;current.next=at+(failed?backoff:300000);return result;
- })();current.flight=flight;try{return structuredClone(await flight);}finally{current.flight=undefined;}
+ })();current.flight=flight;try{return currentView(await flight,at);}finally{current.flight=undefined;}
 }
