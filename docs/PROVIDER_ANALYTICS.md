@@ -1,6 +1,6 @@
 # Cloudflare provider analytics setup
 
-Status: local integration prepared, disabled by default. No staging account/resources/token exist yet. This does not complete hosted milestone 8 or lift production readiness gates.
+Status: local integration prepared, disabled by default. No hosted account/resources/token are configured yet. The initial deployment workflow is production-only with controlled commissioning; staging is optional. This does not complete hosted milestone 8 or lift production readiness gates.
 
 ## What is prepared
 
@@ -10,21 +10,21 @@ CPU p99, Queue backlog and Workflow steps deliberately return unavailable with a
 
 Empty, malformed, truncated or denied results are unavailable, not zero. A returned numeric zero is retained. Per-dataset failures preserve valid other cards. Cached readings that fail refresh are labeled stale for at most one hour. No raw provider errors, resource identifiers or secrets are exposed through the dashboard. Provider data adds no D1 observation write per view.
 
-## Required staging inventory
+## Required hosted inventory
 
 Record these values through the approved deployment-isolation workflow before enabling collection:
 
 | Value | Ownership |
 | --- | --- |
-| Cloudflare account ID and actual Workers plan | Owner's staging account; verify analytics dataset access |
-| Project/environment identity and Worker name | Distinct from production/customer resources |
-| D1 UUID | The database bound to this exact deployment; never the placeholder or production UUID |
+| Cloudflare account ID and actual Workers plan | Owner's intended deployment account; verify analytics dataset access |
+| Project/environment identity and Worker name | Explicit application and environment identity |
+| D1 UUID | The database bound to this exact deployment; never a placeholder or another application/environment UUID |
 | Queue/DLQ IDs and names | Match this deployment's producer/consumer bindings |
-| Workflow identity, when enabled | Distinct staging workflow |
+| Workflow identity, when enabled | Workflow bound to this deployment |
 | Domain/routes and Access issuer/audience | Protect the hosted administrator surface |
 | Dataset permissions, field schema, time ranges, sampling and units | Captured from live Settings/introspection and controlled measurements |
 
-The current generated configuration has one resource set. Changing `environment` is not infrastructure isolation. Prepare and review a distinct staging identity before provisioning or deploying; current production blockers remain mandatory.
+The normal generated configuration has one resource set. Changing `environment` is not infrastructure isolation. Use [production preparation](DEPLOYMENT.md) to review the production target without changing local configuration. Its plan is not a deployed configuration; all hosted readiness gates remain mandatory.
 
 ## Configuration
 
@@ -41,17 +41,17 @@ Developer-owned `project.json` can include:
 }
 ```
 
-Merge this fragment into the existing infrastructure object. Later, an enabled configuration requires the intended `accountId` (32 lowercase hexadecimal characters) and a real existing bound D1 UUID. Optional `queueId` uses the queue's 32-character ID, not its display name. Configure derives the Worker name from `project.name` and the database from `infrastructure.databaseId`; analytics cannot silently select a different database. `PROVIDER_ANALYTICS` is generated server configuration. It is not a Tina field or editable generated JSON. Initialized projects default to disabled analytics and do not inherit account credentials.
+Merge this fragment into the existing infrastructure object. Later, an enabled configuration requires the intended `accountId` (32 lowercase hexadecimal characters) and a real existing bound D1 UUID. Optional `queueId` uses the queue's 32-character ID, not its display name. Normal configure derives the Worker name from `project.name`; production preparation derives it from application plus -production. Both derive the database from the explicitly selected `infrastructure.databaseId`; analytics cannot silently select a different database. `PROVIDER_ANALYTICS` is generated server configuration. It is not a Tina field or editable generated JSON. Initialized projects default to disabled analytics and do not inherit account credentials.
 
-Create a narrowly scoped API token for the staging account with **Account > Account Analytics > Read**, following [Cloudflare's token guide](https://developers.cloudflare.com/analytics/graphql-api/getting-started/authentication/api-token-auth/). Inspect actual dataset permissions; add only a separately justified read scope if the selected product requires one. Do not use an account-wide edit/global API credential. Configure expiry/rotation appropriate to the operator's policy.
+Create a narrowly scoped API token for the intended deployment account with **Account > Account Analytics > Read**, following [Cloudflare's token guide](https://developers.cloudflare.com/analytics/graphql-api/getting-started/authentication/api-token-auth/). Inspect actual dataset permissions; add only a separately justified read scope if the selected product requires one. Do not use an account-wide edit/global API credential. Configure expiry/rotation appropriate to the operator's policy.
 
-Store the token as the Worker secret binding **CF_ANALYTICS_TOKEN** through the reviewed staging deployment configuration. Do not put it in project JSON, CMS, source control, browser variables, logs or a chat message. This guide intentionally supplies no provisioning or secret-update command against the current placeholder configuration. No token is needed for local development: `ENVIRONMENT=local` always disables cloud collection, even if a token exists.
+Store the token as the Worker secret binding **CF_ANALYTICS_TOKEN** through the reviewed hosted deployment configuration. Do not put it in project JSON, CMS, source control, browser variables, logs or a chat message. This guide intentionally supplies no provisioning or secret-update command against the current placeholder configuration. No token is needed for local development: `ENVIRONMENT=local` always disables cloud collection, even if a token exists.
 
 ## Capability and meaning checks
 
 Use [GraphQL introspection](https://developers.cloudflare.com/analytics/graphql-api/features/discovery/introspection/) to inspect actual field/filter types and the [Settings node](https://developers.cloudflare.com/analytics/graphql-api/features/discovery/settings/) to verify availability and allowed windows for this account. Introspection alone does not prove entitlement. Save a sanitized capability record with schema/date, account scope, permitted datasets and measurement units; never save credentials or unrelated resource data.
 
-Start with one known controlled interval and one resource per dataset. Compare its result to Cloudflare's dashboard and application observations. Validate no-dimension aggregate behavior and count completeness: the collector rejects multiple aggregate records rather than adding a potentially truncated sample. D1 date windows are inclusive UTC dates; Worker and Queue timestamps use the documented inclusive filters, ending at the last millisecond of the selected UTC day. Confirm exact accepted filters against the staging schema before relying on values. A schema/filter error leaves only that dataset unavailable.
+Start with one known controlled interval and one resource per dataset. Compare its result to Cloudflare's dashboard and application observations. Validate no-dimension aggregate behavior and count completeness: the collector rejects multiple aggregate records rather than adding a potentially truncated sample. D1 date windows are inclusive UTC dates; Worker and Queue timestamps use the documented inclusive filters, ending at the last millisecond of the selected UTC day. Confirm exact accepted filters against the actual deployment schema before relying on values. A schema/filter error leaves only that dataset unavailable.
 
 The prepared dataset names are `workersInvocationsAdaptive`, `d1AnalyticsAdaptiveGroups`, `d1StorageAdaptiveGroups` and optional `queueMessageOperationsAdaptiveGroups`. Use [Worker examples](https://developers.cloudflare.com/analytics/graphql-api/tutorials/querying-workers-metrics/), [D1 metrics](https://developers.cloudflare.com/d1/observability/metrics-analytics/) and [Queue metrics](https://developers.cloudflare.com/queues/observability/metrics/) as discovery starting points, not account qualification. [Workflow metrics](https://developers.cloudflare.com/workflows/observability/metrics-analytics/) needs a separate verified billable-step mapping. Dataset limits are account-specific; see [API limits](https://developers.cloudflare.com/analytics/graphql-api/limits/).
 
@@ -65,7 +65,7 @@ Application rollups retain their own five-minute cache; provider configuration/c
 
 ## Remaining hosted qualification
 
-1. Validate isolated staging resources and complete the applicable Access/CMS/form protection readiness gates.
+1. Validate the explicitly bound hosted resources and complete the applicable Access/CMS/form protection readiness gates.
 2. Configure the secret and discover/record actual permitted schema, sampling, time bounds and units.
 3. Verify all prepared queries and compare controlled Worker/D1/Queue deltas, including failures, duplicates, retries and observer overhead.
 4. Implement and verify the remaining CPU, Queue backlog and Workflow mappings without inventing billing totals.

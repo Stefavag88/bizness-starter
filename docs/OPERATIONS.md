@@ -36,7 +36,7 @@ Platform complete/errored/terminated states map to completed/failed/cancelled. I
 ## Hosted recovery procedures still to rehearse
 
 - **DLQ:** identify the original job, inspect its current terminal state and provider evidence, and confirm duplicate processing is harmless before controlled replay. Never bulk replay unknown jobs.
-- **Database migration:** verify the target environment/database identity, preserve a tested recovery point, review the forward migration, apply in staging, then rehearse recovery against a disposable clone. Do not rewrite applied migration history.
+- **Database migration:** verify the target environment/database identity, preserve a tested recovery point, review the forward migration, rehearse migration/recovery against disposable local data, then apply to the explicitly verified production target only after separate authorization. Staging is optional. Do not rewrite applied migration history.
 - **Deployment rollback:** retain the previous artifact and its compatible schema/configuration; assess database compatibility before rollback. A code rollback does not undo a migration.
 - **Alerts:** define an operator, severity and thresholds for pending age, unknown outcomes, DLQ depth, repeated scheduled failures, feedback failures and failed enrollments. Avoid personal data in alert payloads.
 - **Data requests:** implement the owner-approved retention/access/deletion policy across records, payloads, captures, logs and backups. No retention durations are assumed here.
@@ -46,3 +46,7 @@ These steps must become concrete, tested account-specific runbooks before hosted
 ## Runtime budget operations
 
 See [Runtime budgets](RUNTIME_BUDGETS.md) for UTC admission/reserves and safe deferral, and [Usage & Capacity](USAGE_CAPACITY.md) for administrator statistics. The dashboard is available in all profiles; provider metrics require separately authorized hosted analytics. Never retry unknown delivery outcomes as if they were unsent.
+
+## Production-only workflow
+
+The initial workflow is local development plus production; see [deployment preparation](DEPLOYMENT.md). Plan generation is local-only and never authorizes a remote migration, deployment or email send. Retain all hosted readiness gates and use controlled commissioning before public launch.

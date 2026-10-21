@@ -120,3 +120,7 @@ See [newsletter authoring and delivery boundaries](NEWSLETTER.md) for the opt-in
 ## Independent business applications
 
 The versioned preset catalog supplies detached validated bilingual bundles. A source-only local gallery renders those bundles through an explicit RenderContext. The CLI exports a reviewed application allowlist into a new independent Git repository; it never copies source infrastructure or runtime state. See [presets](PRESETS.md) and [initialization boundaries](INITIALIZATION.md).
+
+## Production preparation
+
+The initial hosted workflow is local development + production only; staging is optional. The local-only deploy:prepare command validates an explicit non-secret production target and writes a blocked review plan without changing canonical configuration or creating cloud resources. See [deployment preparation](DEPLOYMENT.md). Hosted readiness gates remain mandatory.

@@ -29,6 +29,7 @@ export function createClientPackage(name,source){
   build:'pnpm configure && pnpm --filter @starter/site build',dev:'node scripts/dev.mjs','dev:cms':'node scripts/dev.mjs --cms',
   'worker:check':'pnpm configure && node scripts/wrangler.mjs deploy --dry-run --config wrangler.generated.json',
   'db:local':'pnpm configure && node scripts/wrangler.mjs d1 migrations apply DB --local --config wrangler.generated.json',
+  'deploy:prepare':'node scripts/deployment/prepare.mjs',
   'report:capacity':'node scripts/report-capacity.mjs',doctor:'node scripts/doctor.mjs','deploy:check':'node scripts/doctor.mjs --production',
  }};
 }

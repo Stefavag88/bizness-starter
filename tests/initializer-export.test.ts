@@ -33,3 +33,8 @@ it('exports every runtime budget dependency and capacity CLI to independent clie
  for(const path of ['packages/config/runtime-budgets.mjs','packages/config/runtime-budgets.d.mts','packages/runtime-capacity/model.mjs','packages/runtime-capacity/model.d.mts','worker/budget.ts','worker/admissions.ts','worker/scheduler.ts','worker/usage.ts','worker/usage-contracts.ts','worker/usage-page.ts','worker/campaign-estimates.ts','migrations/0003_runtime_budgets.sql','migrations/0004_runtime_selection_indexes.sql','scripts/report-capacity.mjs','docs/RUNTIME_BUDGETS.md','docs/USAGE_CAPACITY.md'])expect(inventory).toContain(path);
  const source=JSON.parse(readFileSync('package.json','utf8'));expect(createClientPackage('client',source).scripts['report:capacity']).toBe('node scripts/report-capacity.mjs');
 });
+
+it('exports production-only preparation to independent applications without deploying',()=>{
+ for(const path of ['scripts/deployment/production.mjs','scripts/deployment/production.d.mts','scripts/deployment/prepare.mjs','scripts/deployment/prepare.d.mts','scripts/deployment/wrangler-policy.mjs','scripts/deployment/wrangler-policy.d.mts','scripts/worker-config.mjs','scripts/worker-config.d.mts','deployment.production.example.json','docs/DEPLOYMENT.md'])expect(inventory).toContain(path);
+ const source=JSON.parse(readFileSync('package.json','utf8'));expect(source.scripts['deploy:prepare']).toBe('node scripts/deployment/prepare.mjs');expect(createClientPackage('client',source).scripts['deploy:prepare']).toBe(source.scripts['deploy:prepare']);expect(source.scripts['deploy:production']).toBeUndefined();
+});

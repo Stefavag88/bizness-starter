@@ -11,6 +11,7 @@ export async function initializeProject({source,options,dryRun=false}){
  const files=new Map([...snapshot.files].map(([path,file])=>[path,file.bytes]));
  const encode=value=>new TextEncoder().encode(value);
  files.set('package.json',encode(JSON.stringify(createClientPackage(options.name,JSON.parse(new TextDecoder().decode(files.get('package.json')))),null,2)+'\n'));
+ const deploymentExample=JSON.parse(new TextDecoder().decode(files.get('deployment.production.example.json')));deploymentExample.application=options.name;files.set('deployment.production.example.json',encode(JSON.stringify(deploymentExample,null,2)+'\n'));
  files.set('project.json',encode(JSON.stringify(bundle.project,null,2)+'\n'));for(const [path,bytes] of bundle.files)files.set(path,bytes);
  const extras=new Map(presetInputs.hashes);
  for(const [input,output] of [['scripts/initialize/client/README.md','README.md'],['scripts/initialize/client/project.test.ts','tests/project.test.ts'],['scripts/initialize/client/CMS_AUTHORING.md','docs/CMS_AUTHORING.md']]){

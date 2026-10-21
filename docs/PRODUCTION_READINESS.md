@@ -4,15 +4,15 @@ Status: **blocked**, as requested by the owner on 2026-10-21. No deployment or r
 
 ## Required owner and infrastructure inputs
 
-Before implementing hosted deployment, provide a final site domain and distinct staging/production deployment identities, D1 database UUIDs, queue/DLQ names, Workflow names when nurture is enabled, SES region/sender identity/configuration set, SNS feedback topic, and allowed staging recipients. Treat customer identity plus environment as the deployment identity. A different ENVIRONMENT label alone does not isolate today's generated resources.
+The owner selected **local development + production only** on 2026-10-21. Staging is optional and deferred; it is not a mandatory release prerequisite. Follow [production preparation](DEPLOYMENT.md). This decision does not lift production blockers or authorize provisioning, remote migrations, real sending or deployment.
 
-The existing project infrastructure model contains one resource set. Environment-specific resource mapping, cross-customer ID checks and build/runtime identity verification are still required before using it for staging and production. Do not deploy two environments by changing only ENVIRONMENT or reusing the current D1 UUID.
+Before hosted deployment, provide the final site domain, production account ID, application identity, D1 database UUID, Queue/DLQ identities, Workflow when nurture is enabled, and applicable SES region/sender/configuration-set/SNS feedback identities. Use controlled test recipients during commissioning. The optional deployment.production.json provides a strict non-secret target input, derived production resource names and a blocked local-only plan. The normal local configuration remains separate. Build/runtime artifact identity verification and guarded remote mutation commands still require implementation before release. Changing ENVIRONMENT alone is not isolation.
 
 Provide the desired administrator/editor email lists and hosted Tina membership. Verify Access application route coverage, audience and issuer, actual signed login/JWKS behavior, and Tina repository/index/build integration. Local role tests are not hosted certification.
 
 Provision AWS, Turnstile and token-signing secrets through environment-specific secret bindings. Never put them in project.json, CMS content, frontend bundles, logs or source control. Agree a credential rotation and incident procedure. Implement and test the actual Turnstile client integration; a local preview token is not valid hosted protection.
 
-Verify SES sender permissions, verified identities, SPF/DKIM/DMARC, account sending restrictions, feedback subscription and configuration-set routing using controlled staging recipients before enabling real transactional or marketing delivery. Review provider error codes without automatically retrying ambiguous acceptance.
+Verify SES sender permissions, verified identities, SPF/DKIM/DMARC, account sending restrictions, feedback subscription and configuration-set routing using controlled commissioning recipients before enabling real transactional or marketing delivery. Review provider error codes without automatically retrying ambiguous acceptance.
 
 ## Required data decisions
 
@@ -22,7 +22,7 @@ The current cleanup expires rate limits and action tokens only. No claim of comp
 
 ## Release gates
 
-1. Implement isolated deployment configuration and controlled remote migration commands. Review generated identities and never point staging at a production database.
+1. Review the prepared production target, implement and verify the production build/runtime identity contract and controlled remote migration/deployment commands. Staging is optional; never reuse production resources for another app or optional test deployment.
 2. Complete hosted CMS/Access, form protection and SES/SNS verification with recorded evidence.
 3. Review real business content, legal wording, consent policy and version. Existing contentReviewed/legalReviewed flags remain mandatory declarations; they do not replace that review.
 4. Complete and rehearse the procedures in [operations](OPERATIONS.md), including uncertain delivery, failed Workflow, DLQ, migration failure and deployment rollback. Configure actionable alerts with an operator and thresholds.
@@ -43,4 +43,4 @@ Locale publication dates remain independent; slugs remain shared and immutable. 
 
 ## Runtime capacity qualification
 
-Local runtime budget verification does not lift the production block. Configure a measured daily allowance/reserve; qualify the actual Free Queue/Workflow entitlement, CPU, D1 rows, provider limits and shared account activity in isolated authorized staging. Provider analytics is pending. See [Runtime budgets](RUNTIME_BUDGETS.md).
+Local runtime budget verification does not lift the production block. Configure a measured daily allowance/reserve; qualify the actual Free Queue/Workflow entitlement, CPU, D1 rows, provider limits and shared account activity during controlled authorized hosted commissioning before public launch, with sending restricted or disabled. Provider analytics is prepared but actual cloud qualification is pending. See [Runtime budgets](RUNTIME_BUDGETS.md).

@@ -16,3 +16,7 @@ pnpm dev:cms
 The public site defaults to http://127.0.0.1:4330/en or /el according to your languages; CMS is /cms/index.html. Set SITE_PORT, WORKER_PORT, TINA_PORT and TINA_DATALAYER_PORT when running alongside another project. Existing occupied ports are rejected. Ctrl+C stops only owned processes.
 
 Replace illustrative sample content and placeholder contact/legal details before publication. See docs/CMS_AUTHORING.md, docs/OPERATIONS.md and docs/PRODUCTION_READINESS.md. Sending and marketing are disabled and production readiness stays blocked. Never copy credentials into project.json. Generated files are not editing sources. Future starter updates are reviewed patches; there is no automatic overwrite of your content.
+
+## Production preparation
+
+The initial hosted workflow is local development + production only; staging is optional. The local-only deploy:prepare command validates an explicit non-secret production target and writes a blocked review plan without changing canonical configuration or creating cloud resources. See [deployment preparation](docs/DEPLOYMENT.md). Hosted readiness gates remain mandatory.
