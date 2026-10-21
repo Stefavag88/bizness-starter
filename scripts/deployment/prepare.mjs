@@ -1,4 +1,4 @@
-import {readFileSync,lstatSync,existsSync,readdirSync,mkdirSync,writeFileSync,renameSync,unlinkSync} from 'node:fs';
+import {readFileSync,realpathSync,lstatSync,existsSync,readdirSync,mkdirSync,writeFileSync,renameSync,unlinkSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
@@ -31,9 +31,15 @@ export function parsePreparationArgs(args){
  if(!options['--config'])throw Error('An explicit --config FILE is required');
  return {target:'production',config:options['--config']};
 }
+function assertDistinctInput(configPath,output){
+ const normalize=path=>process.platform==='win32'?path.toLowerCase():path;
+ if(normalize(configPath)===normalize(output)||(existsSync(output)&&normalize(realpathSync(configPath))===normalize(realpathSync(output))))throw Error('Target input and report output must not alias');
+}
 export async function prepareProduction(root,args){
  const options=parsePreparationArgs(args);root=resolve(root);
- const configPath=resolve(root,options.config),targetBytes=plainFile(configPath),sourceBytes=plainFile(join(root,'project.json'));
+ const configPath=resolve(root,options.config),output=join(root,'.generated/deployment/production-plan.json');
+ assertDistinctInput(configPath,output);
+ const targetBytes=plainFile(configPath),sourceBytes=plainFile(join(root,'project.json'));
  const source=parseProject(JSON.parse(sourceBytes)),target=parseProductionTarget(JSON.parse(targetBytes),source);
  const before=fingerprints(root);
  if(hash(sourceBytes)!==before['project.json'])throw Error('Project input changed during preparation');
@@ -49,8 +55,8 @@ export async function prepareProduction(root,args){
   const directory=join(root,'.generated/deployment');
   if(!existsSync(directory))mkdirSync(directory);
   const stat=lstatSync(directory);if(!stat.isDirectory()||stat.isSymbolicLink())throw Error('Unsafe report directory');
-  const output=join(directory,'production-plan.json');
-  if(existsSync(output))plainFile(output);
+  assertDistinctInput(configPath,output);
+  if(lstatSync(output,{throwIfNoEntry:false}))plainFile(output);
   const temporary=join(directory,'production-plan-'+randomUUID()+'.tmp');
   try{writeFileSync(temporary,JSON.stringify(plan,null,2)+'\n',{flag:'wx'});renameSync(temporary,output);}
   finally{if(existsSync(temporary))unlinkSync(temporary);}

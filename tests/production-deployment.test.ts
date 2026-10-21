@@ -67,3 +67,11 @@ it('rejects origins that cannot match the planned production custom domain',asyn
  const {parseProductionTarget}=await import('../scripts/deployment/production.mjs');
  for(const siteUrl of ['https://client-business.gr:8443','https://127.0.0.1','https://[::1]','https://intranet'])expect(()=>parseProductionTarget({...target(),siteUrl},parseProject(source))).toThrow(/domain/i);
 });
+
+it('rejects target/report path aliases before writing and preserves the target bytes',async()=>{
+ const {prepareProduction}=await import('../scripts/deployment/prepare.mjs');const f=fixture();writeFileSync(join(f.root,'project.json'),JSON.stringify({...source,name:'test'}));mkdirSync(join(f.root,'.generated/deployment'),{recursive:true});const output=join(f.root,'.generated/deployment/production-plan.json'),bytes=JSON.stringify({...target(),application:'test'});writeFileSync(output,bytes);
+ await expect(prepareProduction(f.root,['--target','production','--config',output])).rejects.toThrow(/input.*output|target.*report|alias/i);expect(readFileSync(output,'utf8')).toBe(bytes);
+ if(process.platform==='win32'){await expect(prepareProduction(f.root,['--target','production','--config',output.toUpperCase()])).rejects.toThrow(/input.*output|target.*report|alias/i);expect(readFileSync(output,'utf8')).toBe(bytes);}
+ const parent=roots.create(),link=join(parent,'alias');symlinkSync(f.root,link,'junction');
+ try{await expect(prepareProduction(f.root,['--target','production','--config',join(link,'.generated/deployment/production-plan.json')])).rejects.toThrow(/input.*output|target.*report|alias/i);expect(readFileSync(output,'utf8')).toBe(bytes);}finally{unlinkSync(link);}
+});

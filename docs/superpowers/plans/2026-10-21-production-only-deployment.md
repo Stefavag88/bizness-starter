@@ -11,7 +11,7 @@ English Markdown; no design/content changes; production remains blocked; no cred
 
 Files: scripts/deployment/production.mjs and .d.mts; scripts/worker-config.mjs and .d.mts; scripts/configure.mjs; tests/production-deployment.test.ts.
 
-Interfaces: parseProductionTarget(raw, project) returns strict production project projection and account identity. createWorkerConfig(project, local, identity?) returns Wrangler configuration; getProductionPlan(root, raw) returns blocked plan with fingerprints and issues.
+Interfaces: parseProductionTarget(raw, project) returns strict production project projection and account identity. createWorkerConfig(project, local, identity?) returns Wrangler configuration; productionIssues(target) returns readiness issues; Task 2 prepareProduction owns filesystem projection and report fingerprints.
 
 1. Write tests for target identity, non-inherited infrastructure, placeholders, unsupported target/secret fields, generated account/domain/resource bindings and no source mutation.
 2. Run pnpm exec vitest run tests/production-deployment.test.ts; expect missing implementation failure.
@@ -32,7 +32,7 @@ Interfaces: prepareProduction(root,args) writes .generated/deployment/production
 
 ### Task 3: Client exports and production-only documentation
 
-Files: package.json; scripts/initialize/snapshot.mjs; scripts/initialize/export-manifest.json; deployment.production.example.json; docs/DEPLOYMENT.md; docs/PRODUCTION_READINESS.md; docs/OPERATIONS.md; docs/PROVIDER_ANALYTICS.md; tests/initializer-export.test.ts; README.md.
+Files: package.json; scripts/initialize/snapshot.mjs; scripts/initialize/export-manifest.json; deployment.production.example.json; docs/DEPLOYMENT.md; docs/PRODUCTION_READINESS.md; docs/OPERATIONS.md; docs/PROVIDER_ANALYTICS.md; tests/initializer-export.test.ts; scripts/initialize/client/README.md.
 
 Interfaces: root and generated client expose deploy:prepare. Example is inert placeholders, never provisioned or copied as configured resources. Existing deploy:check remains fail-closed.
 
@@ -48,3 +48,7 @@ Interfaces: root and generated client expose deploy:prepare. Example is inert pl
 - Wrapper aliases and option overrides cannot turn an owned local operation into a remote mutation.
 - Independent generated clients contain every runtime dependency and no account credentials.
 - Failure never overwrites canonical project/content or unknown generated links.
+
+## Closeout
+
+Local implementation and independent final review completed. One Important input/report alias finding was reproduced and fixed; no Critical or separate Minor findings. See the matching evidence document for final checks, independent-client verification and hosted limits. The existing feature branch is retained; no cloud operations, merge or push occurred.
