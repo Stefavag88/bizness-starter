@@ -230,6 +230,9 @@ expect(usageUpsertsDuringRepeatedViews).toBe(0);
 
 ## Milestone 8: Hosted analytics and Free-plan qualification — separately authorized
 
+Local provider preparation is now implemented and verified through `b72d52b`, following the owner's choice to prepare code/setup before obtaining staging. See [setup guide](../../PROVIDER_ANALYTICS.md) and [preparation evidence](2026-10-21-provider-analytics-preparation-evidence.md). Selected Worker/D1/Queue mappings are prepared with partial coverage; CPU, Queue backlog and Workflow billing mappings still need live discovery. The hosted checkboxes below remain pending.
+
+
 This is a genuine external dependency, not a checkbox to mark complete during local handoff. Required inputs: an authorized isolated Cloudflare Free staging account/deployment, final resource identities and read-only analytics permissions, the hosted CMS/form readiness prerequisites, provider-safe test fixtures/allowlisted recipients and the owner's data decisions where real data would be involved.
 
 **Future files:** `worker/provider-usage.ts`, provider contract/fixture tests, environment secret bindings and hosted evidence/runbooks. They are not required for Tasks 1–7 to deliver a usable local dashboard.

@@ -1,5 +1,7 @@
 # Provider analytics preparation
 
+**Status:** Local preparation implemented and verified through `b72d52b`. Hosted qualification remains pending.
+
 Approved scope: the existing milestone 8 integration contract; the owner selected local integration and setup guide first because isolated staging/resources/token do not exist. This prepares code, not hosted qualification.
 
 1. Add disabled-by-default developer configuration and a read-only collector. Bind current Worker/database identities on the server; optional Queue ID and opt-in account request total. Keep token secret. Query only documented Worker requests, D1 rows/storage and Queue billable operations. CPU quantile units/aggregation, Queue backlog naming and Workflow billable-step semantics require live discovery; leave those readings unavailable with explanations.
