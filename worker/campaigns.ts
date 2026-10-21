@@ -97,10 +97,11 @@ export async function fanOut(env:Env,context:WorkContext=workContext(env)):Promi
   await e.DB.prepare("INSERT INTO runtime_cursor(key,position)VALUES('campaign-turn',?) ON CONFLICT(key)DO UPDATE SET position=excluded.position").bind(campaign.id).run();
   const cap=Math.min(scope.policy.maxFanoutRecipients,hold.remaining().sqlStatements-2);
   if(cap<1)return {processed:0,deferred:true};
-  const subscribers=await e.DB.prepare("SELECT s.id,s.generation FROM subscriber s JOIN subscriber_interest i ON s.id=i.subscriber_id WHERE s.status='active' AND i.interest_id=? AND s.confirmed_at<=? AND s.id>? ORDER BY s.id LIMIT ?").bind(campaign.interest_id,campaign.cutoff_at,campaign.cursor,cap).all<{id:string;generation:number}>();
+  const subscribers=await e.DB.prepare("SELECT s.id,s.generation,s.status,s.confirmed_at FROM (SELECT subscriber_id FROM subscriber_interest WHERE interest_id=? AND subscriber_id>? ORDER BY subscriber_id LIMIT ?) i JOIN subscriber s ON s.id=i.subscriber_id ORDER BY s.id").bind(campaign.interest_id,campaign.cursor,cap).all<{id:string;generation:number;status:string;confirmed_at:number|null}>();
   const snapshot=JSON.parse(campaign.snapshot_json);
-  const statements=subscribers.results.map(s=>jobStatement(e,`campaign:${campaign.id}:${s.id}`,'campaign',snapshot,s.id,s.generation,campaign.id));
+  const eligible=subscribers.results.filter(s=>s.status==='active'&&s.confirmed_at!==null&&s.confirmed_at<=campaign.cutoff_at);
+  const statements=eligible.map(s=>jobStatement(e,`campaign:${campaign.id}:${s.id}`,'campaign',snapshot,s.id,s.generation,campaign.id));
   statements.push(subscribers.results.length?e.DB.prepare('UPDATE campaign SET cursor=? WHERE id=?').bind(subscribers.results.at(-1)!.id,campaign.id):e.DB.prepare("UPDATE campaign SET state='completed' WHERE id=? AND state='dispatching'").bind(campaign.id));
-  await e.DB.batch(statements);return {processed:subscribers.results.length,deferred:subscribers.results.length===cap};
+  await e.DB.batch(statements);return {processed:eligible.length,deferred:subscribers.results.length===cap};
  }finally{hold.releaseUnused();}
 }

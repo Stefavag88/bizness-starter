@@ -77,6 +77,7 @@
   "migrations/0002_workflow_cursor.sql",
   "migrations/0003_runtime_budgets.sql",
   "migrations/0004_runtime_selection_indexes.sql",
+  "migrations/0005_bounded_dispatch_lanes.sql",
   "package.json",
   "packages/config/access.d.mts",
   "packages/config/access.mjs",

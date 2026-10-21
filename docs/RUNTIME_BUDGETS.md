@@ -12,7 +12,7 @@ Set `infrastructure.runtimeBudget` in `project.json`. Defaults are deliberately 
 
 A hosted null allowance pauses dispatch and campaign fanout. Local capture-only simulation can run without a configured limit. A positive limit counts Queue admission **attempts**, including ambiguous/failed publication; it is never refunded after a possible external action. The reserve must not exceed the limit. Marketing can use at most limit minus reserve; enquiries, test messages and confirmations can use the remaining total. Choose values from measured account/provider capacity, not these fixture examples.
 
-`runtime_admission_day` atomically records each UTC day's total and marketing admissions. Midnight creates a new allowance; pending work stays in D1. One campaign has no fixed audience cap: indexed cursor chunks and unique recipient dedupe keys spread it across ticks and days. Existing consent/generation checks, approvals, pause controls, 48-hour marketing spacing, pre-send claims and uncertain-result handling remain in force. No second Cron is added.
+`runtime_admission_day` atomically records each UTC day's total and marketing admissions. Midnight creates a new allowance; pending work stays in D1. One campaign has no fixed audience cap: indexed interest-ID candidate chunks and unique recipient dedupe keys spread it across ticks and days. Inactive/nonmatching candidates still advance the cursor; an empty eligible page is not audience completion. Separate partial due indexes select transactional and marketing jobs without scanning the opposite lane. Existing consent/generation checks, approvals, pause controls, 48-hour marketing spacing, pre-send claims and uncertain-result handling remain in force. No second Cron is added.
 
 ## Per-entrypoint guardrails
 
@@ -23,7 +23,7 @@ A hosted null allowance pauses dispatch and campaign fanout. Local capture-only 
 | Campaign fanout SQL lane | 0 | 10 | 10 |
 | Enrollment reconciliation SQL lane | 0 | 0 | 14 |
 | Maintenance including observation | 4 | 4 | 4 |
-| Fanout recipients per tick | 0 | 4 | 4 |
+| Inspected fanout candidates per tick | 0 | 4 | 4 |
 
 There are also ceilings of 40 owned external attempts and 800 internal binding operations. These are conservative application limits, not a statement of Cloudflare entitlements. D1 batch statements count individually. Failed attempted calls remain charged; reservations for work that never started can be released. All enabled lanes share one scope. A delivery reserves a complete ten-statement unit before claiming a job. Queue consumers use batch size/concurrency one. Retry, cleanup and lease recovery stay bounded; cleanup deletes at most 100 records/table per 15-minute window. Expired sending leases become unknown and are never silently resent.
 
@@ -42,6 +42,6 @@ pnpm report:capacity --workload tests/fixtures/runtime-capacity/nurture-workload
 pnpm test:runtime-budgets
 ```
 
-The CLI requires all three file arguments; existing output files are never overwritten. The pure model considers dispatch limits/reserve, Cron throughput, Queue retry/duplicate work, account sharing, provider rate/daily limits, nurture cohorts, telemetry and optional measured row/CPU costs. Unknown evidence remains unknown. A date is a conditional estimate, not a delivery guarantee. The pre-send campaign estimate counts up to 500 audience candidates/request without returning addresses and includes current day use and competing backlog. Repeated estimates continue incrementally; incomplete audience counts are labeled.
+The CLI requires all three file arguments; existing output files are never overwritten. The pure model considers dispatch limits/reserve, Cron throughput, Queue retry/duplicate work, account sharing, provider rate/daily limits, nurture cohorts, telemetry and optional measured row/CPU costs. Unknown evidence remains unknown. A date is a conditional estimate, not a delivery guarantee. The pre-send campaign estimate counts up to 500 audience candidates/request without returning addresses and includes current day use and competing backlog. Repeated estimates continue incrementally; incomplete audience counts are labeled. Cached audience counts keep their original observation timestamp, disclose possible eligibility changes and restart when the campaign cutoff changes. Known publications are counted immediately after successful Queue publication, so later failures do not erase them from telemetry.
 
 The local verifier creates disposable D1/Queue resources and removes them. It records per-profile traces in `.generated/evidence/runtime-budgets/`; never run remote commands to reproduce it. The source-only fixture wrapper must never enter a client export or hosted configuration. Hosted analytics and qualification are separately authorized work: actual provider metrics, account aggregation, row accounting, at least 1,000 observations per CPU-sensitive path, candidate p99 <=7 ms/max <=8 ms, cold/warm behavior and no runtime-limit errors. Other production blockers still apply.

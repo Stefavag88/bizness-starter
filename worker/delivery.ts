@@ -260,7 +260,7 @@ export async function dispatch(env:Env,context:WorkContext=workContext(env)):Pro
   if(cfg.dailyDispatchLimit===null&&env.ENVIRONMENT!=='local')return {processed:0,deferred:true};
   if(!(await dbEnv.DB.prepare("SELECT id FROM email_job WHERE state='pending' AND available_at<=? ORDER BY available_at,created_at,id LIMIT 1").bind(at).first()))return {processed:0,deferred:false};
   const turn=await dbEnv.DB.prepare("SELECT position FROM runtime_cursor WHERE key='dispatch-turn'").first<{position:string}>();
-  const pick=async(transactional:boolean)=>(await dbEnv.DB.prepare(`SELECT id,kind FROM email_job WHERE state='pending' AND available_at<=? AND kind ${transactional?'IN':'NOT IN'} ('inquiry','test','confirmation') ORDER BY available_at,created_at,id LIMIT ?`).bind(at,policy.maxDispatchJobs).all<{id:string;kind:string}>()).results;
+  const pick=async(transactional:boolean)=>(await dbEnv.DB.prepare(`SELECT id,kind FROM email_job INDEXED BY ${transactional?'jobs_transactional_due':'jobs_marketing_due'} WHERE state='pending' AND available_at<=? AND kind ${transactional?'IN':'NOT IN'} ('inquiry','test','confirmation') ORDER BY available_at,created_at,id LIMIT ?`).bind(at,policy.maxDispatchJobs).all<{id:string;kind:string}>()).results;
   const tx=await pick(true),marketing=await pick(false);let next=turn?.position==='marketing'?'marketing':'transactional';
   while(processed<policy.maxDispatchJobs&&(tx.length||marketing.length)){
    if(hold.remaining().sqlStatements<3){deferred=true;break;}
@@ -268,6 +268,7 @@ export async function dispatch(env:Env,context:WorkContext=workContext(env)):Pro
    const job=(list.length?list:other).shift()!;const lane=['inquiry','test','confirmation'].includes(job.kind)?'transactional':'marketing';
    if(cfg.dailyDispatchLimit!==null&&!(await reserveAdmission(dbEnv,scope,lane,at))){deferred=true;next=lane==='transactional'?'marketing':'transactional';continue;}
    await dbEnv.OUTBOUND.send({id:job.id});
+   scope.recordQueuePublication();
    await dbEnv.DB.prepare("UPDATE email_job SET state='queued',lease_until=? WHERE id=? AND state='pending'").bind(at+600000,job.id).run();
    processed++;next=lane==='transactional'?'marketing':'transactional';
   }

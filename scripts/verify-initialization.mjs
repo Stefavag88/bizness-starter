@@ -27,6 +27,13 @@ export async function verifyInitialization({root=process.cwd()}={}){
    const entry={args,passed:false};client.commands.push(entry);proof();
    const result=await runOwnedCommand(process.execPath,[pnpm,...args],{cwd:destination,timeoutMs:300000,env:{...process.env,ASTRO_TELEMETRY_DISABLED:'1',WRANGLER_SEND_METRICS:'false'},onOutput:text=>process.stdout.write(text)});
    writeFileSync(join(directory,scenario.preset+'-'+args[0]+'.log'),result.stdout+result.stderr);entry.passed=true;proof();
+   if(args[0]==='test'&&scenario.preset==='neutral'){
+    const path=join(destination,'project.json'),original=readFileSync(path),configured=JSON.parse(original);
+    configured.infrastructure.runtimeBudget={dailyDispatchLimit:10,transactionalReserve:2};const next=Buffer.from(JSON.stringify(configured,null,2)+'\n');writeFileSync(path,next);
+    const allowance={args:['test','positive-allowance'],passed:false};client.commands.push(allowance);proof();
+    try{const positive=await runOwnedCommand(process.execPath,[pnpm,'test'],{cwd:destination,timeoutMs:300000,env:{...process.env,ASTRO_TELEMETRY_DISABLED:'1',WRANGLER_SEND_METRICS:'false'},onOutput:text=>process.stdout.write(text)});writeFileSync(join(directory,'neutral-positive-allowance.log'),positive.stdout+positive.stderr);allowance.passed=true;proof();}
+    finally{assert.ok(readFileSync(path).equals(next),'Client configuration changed concurrently');writeFileSync(path,original);}
+   }
   }
   assertPresetArtifacts(join(destination,'apps/site/dist'),false);source.assertUnchanged();client.passed=true;proof();
  }

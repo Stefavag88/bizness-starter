@@ -27,13 +27,16 @@ export function calculateCapacity(input,evidence,policy){
   const attempts=Math.ceil((transactionalAdmitted+marketingAdmitted)*attemptFactor);
   const amounts={scheduler:1440,contact:w.enquiries,signup:w.signups,confirmation:w.confirmations,withdrawal:w.withdrawals,delivery:attempts,feedback:attempts,admin:w.adminRequests,workflow:steps};
   const rowsRead=rows(amounts,'rowsRead'),rowsWritten=rows(amounts,'rowsWritten'),sqlStatements=rows(amounts,'sqlStatements');
-  days.push({day,transactionalAdmitted,marketingAdmitted,attempts,queueOperations:attempts*queueCost,workerRequests:baseRequests+attempts*2,rowsRead,rowsWritten,sqlStatements,workflowSteps:steps,nurtureArrivals:nurture,transactionalPending:txPending,marketingPending,limitingResource,fitsKnownAllowances:(rowsRead===null||rowsRead<=available.rowsRead)&&(rowsWritten===null||rowsWritten<=available.rowsWritten)&&steps<=available.workflowSteps});
+  const checks={worker_requests:baseRequests+attempts*2<=available.requests,queue_operations:attempts*queueCost<=available.queueOperations,d1_rows_read:rowsRead===null||rowsRead<=available.rowsRead,d1_rows_written:rowsWritten===null||rowsWritten<=available.rowsWritten,workflow_steps:steps<=available.workflowSteps,daily_allowance:attempts<=caps.daily_allowance,provider_quota:attempts<=caps.provider_quota,provider_rate:attempts<=caps.provider_rate,scheduler_throughput:attempts<=caps.scheduler_throughput};
+  const exceededAllowances=Object.keys(checks).filter(key=>!checks[key]);
+  days.push({day,transactionalAdmitted,marketingAdmitted,attempts,queueOperations:attempts*queueCost,workerRequests:baseRequests+attempts*2,rowsRead,rowsWritten,sqlStatements,workflowSteps:steps,nurtureArrivals:nurture,transactionalPending:txPending,marketingPending,limitingResource,exceededAllowances,fitsKnownAllowances:exceededAllowances.length===0});
  }
  if(days.at(-1)?.transactionalPending||days.at(-1)?.marketingPending)missing.add('backlog_beyond_model_horizon');
  const cpuQualified=(evidence.samples??0)>=1000&&evidence.cpuP99Ms<=7&&evidence.cpuMaxMs<=8;
  if(!cpuQualified)missing.add('cpu_qualification_pending');
  const costsKnown=days.every(d=>d.rowsRead!==null&&d.rowsWritten!==null&&d.sqlStatements!==null);
  const qualified=missing.size===0&&cpuQualified&&costsKnown&&days.every(d=>d.fitsKnownAllowances)&&!!evidence.sourceArtifact;
- const qualification=qualified?'hosted_qualified':evidence.sourceArtifact&&costs.scheduler?.sqlStatements!=null?'locally_verified':'not_qualified';
+ for(const dimension of new Set(days.flatMap(day=>day.exceededAllowances)))missing.add(dimension+'_allowance_exceeded');
+ const qualification=qualified?'hosted_qualified':evidence.qualification==='local'&&evidence.sourceArtifact&&costs.scheduler?.sqlStatements!=null?'locally_verified':'not_qualified';
  return {profile:w.profile,qualification,available,days,limitingResource:days[0]?.limitingResource??null,missingMeasurements:[...missing],assumptions:['Queue costs and retry rates are workload projections, not provider readings.','UTC days; one minute scheduler; one Queue message per consumer invocation.','All projected recipients remain eligible; overlapping marketing audiences may wait at least 48 hours.','Provider limits, data size, account sharing and CPU can reduce this envelope.'],sourceArtifact:evidence.sourceArtifact??null};
 }

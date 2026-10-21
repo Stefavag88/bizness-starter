@@ -2,12 +2,13 @@ import {resolveRuntimePolicy,type OperationCost,type RuntimePolicy} from '../pac
 import type {Env} from './types';
 export type {OperationCost,RuntimePolicy};
 export type OutcomeCounts=Record<'accepted'|'failed'|'unknown'|'deferred',number>;
-export interface BudgetSnapshot{kind:string;attempted:OperationCost;reserved:OperationCost;remaining:OperationCost;lanes:Record<string,OperationCost>;outcomes:OutcomeCounts}
+export interface BudgetSnapshot{queuePublications:number;kind:string;attempted:OperationCost;reserved:OperationCost;remaining:OperationCost;lanes:Record<string,OperationCost>;outcomes:OutcomeCounts}
 const fields=['sqlStatements','externalCalls','internalCalls'] as const;
 const zero=():OperationCost=>({sqlStatements:0,externalCalls:0,internalCalls:0});
 function valid(c:OperationCost){if(fields.some(k=>!Number.isSafeInteger(c[k])||c[k]<0))throw Error('Invalid operation cost');}
 export class BudgetExceeded extends Error{constructor(){super('Runtime budget exhausted');}}
 export class BudgetScope{
+ private queuePublications=0;
  private attempted=zero();private reserved=zero();private lanes:Record<string,OperationCost>={};private holds:Record<string,OperationCost>={};
  private outcomes:OutcomeCounts={accepted:0,failed:0,unknown:0,deferred:0};
  constructor(readonly kind:string,readonly policy:RuntimePolicy){}
@@ -19,7 +20,8 @@ export class BudgetScope{
   return {remaining:()=>({...left}),consume:(part:OperationCost)=>{valid(part);if(closed||fields.some(k=>part[k]>left[k]))throw new BudgetExceeded();this.lanes[lane]??=zero();for(const k of fields){left[k]-=part[k];this.reserved[k]-=part[k];this.holds[lane][k]-=part[k];this.attempted[k]+=part[k];this.lanes[lane][k]+=part[k];}},releaseUnused:()=>{if(closed)return;closed=true;for(const k of fields){this.reserved[k]-=left[k];this.holds[lane][k]-=left[k];left[k]=0;}}};
  }
  charge(lane:string,cost:OperationCost){const r=this.tryReserve(lane,cost);if(!r)throw new BudgetExceeded();r.consume(cost);r.releaseUnused();}
- snapshot():BudgetSnapshot{const remaining=zero();for(const k of fields)remaining[k]=this.policy.ceilings[k]-this.attempted[k]-this.reserved[k];return structuredClone({kind:this.kind,attempted:this.attempted,reserved:this.reserved,remaining,lanes:this.lanes,outcomes:this.outcomes});}
+ snapshot():BudgetSnapshot{const remaining=zero();for(const k of fields)remaining[k]=this.policy.ceilings[k]-this.attempted[k]-this.reserved[k];return structuredClone({queuePublications:this.queuePublications,kind:this.kind,attempted:this.attempted,reserved:this.reserved,remaining,lanes:this.lanes,outcomes:this.outcomes});}
+ recordQueuePublication(){this.queuePublications++;}
  recordOutcome(outcome:keyof OutcomeCounts){this.outcomes[outcome]++;}
 }
 export interface BudgetReservation{remaining():OperationCost;consume(cost:OperationCost):void;releaseUnused():void}

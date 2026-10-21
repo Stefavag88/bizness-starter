@@ -28,3 +28,9 @@ it('starts with the day already consumed rather than granting a fresh allowance 
  const r=calculateCapacity({profile:'nurture',days:2,dailyDispatchLimit:10,transactionalReserve:3,initialDailyUsage:{total:8,marketing:6},campaigns:[{audience:10}]},evidence,resolveRuntimePolicy('nurture'));
  expect(r.days.map(d=>d.marketingAdmitted)).toEqual([1,7]);
 });
+
+it('cannot qualify a workload whose baseline Worker requests exceed the available allowance',()=>{
+ const measured={profile:'nurture',qualification:'hosted',sourceArtifact:'controlled-hosted-fixture',samples:1000,cpuP99Ms:2,cpuMaxMs:3,costs:{scheduler:{sqlStatements:10,rowsRead:10,rowsWritten:1}}};
+ const r=calculateCapacity({profile:'nurture',dailyDispatchLimit:10,providerDailyLimit:1000,providerPerSecond:1,otherWorkerRequests:100000},measured,resolveRuntimePolicy('nurture'));
+ expect(r.qualification).not.toBe('hosted_qualified');expect(r.days[0].fitsKnownAllowances).toBe(false);expect(r.days[0].exceededAllowances).toContain('worker_requests');
+});
