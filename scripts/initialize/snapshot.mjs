@@ -35,6 +35,7 @@ export function createClientPackage(name,source){
   'release:deploy':'node scripts/deployment/release-command.mjs deploy',
   'release:migrate':'node scripts/deployment/release-command.mjs migrate',
 
+  'site:inspect':'node scripts/site-inspect.mjs',
   'report:capacity':'node scripts/report-capacity.mjs',doctor:'node scripts/doctor.mjs','deploy:check':'node scripts/doctor.mjs --production',
  }};
 }

@@ -14,7 +14,7 @@ export async function initializeProject({source,options,dryRun=false}){
  const deploymentExample=JSON.parse(new TextDecoder().decode(files.get('deployment.production.example.json')));deploymentExample.application=options.name;files.set('deployment.production.example.json',encode(JSON.stringify(deploymentExample,null,2)+'\n'));
  files.set('project.json',encode(JSON.stringify(bundle.project,null,2)+'\n'));for(const [path,bytes] of bundle.files)files.set(path,bytes);
  const extras=new Map(presetInputs.hashes);
- for(const [input,output] of [['scripts/initialize/client/README.md','README.md'],['scripts/initialize/client/project.test.ts','tests/project.test.ts'],['scripts/initialize/client/CMS_AUTHORING.md','docs/CMS_AUTHORING.md']]){
+ for(const [input,output] of [['scripts/initialize/client/README.md','README.md'],['scripts/initialize/client/AGENTS.md','AGENTS.md'],['scripts/initialize/client/project.test.ts','tests/project.test.ts'],['scripts/initialize/client/CMS_AUTHORING.md','docs/CMS_AUTHORING.md']]){
   const path=join(ownership.source,input);const bytes=readApplicationInput(ownership.source,input);extras.set(input,digest(bytes));files.set(output,bytes);
  }
  const assertSource=()=>{snapshot.assertUnchanged();for(const [path,hash] of extras)if(digest(readApplicationInput(ownership.source,path))!==hash)throw Error('Source input changed: '+path);};

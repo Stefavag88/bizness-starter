@@ -41,7 +41,8 @@
     "release:verify": "node scripts/deployment/release-artifact.mjs",
     "release:deploy": "node scripts/deployment/release-command.mjs deploy",
     "release:migrate": "node scripts/deployment/release-command.mjs migrate",
-    "test:release": "node scripts/verify-release.mjs"
+    "test:release": "node scripts/verify-release.mjs",
+    "site:inspect": "node scripts/site-inspect.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.2.8",

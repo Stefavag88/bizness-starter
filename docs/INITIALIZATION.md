@@ -44,3 +44,7 @@ Updates to existing clients are reviewed patches that preserve their content and
 `pnpm test:presets` owns guarded staging/production builds, exact restoration/local rebuild and a source gallery browser matrix. Stop owned launchers first. Set `E2E_BROWSER_CHANNEL=chrome` to use installed Chrome, or install the Playwright browser for the default channel.
 
 The generated trades native CMS rehearsal is `e2e/presets-cms.spec.ts`, gated by PRESET_CLIENT_ROOT and a matching provenance record. It owns distinct 4430/8890/4110/9110 ports, captures installed-schema/serializer-derived whole records before dispatch, saves via the actual editor, reloads, checks public output, stops owned processes, then restores only exact owned bytes. Conflicting bytes are preserved with evidence.
+
+## Prompt-driven maintenance
+
+Generated apps receive their own AGENTS.md, .agents/skills/starter-maintain-site/SKILL.md, docs/CONFIGURATION_MAP.md and read-only pnpm site:inspect. The client AGENTS is an explicitly fingerprinted overlay, not the source starter's historical instructions. The creation skill stays source-only. These files travel with independent apps and release-input snapshots; they do not require this chat or a source starter checkout. Skills guide judgment; actual schemas and meaningful checks remain authoritative.
