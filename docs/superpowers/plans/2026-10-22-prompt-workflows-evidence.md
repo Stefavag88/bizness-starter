@@ -21,3 +21,14 @@ Raw evidence remains in .generated/prompt-workflows-*.log, prompt-inventory-red.
 The owner's explicit go authorizes the agreed workflows and PPConsulting creation; the written specs formalize this scope without duplicate approval rounds. Scope changes would require local rework. Reuse the current starter branch, preserving unrelated edits. New application uses ppconsulting as technical/folder identifier, PPConsulting as visible brand, EN/EL and the reference's English default. A different default locale would require an explicit config/content change before launch. The app is independent; source creation instructions are intentionally not portable runtime dependencies. Hosted setup remains separately gated.
 
 The presentation/content migration has its own spec and plan; scaffold success does not establish visual parity or completed migration.
+
+## PPConsulting handoff
+
+
+Independent app: `C:/Projects/ppconsulting`, branch `codex/ppconsulting-design`. Actual initializer source revision `fa16a5f`; scaffold commit `5cee0de`; presentation commit `da7f28a`. See the app's `docs/VERIFICATION.md`, `docs/PRESENTATION_PARITY.md` and configuration map for acceptance evidence and deliberate differences.
+
+Completed 12 app tests, check with no errors/warnings (six baseline hints), 37-page static build, Worker dry-run, 64 browser route/width checks, native Page save/reload and theme palette checks. Independent final review completed on an available model after the first model hit its usage limit; its single P2 light-eyebrow contrast issue was fixed with a failing-then-passing regression. Final isolated release candidate integrity verified, release ID `58a02a975c37aa0156d15d9631917a03284d68f84a1703f1707a9f98cfb095d5`. Production readiness remains blocked; no deployment, remote SQL, account setup or real sending occurred.
+
+The reference Git tree and public content digest were confirmed unchanged. Source starter's unrelated provider-usage edits remain untouched. Minor release-vs-final-source difference is one trimmed trailing space in ArticleCards.astro before committing; no behavior changed after the verified candidate. Local evidence remains in the app's ignored `.generated` directory.
+
+The inline execution ledger recorded field registration, selected-theme descriptor and contrast regressions; native save and final local release gates passed. Source financial reference and unrelated provider analytics edits were preserved.
