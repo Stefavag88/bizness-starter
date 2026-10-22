@@ -1,3 +1,4 @@
+import {deploymentIdentity,identityText} from '../packages/config/deployment-identity.mjs';
 import {publicAssetHeaders} from '../packages/config/security-headers.mjs';
 import {formProtection} from '../packages/config/form-protection.mjs';
 import {readFileSync,writeFileSync as writeRaw,mkdirSync,existsSync} from 'node:fs';
@@ -14,6 +15,8 @@ const p=parseProject(JSON.parse(readFileSync('project.json','utf8')));
 const ports=resolvePorts();
 const local={ports,siteUrl:`http://127.0.0.1:${ports.site}`,workerUrl:`http://127.0.0.1:${ports.worker}`,tinaUrl:`http://127.0.0.1:${ports.tina}`,datalayerUrl:`http://127.0.0.1:${ports.datalayer}`};
 mkdirSync('.generated/migrations',{recursive:true});
+writeFileSync('.generated/deployment-identity.json',JSON.stringify(deploymentIdentity(p))+'\n');
+writeFileSync('.generated/deployment-identity-text.json',JSON.stringify(Buffer.from(identityText(deploymentIdentity(p))).toString('base64'))+'\n');
 writeFileSync('.generated/local.json',JSON.stringify(local,null,2)+'\n');
 const source=readContent(process.cwd(),p);
 writeFileSync('.generated/manifest.json',JSON.stringify(createManifest(source,p),null,2)+'\n');

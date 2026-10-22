@@ -1,3 +1,4 @@
+import {validateRuntimeDeployment} from './deployment';
 import {workContext,meterEnvironment,type WorkContext,type WorkResult} from './budget';
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from 'cloudflare:workers';
 import type { Env, Subscriber } from './types';
@@ -14,6 +15,7 @@ export class WelcomeWorkflow extends WorkflowEntrypoint<
     event: WorkflowEvent<{ subscriberId: string; generation: number }>,
     step: WorkflowStep,
   ) {
+    validateRuntimeDeployment(this.env);
     const context=workContext(this.env,'workflow');const e=meterEnvironment(this.env,context.scope,undefined,context.at);
     for (const [index, delay] of ['3 days', '4 days', '7 days'].entries()) {
       await step.sleep(`wait-${index}`, delay as '3 days');

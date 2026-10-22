@@ -50,3 +50,7 @@ See [Runtime budgets](RUNTIME_BUDGETS.md) for UTC admission/reserves and safe de
 ## Production-only workflow
 
 The initial workflow is local development plus production; see [deployment preparation](DEPLOYMENT.md). Plan generation is local-only and never authorizes a remote migration, deployment or email send. Retain all hosted readiness gates and use controlled commissioning before public launch.
+
+## Release candidate and database recovery boundary
+
+Follow [release candidates](RELEASES.md) for isolated builds, exact artifact verification and blocked command planning. Retain the release ID, prior compatible artifact, pending migration review and tested database recovery point. The current local migration rehearsal uses an empty disposable database; rehearse real upgrade paths with synthetic data separately. Code rollback does not undo SQL migrations. No deployment, remote migration, database restore or real sending is performed by candidate tooling.

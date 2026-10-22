@@ -1,3 +1,4 @@
+import {validateRuntimeDeployment} from './deployment';
 import {cmsResponse} from '../packages/config/security-headers.mjs';
 import {readUsageSnapshot,usageWindow} from './usage';
 import {renderUsagePage} from './usage-page';
@@ -239,6 +240,7 @@ const handlers = {
 
 export default {
  async fetch(request:Request,env:Env,ctx:ExecutionContext){
+  try{validateRuntimeDeployment(env);}catch{return json({message:'Service temporarily unavailable.'},503);}
   const context=workContext(env,'http'),scope=context.scope,waiting:Promise<unknown>[]=[];
   const telemetry=scope.tryReserve('telemetry',{sqlStatements:1,externalCalls:0,internalCalls:1});
   const e=meterEnvironment(env,scope,undefined,context.at);
@@ -252,8 +254,12 @@ export default {
   }else{telemetry?.releaseUnused();for(const work of waiting)ctx.waitUntil(work);}
   return response;
  },
- scheduled:handlers.scheduled,
+ async scheduled(event:ScheduledController,env:Env,ctx:ExecutionContext){
+  validateRuntimeDeployment(env);
+  return handlers.scheduled(event,env,ctx);
+ },
  async queue(batch:MessageBatch<unknown>,env:Env){
+  validateRuntimeDeployment(env);
   const context=workContext(env,'queue'),hold=context.scope.tryReserve('telemetry',{sqlStatements:1,externalCalls:0,internalCalls:1});
   try{await handlers.queue(batch,meterEnvironment(env,context.scope,undefined,context.at));}finally{hold?.releaseUnused();await persistUsage(env,context.scope,{entrypoint:'queue',at:context.at});}
  }

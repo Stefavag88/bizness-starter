@@ -36,7 +36,12 @@
     "report:capacity": "node scripts/report-capacity.mjs",
     "test:runtime-budgets": "node scripts/verify-runtime-budgets.mjs",
     "deploy:prepare": "node scripts/deployment/prepare.mjs",
-    "test:form-security": "node scripts/verify-form-security.mjs"
+    "test:form-security": "node scripts/verify-form-security.mjs",
+    "release:build": "node scripts/deployment/release-build.mjs",
+    "release:verify": "node scripts/deployment/release-artifact.mjs",
+    "release:deploy": "node scripts/deployment/release-command.mjs deploy",
+    "release:migrate": "node scripts/deployment/release-command.mjs migrate",
+    "test:release": "node scripts/verify-release.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.2.8",

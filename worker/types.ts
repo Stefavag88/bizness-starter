@@ -1,4 +1,5 @@
 export interface Env {
+  DEPLOYMENT_IDENTITY?:string;
   CMS_LOCAL_ORIGINS?:string;
   TURNSTILE_SITE_KEY?:string;
   PROVIDER_ANALYTICS?:string;

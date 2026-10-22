@@ -1,6 +1,6 @@
 # Local development and production
 
-The supported initial workflow is **local development + one production deployment per application**. Staging is optional and deferred. This milestone prepares a reviewable production plan; it does not publish a website or make this starter production-ready.
+The supported initial workflow is **local development + one production deployment per application**. Staging is optional and deferred. Preparation and isolated release-candidate packaging are implemented; neither publishes a website nor makes this starter production-ready. See [release candidates](RELEASES.md).
 
 ## Configuration ownership
 
@@ -33,11 +33,11 @@ The legacy pnpm deploy:check checks canonical project.json and remains blocked. 
 5. Keep sending/marketing disabled until sender authentication, feedback, allowed test recipients and ambiguous-delivery handling are verified. Commission the hosted deployment with controlled test data and no public launch announcement. Enabling sending is a separate reviewed step.
 6. Qualify the selected profile's actual cloud capacity and provider analytics using controlled workloads. Local statement counts and dry-run output are not hosted CPU/row/entitlement evidence.
 
-These are still mandatory release gates. A production-only choice removes the staging requirement; it does not waive technical readiness or authorize a public launch. The next hosted milestone must supply a reviewed build/runtime identity contract, immutable artifact packaging, secret/resource verification and guarded remote migration/deployment commands. This milestone deliberately blocks remote mutations instead of offering premature commands.
+These are still mandatory release gates. A production-only choice removes the staging requirement; it does not waive technical readiness or authorize a public launch. The build/runtime identity contract, isolated artifact packaging and blocked command planning are implemented in [release candidates](RELEASES.md). Secret/resource and hosted CMS verification, upgrade/recovery qualification and an authorized remote executor remain future work. Remote mutations remain blocked.
 
 ## Checks and recovery before release
 
-Run pnpm check, pnpm test, pnpm build and pnpm worker:check with the owned launcher stopped. These verify the local source, not a production-target build. Before actual release tooling is introduced, verify the production build in an isolated release workspace, including exclusion of local showcase/templates, matching site origins and matching runtime bindings. Rebuild static content after approved CMS changes.
+Run pnpm check, pnpm test, pnpm build and pnpm worker:check with the owned launcher stopped. These verify the local source, not a production-target build. Use release:build and release:verify to verify the production projection in an isolated release workspace, including exclusion of local showcase/templates, matching site origins and matching runtime bindings. These commands produce blocked candidates and never deploy. Rebuild static content after approved CMS changes.
 
 Rehearse each forward migration against disposable local D1 with the relevant prior schema and test data. Before applying anything remotely, verify account and database UUID, inspect pending migrations and preserve a tested recovery point. Use only additive migrations while preparing compatible code rollouts where practical. Retain the prior code artifact and understand its database compatibility: code rollback does not undo SQL migrations. Never use real customer records for ordinary local tests.
 

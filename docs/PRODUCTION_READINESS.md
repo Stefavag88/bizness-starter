@@ -6,7 +6,7 @@ Status: **blocked**, as requested by the owner on 2026-10-21. No deployment or r
 
 The owner selected **local development + production only** on 2026-10-21. Staging is optional and deferred; it is not a mandatory release prerequisite. Follow [production preparation](DEPLOYMENT.md). This decision does not lift production blockers or authorize provisioning, remote migrations, real sending or deployment.
 
-Before hosted deployment, provide the final site domain, production account ID, application identity, D1 database UUID, Queue/DLQ identities, Workflow when nurture is enabled, and applicable SES region/sender/configuration-set/SNS feedback identities. Use controlled test recipients during commissioning. The optional deployment.production.json provides a strict non-secret target input, derived production resource names and a blocked local-only plan. The normal local configuration remains separate. Build/runtime artifact identity verification and guarded remote mutation commands still require implementation before release. Changing ENVIRONMENT alone is not isolation.
+Before hosted deployment, provide the final site domain, production account ID, application identity, D1 database UUID, Queue/DLQ identities, Workflow when nurture is enabled, and applicable SES region/sender/configuration-set/SNS feedback identities. Use controlled test recipients during commissioning. The optional deployment.production.json provides a strict non-secret target input, derived production resource names and a blocked local-only plan. The normal local configuration remains separate. Build/runtime identity, isolated artifact verification and blocked command plans are implemented; see [release candidates](RELEASES.md). Hosted CMS build, secret/resource verification, upgrade/recovery rehearsal and an authorized remote executor are still required before release. Changing ENVIRONMENT alone is not isolation.
 
 Provide the desired administrator/editor email lists and hosted Tina membership. Verify Access application route coverage, audience and issuer, actual signed login/JWKS behavior, and Tina repository/index/build integration. Local role tests are not hosted certification.
 
@@ -22,7 +22,7 @@ The current cleanup expires rate limits and action tokens only. No claim of comp
 
 ## Release gates
 
-1. Review the prepared production target, implement and verify the production build/runtime identity contract and controlled remote migration/deployment commands. Staging is optional; never reuse production resources for another app or optional test deployment.
+1. Review the prepared production target and locally verified blocked candidate; complete hosted verification and separately authorize future controlled remote migration/deployment execution. Staging is optional; never reuse production resources for another app or optional test deployment.
 2. Complete hosted CMS/Access, form protection and SES/SNS verification with recorded evidence.
 3. Review real business content, legal wording, consent policy and version. Existing contentReviewed/legalReviewed flags remain mandatory declarations; they do not replace that review.
 4. Complete and rehearse the procedures in [operations](OPERATIONS.md), including uncertain delivery, failed Workflow, DLQ, migration failure and deployment rollback. Configure actionable alerts with an operator and thresholds.
